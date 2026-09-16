@@ -669,6 +669,70 @@ body.book-page #app{display:block;height:auto;}
   border:1px solid var(--steel-300);}
 input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 @media (max-width:420px){ .colour-grid{grid-template-columns:repeat(4,1fr);} }
+
+/* §§ The List — groups that shut, rows that open out
+   The header is a BAND, not a row: no body, one hairline under it, and the two
+   numbers a host counts (bookings, then covers in brackets). A shut group
+   keeps its numbers, which is the point of shutting it. */
+.bl{display:flex;flex-direction:column;}
+.bl-head{display:flex;align-items:center;gap:8px;width:100%;min-height:var(--tap);
+  padding:0 12px;background:var(--steel-200);border:none;border-bottom:1px solid var(--steel-300);
+  text-align:left;cursor:pointer;}
+.bl-head.total{background:none;cursor:default;border-bottom:1px solid var(--steel-300);}
+.bl-head.empty{opacity:var(--dim-off);}
+.bl-h-name{flex:1;min-width:0;font-size:var(--fs-chip);font-weight:700;letter-spacing:.8px;
+  text-transform:uppercase;color:var(--charcoal-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bl-head.total .bl-h-name{color:var(--text-primary);}
+.bl-h-n{font-family:var(--font-mono);font-weight:700;font-size:var(--fs-md);color:var(--text-primary);}
+.bl-h-n i{font-style:normal;color:var(--charcoal-soft);}
+.bl-chev{display:flex;color:var(--charcoal-soft);transition:transform var(--t-state);}
+.bl-chev svg{width:20px;height:20px;}
+.bl-head.shut .bl-chev{transform:rotate(-90deg);}
+.bl-head.empty .bl-chev{visibility:hidden;}
+
+.bl-rows{display:flex;flex-direction:column;}
+.bl-row{border-bottom:1px solid var(--steel-200);background:var(--surface);}
+.bl-row.selected{background:var(--pick-wash);box-shadow:inset var(--ring) 0 0 0 var(--orange);}
+.bl-row.open{background:var(--pick-wash);}
+/* The row proper: five things, and the eye lands on them in the order a host
+   asks for them — where it is, when, who, how many, which table. */
+.bl-main{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;padding:8px 12px;
+  background:none;border:none;text-align:left;cursor:pointer;}
+.bl-main .st-dot{width:16px;height:16px;flex:0 0 16px;margin-right:0;}
+.bl-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+.bl-who small{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);
+  font-family:var(--font-mono);letter-spacing:.3px;}
+.bl-who b{font-size:var(--fs-lg);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bl-marks{display:flex;align-items:center;gap:6px;flex:none;color:var(--charcoal-soft);}
+.bl-mark{display:flex;}
+.bl-mark svg{width:16px;height:16px;}
+.bl-mark.hot{color:var(--red);}
+.bl-pax{flex:none;min-width:24px;text-align:right;font-family:var(--font-mono);font-weight:700;
+  font-size:var(--fs-lg);color:var(--text-primary);}
+/* The table sits in a box of its own, the way the till's does — it is the one
+   thing on the row a runner is sent to find. */
+.bl-table{flex:none;min-width:var(--tap);min-height:34px;padding:0 10px;display:flex;align-items:center;
+  justify-content:center;border-radius:var(--r-btn);background:var(--steel-200);
+  font-family:var(--font-mono);font-weight:700;font-size:var(--fs-md);white-space:nowrap;}
+.bl-table.none{font-family:var(--font-body);font-size:var(--fs-chip);text-transform:uppercase;
+  letter-spacing:.5px;color:var(--charcoal-soft);background:none;border:1px dashed var(--steel-300);}
+
+/* Opened out. Everything the row did not say, in the order somebody at a desk
+   asks for it, and the buttons that were on the row before. */
+.bl-more{padding:4px 12px 12px 42px;display:flex;flex-direction:column;gap:10px;}
+.bl-more .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:baseline;}
+.bl-more .kv b{font-size:var(--fs-chip);font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--charcoal-soft);white-space:nowrap;}
+.bl-more .kv span{font-size:var(--fs-md);min-width:0;overflow-wrap:anywhere;}
+.bl-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.bl-note{font-size:var(--fs-md);line-height:1.5;color:var(--text-primary);
+  padding:8px 10px;border-radius:var(--r-btn);background:var(--surface);border:1px solid var(--steel-300);}
+.bl-do{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.bl-do .spacer{flex:1;}
+@media (max-width:520px){
+  .bl-more{padding-left:12px;}
+  .bl-who b{font-size:var(--fs-md);}
+}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>

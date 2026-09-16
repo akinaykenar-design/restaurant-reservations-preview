@@ -676,6 +676,70 @@ body.book-page #app{display:block;height:auto;}
   border:1px solid var(--steel-300);}
 input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 @media (max-width:420px){ .colour-grid{grid-template-columns:repeat(4,1fr);} }
+
+/* §§ The List — groups that shut, rows that open out
+   The header is a BAND, not a row: no body, one hairline under it, and the two
+   numbers a host counts (bookings, then covers in brackets). A shut group
+   keeps its numbers, which is the point of shutting it. */
+.bl{display:flex;flex-direction:column;}
+.bl-head{display:flex;align-items:center;gap:8px;width:100%;min-height:var(--tap);
+  padding:0 12px;background:var(--steel-200);border:none;border-bottom:1px solid var(--steel-300);
+  text-align:left;cursor:pointer;}
+.bl-head.total{background:none;cursor:default;border-bottom:1px solid var(--steel-300);}
+.bl-head.empty{opacity:var(--dim-off);}
+.bl-h-name{flex:1;min-width:0;font-size:var(--fs-chip);font-weight:700;letter-spacing:.8px;
+  text-transform:uppercase;color:var(--charcoal-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bl-head.total .bl-h-name{color:var(--text-primary);}
+.bl-h-n{font-family:var(--font-mono);font-weight:700;font-size:var(--fs-md);color:var(--text-primary);}
+.bl-h-n i{font-style:normal;color:var(--charcoal-soft);}
+.bl-chev{display:flex;color:var(--charcoal-soft);transition:transform var(--t-state);}
+.bl-chev svg{width:20px;height:20px;}
+.bl-head.shut .bl-chev{transform:rotate(-90deg);}
+.bl-head.empty .bl-chev{visibility:hidden;}
+
+.bl-rows{display:flex;flex-direction:column;}
+.bl-row{border-bottom:1px solid var(--steel-200);background:var(--surface);}
+.bl-row.selected{background:var(--pick-wash);box-shadow:inset var(--ring) 0 0 0 var(--orange);}
+.bl-row.open{background:var(--pick-wash);}
+/* The row proper: five things, and the eye lands on them in the order a host
+   asks for them — where it is, when, who, how many, which table. */
+.bl-main{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;padding:8px 12px;
+  background:none;border:none;text-align:left;cursor:pointer;}
+.bl-main .st-dot{width:16px;height:16px;flex:0 0 16px;margin-right:0;}
+.bl-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
+.bl-who small{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);
+  font-family:var(--font-mono);letter-spacing:.3px;}
+.bl-who b{font-size:var(--fs-lg);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bl-marks{display:flex;align-items:center;gap:6px;flex:none;color:var(--charcoal-soft);}
+.bl-mark{display:flex;}
+.bl-mark svg{width:16px;height:16px;}
+.bl-mark.hot{color:var(--red);}
+.bl-pax{flex:none;min-width:24px;text-align:right;font-family:var(--font-mono);font-weight:700;
+  font-size:var(--fs-lg);color:var(--text-primary);}
+/* The table sits in a box of its own, the way the till's does — it is the one
+   thing on the row a runner is sent to find. */
+.bl-table{flex:none;min-width:var(--tap);min-height:34px;padding:0 10px;display:flex;align-items:center;
+  justify-content:center;border-radius:var(--r-btn);background:var(--steel-200);
+  font-family:var(--font-mono);font-weight:700;font-size:var(--fs-md);white-space:nowrap;}
+.bl-table.none{font-family:var(--font-body);font-size:var(--fs-chip);text-transform:uppercase;
+  letter-spacing:.5px;color:var(--charcoal-soft);background:none;border:1px dashed var(--steel-300);}
+
+/* Opened out. Everything the row did not say, in the order somebody at a desk
+   asks for it, and the buttons that were on the row before. */
+.bl-more{padding:4px 12px 12px 42px;display:flex;flex-direction:column;gap:10px;}
+.bl-more .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:baseline;}
+.bl-more .kv b{font-size:var(--fs-chip);font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--charcoal-soft);white-space:nowrap;}
+.bl-more .kv span{font-size:var(--fs-md);min-width:0;overflow-wrap:anywhere;}
+.bl-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.bl-note{font-size:var(--fs-md);line-height:1.5;color:var(--text-primary);
+  padding:8px 10px;border-radius:var(--r-btn);background:var(--surface);border:1px solid var(--steel-300);}
+.bl-do{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.bl-do .spacer{flex:1;}
+@media (max-width:520px){
+  .bl-more{padding-left:12px;}
+  .bl-who b{font-size:var(--fs-md);}
+}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useStaff\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"staff\": [\n    {\n      \"id\": \"st1\",\n      \"name\": \"Alex (Manager)\",\n      \"pin\": \"1234\",\n      \"role\": \"manager\"\n    },\n    {\n      \"id\": \"st2\",\n      \"name\": \"Jamie\",\n      \"pin\": \"2222\",\n      \"role\": \"staff\"\n    },\n    {\n      \"id\": \"st3\",\n      \"name\": \"Sam\",\n      \"pin\": \"3333\",\n      \"role\": \"staff\"\n    }\n  ],\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}";window.__RESV_SEED_HASH__ = "2e63f256897b87b09c1216b9b1972ddfd67ce8ef";window.__RESV_IS_BOOK__ = false;</script>
@@ -5528,6 +5592,8 @@ const I = {
   alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20.5h20z"/><path d="M12 10v4.5"/><path d="M12 17.8v.2"/></svg>',
   noshow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M4.9 4.9l14.2 14.2"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.75" cy="10.75" r="8.75"/><path d="M22 22l-4.75 -4.75"/></svg>',
+  note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h9.5L19 8v12.5H5z"/><path d="M14 3.5V8h5"/><path d="M8.5 12.5h7M8.5 16h4.5"/></svg>',
+  chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></svg>',
   key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.6" cy="14.4" r="4.6"/><path d="M10.9 11.1L20.4 1.6"/><path d="M17.2 4.8l2.4 2.4M14.6 7.4l2.4 2.4"/></svg>',
   stBooked: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
   stConfirmed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M7.8 12.4l2.7 2.7 5.7-5.7"/></svg>',
@@ -5557,6 +5623,11 @@ const state = {
   // Which of the five questions the guest book is answering, and how many
   // each of the others would hold.
   guestLens: 'all', guestCounts: null,
+  // The List, grouped the way a host reads a service: which groups are shut,
+  // and the one booking opened out. Shut by DEFAULT are the three that are
+  // over — a done, cancelled or no-show booking is a record, not work.
+  listShut: { done: true, cancelled: true, 'no-show': true },
+  listRow: null,
   reservations: [], days: {}, month: localDay(new Date()).slice(0, 7), waitlist: [], guests: [], guestQ: '', audit: [], today: null,
   // The whole model GET /api/run-sheet last returned, for the day it names.
   sheet: null,
@@ -6368,25 +6439,101 @@ function renderTimeline() {
   return `<div class="tl" data-keep="tl"><div class="tl-grid" data-start="${start}" data-end="${end}" style="grid-template-columns:${labelW}px ${width}px;--tl-hour:${60 * PX_PER_MIN}px;"><div class="tl-corner"></div><div class="tl-times">${times}</div>${html}</div></div>
   <div class="ts" style="margin-top:8px;">Tap an empty slot to book it. Tap a booking to open it, or drag it to another time or table — on a touchscreen, hold it first. A red edge means two bookings share a table.</div>`;
 }
+// §§ The List — the day grouped the way a host reads it
+// Six groups in the order the desk cares about them: who is in the room and
+// waiting comes first, then who is still to come, then the rest. Each header
+// carries BOOKINGS (COVERS) — the two numbers a host counts — and shuts, so a
+// night with forty cancellations is still one screen.
+//
+// A row says the five things you decide from across a room: where the booking
+// is (the circle), when, who, how many, which table. Everything else — the
+// phone, the notes, the allergy, what they spent last time — is one tap away
+// rather than shouted at a host who is looking for one name. That was the
+// whole complaint about the old list: it printed the notes of nine bookings
+// at once, so none of them read.
+const LIST_GROUPS = [
+  ['arrived',   'Arrived',   ['arrived']],
+  ['upcoming',  'Upcoming',  ['booked', 'confirmed']],
+  ['seated',    'Seated',    ['seated']],
+  ['done',      'Left',      ['done']],
+  ['no-show',   'No-show',   ['no-show']],
+  ['cancelled', 'Cancelled', ['cancelled']],
+];
+function coversOf(list) { return list.reduce((a, r) => a + (r.partySize || 0), 0); }
+function listTables(r) { const t = heldTables(r); return t.length ? t.map(tableName).join(' + ') : ''; }
+// The marks that survive the trim: the three a host must not miss. An allergy
+// is a kitchen fact, a set menu is a commitment, a note is somebody's request.
+// Tags beyond those live in the opened-out panel, where there is room to read.
+function listMarks(r) {
+  const out = [];
+  if ((r.tags || []).some(t => String(t).toLowerCase() === 'allergy')) out.push(`<span class="bl-mark hot" title="Allergy">${I.alert}</span>`);
+  if (setMenuName(r)) out.push(`<span class="bl-mark" title="${esc(setMenuName(r))}">${I.setMenus}</span>`);
+  if (String(r.notes || '').trim()) out.push(`<span class="bl-mark" title="${esc(r.notes)}">${I.note}</span>`);
+  return out.join('');
+}
+
 function renderDayList() {
   const rows = state.reservations.slice().sort((a, b) => a.time.localeCompare(b.time));
   if (!rows.length) return '<div class="empty">No bookings this day.</div>';
-  const live = rows.filter(isLive), past = rows.filter(r => !isLive(r));
-  const row = (r) => `
-    <div class="row${isLive(r) ? '' : ' dim'}${state.highlightTable && heldTables(r).includes(state.highlightTable) ? ' selected' : ''}" data-act="edit-booking" data-id="${r.id}">
-      <div class="cell">${esc(hhmmOf(r.time))}<small>${r.partySize} pax</small></div>
-      <div class="body">
-        <div class="t1">${statusDot(r.status)}${esc(r.name)}${sourceChip(r.source)}${setMenuName(r) ? `<span class="tag set">${esc(setMenuName(r))}</span>` : ''}${(r.tags || []).map(t => `<span class="tag${t === 'Allergy' ? ' hot' : ''}">${esc(t)}</span>`).join('')}</div>
-        <div class="t2">${heldTables(r).length ? heldTables(r).map(tableName).join(' + ') : 'No table'} · ${durationOf(r)} min${r.phone ? ' · ' + esc(r.phone) : ''}${r.notes ? ' · ' + esc(r.notes) : ''}</div>
-      </div>
-      <div class="actions" data-stop="1">
+
+  const opened = (r) => {
+    const tables = listTables(r);
+    const kv = [];
+    kv.push(['Table', tables || 'Not assigned yet']);
+    kv.push(['Sitting', durationOf(r) + ' min']);
+    if (r.phone) kv.push(['Phone', r.phone]);
+    if (r.email) kv.push(['Email', r.email]);
+    kv.push(['Booked', SOURCE_KEY.filter(k => k[0] === r.source).map(k => k[1])[0] || r.source]);
+    if (r.ref) kv.push(['Reference', r.ref]);
+    if (setMenuName(r)) kv.push(['Set menu', setMenuName(r)]);
+    if (r.spend && r.spend.total) kv.push(['Spent', money(r.spend.total) + (r.spend.heads ? ' · ' + money(r.spend.total / r.spend.heads) + ' a head' : '')]);
+    return `<div class="bl-more">
+      <div class="kv">${kv.map(([k, v]) => `<b>${esc(k)}</b><span>${esc(v)}</span>`).join('')}</div>
+      ${(r.tags || []).length ? `<div class="bl-tags">${(r.tags || []).map(t => `<span class="tag${String(t).toLowerCase() === 'allergy' ? ' hot' : ''}">${esc(t)}</span>`).join('')}</div>` : ''}
+      ${String(r.notes || '').trim() ? `<div class="bl-note">${esc(r.notes)}</div>` : ''}
+      <div class="bl-do" data-stop="1">
         ${r.status === 'booked' ? `<button class="chip" data-act="status" data-id="${r.id}" data-val="confirmed">Confirm</button>` : ''}
         ${['booked', 'confirmed'].includes(r.status) ? `<button class="chip" data-act="status" data-id="${r.id}" data-val="arrived">Arrived</button>` : ''}
         ${['booked', 'confirmed', 'arrived'].includes(r.status) ? `<button class="chip go" data-act="status" data-id="${r.id}" data-val="seated">Seat</button>` : ''}
         ${r.status === 'seated' ? `<button class="chip" data-act="status" data-id="${r.id}" data-val="done">Done</button>` : ''}
+        <span class="spacer"></span>
+        <button class="chip" data-act="edit-booking" data-id="${r.id}">Open</button>
       </div>
     </div>`;
-  return `<div class="rows">${live.map(row).join('')}</div>${past.length ? `<div class="section-h">Finished, cancelled, no-shows <span class="count">${past.length}</span></div><div class="rows">${past.map(row).join('')}</div>` : ''}`;
+  };
+
+  const row = (r) => {
+    const open = state.listRow === r.id;
+    const tables = listTables(r);
+    return `<div class="bl-row${open ? ' open' : ''}${state.highlightTable && heldTables(r).includes(state.highlightTable) ? ' selected' : ''}">
+      <button class="bl-main" data-act="list-row" data-id="${r.id}" aria-expanded="${open}">
+        ${statusDot(r.status)}
+        <span class="bl-who"><small>${esc(fmtHHMM(hhmmOf(r.time)))}</small><b>${esc(r.name || 'No name')}</b></span>
+        <span class="bl-marks">${listMarks(r)}</span>
+        <span class="bl-pax" title="${r.partySize} covers">${r.partySize}</span>
+        <span class="bl-table${tables ? '' : ' none'}">${esc(tables || 'assign')}</span>
+      </button>
+      ${open ? opened(r) : ''}
+    </div>`;
+  };
+
+  const head = (key, name, list) => {
+    const shut = !!state.listShut[key];
+    return `<button class="bl-head${shut ? ' shut' : ''}${list.length ? '' : ' empty'}" data-act="list-group" data-val="${key}" aria-expanded="${!shut}">
+      <span class="bl-h-name">${esc(name)}</span>
+      <span class="bl-h-n">${list.length} <i>(${coversOf(list)})</i></span>
+      <span class="bl-chev">${I.chev}</span>
+    </button>`;
+  };
+
+  const live = rows.filter(isLive);
+  return `<div class="bl">
+    <div class="bl-head total"><span class="bl-h-name">Total</span><span class="bl-h-n">${live.length} <i>(${coversOf(live)})</i></span></div>
+    ${LIST_GROUPS.map(([key, name, statuses]) => {
+      const list = rows.filter(r => statuses.includes(r.status));
+      return head(key, name, list) + (state.listShut[key] || !list.length ? '' : `<div class="bl-rows">${list.map(row).join('')}</div>`);
+    }).join('')}
+  </div>`;
 }
 
 // §§ Run sheet — the printable page
@@ -7396,6 +7543,11 @@ document.addEventListener('click', async (ev) => {
       case 'wl-seat': { const w = state.waitlist.find(x => x.id === id); const now = new Date(); state.modal = { kind: 'seat', w, tableId: null, free: null }; render(); const free = await api(`/api/free-tables?date=${localDay(now)}&time=${pad2(now.getHours())}:${pad2(now.getMinutes())}&party=${w.partySize}`); if (state.modal && state.modal.w === w) { state.modal.free = free; state.modal.tableId = free.suggested; render(); } break; }
       case 'seat-pick': state.modal.tableId = state.modal.tableId === val ? null : val; render(); break;
       case 'seat-confirm': { const m = state.modal; const r = await post('/api/waitlist/' + m.w.id + '/seat', { tableId: m.tableId }); state.modal = null; await loadView(); toast(`Seated ${r.name}${r.tableId ? ' at ' + tableName(r.tableId) : ''}`); break; }
+      // The List. A group shuts, and one booking at a time opens out — an
+      // accordion, because two open panels is a scroll and a host reading one
+      // booking is not reading another.
+      case 'list-group': { state.listShut = Object.assign({}, state.listShut, { [val]: !state.listShut[val] }); render(); break; }
+      case 'list-row': { state.listRow = state.listRow === id ? null : id; render(); break; }
       case 'open-key': state.modal = { kind: 'key' }; render(); break;
       case 'open-colour': state.modal = { kind: 'colour', key: el.dataset.key, label: el.dataset.label || el.dataset.key }; render(); break;
       case 'pick-colour': {
