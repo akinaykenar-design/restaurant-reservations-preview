@@ -1,0 +1,10 @@
+{
+  "name": "Restaurant Reservations — Preview",
+  "short_name": "Bookings",
+  "display": "fullscreen",
+  "background_color": "#E9E6DF",
+  "theme_color": "#E9E6DF",
+  "start_url": "./",
+  "scope": "./",
+  "icons": []
+}
