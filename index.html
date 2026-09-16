@@ -58,6 +58,7 @@
   --num-key-w:84px; --num-key-h:74px; --num-key-r:16px; --num-key-fs:24px; --num-gap:12px;
   /* Booking status colours: the floor's own grammar. */
   --st-booked:#8B877F; --st-confirmed:#2F74C9; --st-arrived:#C08A00; --st-seated:#4FA51D; --st-done:#B3ADA0; --st-cancelled:#A8483A; --st-noshow:#6D4FC4;
+  --st-due:#C08A00; --st-over:#6D4FC4; --src-online:#0E9E8A; --src-walkin:#C08A00; --src-pos:#918E88;
 }
 body[data-theme="dark"]{
   --steel-100:#161512; --steel-200:#332F2B; --steel-300:#4A463F; --steel-500:#6B645A;
@@ -72,6 +73,7 @@ body[data-theme="dark"]{
   --orange-dim:color-mix(in srgb, var(--orange) 27%, var(--surface));
   --green-dim:color-mix(in srgb, var(--green) 20%, var(--surface));
   --st-booked:#A8A399; --st-confirmed:#3692E7; --st-arrived:#E8C24D; --st-seated:#7BC72F; --st-done:#6B645A; --st-cancelled:#CF6152; --st-noshow:#8B6FE8;
+  --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#E8C24D; --src-pos:#D9D5CE;
 }
 @media (max-height:560px){ :root{ --num-key-w:64px; --num-key-h:52px; --num-key-r:10px; --num-key-fs:19px; --num-gap:8px; } }
 @media (max-width:768px){ :root{ --deck-edge:12px; --hub-edge:8px; } }
@@ -265,7 +267,7 @@ h1,h2,h3{margin:0;}
 .status-chip svg{width:13px;height:13px;flex:0 0 13px;}
 .status-chip.booked{background:var(--st-booked);} .status-chip.confirmed{background:var(--st-confirmed);} .status-chip.arrived{background:var(--st-arrived);}
 .status-chip.seated{background:var(--st-seated);} .status-chip.done{background:var(--st-done);} .status-chip.cancelled{background:var(--st-cancelled);} .status-chip.no-show{background:var(--st-noshow);}
-.status-chip.online{background:var(--teal);} .status-chip.walk-in{background:var(--gold);} .status-chip.pos{background:var(--charcoal-soft);}
+.status-chip.online{background:var(--src-online);} .status-chip.walk-in{background:var(--src-walkin);} .status-chip.pos{background:var(--src-pos);}
 .tag{font-size:var(--fs-chip);font-weight:700;padding:3px 7px;border-radius:var(--r-pill);border:1px solid var(--steel-300);color:var(--charcoal-soft);white-space:nowrap;}
 .tag.hot{border-color:var(--red);color:var(--red);}
 
@@ -298,6 +300,7 @@ h1,h2,h3{margin:0;}
 .tl-block small{font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;opacity:.9;}
 .tl-block.booked{background:var(--st-booked);} .tl-block.confirmed{background:var(--st-confirmed);} .tl-block.arrived{background:var(--st-arrived);}
 .tl-block.seated{background:var(--st-seated);} .tl-block.done{background:var(--st-done);}
+.tl-block.cancelled{background:var(--st-cancelled);} .tl-block.no-show{background:var(--st-noshow);}
 .tl-block.conflict{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red);}
 .tl-now{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:1;pointer-events:none;}
 .tl-slot{position:absolute;top:0;bottom:0;cursor:pointer;}
@@ -519,8 +522,8 @@ body.book-page #app{display:block;height:auto;}
 .fl-key b{color:var(--text-primary);font-family:var(--font-mono);}
 .fl-dot{width:10px;height:10px;border-radius:var(--r-pill);border:1px solid var(--steel-300);background:var(--surface);}
 .fl-dot.seated{background:var(--st-seated);border-color:var(--st-seated);}
-.fl-dot.over{background:var(--violet);border-color:var(--violet);}
-.fl-dot.due{background:var(--gold);border-color:var(--gold);}
+.fl-dot.over{background:var(--st-over);border-color:var(--st-over);}
+.fl-dot.due{background:var(--st-due);border-color:var(--st-due);}
 
 /* The canvas is the POS's own: 900 by 560, so a plan drawn here sits exactly
    where it sits on the till. */
@@ -539,8 +542,8 @@ body.book-page #app{display:block;height:auto;}
   border:1px solid var(--steel-300);border-radius:var(--r-btn);background:var(--surface);color:var(--charcoal-soft);
   font-family:var(--font-mono);font-weight:700;cursor:pointer;padding:2px;text-align:center;}
 .fl-table.seated{background:var(--st-seated);border-color:var(--st-seated);color:#fff;}
-.fl-table.over{background:var(--violet);border-color:var(--violet);color:#fff;}
-.fl-table.due{background:color-mix(in srgb, var(--gold) 16%, var(--surface));border-color:var(--gold);color:var(--text-primary);}
+.fl-table.over{background:var(--st-over);border-color:var(--st-over);color:#fff;}
+.fl-table.due{background:color-mix(in srgb, var(--st-due) 16%, var(--surface));border-color:var(--st-due);color:var(--text-primary);}
 /* Two tables pushed together are one booking; the ring says so without a
    second colour. */
 .fl-table.joined{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
@@ -635,7 +638,7 @@ body.book-page #app{display:block;height:auto;}
 .key-list{display:flex;flex-direction:column;gap:var(--list-gap);}
 .key-row{display:flex;align-items:flex-start;gap:12px;min-height:44px;padding:8px 10px;
   border:1px solid var(--steel-300);border-radius:var(--r-control);background:var(--surface);}
-.key-sample{flex:0 0 116px;display:flex;align-items:center;justify-content:flex-start;min-height:28px;}
+.key-sample{flex:0 0 150px;gap:8px;display:flex;align-items:center;justify-content:flex-start;min-height:28px;}
 .key-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
 .key-text b{font-size:var(--fs-md);font-weight:700;}
 .key-text span{font-size:var(--fs-chip);color:var(--charcoal-soft);line-height:1.5;}
@@ -646,6 +649,33 @@ body.book-page #app{display:block;height:auto;}
   .key-row{flex-direction:column;gap:6px;}
   .key-sample{flex:none;}
 }
+
+/* §§ The colour code, as the venue can change it.
+   The list's circle. Colour is never the only carrier — the dot has the
+   status on it for a finger and for a screen reader, and the row's own
+   buttons (Confirm, Arrived, Seat) say where the booking is in words. */
+.st-dot{display:inline-block;width:12px;height:12px;border-radius:var(--r-pill);flex:0 0 12px;
+  margin-right:8px;vertical-align:-1px;background:var(--steel-500);
+  box-shadow:0 0 0 1px color-mix(in srgb, var(--text-primary) 14%, transparent);}
+.st-dot.booked{background:var(--st-booked);} .st-dot.confirmed{background:var(--st-confirmed);}
+.st-dot.arrived{background:var(--st-arrived);} .st-dot.seated{background:var(--st-seated);}
+.st-dot.done{background:var(--st-done);} .st-dot.cancelled{background:var(--st-cancelled);}
+.st-dot.no-show{background:var(--st-noshow);}
+
+/* The swatch is the POS's: one size, one corner, everywhere a colour is
+   picked — 44 square, so it answers the finger law on its own. */
+.colour-row{display:flex;align-items:center;gap:12px;min-height:54px;padding:6px 0;}
+.colour-dot-btn{width:var(--sq-ctl);height:var(--sq-ctl);flex:0 0 var(--sq-ctl);
+  border-radius:var(--r-control);border:1px solid var(--steel-300);cursor:pointer;padding:0;}
+.colour-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:8px 0 16px;}
+.colour-swatch{aspect-ratio:1;min-height:var(--sq-ctl);border-radius:var(--r-control);
+  border:1px solid var(--steel-300);cursor:pointer;padding:0;}
+.colour-swatch.picked{box-shadow:0 0 0 var(--ring) var(--orange);border-color:var(--orange);}
+.colour-now{display:flex;align-items:center;gap:12px;margin:12px 0;}
+.colour-big{width:56px;height:56px;flex:0 0 56px;border-radius:var(--r-control);
+  border:1px solid var(--steel-300);}
+input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
+@media (max-width:420px){ .colour-grid{grid-template-columns:repeat(4,1fr);} }
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useStaff\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"staff\": [\n    {\n      \"id\": \"st1\",\n      \"name\": \"Alex (Manager)\",\n      \"pin\": \"1234\",\n      \"role\": \"manager\"\n    },\n    {\n      \"id\": \"st2\",\n      \"name\": \"Jamie\",\n      \"pin\": \"2222\",\n      \"role\": \"staff\"\n    },\n    {\n      \"id\": \"st3\",\n      \"name\": \"Sam\",\n      \"pin\": \"3333\",\n      \"role\": \"staff\"\n    }\n  ],\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}";window.__RESV_SEED_HASH__ = "2e63f256897b87b09c1216b9b1972ddfd67ce8ef";window.__RESV_IS_BOOK__ = false;</script>
@@ -1910,6 +1940,12 @@ const DEFAULT_SETTINGS = {
   maxPartySize: 12,
   seatSlack: 2,             // a table may have this many seats more than the party
   pacing: { maxCoversPer15: 0, maxBookingsPer15: 0 }, // 0 = off
+  // What the venue has recoloured. A key here is a CSS custom property the
+  // client re-points at boot; a key ABSENT (or '') means the stylesheet's own
+  // token stands. The accent is NOT in here — it comes from the POS with the
+  // rest of the theme, and a second source for it is exactly what POS-LINK.md
+  // forbids.
+  statusColours: {},
   online: {
     enabled: true,
     minNoticeMinutes: 60,
@@ -2020,6 +2056,7 @@ function migrate(data) {
   // The loop above already gives an older store `exceptions: []`; this catches
   // a hand-edited or half-written file that has the key but not an array.
   if (!Array.isArray(s.exceptions)) s.exceptions = [];
+  if (!s.statusColours || typeof s.statusColours !== 'object' || Array.isArray(s.statusColours)) s.statusColours = {};
   for (const r of data.reservations) {
     if (!r.status) r.status = 'booked';
     if (!r.source) r.source = 'staff';
@@ -2073,7 +2110,39 @@ function dataVersion() { return { store: statMs(DB_FILE) }; }
 
 function newId(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
-module.exports = { readData, writeData, dataVersion, newId, migrate, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
+// Reading a venue's colour code off the wire. Pure, so the rule that decides
+// whether a colour is kept can be read and tested without a request: a key we
+// do not know how to re-point, or a value that is not a full six-digit hex, is
+// REFUSED rather than dropped — a colour that silently did not save is a
+// colour somebody spends a service squinting at. An empty value is not an
+// error; it means "give me the built-in back", so it is simply left out.
+function cleanColours(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    return { ok: false, error: 'Colours must be sent as an object' };
+  }
+  const out = {};
+  for (const [k, v] of Object.entries(input)) {
+    if (!Object.prototype.hasOwnProperty.call(COLOUR_KEYS, k)) {
+      return { ok: false, error: `There is nothing called "${k}" to colour` };
+    }
+    const hex = String(v == null ? '' : v).trim();
+    if (!hex) continue;
+    if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return { ok: false, error: `${k} needs a colour like #2F74C9` };
+    out[k] = hex.toUpperCase();
+  }
+  return { ok: true, colours: out };
+}
+
+// Every colour a venue may change, and the custom property each one
+// re-points. `free` and `joined` are deliberately absent: free is the plain
+// surface, and joined is the accent ring, which follows the POS.
+const COLOUR_KEYS = {
+  booked: '--st-booked', confirmed: '--st-confirmed', arrived: '--st-arrived',
+  seated: '--st-seated', done: '--st-done', cancelled: '--st-cancelled', 'no-show': '--st-noshow',
+  due: '--st-due', over: '--st-over',
+  online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
+};
+module.exports = { readData, writeData, dataVersion, newId, migrate, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./db'] = module;
@@ -3981,7 +4050,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db');
-const { readData, writeData, dataVersion, newId, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, DEFAULT_SETTINGS } = db;
+const { readData, writeData, dataVersion, newId, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, DEFAULT_SETTINGS } = db;
 const lock = require('./lock');
 const av = require('./availability');
 const search = require('./search');
@@ -4198,6 +4267,19 @@ app.put('/api/settings', async (req, res) => {
     || (nextExceptions || []).map(x => { const w = av.badWindows(x.services)[0]; return w ? Object.assign({ date: x.date }, w) : null; }).find(Boolean);
   if (bad) return res.status(400).json({ error: (bad.date ? `${bad.date}: ` : '') + bad.says });
 
+  // The venue's colour code. A key must be one we know how to re-point and a
+  // value must be a full six-digit hex or empty — empty meaning "give me the
+  // built-in back". Anything else is refused outright rather than quietly
+  // dropped: a colour that silently did not save is a colour somebody spends
+  // a service squinting at.
+  let nextColours = null;
+  if (b.statusColours !== undefined) {
+    const got = cleanColours(b.statusColours);
+    if (!got.ok) return res.status(400).json({ error: got.error });
+    nextColours = got.colours;
+  }
+
+  if (nextColours) s.statusColours = nextColours;
   if (b.venueName !== undefined) s.venueName = String(b.venueName || '').trim().slice(0, 40);
   if (b.venueAddress !== undefined) s.venueAddress = String(b.venueAddress || '').trim().slice(0, 80);
   if (b.venuePhone !== undefined) s.venuePhone = String(b.venuePhone || '').trim().slice(0, 30);
@@ -5595,6 +5677,54 @@ const SOURCE_KEY = [
   ['walk-in', 'Walk-in',    'srcWalkIn', 'Came through the door with no booking.'],
   ['pos',     'From the till', 'till',   'Started on the POS, not here.'],
 ];
+// Which of the key's colours a venue may change, and the custom property each
+// one re-points. `free` is the plain surface and `joined` is the accent ring —
+// the accent comes from the POS with the rest of the theme, so neither is ours
+// to offer. Mirrors COLOUR_KEYS in db.js; the route refuses anything else.
+const COLOUR_SLOTS = [
+  ['The booking', [['booked', 'Booked'], ['confirmed', 'Confirmed'], ['arrived', 'Arrived'],
+    ['seated', 'Seated'], ['done', 'Done'], ['cancelled', 'Cancelled'], ['no-show', 'No-show']]],
+  ['The table', [['due', 'Due'], ['over', 'Over']]],
+  ['Where it came from', [['online', 'Online'], ['walk-in', 'Walk-in'], ['pos', 'From the till']]],
+];
+const COLOUR_VARS = {
+  booked: '--st-booked', confirmed: '--st-confirmed', arrived: '--st-arrived',
+  seated: '--st-seated', done: '--st-done', cancelled: '--st-cancelled', 'no-show': '--st-noshow',
+  due: '--st-due', over: '--st-over',
+  online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
+};
+// The POS's own preset row: six hues, two strengths, so the popup shows
+// hue-matched columns rather than a wheel nobody wants mid-service.
+const PRESET_COLOURS = [
+  '#FF3B30', '#FF9500', '#FFD60A', '#30D158', '#3FBFA8', '#0A84FF',
+  '#5E5CE6', '#BF5AF2', '#E770A8', '#A9744F', '#94A3B4', '#3A3F42',
+];
+function colourOf(k) { return ((state.settings && state.settings.statusColours) || {})[k] || ''; }
+// What the screen is ACTUALLY painting for this slot, override or not — so the
+// swatch in Settings is never a guess about the stylesheet.
+function liveColourOf(k) {
+  const set = colourOf(k);
+  if (set) return set;
+  try { return getComputedStyle(document.documentElement).getPropertyValue(COLOUR_VARS[k]).trim() || ''; }
+  catch (e) { return ''; }
+}
+// Re-point the custom properties the venue has changed, and CLEAR the ones it
+// has not — a colour removed in Settings has to go back to the stylesheet's
+// own without a reload.
+function applyStatusColours() {
+  const set = (state.settings && state.settings.statusColours) || {};
+  for (const [k, cssVar] of Object.entries(COLOUR_VARS)) {
+    const v = set[k];
+    if (v && /^#[0-9A-Fa-f]{6}$/.test(v)) document.documentElement.style.setProperty(cssVar, v);
+    else document.documentElement.style.removeProperty(cssVar);
+  }
+}
+// The list wears the code as a plain circle — the POS's admin rows do the same,
+// and a row of pill chips down a busy service list is a wall of shouting. The
+// name is on the dot for anyone reading it with a finger or a screen reader.
+function statusDot(st) {
+  return `<span class="st-dot ${esc(st)}" title="${esc(statusLabel(st))}" role="img" aria-label="${esc(statusLabel(st))}"></span>`;
+}
 const TAG_LIST = ['VIP', 'Birthday', 'Anniversary', 'Allergy', 'Pram', 'Wheelchair', 'Window', 'Quiet', 'High chair', 'Large group'];
 function statusIcon(s) { const row = STATUS_KEY.find(k => k[0] === s); return row ? I[row[2]] : ''; }
 function statusChip(s) { return `<span class="status-chip ${esc(s)}">${statusIcon(s)}${esc(statusLabel(s))}</span>`; }
@@ -5641,6 +5771,7 @@ function applyTheme() {
   document.body.dataset.theme = mode;
   document.documentElement.dataset.theme = mode;
   if (t.accent && /^#[0-9A-Fa-f]{6}$/.test(t.accent)) document.documentElement.style.setProperty('--orange', t.accent);
+  applyStatusColours();
   // The browser chrome strip's colour, and GUARDED. A page that does not
   // carry the meta — an embed, a stripped head, the preview shell — used to
   // take the entire front desk down here: applyTheme() runs before the first
@@ -6245,7 +6376,7 @@ function renderDayList() {
     <div class="row${isLive(r) ? '' : ' dim'}${state.highlightTable && heldTables(r).includes(state.highlightTable) ? ' selected' : ''}" data-act="edit-booking" data-id="${r.id}">
       <div class="cell">${esc(hhmmOf(r.time))}<small>${r.partySize} pax</small></div>
       <div class="body">
-        <div class="t1">${esc(r.name)} ${statusChip(r.status)}${sourceChip(r.source)}${setMenuName(r) ? `<span class="tag set">${esc(setMenuName(r))}</span>` : ''}${(r.tags || []).map(t => `<span class="tag${t === 'Allergy' ? ' hot' : ''}">${esc(t)}</span>`).join('')}</div>
+        <div class="t1">${statusDot(r.status)}${esc(r.name)}${sourceChip(r.source)}${setMenuName(r) ? `<span class="tag set">${esc(setMenuName(r))}</span>` : ''}${(r.tags || []).map(t => `<span class="tag${t === 'Allergy' ? ' hot' : ''}">${esc(t)}</span>`).join('')}</div>
         <div class="t2">${heldTables(r).length ? heldTables(r).map(tableName).join(' + ') : 'No table'} · ${durationOf(r)} min${r.phone ? ' · ' + esc(r.phone) : ''}${r.notes ? ' · ' + esc(r.notes) : ''}</div>
       </div>
       <div class="actions" data-stop="1">
@@ -6646,6 +6777,18 @@ function renderSettings() {
       <div><button class="btn" data-act="table-add">${I.plus} Add a table</button></div>
     </div>`}
     <div class="settings-card">
+      <div class="th">Colours</div>
+      <div class="ts">The venue's own colour code. The accent is not here — it comes from the POS with the rest of the look, and a second source for it is what POS-LINK.md forbids. Free tables and joined tables are not here either: free is the plain surface, joined is the accent ring.</div>
+      ${COLOUR_SLOTS.map(([group, items]) => `
+        <div class="section-h" style="font-size:var(--fs-md);">${esc(group)}</div>
+        ${items.map(([k, label]) => `<div class="colour-row">
+          <button type="button" class="colour-dot-btn" style="background:${esc(liveColourOf(k) || 'transparent')};"
+            data-act="open-colour" data-key="${esc(k)}" data-label="${esc(label)}" aria-label="Change the colour for ${esc(label)}"></button>
+          <span class="key-text"><b>${esc(label)}</b><span>${esc(colourOf(k) || 'Built-in')}</span></span>
+        </div>`).join('')}`).join('')}
+      <div><button class="btn" data-act="colours-reset">${I.refresh} Put them all back</button></div>
+    </div>
+    <div class="settings-card">
       <div class="th">The key</div>
       <div class="ts">Every colour this screen uses and what it means — the booking's seven states, the four a table can be in, and where a booking came from. Worth showing a new host on their first shift.</div>
       <div class="key-strip">${STATUS_KEY.map(k => statusChip(k[0])).join('')}</div>
@@ -6716,6 +6859,28 @@ function renderExceptions() {
 // §§ The key. Everything on this screen that carries a colour, in one place,
 // drawn with the REAL chips and the REAL table states rather than a picture of
 // them — so a colour that drifts in the stylesheet drifts here too and is seen.
+// The colour picker. The POS's shape: a row of presets first, because nobody
+// wants a colour wheel in the middle of a Friday, with the full picker and a
+// way back to the built-in underneath.
+function renderColourModal() {
+  const m = state.modal, k = m.key;
+  const set = colourOf(k), live = liveColourOf(k);
+  const sw = (hex) => `<button type="button" class="colour-swatch${set && set.toLowerCase() === hex.toLowerCase() ? ' picked' : ''}"
+    style="background:${hex};" data-act="pick-colour" data-key="${esc(k)}" data-val="${hex}" aria-label="${hex}"></button>`;
+  return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1">
+    <h2>${esc(m.label)}</h2>
+    <div class="ts">Changes everywhere at once — the chips, the timeline blocks, the floor and the key.</div>
+    <div class="colour-now"><span class="colour-big" style="background:${esc(live || 'transparent')};"></span>
+      <span class="key-text"><b>${esc(set ? set : 'The built-in')}</b><span>${set ? 'Set by this venue.' : 'What the app ships with.'}</span></span></div>
+    <div class="colour-grid">${PRESET_COLOURS.map(sw).join('')}</div>
+    <label class="field-label" for="colour-any">Any colour</label>
+    <input id="colour-any" type="color" value="${esc(/^#[0-9A-Fa-f]{6}$/.test(live) ? live : '#2F74C9')}" data-act="pick-any" data-key="${esc(k)}">
+    <div class="modal-actions">
+      ${set ? `<button class="icon-action neutral" data-act="clear-colour" data-key="${esc(k)}">${I.refresh}<span class="ia-label">Built-in</span></button>` : ''}
+      <button class="icon-action send" data-act="close-modal">${I.tick}<span class="ia-label">Done</span></button>
+    </div>
+  </div></div>`;
+}
 function renderKeyModal() {
   const row = (sample, name, meaning) =>
     `<div class="key-row"><span class="key-sample">${sample}</span>
@@ -6724,7 +6889,8 @@ function renderKeyModal() {
   return `<div class="modal-bg" data-act="close-modal"><div class="modal key-modal" data-stop="1">
     <h2>The key</h2>
     <div class="section-h">The booking</div>
-    <div class="key-list">${STATUS_KEY.map(k => row(statusChip(k[0]), k[1], k[3])).join('')}</div>
+    <div class="ts">The List wears the circle, the way the till's admin rows do. Everywhere else wears the chip.</div>
+    <div class="key-list">${STATUS_KEY.map(k => row(statusDot(k[0]) + statusChip(k[0]), k[1], k[3])).join('')}</div>
     <div class="section-h">The table, right now</div>
     <div class="key-list">${FLOOR_KEY.map(k => row(tile(k[0]), k[1], k[3])).join('')}</div>
     <div class="section-h">Where it came from</div>
@@ -6732,6 +6898,7 @@ function renderKeyModal() {
     <div class="section-h">Tags</div>
     <div class="ts">Tags are never coloured. ${esc(TAG_LIST.join(', '))} all wear the same neutral chip, and only <span class="tag hot">Allergy</span> is marked, because it is the one a cook has to act on. Colour is spent on what changes during service; a label that never changes does not earn any.</div>
     <div class="ts" style="margin-top:8px;">On the waitlist, <span class="status-chip confirmed">Told</span> borrows the confirmed blue for the same reason: somebody has spoken to them.</div>
+    <div class="ts" style="margin-top:8px;">Any of these can be changed in Settings &rarr; Colours, and the change reaches the chips, the blocks, the floor and this page at once.</div>
     <div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Close</span></button></div>
   </div></div>`;
 }
@@ -6743,6 +6910,7 @@ function renderModal() {
   if (m.kind === 'seat') return renderSeatModal();
   if (m.kind === 'guest') return renderGuestModal();
   if (m.kind === 'key') return renderKeyModal();
+  if (m.kind === 'colour') return renderColourModal();
   if (m.kind === 'confirm') return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1"><h2>${esc(m.title)}</h2>${m.body ? `<div class="ts">${esc(m.body)}</div>` : ''}<div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Cancel</span></button><button class="icon-action ${m.danger ? 'discard' : 'send'}" data-act="confirm-yes">${m.danger ? I.trash : I.tick}<span class="ia-label">${esc(m.yes || 'Yes')}</span></button></div></div></div>`;
   return '';
 }
@@ -7119,14 +7287,16 @@ async function flushSaves() {
       if (g === 'sittings') { body.defaultDuration = s.defaultDuration; body.seatSlack = s.seatSlack; body.durationByParty = s.durationByParty; body.maxPartySize = s.maxPartySize; body.noShowAfterMinutes = s.noShowAfterMinutes; }
       if (g === 'pacing') body.pacing = s.pacing;
       if (g === 'online') body.online = s.online;
+      if (g === 'colours') body.statusColours = s.statusColours;
       state.settings = await put('/api/settings', body);
+      if (g === 'colours') applyStatusColours();
       if (g === 'pos') { state.posStatus = await api('/api/pos/status'); const t = await api('/api/tables'); state.tables = t.tables; state.floorPlans = t.floorPlans; state.staffList = await api('/api/staff'); }
     } catch (e) {
       // A refused save must not leave the field showing something the store
       // does not hold: re-read, so the value snaps back to what was kept and
       // the toast is the only news.
       toast(e.message);
-      try { state.settings = await api('/api/settings'); } catch (e2) {}
+      try { state.settings = await api('/api/settings'); applyStatusColours(); } catch (e2) {}
     }
   }
   render();
@@ -7227,6 +7397,23 @@ document.addEventListener('click', async (ev) => {
       case 'seat-pick': state.modal.tableId = state.modal.tableId === val ? null : val; render(); break;
       case 'seat-confirm': { const m = state.modal; const r = await post('/api/waitlist/' + m.w.id + '/seat', { tableId: m.tableId }); state.modal = null; await loadView(); toast(`Seated ${r.name}${r.tableId ? ' at ' + tableName(r.tableId) : ''}`); break; }
       case 'open-key': state.modal = { kind: 'key' }; render(); break;
+      case 'open-colour': state.modal = { kind: 'colour', key: el.dataset.key, label: el.dataset.label || el.dataset.key }; render(); break;
+      case 'pick-colour': {
+        const s2 = state.settings; s2.statusColours = s2.statusColours || {};
+        s2.statusColours[el.dataset.key] = el.dataset.val;
+        applyStatusColours(); queueSave('colours'); render(); break;
+      }
+      case 'clear-colour': {
+        const s2 = state.settings; s2.statusColours = s2.statusColours || {};
+        delete s2.statusColours[el.dataset.key];
+        applyStatusColours(); queueSave('colours'); render(); break;
+      }
+      case 'colours-reset': {
+        state.modal = { kind: 'confirm', title: 'Put every colour back?', body: 'The key goes back to what the app ships with. Nothing else changes.', yes: 'Put back', onYes: async () => {
+          state.settings.statusColours = {}; applyStatusColours(); queueSave('colours'); state.modal = null; render();
+        } };
+        render(); break;
+      }
       case 'open-guest': { const g = await api('/api/guests/' + id); state.modal = { kind: 'guest', g }; render(); break; }
       case 'guest-tag': { const g = state.modal.g; g.tags = g.tags || []; const i = g.tags.indexOf(val); if (i >= 0) g.tags.splice(i, 1); else g.tags.push(val); render(); break; }
       case 'save-guest': { const g = state.modal.g; await put('/api/guests/' + g.id, { phone: g.phone, email: g.email, notes: g.notes, tags: g.tags }); state.modal = null; await loadView(); toast('Saved'); render(); break; }
@@ -7592,7 +7779,14 @@ async function moveBooking(r, hhmm, tableId) {
 
 // Typed values land in state as they are typed; settings fields save shortly after.
 document.addEventListener('input', (ev) => {
-  const el = ev.target; const f = el.dataset && el.dataset.field;
+  const el = ev.target;
+  if (el.dataset && el.dataset.act === 'pick-any' && /^#[0-9A-Fa-f]{6}$/.test(el.value)) {
+    const s2 = state.settings; s2.statusColours = s2.statusColours || {};
+    s2.statusColours[el.dataset.key] = el.value.toUpperCase();
+    applyStatusColours();                     // live, without a repaint that would
+    return;                                   // yank the picker out from under the finger
+  }
+  const f = el.dataset && el.dataset.field;
   if (!f) return;
   const raw = el.type === 'number' ? (el.value === '' ? null : parseFloat(el.value)) : el.value;
   if (f === 'date-pick') { if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) { state.date = raw; state.floorTime = null; loadDay().then(render); } return; }
@@ -7617,7 +7811,9 @@ document.addEventListener('input', (ev) => {
   if (el.dataset.save) queueSave(el.dataset.save);
 });
 document.addEventListener('change', (ev) => {
-  const el = ev.target; const f = el.dataset && el.dataset.field;
+  const el = ev.target;
+  if (el.dataset && el.dataset.act === 'pick-any') { queueSave('colours'); render(); return; }
+  const f = el.dataset && el.dataset.field;
   if (f && f.startsWith('st.') && el.tagName === 'SELECT') { state.st = state.st || { name: '', pin: '', role: 'staff' }; setPath(state, f, el.value); }
 });
 document.addEventListener('keydown', (ev) => {
