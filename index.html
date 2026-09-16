@@ -700,7 +700,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-rows{display:flex;flex-direction:column;}
 .bl-row{border-bottom:1px solid var(--steel-200);background:var(--surface);}
 .bl-row.selected{background:var(--pick-wash);box-shadow:inset var(--ring) 0 0 0 var(--orange);}
-.bl-row.open{background:var(--pick-wash);}
 /* The row proper: five things, and the eye lands on them in the order a host
    asks for them — where it is, when, who, how many, which table. */
 .bl-main{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;padding:8px 12px;
@@ -724,21 +723,34 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-table.none{font-family:var(--font-body);font-size:var(--fs-chip);text-transform:uppercase;
   letter-spacing:.5px;color:var(--charcoal-soft);background:none;border:1px dashed var(--steel-300);}
 
-/* Opened out. Everything the row did not say, in the order somebody at a desk
-   asks for it, and the buttons that were on the row before. */
-.bl-more{padding:4px 12px 12px 42px;display:flex;flex-direction:column;gap:10px;}
-.bl-more .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;align-items:baseline;}
-.bl-more .kv b{font-size:var(--fs-chip);font-weight:700;letter-spacing:.5px;text-transform:uppercase;
-  color:var(--charcoal-soft);white-space:nowrap;}
-.bl-more .kv span{font-size:var(--fs-md);min-width:0;overflow-wrap:anywhere;}
-.bl-tags{display:flex;flex-wrap:wrap;gap:6px;}
-.bl-note{font-size:var(--fs-md);line-height:1.5;color:var(--text-primary);
-  padding:8px 10px;border-radius:var(--r-btn);background:var(--surface);border:1px solid var(--steel-300);}
-.bl-do{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
-.bl-do .spacer{flex:1;}
-@media (max-width:520px){
-  .bl-more{padding-left:12px;}
-  .bl-who b{font-size:var(--fs-md);}
+
+@media (max-width:520px){ .bl-who b{font-size:var(--fs-md);} }
+
+/* §§ A booking covers the page
+   A popup is for a question with one answer. A booking is not that: it is a
+   guest, a time, a table, a set menu, tags, notes, what they spent and every
+   change anyone has made to it. So it takes the whole screen — a header that
+   stays put while the detail scrolls under it, and the keys pinned to the
+   foot where a thumb already is. */
+.modal-bg.full{padding:0;align-items:stretch;justify-content:stretch;}
+.modal.full{max-width:none;width:100%;max-height:none;height:100%;border-radius:0;padding:0;
+  display:flex;flex-direction:column;min-height:0;overflow:hidden;}
+.modal-top{flex:none;display:flex;align-items:center;gap:12px;padding:16px var(--deck-edge);
+  border-bottom:1px solid var(--steel-300);background:var(--surface);}
+.modal-top h2{flex:1;min-width:0;margin:0;}
+.modal-top .chip.sq{flex:none;}
+.modal-body{flex:1;min-width:0;overflow-y:auto;padding:16px var(--deck-edge);
+  width:100%;max-width:820px;margin:0 auto;}
+/* The keys sit on their own bar at the foot rather than at the end of a long
+   scroll — Save is never somewhere you have to go looking for it. */
+.modal.full .modal-actions{flex:none;margin:0;padding:12px var(--deck-edge);
+  padding-bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+  border-top:1px solid var(--steel-300);background:var(--surface);}
+@media (min-width:900px){
+  /* On a desk screen it is still a page, not a window — but it stops short of
+     the edges so the day behind it is visibly still there. */
+  .modal-bg.full{padding:24px;}
+  .modal.full{border-radius:var(--r-surface);max-width:960px;margin:0 auto;height:100%;}
 }
 </style>
 <div id="app">Loading…</div>
@@ -5627,7 +5639,6 @@ const state = {
   // and the one booking opened out. Shut by DEFAULT are the three that are
   // over — a done, cancelled or no-show booking is a record, not work.
   listShut: { done: true, cancelled: true, 'no-show': true },
-  listRow: null,
   reservations: [], days: {}, month: localDay(new Date()).slice(0, 7), waitlist: [], guests: [], guestQ: '', audit: [], today: null,
   // The whole model GET /api/run-sheet last returned, for the day it names.
   sheet: null,
@@ -6447,10 +6458,10 @@ function renderTimeline() {
 //
 // A row says the five things you decide from across a room: where the booking
 // is (the circle), when, who, how many, which table. Everything else — the
-// phone, the notes, the allergy, what they spent last time — is one tap away
-// rather than shouted at a host who is looking for one name. That was the
-// whole complaint about the old list: it printed the notes of nine bookings
-// at once, so none of them read.
+// phone, the notes, the allergy, what they spent last time — is one tap away,
+// on the booking's own full-cover page, rather than shouted at a host who is
+// looking for one name. That was the whole complaint about the old list: it
+// printed the notes of nine bookings at once, so none of them read.
 const LIST_GROUPS = [
   ['arrived',   'Arrived',   ['arrived']],
   ['upcoming',  'Upcoming',  ['booked', 'confirmed']],
@@ -6476,44 +6487,16 @@ function renderDayList() {
   const rows = state.reservations.slice().sort((a, b) => a.time.localeCompare(b.time));
   if (!rows.length) return '<div class="empty">No bookings this day.</div>';
 
-  const opened = (r) => {
-    const tables = listTables(r);
-    const kv = [];
-    kv.push(['Table', tables || 'Not assigned yet']);
-    kv.push(['Sitting', durationOf(r) + ' min']);
-    if (r.phone) kv.push(['Phone', r.phone]);
-    if (r.email) kv.push(['Email', r.email]);
-    kv.push(['Booked', SOURCE_KEY.filter(k => k[0] === r.source).map(k => k[1])[0] || r.source]);
-    if (r.ref) kv.push(['Reference', r.ref]);
-    if (setMenuName(r)) kv.push(['Set menu', setMenuName(r)]);
-    if (r.spend && r.spend.total) kv.push(['Spent', money(r.spend.total) + (r.spend.heads ? ' · ' + money(r.spend.total / r.spend.heads) + ' a head' : '')]);
-    return `<div class="bl-more">
-      <div class="kv">${kv.map(([k, v]) => `<b>${esc(k)}</b><span>${esc(v)}</span>`).join('')}</div>
-      ${(r.tags || []).length ? `<div class="bl-tags">${(r.tags || []).map(t => `<span class="tag${String(t).toLowerCase() === 'allergy' ? ' hot' : ''}">${esc(t)}</span>`).join('')}</div>` : ''}
-      ${String(r.notes || '').trim() ? `<div class="bl-note">${esc(r.notes)}</div>` : ''}
-      <div class="bl-do" data-stop="1">
-        ${r.status === 'booked' ? `<button class="chip" data-act="status" data-id="${r.id}" data-val="confirmed">Confirm</button>` : ''}
-        ${['booked', 'confirmed'].includes(r.status) ? `<button class="chip" data-act="status" data-id="${r.id}" data-val="arrived">Arrived</button>` : ''}
-        ${['booked', 'confirmed', 'arrived'].includes(r.status) ? `<button class="chip go" data-act="status" data-id="${r.id}" data-val="seated">Seat</button>` : ''}
-        ${r.status === 'seated' ? `<button class="chip" data-act="status" data-id="${r.id}" data-val="done">Done</button>` : ''}
-        <span class="spacer"></span>
-        <button class="chip" data-act="edit-booking" data-id="${r.id}">Open</button>
-      </div>
-    </div>`;
-  };
-
   const row = (r) => {
-    const open = state.listRow === r.id;
     const tables = listTables(r);
-    return `<div class="bl-row${open ? ' open' : ''}${state.highlightTable && heldTables(r).includes(state.highlightTable) ? ' selected' : ''}">
-      <button class="bl-main" data-act="list-row" data-id="${r.id}" aria-expanded="${open}">
+    return `<div class="bl-row${state.highlightTable && heldTables(r).includes(state.highlightTable) ? ' selected' : ''}">
+      <button class="bl-main" data-act="edit-booking" data-id="${r.id}">
         ${statusDot(r.status)}
         <span class="bl-who"><small>${esc(fmtHHMM(hhmmOf(r.time)))}</small><b>${esc(r.name || 'No name')}</b></span>
         <span class="bl-marks">${listMarks(r)}</span>
         <span class="bl-pax" title="${r.partySize} covers">${r.partySize}</span>
         <span class="bl-table${tables ? '' : ' none'}">${esc(tables || 'assign')}</span>
       </button>
-      ${open ? opened(r) : ''}
     </div>`;
   };
 
@@ -7129,8 +7112,12 @@ function renderBookingModal() {
       : `<div class="slots">${m.slots.map(x => `<button class="chip${b.time === x.time ? ' active' : ''}${!x.ok && b.time !== x.time ? ' off' : ''}" data-act="pick-time" data-val="${x.time}" title="${esc(x.reason || (x.tableId ? 'Table ' + (tableById(x.tableId) || {}).label : ''))}">${esc(x.time)}</button>`).join('')}</div>`;
   const tablesHtml = m.free ? `<div class="chips">${m.free.tables.map(t => { const on = b.tableId === t.id, extra = (b.tableIds || []).includes(t.id); return `<button class="chip${on || extra ? ' active' : ''}${!t.free && !on && !extra ? ' taken' : ''}${m.free.suggested === t.id ? ' best' : ''}" data-act="pick-table" data-val="${t.id}" title="${esc(t.name)}">T${esc(t.label)} <span class="sub">${t.seats}</span>${extra ? '<span class="sub">+</span>' : ''}</button>`; }).join('')}</div>` : b.time ? '<div class="ts">Loading tables…</div>' : '<div class="ts">Pick a time first — the free tables follow.</div>';
   const conflicts = (m.conflicts || []);
-  return `<div class="modal-bg" data-act="close-modal"><div class="modal wide" data-stop="1">
-    <h2>${isEdit ? 'Booking' : 'New booking'} ${isEdit ? statusChip(b.status) : ''}${isEdit ? sourceChip(b.source) : ''}${b.ref ? `<span class="tag mono">${esc(b.ref)}</span>` : ''}</h2>
+  return `<div class="modal-bg full" data-act="close-modal"><div class="modal full" data-stop="1">
+    <div class="modal-top">
+      <h2>${isEdit ? esc(b.name || 'Booking') : 'New booking'} ${isEdit ? statusChip(b.status) : ''}${isEdit ? sourceChip(b.source) : ''}${b.ref ? `<span class="tag mono">${esc(b.ref)}</span>` : ''}</h2>
+      <button class="chip sq" data-act="close-modal" aria-label="Close">${I.cross}</button>
+    </div>
+    <div class="modal-body">
     ${m.error ? `<div class="err">${esc(m.error)}</div>` : ''}
     ${isEdit ? `<div class="status-row">
       ${['booked', 'confirmed', 'arrived', 'seated', 'done', 'no-show', 'cancelled'].map(st => `<button class="chip${b.status === st ? ' active' : ''}" data-act="set-status" data-val="${st}">${statusLabel(st)}</button>`).join('')}
@@ -7159,6 +7146,7 @@ function renderBookingModal() {
     <textarea id="bk-notes" data-field="modal.b.notes" placeholder="Window seat, allergy, cake at dessert…">${esc(b.notes)}</textarea>
     <label for="bk-email">Email</label><input id="bk-email" type="email" value="${esc(b.email)}" data-field="modal.b.email" placeholder="Optional">
     ${isEdit ? `<div class="ts" style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span>Made by ${esc(b.createdBy || '—')} · ${esc(fmtStamp(b.createdAt))}${b.pos && b.pos.id ? ' · on the till' : ''}${b.cancelReason ? ' · ' + esc(b.cancelReason) : ''}</span>${b.tableId && tillUrl(b.tableId) ? `<button class="chip" data-act="to-till-table" data-table="${esc(b.tableId)}" style="min-height:32px;padding:5px 11px;">Open ${esc(tableName(b.tableId))} on the till</button>` : ''}</div>${renderBookingHistory(b)}` : ''}
+    </div>
     ${actionKeys({ saveAct: 'save-booking', saveLabel: isEdit ? 'Save' : 'Book', left: isEdit ? `<button class="icon-action discard left" data-act="delete-booking">${I.trash}<span class="ia-label">Delete</span></button>` : '' })}
   </div></div>`;
 }
@@ -7547,7 +7535,6 @@ document.addEventListener('click', async (ev) => {
       // accordion, because two open panels is a scroll and a host reading one
       // booking is not reading another.
       case 'list-group': { state.listShut = Object.assign({}, state.listShut, { [val]: !state.listShut[val] }); render(); break; }
-      case 'list-row': { state.listRow = state.listRow === id ? null : id; render(); break; }
       case 'open-key': state.modal = { kind: 'key' }; render(); break;
       case 'open-colour': state.modal = { kind: 'colour', key: el.dataset.key, label: el.dataset.label || el.dataset.key }; render(); break;
       case 'pick-colour': {
