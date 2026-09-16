@@ -254,7 +254,8 @@ h1,h2,h3{margin:0;}
 .empty{text-align:center;color:var(--charcoal-soft);padding:48px 0;font-weight:600;}
 
 /* §§ Status chips */
-.status-chip{font-size:var(--fs-chip);font-weight:700;padding:4px 8px;border-radius:var(--r-pill);text-transform:uppercase;letter-spacing:.3px;color:#fff;white-space:nowrap;}
+.status-chip{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-chip);font-weight:700;padding:4px 8px;border-radius:var(--r-pill);text-transform:uppercase;letter-spacing:.3px;color:#fff;white-space:nowrap;vertical-align:middle;}
+.status-chip svg{width:13px;height:13px;flex:0 0 13px;}
 .status-chip.booked{background:var(--st-booked);} .status-chip.confirmed{background:var(--st-confirmed);} .status-chip.arrived{background:var(--st-arrived);}
 .status-chip.seated{background:var(--st-seated);} .status-chip.done{background:var(--st-done);} .status-chip.cancelled{background:var(--st-cancelled);} .status-chip.no-show{background:var(--st-noshow);}
 .status-chip.online{background:var(--teal);} .status-chip.walk-in{background:var(--gold);} .status-chip.pos{background:var(--charcoal-soft);}
@@ -619,6 +620,24 @@ body.book-page #app{display:block;height:auto;}
      sheet of paper. */
   .sheet-line,.sheet-allergy{break-inside:avoid;page-break-inside:avoid;}
   .sheet .section-h{break-after:avoid;page-break-after:avoid;}
+}
+
+/* §§ The key — every colour on the screen, in one popup. The samples are the
+   REAL chips and the REAL table states, so a colour that drifts in this file
+   drifts in the key as well and is caught. */
+.key-list{display:flex;flex-direction:column;gap:var(--list-gap);}
+.key-row{display:flex;align-items:flex-start;gap:12px;min-height:44px;padding:8px 10px;
+  border:1px solid var(--steel-300);border-radius:var(--r-control);background:var(--surface);}
+.key-sample{flex:0 0 116px;display:flex;align-items:center;justify-content:flex-start;min-height:28px;}
+.key-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.key-text b{font-size:var(--fs-md);font-weight:700;}
+.key-text span{font-size:var(--fs-chip);color:var(--charcoal-soft);line-height:1.5;}
+.key-tile{position:static;width:64px;height:34px;cursor:default;}
+.key-none{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);text-transform:uppercase;letter-spacing:.3px;}
+.key-strip{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;}
+@media (max-width:520px){
+  .key-row{flex-direction:column;gap:6px;}
+  .key-sample{flex:none;}
 }
 </style>
 <body class="book-page">

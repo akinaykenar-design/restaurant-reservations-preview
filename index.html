@@ -261,7 +261,8 @@ h1,h2,h3{margin:0;}
 .empty{text-align:center;color:var(--charcoal-soft);padding:48px 0;font-weight:600;}
 
 /* §§ Status chips */
-.status-chip{font-size:var(--fs-chip);font-weight:700;padding:4px 8px;border-radius:var(--r-pill);text-transform:uppercase;letter-spacing:.3px;color:#fff;white-space:nowrap;}
+.status-chip{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-chip);font-weight:700;padding:4px 8px;border-radius:var(--r-pill);text-transform:uppercase;letter-spacing:.3px;color:#fff;white-space:nowrap;vertical-align:middle;}
+.status-chip svg{width:13px;height:13px;flex:0 0 13px;}
 .status-chip.booked{background:var(--st-booked);} .status-chip.confirmed{background:var(--st-confirmed);} .status-chip.arrived{background:var(--st-arrived);}
 .status-chip.seated{background:var(--st-seated);} .status-chip.done{background:var(--st-done);} .status-chip.cancelled{background:var(--st-cancelled);} .status-chip.no-show{background:var(--st-noshow);}
 .status-chip.online{background:var(--teal);} .status-chip.walk-in{background:var(--gold);} .status-chip.pos{background:var(--charcoal-soft);}
@@ -626,6 +627,24 @@ body.book-page #app{display:block;height:auto;}
      sheet of paper. */
   .sheet-line,.sheet-allergy{break-inside:avoid;page-break-inside:avoid;}
   .sheet .section-h{break-after:avoid;page-break-after:avoid;}
+}
+
+/* §§ The key — every colour on the screen, in one popup. The samples are the
+   REAL chips and the REAL table states, so a colour that drifts in this file
+   drifts in the key as well and is caught. */
+.key-list{display:flex;flex-direction:column;gap:var(--list-gap);}
+.key-row{display:flex;align-items:flex-start;gap:12px;min-height:44px;padding:8px 10px;
+  border:1px solid var(--steel-300);border-radius:var(--r-control);background:var(--surface);}
+.key-sample{flex:0 0 116px;display:flex;align-items:center;justify-content:flex-start;min-height:28px;}
+.key-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
+.key-text b{font-size:var(--fs-md);font-weight:700;}
+.key-text span{font-size:var(--fs-chip);color:var(--charcoal-soft);line-height:1.5;}
+.key-tile{position:static;width:64px;height:34px;cursor:default;}
+.key-none{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);text-transform:uppercase;letter-spacing:.3px;}
+.key-strip{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;}
+@media (max-width:520px){
+  .key-row{flex-direction:column;gap:6px;}
+  .key-sample{flex:none;}
 }
 </style>
 <div id="app">Loading…</div>
@@ -5427,6 +5446,19 @@ const I = {
   alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20.5h20z"/><path d="M12 10v4.5"/><path d="M12 17.8v.2"/></svg>',
   noshow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M4.9 4.9l14.2 14.2"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.75" cy="10.75" r="8.75"/><path d="M22 22l-4.75 -4.75"/></svg>',
+  key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.6" cy="14.4" r="4.6"/><path d="M10.9 11.1L20.4 1.6"/><path d="M17.2 4.8l2.4 2.4M14.6 7.4l2.4 2.4"/></svg>',
+  stBooked: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
+  stConfirmed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M7.8 12.4l2.7 2.7 5.7-5.7"/></svg>',
+  stArrived: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5S19 15.6 19 10.5a7 7 0 1 0-14 0c0 5.1 7 11 7 11z"/><circle cx="12" cy="10.2" r="2.6"/></svg>',
+  stDone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12.6l4 4 6.6-6.9"/><path d="M11 16.6l1.5 1.5 8.5-9"/></svg>',
+  stCancelled: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="7.8" r="3.6"/><path d="M2.8 20.5c0-3.7 3-6.2 6.7-6.2 1 0 2 .2 2.9.6"/><path d="M15.6 15.6l5.6 5.6M21.2 15.6l-5.6 5.6"/></svg>',
+  stFree: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="7.4" width="18.4" height="9.2" rx="2.2"/></svg>',
+  stDue: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="10.4" width="18.4" height="8.4" rx="2.2"/><path d="M12 2.2v5.6M9.2 5l2.8 2.8L14.8 5"/></svg>',
+  stOver: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.6" r="7.8"/><path d="M12 9.6v4.2l3 2"/><path d="M9.2 2.4h5.6"/></svg>',
+  stJoined: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.6 14.4a4.6 4.6 0 0 0 6.5 0l2.6-2.6a4.6 4.6 0 0 0-6.5-6.5l-1.5 1.5"/><path d="M14.4 9.6a4.6 4.6 0 0 0-6.5 0l-2.6 2.6a4.6 4.6 0 0 0 6.5 6.5l1.5-1.5"/></svg>',
+  srcStaff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 2.8h3.1l1.6 4.6-2.1 1.6a12.4 12.4 0 0 0 6.2 6.2l1.6-2.1 4.6 1.6v3.1a2.6 2.6 0 0 1-2.8 2.6A17 17 0 0 1 3.6 5.6a2.6 2.6 0 0 1 2.6-2.8z"/></svg>',
+  srcOnline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg>',
+  srcWalkIn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 21V4.2L14 2.6V21"/><path d="M2.6 21h18.8"/><path d="M14 6.4h3.8V21"/><circle cx="11.2" cy="12" r="1"/></svg>',
 };
 
 // §§ State
@@ -5538,6 +5570,38 @@ function canMoveBooking(r) { return ['booked', 'confirmed', 'arrived'].includes(
 // and by the drag's hint alike.
 function conflictLine(list) { return 'Shares a table with ' + list.map(c => c.name + ' at ' + hhmmOf(c.time)).join(', ') + '.'; }
 function statusLabel(s) { return { booked: 'Booked', confirmed: 'Confirmed', arrived: 'Arrived', seated: 'Seated', done: 'Done', cancelled: 'Cancelled', 'no-show': 'No-show' }[s] || s; }
+// §§ The colour code. ONE table, read by the chips, the timeline, the floor
+// and the key popup alike — so a colour can never mean two things, and adding
+// a status is one row here rather than a hunt through the markup.
+const STATUS_KEY = [
+  ['booked',    'Booked',    'stBooked',    'In the book. Nobody has spoken to them since.'],
+  ['confirmed', 'Confirmed', 'stConfirmed', 'They have said yes since booking — a reply, a call back, a text.'],
+  ['arrived',   'Arrived',   'stArrived',   'In the room, not yet at the table.'],
+  ['seated',    'Seated',    'people',      'At the table. The table is theirs until they are done.'],
+  ['done',      'Done',      'stDone',      'Finished and gone. The table is free again.'],
+  ['cancelled', 'Cancelled', 'stCancelled', 'Called off. The table went back.'],
+  ['no-show',   'No-show',   'noshow',      'Never came, never called. It stays on their card.'],
+];
+const FLOOR_KEY = [
+  ['free',   'Free',   'stFree',   'Nobody on it now. Tap it to book a walk-in.'],
+  ['due',    'Due',    'stDue',    'Someone is booked on it within the half hour.'],
+  ['seated', 'Seated', 'people',   'A party is on it right now.'],
+  ['over',   'Over',   'stOver',   'Still on it past the turn time. The next booking is at risk.'],
+  ['joined', 'Joined', 'stJoined', 'Two or more tables pushed together for one party.'],
+];
+const SOURCE_KEY = [
+  ['staff',   'Taken here', 'srcStaff',  'Rung through or typed in at the desk. No chip — it is the normal way.'],
+  ['online',  'Online',     'srcOnline', 'The guest booked themselves on the booking page.'],
+  ['walk-in', 'Walk-in',    'srcWalkIn', 'Came through the door with no booking.'],
+  ['pos',     'From the till', 'till',   'Started on the POS, not here.'],
+];
+const TAG_LIST = ['VIP', 'Birthday', 'Anniversary', 'Allergy', 'Pram', 'Wheelchair', 'Window', 'Quiet', 'High chair', 'Large group'];
+function statusIcon(s) { const row = STATUS_KEY.find(k => k[0] === s); return row ? I[row[2]] : ''; }
+function statusChip(s) { return `<span class="status-chip ${esc(s)}">${statusIcon(s)}${esc(statusLabel(s))}</span>`; }
+function sourceChip(src) {
+  const row = SOURCE_KEY.find(k => k[0] === src);
+  return row && src !== 'staff' ? `<span class="status-chip ${esc(src)}">${I[row[2]]}${esc(row[1])}</span>` : '';
+}
 // How long somebody has been waiting, in the fewest characters that are true.
 function sinceLabel(ts) {
   const m = Math.max(0, Math.round((Date.now() - (ts || 0)) / 60000));
@@ -6101,6 +6165,7 @@ function renderToday() {
     <label class="chip" style="padding:0;overflow:hidden;"><input type="date" id="date-pick" value="${state.date}" style="border:none;min-height:36px;width:150px;background:transparent;" data-field="date-pick"></label>
     <span class="spacer"></span>
     ${state.todayMode === 'sheet' ? `<button class="chip" data-act="print-sheet" ${state.sheet && state.sheet.date === state.date ? '' : 'disabled'}>Print</button>` : ''}
+    <button class="chip sq" data-act="open-key" aria-label="What the colours mean" title="What the colours mean">${I.key}</button>
   </div>
   ${notice}
   ${state.todayMode === 'sheet' ? '' : `<div class="stats">
@@ -6180,7 +6245,7 @@ function renderDayList() {
     <div class="row${isLive(r) ? '' : ' dim'}${state.highlightTable && heldTables(r).includes(state.highlightTable) ? ' selected' : ''}" data-act="edit-booking" data-id="${r.id}">
       <div class="cell">${esc(hhmmOf(r.time))}<small>${r.partySize} pax</small></div>
       <div class="body">
-        <div class="t1">${esc(r.name)} <span class="status-chip ${r.status}">${statusLabel(r.status)}</span>${r.source !== 'staff' ? `<span class="status-chip ${r.source}">${esc(r.source)}</span>` : ''}${setMenuName(r) ? `<span class="tag set">${esc(setMenuName(r))}</span>` : ''}${(r.tags || []).map(t => `<span class="tag${t === 'Allergy' ? ' hot' : ''}">${esc(t)}</span>`).join('')}</div>
+        <div class="t1">${esc(r.name)} ${statusChip(r.status)}${sourceChip(r.source)}${setMenuName(r) ? `<span class="tag set">${esc(setMenuName(r))}</span>` : ''}${(r.tags || []).map(t => `<span class="tag${t === 'Allergy' ? ' hot' : ''}">${esc(t)}</span>`).join('')}</div>
         <div class="t2">${heldTables(r).length ? heldTables(r).map(tableName).join(' + ') : 'No table'} · ${durationOf(r)} min${r.phone ? ' · ' + esc(r.phone) : ''}${r.notes ? ' · ' + esc(r.notes) : ''}</div>
       </div>
       <div class="actions" data-stop="1">
@@ -6223,8 +6288,8 @@ function renderRunSheet() {
     // Booked and confirmed are the ordinary case and say nothing on paper;
     // arrived, seated and done — and every dropped row — are worth the ink.
     const shown = opts.dropped || !['booked', 'confirmed'].includes(row.status);
-    const chips = (shown ? `<span class="status-chip ${esc(row.status)}">${esc(statusLabel(row.status))}</span>` : '')
-      + (row.source && row.source !== 'staff' ? `<span class="status-chip ${esc(row.source)}">${esc(row.source)}</span>` : '')
+    const chips = (shown ? `${statusChip(row.status)}` : '')
+      + sourceChip(row.source)
       + (row.setMenu ? `<span class="tag set">${esc(row.setMenu)}</span>` : '')
       + tags(row.tags);
     return `<div class="sheet-line">
@@ -6581,6 +6646,12 @@ function renderSettings() {
       <div><button class="btn" data-act="table-add">${I.plus} Add a table</button></div>
     </div>`}
     <div class="settings-card">
+      <div class="th">The key</div>
+      <div class="ts">Every colour this screen uses and what it means — the booking's seven states, the four a table can be in, and where a booking came from. Worth showing a new host on their first shift.</div>
+      <div class="key-strip">${STATUS_KEY.map(k => statusChip(k[0])).join('')}</div>
+      <div><button class="btn" data-act="open-key">Open the key</button></div>
+    </div>
+    <div class="settings-card">
       <div class="th">Set menus${state.setMenusFromPos ? ' (from the POS)' : ''}</div>
       <div class="ts">${state.setMenusFromPos
         ? 'The POS holds these — they are its set menus (Menu → Set menus there). The desk puts one on a booking, and the till sees it in the booking\'s notes.'
@@ -6642,6 +6713,28 @@ function renderExceptions() {
 }
 
 // §§ Popups
+// §§ The key. Everything on this screen that carries a colour, in one place,
+// drawn with the REAL chips and the REAL table states rather than a picture of
+// them — so a colour that drifts in the stylesheet drifts here too and is seen.
+function renderKeyModal() {
+  const row = (sample, name, meaning) =>
+    `<div class="key-row"><span class="key-sample">${sample}</span>
+      <span class="key-text"><b>${esc(name)}</b><span>${esc(meaning)}</span></span></div>`;
+  const tile = (st) => `<span class="fl-table ${st} key-tile"><span class="fl-in"><span class="fl-no">12</span></span></span>`;
+  return `<div class="modal-bg" data-act="close-modal"><div class="modal key-modal" data-stop="1">
+    <h2>The key</h2>
+    <div class="section-h">The booking</div>
+    <div class="key-list">${STATUS_KEY.map(k => row(statusChip(k[0]), k[1], k[3])).join('')}</div>
+    <div class="section-h">The table, right now</div>
+    <div class="key-list">${FLOOR_KEY.map(k => row(tile(k[0]), k[1], k[3])).join('')}</div>
+    <div class="section-h">Where it came from</div>
+    <div class="key-list">${SOURCE_KEY.map(k => row(k[0] === 'staff' ? '<span class="key-none">no chip</span>' : sourceChip(k[0]), k[1], k[3])).join('')}</div>
+    <div class="section-h">Tags</div>
+    <div class="ts">Tags are never coloured. ${esc(TAG_LIST.join(', '))} all wear the same neutral chip, and only <span class="tag hot">Allergy</span> is marked, because it is the one a cook has to act on. Colour is spent on what changes during service; a label that never changes does not earn any.</div>
+    <div class="ts" style="margin-top:8px;">On the waitlist, <span class="status-chip confirmed">Told</span> borrows the confirmed blue for the same reason: somebody has spoken to them.</div>
+    <div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Close</span></button></div>
+  </div></div>`;
+}
 function renderModal() {
   const m = state.modal;
   if (m.kind === 'booking') return renderBookingModal();
@@ -6649,6 +6742,7 @@ function renderModal() {
   if (m.kind === 'exception') return renderExceptionModal();
   if (m.kind === 'seat') return renderSeatModal();
   if (m.kind === 'guest') return renderGuestModal();
+  if (m.kind === 'key') return renderKeyModal();
   if (m.kind === 'confirm') return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1"><h2>${esc(m.title)}</h2>${m.body ? `<div class="ts">${esc(m.body)}</div>` : ''}<div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Cancel</span></button><button class="icon-action ${m.danger ? 'discard' : 'send'}" data-act="confirm-yes">${m.danger ? I.trash : I.tick}<span class="ia-label">${esc(m.yes || 'Yes')}</span></button></div></div></div>`;
   return '';
 }
@@ -6672,7 +6766,7 @@ function renderFindModal() {
     <div class="row${isLive(r) ? '' : ' dim'}" data-act="find-open" data-id="${r.id}">
       <div class="cell">${esc(hhmmOf(r.time) || '—')}<small>${r.partySize || 0} pax</small></div>
       <div class="body">
-        <div class="t1">${esc(r.name || 'No name')} <span class="status-chip ${r.status}">${statusLabel(r.status)}</span>${r.source !== 'staff' ? `<span class="status-chip ${r.source}">${esc(r.source)}</span>` : ''}</div>
+        <div class="t1">${esc(r.name || 'No name')} ${statusChip(r.status)}${sourceChip(r.source)}</div>
         <div class="t2">${esc(fmtDayYear(dayOf(r.time)))} · ${heldTables(r).length ? esc(heldTables(r).map(tableName).join(' + ')) : 'No table'}${r.phone ? ' · ' + esc(r.phone) : ''}${r.ref ? ' · ' + esc(r.ref) : ''}</div>
       </div>
     </div>`;
@@ -6721,7 +6815,7 @@ function renderBookingModal() {
   const tablesHtml = m.free ? `<div class="chips">${m.free.tables.map(t => { const on = b.tableId === t.id, extra = (b.tableIds || []).includes(t.id); return `<button class="chip${on || extra ? ' active' : ''}${!t.free && !on && !extra ? ' taken' : ''}${m.free.suggested === t.id ? ' best' : ''}" data-act="pick-table" data-val="${t.id}" title="${esc(t.name)}">T${esc(t.label)} <span class="sub">${t.seats}</span>${extra ? '<span class="sub">+</span>' : ''}</button>`; }).join('')}</div>` : b.time ? '<div class="ts">Loading tables…</div>' : '<div class="ts">Pick a time first — the free tables follow.</div>';
   const conflicts = (m.conflicts || []);
   return `<div class="modal-bg" data-act="close-modal"><div class="modal wide" data-stop="1">
-    <h2>${isEdit ? 'Booking' : 'New booking'} ${isEdit ? `<span class="status-chip ${b.status}">${statusLabel(b.status)}</span>` : ''}${isEdit && b.source !== 'staff' ? `<span class="status-chip ${b.source}">${esc(b.source)}</span>` : ''}${b.ref ? `<span class="tag mono">${esc(b.ref)}</span>` : ''}</h2>
+    <h2>${isEdit ? 'Booking' : 'New booking'} ${isEdit ? statusChip(b.status) : ''}${isEdit ? sourceChip(b.source) : ''}${b.ref ? `<span class="tag mono">${esc(b.ref)}</span>` : ''}</h2>
     ${m.error ? `<div class="err">${esc(m.error)}</div>` : ''}
     ${isEdit ? `<div class="status-row">
       ${['booked', 'confirmed', 'arrived', 'seated', 'done', 'no-show', 'cancelled'].map(st => `<button class="chip${b.status === st ? ' active' : ''}" data-act="set-status" data-val="${st}">${statusLabel(st)}</button>`).join('')}
@@ -6857,7 +6951,7 @@ function renderGuestModal() {
     <label>Tags</label><div class="chips">${tags.map(t => `<button class="chip${(g.tags || []).includes(t) ? ' active' : ''}" data-act="guest-tag" data-val="${esc(t)}">${esc(t)}</button>`).join('')}</div>
     <label for="g-notes">Notes (the desk sees these on every booking)</label><textarea id="g-notes" data-field="modal.g.notes">${esc(g.notes)}</textarea>
     <label>History</label>
-    <div class="hist">${(g.bookings || []).map(r => `<div><span class="mono">${esc(fmtDay(dayOf(r.time)))} ${esc(hhmmOf(r.time))}</span><span>${r.partySize} pax</span><span class="status-chip ${r.status}">${statusLabel(r.status)}</span>${(g.spend && g.spend.perVisit && g.spend.perVisit[r.id]) ? `<span class="mono">${money(g.spend.perVisit[r.id].total)}</span>` : ''}${r.notes ? `<span class="ts">${esc(r.notes)}</span>` : ''}</div>`).join('') || '<div class="ts">No bookings yet.</div>'}</div>
+    <div class="hist">${(g.bookings || []).map(r => `<div><span class="mono">${esc(fmtDay(dayOf(r.time)))} ${esc(hhmmOf(r.time))}</span><span>${r.partySize} pax</span>${statusChip(r.status)}${(g.spend && g.spend.perVisit && g.spend.perVisit[r.id]) ? `<span class="mono">${money(g.spend.perVisit[r.id].total)}</span>` : ''}${r.notes ? `<span class="ts">${esc(r.notes)}</span>` : ''}</div>`).join('') || '<div class="ts">No bookings yet.</div>'}</div>
     ${actionKeys({ saveAct: 'save-guest', left: `<button class="icon-action warn left" data-act="guest-book">${I.cal}<span class="ia-label">Book</span></button>` })}
   </div></div>`;
 }
@@ -7132,6 +7226,7 @@ document.addEventListener('click', async (ev) => {
       case 'wl-seat': { const w = state.waitlist.find(x => x.id === id); const now = new Date(); state.modal = { kind: 'seat', w, tableId: null, free: null }; render(); const free = await api(`/api/free-tables?date=${localDay(now)}&time=${pad2(now.getHours())}:${pad2(now.getMinutes())}&party=${w.partySize}`); if (state.modal && state.modal.w === w) { state.modal.free = free; state.modal.tableId = free.suggested; render(); } break; }
       case 'seat-pick': state.modal.tableId = state.modal.tableId === val ? null : val; render(); break;
       case 'seat-confirm': { const m = state.modal; const r = await post('/api/waitlist/' + m.w.id + '/seat', { tableId: m.tableId }); state.modal = null; await loadView(); toast(`Seated ${r.name}${r.tableId ? ' at ' + tableName(r.tableId) : ''}`); break; }
+      case 'open-key': state.modal = { kind: 'key' }; render(); break;
       case 'open-guest': { const g = await api('/api/guests/' + id); state.modal = { kind: 'guest', g }; render(); break; }
       case 'guest-tag': { const g = state.modal.g; g.tags = g.tags || []; const i = g.tags.indexOf(val); if (i >= 0) g.tags.splice(i, 1); else g.tags.push(val); render(); break; }
       case 'save-guest': { const g = state.modal.g; await put('/api/guests/' + g.id, { phone: g.phone, email: g.email, notes: g.notes, tags: g.tags }); state.modal = null; await loadView(); toast('Saved'); render(); break; }
