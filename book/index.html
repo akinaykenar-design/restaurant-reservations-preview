@@ -916,6 +916,18 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 }
 /* A count of nought is not news. */
 .rail .rail-n:empty,.rail-btn .rail-n[data-zero="1"]{display:none;}
+
+/* §§ The list's search — where a host's hand goes first
+   Sticky at the head of the book, so scrolling down the night never scrolls
+   it away. Its own row, not a chip: a field you type into is not a selector. */
+.bl-find{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;
+  padding:8px;background:var(--surface);border-bottom:1px solid var(--steel-300);}
+.bl-find-i{display:flex;flex:none;color:var(--charcoal-soft);margin-left:4px;}
+.bl-find-i svg{width:18px;height:18px;}
+.bl-find input{flex:1;min-width:0;min-height:38px;border:none;background:none;padding:0;}
+.bl-find input:focus{border:none;box-shadow:none;}
+.bl-find input::-webkit-search-cancel-button{display:none;}
+.bl-find .chip.sq{flex:none;min-height:34px;width:34px;}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>

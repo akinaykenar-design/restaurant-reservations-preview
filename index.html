@@ -923,6 +923,18 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 }
 /* A count of nought is not news. */
 .rail .rail-n:empty,.rail-btn .rail-n[data-zero="1"]{display:none;}
+
+/* §§ The list's search — where a host's hand goes first
+   Sticky at the head of the book, so scrolling down the night never scrolls
+   it away. Its own row, not a chip: a field you type into is not a selector. */
+.bl-find{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;
+  padding:8px;background:var(--surface);border-bottom:1px solid var(--steel-300);}
+.bl-find-i{display:flex;flex:none;color:var(--charcoal-soft);margin-left:4px;}
+.bl-find-i svg{width:18px;height:18px;}
+.bl-find input{flex:1;min-width:0;min-height:38px;border:none;background:none;padding:0;}
+.bl-find input:focus{border:none;box-shadow:none;}
+.bl-find input::-webkit-search-cancel-button{display:none;}
+.bl-find .chip.sq{flex:none;min-height:34px;width:34px;}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useStaff\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"staff\": [\n    {\n      \"id\": \"st1\",\n      \"name\": \"Alex (Manager)\",\n      \"pin\": \"1234\",\n      \"role\": \"manager\"\n    },\n    {\n      \"id\": \"st2\",\n      \"name\": \"Jamie\",\n      \"pin\": \"2222\",\n      \"role\": \"staff\"\n    },\n    {\n      \"id\": \"st3\",\n      \"name\": \"Sam\",\n      \"pin\": \"3333\",\n      \"role\": \"staff\"\n    }\n  ],\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}";window.__RESV_SEED_HASH__ = "2e63f256897b87b09c1216b9b1972ddfd67ce8ef";window.__RESV_IS_BOOK__ = false;</script>
@@ -5951,6 +5963,7 @@ const state = {
   // and the one booking opened out. Shut by DEFAULT are the three that are
   // over — a done, cancelled or no-show booking is a record, not work.
   listShut: { done: true, cancelled: true, 'no-show': true },
+  deskQ: '',
   reservations: [], days: {}, month: localDay(new Date()).slice(0, 7), waitlist: [], guests: [], guestQ: '', audit: [], today: null,
   // The whole model GET /api/run-sheet last returned, for the day it names.
   sheet: null,
@@ -6120,6 +6133,41 @@ function statusDot(st) {
   return `<span class="st-dot ${esc(st)}" title="${esc(statusLabel(st))}" role="img" aria-label="${esc(statusLabel(st))}"></span>`;
 }
 const TAG_LIST = ['VIP', 'Birthday', 'Anniversary', 'Allergy', 'Pram', 'Wheelchair', 'Window', 'Quiet', 'High chair', 'Large group'];
+// §§ The list's own search
+// It filters the LIST and nothing else — the floor, the timeline and the flow
+// still show the whole night, because a host looking up one name has not
+// stopped running the room.
+//
+// The rule is search.js's, character for character: fold the accents and the
+// case away, read a number as its digits, and never let one or two digits
+// sweep the book. Two spellings of "does this booking match?" is the drift
+// CLAUDE.md is about, so test/desksearch.test.js reads this file and
+// search.js back and fails if they part company.
+const DESK_MIN_PHONE_DIGITS = 3;
+function deskFold(v) {
+  return String(v == null ? '' : v)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+function deskDigits(v) { return String(v == null ? '' : v).replace(/\D+/g, ''); }
+function deskMatch(r, q) {
+  if (!q.text && !q.digits) return true;
+  if (q.text && deskFold(r.name).includes(q.text)) return true;
+  if (q.text && deskFold(r.email).includes(q.text)) return true;
+  if (q.text && String(r.ref || '').toLowerCase().startsWith(q.text)) return true;
+  // The table is what a host has in their hand as often as the name:
+  // "who is on six?"
+  if (q.text && heldTables(r).some(id => deskFold(tableName(id)).includes(q.text))) return true;
+  if (q.digits.length >= DESK_MIN_PHONE_DIGITS && deskDigits(r.phone).includes(q.digits)) return true;
+  return false;
+}
+function deskQuery() {
+  const raw = String(state.deskQ || '').trim();
+  return { on: !!raw, text: deskFold(raw), digits: deskDigits(raw) };
+}
 function statusIcon(s) { const row = STATUS_KEY.find(k => k[0] === s); return row ? I[row[2]] : ''; }
 function statusChip(s) { return `<span class="status-chip ${esc(s)}">${statusIcon(s)}${esc(statusLabel(s))}</span>`; }
 function sourceChip(src) {
@@ -6917,8 +6965,17 @@ function listMarks(r) {
 }
 
 function renderDayList() {
-  const rows = state.reservations.slice().sort((a, b) => a.time.localeCompare(b.time));
-  if (!rows.length) return '<div class="empty">No bookings this day.</div>';
+  const all = state.reservations.slice().sort((a, b) => a.time.localeCompare(b.time));
+  const q = deskQuery();
+  const rows = q.on ? all.filter(r => deskMatch(r, q)) : all;
+  const find = `<div class="bl-find">
+    <span class="bl-find-i">${I.search}</span>
+    <input type="search" id="desk-q" placeholder="Name, phone or table" value="${esc(state.deskQ)}"
+      data-field="deskQ" autocomplete="off" aria-label="Search tonight's bookings">
+    ${q.on ? `<button class="chip sq" data-act="desk-clear" aria-label="Clear">${I.cross}</button>` : ''}
+  </div>`;
+  if (!all.length) return find + '<div class="empty">No bookings this day.</div>';
+  if (q.on && !rows.length) return find + `<div class="empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d.</div>`;
 
   const row = (r) => {
     const tables = listTables(r);
@@ -6943,8 +7000,8 @@ function renderDayList() {
   };
 
   const live = rows.filter(isLive);
-  return `<div class="bl">
-    <div class="bl-head total"><span class="bl-h-name">Total</span><span class="bl-h-n">${live.length} <i>(${coversOf(live)})</i></span></div>
+  return find + `<div class="bl">
+    <div class="bl-head total"><span class="bl-h-name">${q.on ? 'Found' : 'Total'}</span><span class="bl-h-n">${live.length} <i>(${coversOf(live)})</i></span></div>
     ${LIST_GROUPS.map(([key, name, statuses]) => {
       const list = rows.filter(r => statuses.includes(r.status));
       return head(key, name, list) + (state.listShut[key] || !list.length ? '' : `<div class="bl-rows">${list.map(row).join('')}</div>`);
@@ -8205,6 +8262,7 @@ document.addEventListener('click', async (ev) => {
       // The List. A group shuts, and one booking at a time opens out — an
       // accordion, because two open panels is a scroll and a host reading one
       // booking is not reading another.
+      case 'desk-clear': state.deskQ = ''; render(); break;
       case 'list-group': { state.listShut = Object.assign({}, state.listShut, { [val]: !state.listShut[val] }); render(); break; }
       case 'open-more': state.modal = { kind: 'more' }; render(); break;
       case 'open-cal': {
@@ -8615,6 +8673,7 @@ document.addEventListener('input', (ev) => {
   // The floor's time scrubber. It repaints from what is already in memory —
   // no fetch — so the room follows the finger.
   if (f === 'floor-time') { state.floorTime = fromMin(parseInt(raw, 10) || 0); render(); return; }
+  if (f === 'deskQ') { state.deskQ = raw; render(); return; }
   if (f === 'guestQ') { state.guestQ = raw; clearTimeout(_saveTimer); _saveTimer = setTimeout(async () => { await loadGuests(); render(); }, 250); return; }
   if (f === 'find.q') { state.find.q = raw; clearTimeout(_findTimer); _findTimer = setTimeout(runFind, 250); return; }
   if (f.startsWith('wl.')) { setPath(state, f, raw); return; }
