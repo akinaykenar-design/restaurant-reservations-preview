@@ -752,6 +752,46 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .modal-bg.full{padding:24px;}
   .modal.full{border-radius:var(--r-surface);max-width:960px;margin:0 auto;height:100%;}
 }
+
+/* §§ The booking's rows, and the pages behind them
+   The POS's Row law: 54 tall, one hairline, 8 apart. The label on the left,
+   what it IS on the right, and a chevron saying there is a page behind it. */
+.bk-rows{display:flex;flex-direction:column;gap:var(--list-gap);}
+.bk-row{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:8px 12px;
+  background:var(--surface);border:1px solid var(--steel-300);border-radius:var(--r-control);
+  text-align:left;cursor:pointer;}
+.bk-row.warn{border-color:var(--gold);}
+.bk-k{flex:0 0 116px;font-size:var(--fs-chip);font-weight:700;letter-spacing:.7px;
+  text-transform:uppercase;color:var(--charcoal-soft);}
+.bk-v{flex:1;min-width:0;display:flex;align-items:center;gap:2px;font-size:var(--fs-md);
+  font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bk-v.none{font-weight:400;color:var(--charcoal-soft);}
+.bk-chev{display:flex;flex:none;color:var(--steel-500);}
+.bk-chev svg{width:20px;height:20px;}
+
+/* A page behind a row is a list of whole options, not a wall of chips — room
+   for the name, what it means, and a tick on the one that is chosen. */
+.bk-pick{display:flex;flex-direction:column;gap:var(--list-gap);}
+.bk-opt{display:flex;align-items:flex-start;gap:12px;width:100%;min-height:var(--h-primary);
+  padding:12px;background:var(--surface);border:1px solid var(--steel-300);
+  border-radius:var(--r-control);text-align:left;cursor:pointer;}
+.bk-opt.on{border-color:var(--orange);box-shadow:inset 0 0 0 var(--ring) var(--orange);background:var(--pick-wash);}
+.bk-opt.off{opacity:var(--dim-off);}
+.bk-opt-mark{flex:0 0 24px;display:flex;align-items:center;justify-content:center;padding-top:4px;}
+.bk-opt-mark:empty{flex:0 0 0;}
+.bk-opt-mark .st-dot{margin-right:0;width:14px;height:14px;flex:0 0 14px;}
+.bk-opt-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.bk-opt-text b{font-size:var(--fs-lg);font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.bk-opt-text span{font-size:var(--fs-chip);color:var(--charcoal-soft);line-height:1.5;}
+.bk-opt-tick{flex:none;display:flex;color:var(--orange);}
+.bk-opt-tick svg{width:24px;height:24px;}
+.bk-seats{font-family:var(--font-mono);font-weight:500;font-size:var(--fs-chip);color:var(--charcoal-soft);}
+.bk-form{display:flex;flex-direction:column;gap:16px;}
+@media (max-width:520px){
+  .bk-row{flex-wrap:wrap;gap:2px 12px;align-items:flex-start;padding:10px 12px;}
+  .bk-k{flex:1 0 100%;}
+  .bk-v{flex:1;}
+}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useStaff\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"staff\": [\n    {\n      \"id\": \"st1\",\n      \"name\": \"Alex (Manager)\",\n      \"pin\": \"1234\",\n      \"role\": \"manager\"\n    },\n    {\n      \"id\": \"st2\",\n      \"name\": \"Jamie\",\n      \"pin\": \"2222\",\n      \"role\": \"staff\"\n    },\n    {\n      \"id\": \"st3\",\n      \"name\": \"Sam\",\n      \"pin\": \"3333\",\n      \"role\": \"staff\"\n    }\n  ],\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}";window.__RESV_SEED_HASH__ = "2e63f256897b87b09c1216b9b1972ddfd67ce8ef";window.__RESV_IS_BOOK__ = false;</script>
@@ -7103,52 +7143,156 @@ function closeModal() {
   state.modal = null;
   render();
 }
+// §§ The booking — a page of rows, and a page behind each row
+// Everything about a booking used to be on one scroll: forty time chips, a
+// dozen table chips, ten tag chips, all shouting at once. Nobody reads that.
+// So the booking is a SUMMARY — one row a thing, saying what it is now — and
+// each row opens the page where that thing lives, with room to be read.
+// The POS's own Row law: 54 tall, one hairline, 8 apart, the value on the
+// right and a chevron saying there is more behind it.
+const BK_PAGES = {
+  status:  'Status',
+  guest:   'Guest',
+  when:    'Date & time',
+  party:   'Party',
+  table:   'Table',
+  setmenu: 'Set menu',
+  tags:    'Tags',
+  notes:   'Notes',
+};
+
+function bkRow(page, label, value, opts) {
+  const o = opts || {};
+  return `<button class="bk-row${o.warn ? ' warn' : ''}" data-act="bk-page" data-val="${page}">
+    <span class="bk-k">${esc(label)}</span>
+    <span class="bk-v${o.none ? ' none' : ''}">${o.html || esc(value)}</span>
+    <span class="bk-chev">${I.right}</span>
+  </button>`;
+}
+
 function renderBookingModal() {
-  const m = state.modal, b = m.b, s = state.settings;
-  const day = b.date, isEdit = !!b.id;
-  const tags = (s.tags || ['VIP', 'Birthday', 'Anniversary', 'Allergy', 'Pram', 'Wheelchair', 'Window', 'Quiet', 'High chair', 'Large group']);
-  const slotHtml = !m.slots ? '<div class="ts">Loading times…</div>'
-    : !m.slots.length ? '<div class="ts">No times are offered on this day.</div>'
-      : `<div class="slots">${m.slots.map(x => `<button class="chip${b.time === x.time ? ' active' : ''}${!x.ok && b.time !== x.time ? ' off' : ''}" data-act="pick-time" data-val="${x.time}" title="${esc(x.reason || (x.tableId ? 'Table ' + (tableById(x.tableId) || {}).label : ''))}">${esc(x.time)}</button>`).join('')}</div>`;
-  const tablesHtml = m.free ? `<div class="chips">${m.free.tables.map(t => { const on = b.tableId === t.id, extra = (b.tableIds || []).includes(t.id); return `<button class="chip${on || extra ? ' active' : ''}${!t.free && !on && !extra ? ' taken' : ''}${m.free.suggested === t.id ? ' best' : ''}" data-act="pick-table" data-val="${t.id}" title="${esc(t.name)}">T${esc(t.label)} <span class="sub">${t.seats}</span>${extra ? '<span class="sub">+</span>' : ''}</button>`; }).join('')}</div>` : b.time ? '<div class="ts">Loading tables…</div>' : '<div class="ts">Pick a time first — the free tables follow.</div>';
-  const conflicts = (m.conflicts || []);
+  const m = state.modal, b = m.b, isEdit = !!b.id;
+  const page = m.page && BK_PAGES[m.page] ? m.page : '';
+  const tables = heldTables(b).map(tableName).join(' + ');
+  const whenTxt = `${fmtDay(b.date)}${b.time ? ' · ' + fmtHHMM(b.time) : ''}`;
+  const tagTxt = (b.tags || []).join(', ');
+
+  const body = page ? renderBookingPage(page) : `
+    ${m.error ? `<div class="err">${esc(m.error)}</div>` : ''}
+    ${(m.conflicts || []).length ? `<div class="warnbox">${esc(conflictLine(m.conflicts))}</div>` : ''}
+    ${m.closed ? `<div class="warnbox">${m.note ? 'Closed — ' + esc(m.note) : 'Closed that day'}. A time can still be set by hand under Date &amp; time.</div>` : ''}
+    <div class="bk-rows">
+      ${isEdit ? bkRow('status', 'Status', '', { html: statusDot(b.status) + esc(statusLabel(b.status)) }) : ''}
+      ${bkRow('guest', 'Guest', b.name || 'No name yet', { none: !b.name })}
+      ${bkRow('when', 'Date & time', whenTxt, { none: !b.time })}
+      ${bkRow('party', 'Party', `${b.partySize} ${b.partySize === 1 ? 'cover' : 'covers'} · holds ${durationOf(b)} min`)}
+      ${bkRow('table', 'Table', tables || 'Not assigned', { none: !tables })}
+      ${bkRow('setmenu', 'Set menu', setMenuName(b) || 'None', { none: !setMenuName(b) })}
+      ${bkRow('tags', 'Tags', tagTxt || 'None', { none: !tagTxt })}
+      ${bkRow('notes', 'Notes', String(b.notes || '').trim() || 'None', { none: !String(b.notes || '').trim() })}
+    </div>
+    ${renderBookingSpend(m)}
+    ${isEdit ? `<div class="ts" style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span>Made by ${esc(b.createdBy || '—')} · ${esc(fmtStamp(b.createdAt))}${b.pos && b.pos.id ? ' · on the till' : ''}${b.cancelReason ? ' · ' + esc(b.cancelReason) : ''}</span>${b.tableId && tillUrl(b.tableId) ? `<button class="chip" data-act="to-till-table" data-table="${esc(b.tableId)}" style="min-height:32px;padding:5px 11px;">Open ${esc(tableName(b.tableId))} on the till</button>` : ''}</div>${renderBookingHistory(b)}` : ''}`;
+
   return `<div class="modal-bg full" data-act="close-modal"><div class="modal full" data-stop="1">
     <div class="modal-top">
-      <h2>${isEdit ? esc(b.name || 'Booking') : 'New booking'} ${isEdit ? statusChip(b.status) : ''}${isEdit ? sourceChip(b.source) : ''}${b.ref ? `<span class="tag mono">${esc(b.ref)}</span>` : ''}</h2>
+      ${page ? `<button class="chip sq" data-act="bk-back" aria-label="Back to the booking">${I.left}</button>` : ''}
+      <h2>${page ? esc(BK_PAGES[page]) : (isEdit ? esc(b.name || 'Booking') : 'New booking')}
+        ${page ? '' : (isEdit ? statusChip(b.status) + sourceChip(b.source) : '')}
+        ${page || !b.ref ? '' : `<span class="tag mono">${esc(b.ref)}</span>`}</h2>
       <button class="chip sq" data-act="close-modal" aria-label="Close">${I.cross}</button>
     </div>
-    <div class="modal-body">
-    ${m.error ? `<div class="err">${esc(m.error)}</div>` : ''}
-    ${isEdit ? `<div class="status-row">
-      ${['booked', 'confirmed', 'arrived', 'seated', 'done', 'no-show', 'cancelled'].map(st => `<button class="chip${b.status === st ? ' active' : ''}" data-act="set-status" data-val="${st}">${statusLabel(st)}</button>`).join('')}
-    </div>` : ''}
-    <div class="grid2" style="margin-top:${isEdit ? 12 : 0}px;">
-      <div><label for="bk-name">Guest name</label><input id="bk-name" type="text" value="${esc(b.name)}" data-field="modal.b.name" placeholder="e.g. Smith" autocomplete="off"></div>
-      <div><label for="bk-phone">Phone</label><input id="bk-phone" type="tel" value="${esc(b.phone)}" data-field="modal.b.phone" placeholder="Optional"></div>
-    </div>
-    <div class="grid2">
-      <div><label for="bk-date">Date</label><input id="bk-date" type="date" value="${esc(day)}" data-field="modal.b.date" data-avail="1"></div>
-      <div><label>Party</label><div class="inline">${stepper('modal.b.partySize', b.partySize, 1)}<span class="ts">holds ${durationOf(b)} min</span><input type="number" min="15" max="480" placeholder="min" value="${b.durationMin || ''}" data-field="modal.b.durationMin" data-avail="1" style="width:84px;" aria-label="Custom duration"></div></div>
-    </div>
-    <label>Time ${m.services && m.services.length ? `<span class="mono" style="text-transform:none;letter-spacing:0;">· ${m.services.map(x => esc(x.name)).join(', ')}</span>` : ''}</label>
-    ${m.closed ? `<div class="warnbox">${m.note ? 'Closed — ' + esc(m.note) : 'Closed that day'}. You can still book it below with “Another time”.</div>` : ''}
-    ${slotHtml}
-    <div class="inline" style="margin-top:6px;"><span class="ts">Another time:</span><input type="time" value="${esc(b.time)}" data-field="modal.b.time" data-avail="tables" style="width:130px;" aria-label="Custom time"></div>
-    <label>Table ${b.tableId ? `<span style="text-transform:none;letter-spacing:0;">· ${esc(heldTables(b).map(tableName).join(' + '))}</span>` : '· none yet'}</label>
-    ${tablesHtml}
-    <div class="ts" style="margin-top:4px;">Green edge is the best fit. Tap a second table to join it on. Tap the picked table to clear it.</div>
-    ${conflicts.length ? `<div class="warnbox">${esc(conflictLine(conflicts))}</div>` : ''}
-    ${setMenuPicker(b)}
-    ${renderBookingSpend(m)}
-    <label>Tags</label>
-    <div class="chips">${tags.map(t => `<button class="chip${(b.tags || []).includes(t) ? ' active' : ''}" data-act="toggle-tag" data-val="${esc(t)}">${esc(t)}</button>`).join('')}</div>
-    <label for="bk-notes">Notes</label>
-    <textarea id="bk-notes" data-field="modal.b.notes" placeholder="Window seat, allergy, cake at dessert…">${esc(b.notes)}</textarea>
-    <label for="bk-email">Email</label><input id="bk-email" type="email" value="${esc(b.email)}" data-field="modal.b.email" placeholder="Optional">
-    ${isEdit ? `<div class="ts" style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span>Made by ${esc(b.createdBy || '—')} · ${esc(fmtStamp(b.createdAt))}${b.pos && b.pos.id ? ' · on the till' : ''}${b.cancelReason ? ' · ' + esc(b.cancelReason) : ''}</span>${b.tableId && tillUrl(b.tableId) ? `<button class="chip" data-act="to-till-table" data-table="${esc(b.tableId)}" style="min-height:32px;padding:5px 11px;">Open ${esc(tableName(b.tableId))} on the till</button>` : ''}</div>${renderBookingHistory(b)}` : ''}
-    </div>
-    ${actionKeys({ saveAct: 'save-booking', saveLabel: isEdit ? 'Save' : 'Book', left: isEdit ? `<button class="icon-action discard left" data-act="delete-booking">${I.trash}<span class="ia-label">Delete</span></button>` : '' })}
+    <div class="modal-body">${body}</div>
+    ${actionKeys({ saveAct: 'save-booking', saveLabel: isEdit ? 'Save' : 'Book', left: isEdit && !page ? `<button class="icon-action discard left" data-act="delete-booking">${I.trash}<span class="ia-label">Delete</span></button>` : '' })}
   </div></div>`;
+}
+
+// One page, one decision.
+function renderBookingPage(page) {
+  const m = state.modal, b = m.b, s = state.settings;
+
+  if (page === 'status') {
+    return `<div class="ts">Where this booking is. The colour is the same one it wears on the floor, the timeline and the list.</div>
+      <div class="bk-pick">${STATUS_KEY.map(k => `<button class="bk-opt${b.status === k[0] ? ' on' : ''}" data-act="set-status" data-val="${k[0]}">
+        <span class="bk-opt-mark">${statusDot(k[0])}</span>
+        <span class="bk-opt-text"><b>${esc(k[1])}</b><span>${esc(k[3])}</span></span>
+        ${b.status === k[0] ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
+      </button>`).join('')}</div>`;
+  }
+
+  if (page === 'guest') {
+    return `<div class="bk-form">
+      <div><label for="bk-name">Name</label><input id="bk-name" type="text" value="${esc(b.name)}" data-field="modal.b.name" placeholder="e.g. Smith" autocomplete="off"></div>
+      <div><label for="bk-phone">Phone</label><input id="bk-phone" type="tel" value="${esc(b.phone)}" data-field="modal.b.phone" placeholder="Optional"></div>
+      <div><label for="bk-email">Email</label><input id="bk-email" type="email" value="${esc(b.email)}" data-field="modal.b.email" placeholder="Optional"></div>
+      <div class="ts">A phone number is what finds this booking again when somebody rings and cannot remember the date.</div>
+    </div>`;
+  }
+
+  if (page === 'when') {
+    const slots = !m.slots ? '<div class="ts">Loading times…</div>'
+      : !m.slots.length ? '<div class="ts">No times are offered on this day.</div>'
+        : `<div class="slots">${m.slots.map(x => `<button class="chip${b.time === x.time ? ' active' : ''}${!x.ok && b.time !== x.time ? ' off' : ''}" data-act="pick-time" data-val="${x.time}" title="${esc(x.reason || (x.tableId ? 'Table ' + (tableById(x.tableId) || {}).label : ''))}">${esc(x.time)}</button>`).join('')}</div>`;
+    return `<div class="bk-form">
+      <div><label for="bk-date">Date</label><input id="bk-date" type="date" value="${esc(b.date)}" data-field="modal.b.date" data-avail="1"></div>
+    </div>
+    ${m.closed ? `<div class="warnbox">${m.note ? 'Closed — ' + esc(m.note) : 'Closed that day'}. A time can still be set by hand below.</div>` : ''}
+    <label>Times ${m.services && m.services.length ? `<span class="mono" style="text-transform:none;letter-spacing:0;">· ${m.services.map(x => esc(x.name)).join(', ')}</span>` : ''}</label>
+    ${slots}
+    <div class="inline" style="margin-top:12px;"><span class="ts">Another time:</span><input type="time" value="${esc(b.time)}" data-field="modal.b.time" data-avail="tables" style="width:140px;" aria-label="Custom time"></div>
+    <div class="ts" style="margin-top:8px;">A faded time is one the pacing or the floor is against — it can still be taken, and the reason is on it.</div>`;
+  }
+
+  if (page === 'party') {
+    return `<div class="bk-form">
+      <div><label>How many</label><div class="inline">${stepper('modal.b.partySize', b.partySize, 1)}<span class="ts">of ${s.maxPartySize} allowed</span></div></div>
+      <div><label for="bk-dur">How long the table is held</label>
+        <div class="inline"><input id="bk-dur" type="number" min="15" max="480" placeholder="${durationOf(b)}" value="${b.durationMin || ''}" data-field="modal.b.durationMin" data-avail="1" style="width:110px;"><span class="ts">minutes · ${b.durationMin ? 'set by hand' : 'from the party size'}</span></div></div>
+      <div class="ts">Leave the minutes empty and the sitting follows the party size, the way the POS does it. A party of ${b.partySize} holds ${durationOf(b)} minutes.</div>
+    </div>`;
+  }
+
+  if (page === 'table') {
+    if (!b.time) return '<div class="ts">Pick a time first — which tables are free follows from it.</div>';
+    if (!m.free) return '<div class="ts">Loading tables…</div>';
+    const held = heldTables(b);
+    return `<div class="ts">What each table is doing at ${esc(fmtHHMM(b.time))}. Tap a second table to join it on; tap a picked one to let it go.</div>
+      <div class="bk-pick">${m.free.tables.map(t => {
+        const on = held.includes(t.id);
+        const state2 = on ? 'picked' : t.free ? 'free' : 'taken';
+        const word = on ? (b.tableId === t.id ? 'This booking' : 'Joined on') : t.free ? 'Free' : 'Taken at this time';
+        return `<button class="bk-opt${on ? ' on' : ''}${!t.free && !on ? ' off' : ''}" data-act="pick-table" data-val="${t.id}">
+          <span class="bk-opt-mark"><i class="fl-dot${t.free ? '' : ' seated'}"></i></span>
+          <span class="bk-opt-text"><b>${esc(t.name || ('T' + t.label))} <span class="bk-seats">${t.seats} seats</span>${m.free.suggested === t.id && !on ? '<span class="tag good">Best fit</span>' : ''}</b><span>${esc(word)}</span></span>
+          ${on ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
+        </button>`;
+      }).join('')}</div>`;
+  }
+
+  if (page === 'setmenu') return setMenuPicker(b);
+
+  if (page === 'tags') {
+    const tags = (s.tags || TAG_LIST);
+    return `<div class="ts">What the floor and the kitchen need to know before the party sits down. Tap to turn one on or off.</div>
+      <div class="bk-pick">${tags.map(t => {
+        const on = (b.tags || []).includes(t);
+        const hot = String(t).toLowerCase() === 'allergy';
+        return `<button class="bk-opt${on ? ' on' : ''}" data-act="toggle-tag" data-val="${esc(t)}">
+          <span class="bk-opt-mark">${hot ? `<span class="bl-mark hot">${I.alert}</span>` : ''}</span>
+          <span class="bk-opt-text"><b>${esc(t)}</b>${hot ? '<span>The one a cook has to act on — it prints on the run sheet in red.</span>' : ''}</span>
+          ${on ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
+        </button>`;
+      }).join('')}</div>`;
+  }
+
+  if (page === 'notes') {
+    return `<div class="bk-form">
+      <div><label for="bk-notes">Notes</label>
+      <textarea id="bk-notes" data-field="modal.b.notes" placeholder="Window seat, allergy, cake at dessert…" style="min-height:160px;">${esc(b.notes)}</textarea></div>
+      <div class="ts">This reaches the run sheet and the till. Square brackets and braces are stripped on the way to the POS, so a note can never forge one of its own fields.</div>
+    </div>`;
+  }
+  return '';
 }
 // The set menu this booking is committed to, picked from the POS's own combos
 // so the desk picks a thing the till knows rather than typing free text. The
@@ -7272,7 +7416,7 @@ function openBooking(r, preset, opts) {
     const step = state.settings.slotMinutes || 15;
     if (b.date === localDay(now)) b.time = fromMin(Math.ceil((now.getHours() * 60 + now.getMinutes()) / step) * step);
   }
-  state.modal = { kind: 'booking', b, slots: null, free: null, conflicts: (r && r.conflicts) || [], error: '', notifyId: (opts && opts.notifyId) || null, from: (opts && opts.from) || null, spend: null };
+  state.modal = { kind: 'booking', page: '', b, slots: null, free: null, conflicts: (r && r.conflicts) || [], error: '', notifyId: (opts && opts.notifyId) || null, from: (opts && opts.from) || null, spend: null };
   render();
   loadAvailability(true);
   // What is on their table. ONLY here: the ten-second poll never asks, so a
@@ -7488,14 +7632,19 @@ document.addEventListener('click', async (ev) => {
       case 'close-modal': closeModal(); break;
       case 'confirm-yes': { const fn = state.modal.onYes; state.modal = null; render(); if (fn) await fn(); break; }
       case 'step': { const m = state.modal; const cur = getPath(state, el.dataset.field) || 1; setPath(state, el.dataset.field, Math.max(1, cur + parseInt(val))); render(); if (m && m.kind === 'booking') loadAvailability(true); break; }
-      case 'pick-time': state.modal.b.time = val; render(); loadAvailability(false); break;
+      // Each row of the booking opens the page its thing lives on, and comes
+      // straight back when the decision is made. Tables and tags do not:
+      // a table can be joined to another, a booking can carry three tags.
+      case 'bk-page': state.modal.page = val; render(); break;
+      case 'bk-back': state.modal.page = ''; render(); break;
+      case 'pick-time': state.modal.b.time = val; state.modal.page = ''; render(); loadAvailability(false); break;
       case 'pick-table': { const b = state.modal.b; if (b.tableId === val) { b.tableId = (b.tableIds || []).shift() || null; } else if (!b.tableId) b.tableId = val; else { b.tableIds = b.tableIds || []; const i = b.tableIds.indexOf(val); if (i >= 0) b.tableIds.splice(i, 1); else b.tableIds.push(val); } render(); loadAvailability(false); break; }
       // A fresh object every time, never a mutation of the row the day list
       // holds: the popup edits a copy, and the picker must not reach back
       // into it. Tapping the lit chip clears the menu.
-      case 'pick-set-menu': { const b = state.modal.b; b.setMenu = setMenuName(b) === val ? null : { id: id || null, name: val }; render(); break; }
+      case 'pick-set-menu': { const b = state.modal.b; b.setMenu = setMenuName(b) === val ? null : { id: id || null, name: val }; state.modal.page = ''; render(); break; }
       case 'toggle-tag': { const b = state.modal.b; b.tags = b.tags || []; const i = b.tags.indexOf(val); if (i >= 0) b.tags.splice(i, 1); else b.tags.push(val); render(); break; }
-      case 'set-status': state.modal.b.status = val; render(); break;
+      case 'set-status': state.modal.b.status = val; state.modal.page = ''; render(); break;
       case 'save-booking': saveBooking(); break;
       // Cancelling the confirm closes to the view behind; the query is still in
       // `state.find`, one tap on the deck magnifier brings it back.
@@ -7960,6 +8109,7 @@ document.addEventListener('keydown', (ev) => {
   // A live drag owns Escape first: the block goes back where it was.
   if (ev.key === 'Escape' && tlDrag) { cancelTlDrag(); return; }
   if (state.modal && state.modal.kind === 'find' && ev.key === 'Enter') { clearTimeout(_findTimer); runFind(); return; }
+  if (ev.key === 'Escape' && state.modal && state.modal.page) { state.modal.page = ''; render(); return; }
   if (ev.key === 'Escape' && state.modal) { closeModal(); return; }
   if (!state.modal && !typingInField() && (ev.key === '/' || ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k'))) { ev.preventDefault(); openFind(true); }
 });

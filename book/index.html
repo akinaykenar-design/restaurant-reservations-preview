@@ -745,6 +745,46 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .modal-bg.full{padding:24px;}
   .modal.full{border-radius:var(--r-surface);max-width:960px;margin:0 auto;height:100%;}
 }
+
+/* §§ The booking's rows, and the pages behind them
+   The POS's Row law: 54 tall, one hairline, 8 apart. The label on the left,
+   what it IS on the right, and a chevron saying there is a page behind it. */
+.bk-rows{display:flex;flex-direction:column;gap:var(--list-gap);}
+.bk-row{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:8px 12px;
+  background:var(--surface);border:1px solid var(--steel-300);border-radius:var(--r-control);
+  text-align:left;cursor:pointer;}
+.bk-row.warn{border-color:var(--gold);}
+.bk-k{flex:0 0 116px;font-size:var(--fs-chip);font-weight:700;letter-spacing:.7px;
+  text-transform:uppercase;color:var(--charcoal-soft);}
+.bk-v{flex:1;min-width:0;display:flex;align-items:center;gap:2px;font-size:var(--fs-md);
+  font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bk-v.none{font-weight:400;color:var(--charcoal-soft);}
+.bk-chev{display:flex;flex:none;color:var(--steel-500);}
+.bk-chev svg{width:20px;height:20px;}
+
+/* A page behind a row is a list of whole options, not a wall of chips — room
+   for the name, what it means, and a tick on the one that is chosen. */
+.bk-pick{display:flex;flex-direction:column;gap:var(--list-gap);}
+.bk-opt{display:flex;align-items:flex-start;gap:12px;width:100%;min-height:var(--h-primary);
+  padding:12px;background:var(--surface);border:1px solid var(--steel-300);
+  border-radius:var(--r-control);text-align:left;cursor:pointer;}
+.bk-opt.on{border-color:var(--orange);box-shadow:inset 0 0 0 var(--ring) var(--orange);background:var(--pick-wash);}
+.bk-opt.off{opacity:var(--dim-off);}
+.bk-opt-mark{flex:0 0 24px;display:flex;align-items:center;justify-content:center;padding-top:4px;}
+.bk-opt-mark:empty{flex:0 0 0;}
+.bk-opt-mark .st-dot{margin-right:0;width:14px;height:14px;flex:0 0 14px;}
+.bk-opt-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.bk-opt-text b{font-size:var(--fs-lg);font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.bk-opt-text span{font-size:var(--fs-chip);color:var(--charcoal-soft);line-height:1.5;}
+.bk-opt-tick{flex:none;display:flex;color:var(--orange);}
+.bk-opt-tick svg{width:24px;height:24px;}
+.bk-seats{font-family:var(--font-mono);font-weight:500;font-size:var(--fs-chip);color:var(--charcoal-soft);}
+.bk-form{display:flex;flex-direction:column;gap:16px;}
+@media (max-width:520px){
+  .bk-row{flex-wrap:wrap;gap:2px 12px;align-items:flex-start;padding:10px 12px;}
+  .bk-k{flex:1 0 100%;}
+  .bk-v{flex:1;}
+}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
