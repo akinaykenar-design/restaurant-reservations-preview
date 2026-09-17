@@ -5701,7 +5701,7 @@ module.exports = { app, posPass };
 // from /api/public/*, which never exposes other guests' bookings.
 'use strict';
 
-const st = { info: null, party: 2, date: '', slots: null, reason: '', note: '', time: '', name: '', phone: '', email: '', notes: '', error: '', busy: false, done: null, lookup: '', found: null,
+const st = { info: null, party: 2, date: '', slots: null, reason: '', note: '', time: '', name: '', phone: '', email: '', notes: '', error: '', busy: false, done: null,
   // The notify list — "tell me if something opens". Its name and phone are
   // deliberately NOT the booking form's, so a half-typed booking is never
   // silently reused as a notify entry.
@@ -5810,7 +5810,7 @@ function render() {
   if (!i.enabled) { app.innerHTML = `<div class="book">${head}<div class="card"><h1>Bookings by phone</h1><div class="ts" style="text-align:center;">Online bookings are not open right now.${i.venuePhone ? ` Please call <a href="tel:${esc(i.venuePhone)}">${esc(i.venuePhone)}</a>.` : ''}</div></div></div>`; return; }
   if (st.done) {
     const d = st.done;
-    app.innerHTML = `<div class="book">${head}<div class="card done"><h1>See you soon, ${esc(d.name.split(' ')[0])}.</h1><div class="ts">${esc(fmtWhen(d.time))} · ${d.partySize} ${d.partySize === 1 ? 'guest' : 'guests'}</div><div class="field-label" style="margin-top:12px;">Your reference</div><div class="ref">${esc(d.ref)}</div><div class="ts">Keep it to cancel online. ${i.venuePhone ? 'Or call ' + esc(i.venuePhone) + '.' : ''}</div><button class="btn" data-act="again" style="margin-top:12px;">Make another booking</button></div>${i.venueAddress ? `<div class="foot">${esc(i.venueAddress)}</div>` : ''}</div>`;
+    app.innerHTML = `<div class="book">${head}<div class="card done"><h1>See you soon, ${esc(d.name.split(' ')[0])}.</h1><div class="ts">${esc(fmtWhen(d.time))} · ${d.partySize} ${d.partySize === 1 ? 'guest' : 'guests'}</div><div class="field-label" style="margin-top:12px;">Your reference</div><div class="ref">${esc(d.ref)}</div><div class="ts">Quote it if you need to change or cancel${i.venuePhone ? ` — call <a href="tel:${esc(i.venuePhone)}">${esc(i.venuePhone)}</a>` : ''}.</div><button class="btn" data-act="again" style="margin-top:12px;">Make another booking</button></div>${i.venueAddress ? `<div class="foot">${esc(i.venueAddress)}</div>` : ''}</div>`;
     return;
   }
   // On the list, not booked — and it says so twice, because the difference is
@@ -5873,11 +5873,6 @@ function render() {
       ${st.error ? `<div class="err" style="color:var(--red);font-weight:700;margin-top:8px;">${esc(st.error)}</div>` : ''}
       <button class="btn go" data-act="book" style="margin-top:12px;min-height:56px;" ${st.busy ? 'disabled' : ''}>Book ${st.party} for ${esc(fmtHHMM(st.time))} on ${esc(parseDay(st.date).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' }))}</button>
     </div>` : ''}
-    <div class="card">
-      <div class="field-label">Already booked?</div>
-      <div class="inline"><input type="text" id="b-ref" placeholder="Reference, e.g. BX7K2A" value="${esc(st.lookup)}" data-field="lookup" style="flex:1;text-transform:uppercase;" autocomplete="off"><button class="btn" data-act="lookup">Find</button></div>
-      ${st.found ? (st.found.error ? `<div class="ts">${esc(st.found.error)}</div>` : `<div class="ts">${esc(st.found.name)} · ${esc(fmtWhen(st.found.time))} · ${st.found.partySize} guests · ${esc(st.found.status)}</div>${['booked', 'confirmed'].includes(st.found.status) ? `<button class="btn danger" data-act="cancel">Cancel this booking</button>` : ''}`) : ''}
-    </div>
     <div class="foot">${esc(i.venueAddress || '')}${i.venuePhone ? (i.venueAddress ? ' · ' : '') + esc(i.venuePhone) : ''}</div>
   </div>`;
   if (focus) { const el = document.getElementById(focus); if (el) el.focus(); }
@@ -5905,8 +5900,6 @@ document.addEventListener('click', async (ev) => {
       st.busy = false; render();
     }
     else if (act === 'again') { st.done = null; st.notifyDone = null; st.notifyOpen = false; st.notifyError = ''; st.time = ''; st.slots = null; st.date = ''; st.reason = ''; st.note = ''; render(); }
-    else if (act === 'lookup') { try { st.found = await api('/api/public/booking/' + encodeURIComponent(st.lookup.trim().toUpperCase())); } catch (e) { st.found = { error: e.message }; } render(); }
-    else if (act === 'cancel') { if (!confirm('Cancel this booking?')) return; await api('/api/public/booking/' + encodeURIComponent(st.found.ref) + '/cancel', {}); st.found = Object.assign({}, st.found, { status: 'cancelled' }); render(); }
   } catch (e) { st.error = e.message; render(); }
 });
 document.addEventListener('input', (ev) => { const f = ev.target.dataset && ev.target.dataset.field; if (f) st[f] = ev.target.value; });
