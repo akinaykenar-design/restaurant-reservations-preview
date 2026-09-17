@@ -839,12 +839,20 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .deck-chip{height:var(--tap);min-width:76px;padding:0 14px;border-radius:var(--r-btn);
   background:var(--deck-chip-bg);color:var(--deck-chip-ink);font-weight:700;font-size:var(--fs-md);}
 .deck-chip.active{background:var(--deck-chip-on-bg);color:var(--deck-chip-on-ink);}
-.deck-date{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 14px;
-  margin-left:4px;border:none;border-radius:var(--r-btn);background:none;color:var(--text-primary);
-  font-weight:700;font-size:var(--fs-lg);white-space:nowrap;cursor:pointer;}
+.topbar{position:relative;}
+.deck-date{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  min-height:var(--tap);padding:2px 14px;border:none;border-radius:var(--r-btn);background:none;
+  color:var(--text-primary);cursor:pointer;
+  position:absolute;left:50%;transform:translateX(-50%);max-width:46%;}
 .deck-date:hover{background:var(--steel-200);}
+.dd-1{display:flex;align-items:center;gap:8px;font-weight:700;font-size:var(--fs-lg);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.dd-2{font-size:var(--fs-chip);font-weight:700;letter-spacing:.3px;color:var(--charcoal-soft);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .deck-date svg{width:20px;height:20px;flex:0 0 20px;opacity:.75;}
 @media (max-width:700px){ .deck-chip{min-width:0;padding:0 10px;} }
+/* A short bar has no room for a second line under the date. */
+@media (max-height:520px){ .dd-2{display:none;} }
 
 /* §§ The plan — a drawing, not a screen
    Chairs are the whole difference between a floor plan and a row of boxes
@@ -892,7 +900,10 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .phone-only{display:inline-flex;}
   .d-long{display:none;}
   .d-short{display:inline;}
-  .deck-date{flex:1;min-width:0;margin-left:0;font-size:var(--fs-lg);}
+  /* A phone's bar is three keys and the date; absolute centring would sit it
+     under them, so here it just takes the room that is left. */
+  .deck-date{position:static;transform:none;flex:1;min-width:0;max-width:none;align-items:flex-start;}
+  .dd-2{display:none;}
   .deck-spacer{display:none;}
   .deck-date span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .topbar{gap:4px;}
@@ -1542,7 +1553,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     bar.id = 'pv-bar';
     bar.innerHTML = '<span class="pv-say">' + (window.__RESV_IS_BOOK__
         ? 'Preview \u00b7 bookings made here land on the front desk.'
-        : 'Preview \u00b7 the whole app runs in this tab. Settings ask for the manager PIN 1234.')
+        : 'Preview \u00b7 the whole app runs in this tab, on its own copy of the data.')
       + '</span>'
       + (window.__RESV_IS_BOOK__
         ? '<a href="../">The front desk</a>'
@@ -4483,6 +4494,7 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public'), { setHeaders: (res) => { res.setHeader('Cache-Control', 'no-cache'); } }));
 app.get('/book', (req, res) => res.sendFile(path.join(__dirname, 'public', 'book.html')));
 
+
 // ---------- who did it ----------
 function staffFromReq(req) { return req.get('X-Staff-Name') || 'Unknown'; }
 function logAudit(data, staffName, action) {
@@ -4490,48 +4502,8 @@ function logAudit(data, staffName, action) {
   data.auditLog.unshift({ id: newId('a'), timestamp: Date.now(), staffName, action });
   if (data.auditLog.length > 2000) data.auditLog.length = 2000;
 }
-// A manager proves it with the PIN their session sends on every request —
-// checked against the POS when linked, else the local list.
-const _pinCache = new Map(); // pin -> { staff, at }
-async function staffForPin(data, pin) {
-  if (typeof pin !== 'string' || !pin) return null;
-  const cfg = data.settings.pos;
-  if (pos.ready(cfg) && cfg.useStaff !== false) {
-    const hit = _pinCache.get(pin);
-    if (hit && Date.now() - hit.at < 5 * 60000) return hit.staff;
-    try {
-      const s = await pos.verifyPin(cfg, pin);
-      if (s && s.id) { const staff = { id: s.id, name: s.name, role: s.role, via: 'pos' }; _pinCache.set(pin, { staff, at: Date.now() }); return staff; }
-      return null;
-    } catch (e) {
-      if (e.status === 401 || e.status === 429) return null;
-      // POS unreachable: fall through to the local list so service continues.
-    }
-  }
-  const s = data.staff.find(x => x.pin === pin);
-  return s ? { id: s.id, name: s.name, role: s.role, via: 'local' } : null;
-}
-async function managerFromReq(req, data) {
-  const s = await staffForPin(data, req.get('X-Staff-Pin') || (req.body && req.body.managerPin));
-  return s && s.role === 'manager' ? s : null;
-}
 
-// PIN brute-force guard, per device IP (the POS's numbers).
-const PIN_MAX_FAILS = 10, PIN_WINDOW_MS = 5 * 60000, PIN_LOCK_MS = 5 * 60000;
-const pinAttempts = new Map();
 function ipOf(req) { return req.ip || (req.connection && req.connection.remoteAddress) || 'unknown'; }
-function pinRateBlocked(req, res) {
-  const rec = pinAttempts.get(ipOf(req)) || { fails: [], lockUntil: 0 };
-  if (rec.lockUntil > Date.now()) { res.status(429).json({ error: `Too many incorrect PINs. Try again in ${Math.ceil((rec.lockUntil - Date.now()) / 1000)}s.` }); return true; }
-  return false;
-}
-function pinRecordFailure(req) {
-  const ip = ipOf(req), now = Date.now();
-  const rec = pinAttempts.get(ip) || { fails: [], lockUntil: 0 };
-  rec.fails = rec.fails.filter(ts => now - ts < PIN_WINDOW_MS); rec.fails.push(now);
-  if (rec.fails.length >= PIN_MAX_FAILS) { rec.lockUntil = now + PIN_LOCK_MS; rec.fails = []; }
-  pinAttempts.set(ip, rec);
-}
 
 // ---------- the venue's shape, from the POS when linked ----------
 function effectiveSettings(data) {
@@ -4564,20 +4536,8 @@ app.get('/api/staff', (req, res) => {
   res.json(list);
 });
 
-app.post('/api/login', async (req, res) => {
-  if (pinRateBlocked(req, res)) return;
-  const data = readData();
-  const pin = String((req.body && req.body.pin) || '');
-  if (!/^\d{1,8}$/.test(pin)) return res.status(400).json({ error: 'Enter your PIN' });
-  const s = await staffForPin(data, pin);
-  if (!s) { pinRecordFailure(req); return res.status(401).json({ error: 'Incorrect PIN' }); }
-  pinAttempts.delete(ipOf(req));
-  res.json(s);
-});
-
 app.post('/api/staff', async (req, res) => {
   const data = readData();
-  if (!(await managerFromReq(req, data))) return res.status(403).json({ error: 'Only a manager can add staff' });
   const { name, pin, role } = req.body || {};
   if (!name || !String(name).trim() || !/^\d{4,8}$/.test(String(pin || ''))) return res.status(400).json({ error: 'Name and a PIN of 4 to 8 digits are required' });
   if (data.staff.some(s => s.pin === pin)) return res.status(400).json({ error: 'That PIN is already in use' });
@@ -4590,7 +4550,6 @@ app.post('/api/staff', async (req, res) => {
 
 app.delete('/api/staff/:id', async (req, res) => {
   const data = readData();
-  if (!(await managerFromReq(req, data))) return res.status(403).json({ error: 'Only a manager can remove staff' });
   const st = data.staff.find(s => s.id === req.params.id);
   if (!st) return res.status(404).json({ error: 'Staff member not found' });
   if (data.staff.filter(s => s.role === 'manager').length <= 1 && st.role === 'manager') return res.status(400).json({ error: 'Keep at least one manager' });
@@ -4611,7 +4570,6 @@ app.get('/api/settings', (req, res) => { res.json(safeSettings(readData())); });
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 app.put('/api/settings', async (req, res) => {
   const data = readData();
-  if (!(await managerFromReq(req, data))) return res.status(403).json({ error: 'Only a manager can change settings' });
   const b = req.body || {}, s = data.settings;
 
   // Windows are normalised and CHECKED before a single field is written.
@@ -4691,7 +4649,6 @@ app.put('/api/settings', async (req, res) => {
     if (p.baseUrl !== undefined) s.pos.baseUrl = String(p.baseUrl || '').trim().replace(/\/+$/, '').slice(0, 120);
     if (p.enabled !== undefined) s.pos.enabled = !!p.enabled;
     for (const k of ['pushBookings', 'pullStatus', 'useStaff', 'useFloor', 'useOrders', 'useMenus']) if (p[k] !== undefined) s.pos[k] = !!p[k];
-    _pinCache.clear();
   }
   logAudit(data, staffFromReq(req), 'Updated settings');
   writeData(data);
@@ -4734,7 +4691,6 @@ app.get('/api/tables', (req, res) => {
 // Local floor editing — only when no POS holds the floor.
 app.put('/api/tables', async (req, res) => {
   const data = readData();
-  if (!(await managerFromReq(req, data))) return res.status(403).json({ error: 'Only a manager can change tables' });
   if (pos.ready(data.settings.pos) && data.settings.pos.useFloor !== false) return res.status(400).json({ error: 'Tables come from the POS while it is linked. Edit them there.' });
   const list = Array.isArray(req.body && req.body.tables) ? req.body.tables : [];
   const tables = list.slice(0, 200).map((t, i) => ({ id: t.id || newId('t'), label: String(t.label || (i + 1)).slice(0, 8), seats: Math.max(1, Math.min(40, parseInt(t.seats) || 2)), type: 'table' }));
@@ -4760,7 +4716,6 @@ app.get('/api/set-menus', (req, res) => { res.json(setMenusOf(readData())); });
 // Local set menus — only when no POS holds them. Mirrors PUT /api/tables.
 app.put('/api/set-menus', async (req, res) => {
   const data = readData();
-  if (!(await managerFromReq(req, data))) return res.status(403).json({ error: 'Only a manager can change set menus' });
   if (setMenusOf(data).fromPos) return res.status(400).json({ error: 'Set menus come from the POS while it is linked. Edit them there.' });
   const seen = new Set();
   data.setMenus = (Array.isArray(req.body && req.body.menus) ? req.body.menus : []).slice(0, 40)
@@ -5945,9 +5900,10 @@ const I = {
 
 // §§ State
 const state = {
-  // A NAME, not a credential — nothing is unlocked by it. `pin` is the
-  // manager's, held in memory only, and is the one secret the desk carries.
-  staff: null, pin: '', online: true,
+  // A NAME, not a credential. There is nothing to unlock: the desk has no
+  // door and Settings has no PIN — what guards this app is the front door of
+  // the restaurant it is standing in.
+  staff: null, online: true,
   settings: null, theme: { accent: '#2F74C9', mode: 'auto' }, tables: [], floorPlans: [], staffList: [], posStatus: null,
   // The set menus the desk can pick from, and whether they are the POS's own
   // combos (which makes the Settings card read-only, as the Staff card is).
@@ -6046,7 +6002,6 @@ function durationOf(r) {
 function exceptionOn(day) { return (((state.settings || {}).exceptions) || []).find(x => x && x.date === day) || null; }
 function weeklyServicesOn(day) { if (!/^\d{4}-\d{2}-\d{2}$/.test(String(day || ''))) return []; const wd = parseDay(day).getDay(); return (((state.settings || {}).services) || []).filter(x => (x.days || []).includes(wd)); }
 function servicesOnDay(day) { const ex = exceptionOn(day); if (ex) return ex.closed ? [] : (ex.services || []); return weeklyServicesOn(day); }
-function isManager() { return !!state.pin; }
 function heldTables(r) { return [r.tableId, ...(r.tableIds || [])].filter(Boolean); }
 // The set menu a booking carries, or ''. availability.js:setMenuNameOf() on
 // this side — the name is the identity, so a whitespace-only one is none.
@@ -6191,7 +6146,6 @@ async function api(path, opts) {
   opts.headers = Object.assign({}, opts.headers);
   if (opts.body && !opts.headers['Content-Type']) opts.headers['Content-Type'] = 'application/json';
   if (state.staff) opts.headers['X-Staff-Name'] = state.staff.name;
-  if (state.pin) opts.headers['X-Staff-Pin'] = state.pin;
   let res;
   try { res = await fetch(path, opts); } catch (e) { state.online = false; throw new Error('Could not reach the server'); }
   state.online = true;
@@ -6290,32 +6244,6 @@ function rememberWho(st) {
   state.staff = st;
   try { if (st) localStorage.setItem('resv-who', JSON.stringify(st)); else localStorage.removeItem('resv-who'); } catch (e) {}
 }
-// The manager PIN, handed over once and held for as long as the tab lives.
-// NEVER written to storage: it is the only secret the desk holds.
-async function submitManagerPin() {
-  const m = state.modal;
-  if (!m || !m.pin) return;
-  try {
-    const who = await post('/api/login', { pin: m.pin });
-    if (who.role !== 'manager') { m.error = 'That is not a manager\u2019s PIN'; m.pin = ''; render(); return; }
-    state.pin = m.pin;
-    const then = m.then;
-    state.modal = null;
-    render();
-    if (then) then();
-  } catch (e) {
-    m.error = e.message === 'Incorrect PIN' ? 'shake' : e.message; m.pin = '';
-    render();
-    if (m.error === 'shake') setTimeout(() => { if (state.modal === m) { m.error = 'Incorrect PIN'; render(); } }, 350);
-  }
-}
-// Ask for it, then do the thing that needed it. Already held: just do it.
-function needManager(why, then) {
-  if (state.pin) { then(); return; }
-  state.modal = { kind: 'manager', pin: '', error: '', why, then };
-  render();
-}
-
 // §§ Render
 function render() {
   // NEVER rebuild the DOM while a block is being dragged: it destroys the
@@ -6401,25 +6329,6 @@ function renderWhoModal() {
   </div></div>`;
 }
 
-// The keypad the front door used to wear, now doing the job it is for.
-function renderManagerModal() {
-  const m = state.modal;
-  return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1">
-    <h2>Manager PIN</h2>
-    <div class="ts">${esc(m.why || 'Settings are a manager\u2019s. The PIN is the same one they use on the till.')}</div>
-    <div class="pin-dots${m.error === 'shake' ? ' shake' : ''}" style="margin:16px auto;">${Array.from({ length: Math.max(4, (m.pin || '').length) }).map((_, i) => `<span class="pin-dot${i < (m.pin || '').length ? ' filled' : ''}"></span>`).join('')}</div>
-    <div class="pin-pad" style="margin:0 auto;">
-      ${['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => `<button data-act="pin-digit" data-val="${d}">${d}</button>`).join('')}
-      <button class="util" disabled aria-hidden="true">.</button>
-      <button data-act="pin-digit" data-val="0">0</button>
-      <button class="util" data-act="pin-back" aria-label="Backspace">${I.bsp}</button>
-      <button data-act="pin-enter" aria-label="Unlock" ${(m.pin || '').length ? '' : 'disabled'}>${I.tick}</button>
-    </div>
-    <div class="login-error">${m.error && m.error !== 'shake' ? esc(m.error) : ''}</div>
-    <div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Not now</span></button></div>
-  </div></div>`;
-}
-
 // §§ Rail — the sections of the panel you are in
 // Borrowed whole from the POS's order panel, where the categories stand in a
 // column down the left of the till. The deck across the top is the app's
@@ -6495,6 +6404,16 @@ function renderRail() {
   return `<nav class="rail" aria-label="Sections">${modes}${parts}</nav>`;
 }
 
+// "Lunch 11:30–2:30 · Dinner 5:00–9:30" — the windows this day actually
+// takes bookings in, exceptions and all, which is the question a host is
+// asked on the phone before any other. servicesOnDay() already answers it for
+// the slot picker; this only chooses the words.
+function serviceLine(day) {
+  const ex = exceptionOn(day);
+  const svcs = servicesOnDay(day);
+  if (!svcs.length) return ex && ex.note ? 'Closed \u2014 ' + ex.note : 'Closed';
+  return svcs.map(sv => `${sv.name} ${fmtHHMM(sv.start)}\u2013${fmtHHMM(sv.end)}`).join(' \u00b7 ');
+}
 function renderDeck() {
   const ps = state.settings && state.settings.pos;
   const linked = ps && ps.enabled && ps.baseUrl;
@@ -6507,7 +6426,8 @@ function renderDeck() {
     <button class="deck-chip wide-only${isToday ? ' active' : ''}" data-act="day" data-val="0">Today</button>
     <button class="deck-sq wide-only" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
     <button class="deck-date" data-act="open-cal" title="Open the month">
-      ${I.cal}<span class="d-long">${esc(fmtDay(state.date, true))}</span><span class="d-short">${esc(fmtDay(state.date))}${isToday ? '' : ''}</span>
+      <span class="dd-1">${I.cal}<span class="d-long">${esc(fmtDay(state.date, true))}</span><span class="d-short">${esc(fmtDay(state.date))}</span></span>
+      <span class="dd-2">${esc(serviceLine(state.date))}</span>
     </button>
     <div class="deck-spacer"></div>
     ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
@@ -6555,7 +6475,7 @@ function renderView() {
     case 'waitlist': return renderWaitlist();
     case 'notify': return renderNotify();
     case 'guests': return renderGuests();
-    case 'settings': return isManager() ? renderSettings() : renderToday();
+    case 'settings': return renderSettings();
   }
   return '';
 }
@@ -7337,7 +7257,7 @@ function renderSettings() {
         <b>On the till</b><span>${ps.linked || 0} bookings mirrored${ps.pendingDeletes ? ', ' + ps.pendingDeletes + ' deletions waiting' : ''}</span>
       </div>
       <label class="toggle-row">${switchHtml(p.pushBookings !== false, 'set-toggle', 'pos.pushBookings')} Send bookings to the till</label>
-      <label class="toggle-row">${switchHtml(p.useStaff !== false, 'set-toggle', 'pos.useStaff')} Staff sign in with their POS PIN</label>
+      <label class="toggle-row">${switchHtml(p.useStaff !== false, 'set-toggle', 'pos.useStaff')} Take the staff list from the POS</label>
       <label class="toggle-row">${switchHtml(p.useFloor !== false, 'set-toggle', 'pos.useFloor')} Use the POS floor plan</label>
       <label class="toggle-row">${switchHtml(p.useOrders !== false, 'set-toggle', 'pos.useOrders')} Read what tables spent</label>
       <label class="toggle-row">${switchHtml(p.useMenus !== false, 'set-toggle', 'pos.useMenus')} Use the POS's set menus</label>
@@ -7441,11 +7361,10 @@ function renderSettings() {
     </div>
     <div class="settings-card">
       <div class="th">Staff${p.enabled && p.useStaff !== false ? ' (fallback)' : ''}</div>
-      <div class="ts">${p.enabled && p.useStaff !== false ? 'PINs are checked against the POS. This list only signs people in when the POS is unreachable.' : 'Who can sign in, and their PIN.'}</div>
+      <div class="ts">${p.enabled && p.useStaff !== false ? 'The POS holds the staff list. This one is only used when the POS is unreachable.' : 'Who can be on. The name picked on the deck goes onto every booking taken from this screen, and onto the run sheet.'}</div>
       ${state.staffList.map(st => `<div class="inline"><span style="flex:1;font-weight:700;">${esc(st.name)}</span><span class="tag">${esc(st.role)}</span>${state.settings.pos.enabled && state.settings.pos.useStaff !== false ? '' : `<button class="chip sq" data-act="staff-remove" data-id="${st.id}" aria-label="Remove">${I.cross}</button>`}</div>`).join('')}
-      <div class="grid3" style="margin-top:8px;">
+      <div class="grid2" style="margin-top:8px;">
         <input type="text" id="st-name" placeholder="Name" data-field="st.name" value="${esc(state.st ? state.st.name : '')}">
-        <input type="tel" id="st-pin" placeholder="PIN" data-field="st.pin" value="${esc(state.st ? state.st.pin : '')}" inputmode="numeric">
         <select id="st-role" data-field="st.role"><option value="staff">Staff</option><option value="manager" ${state.st && state.st.role === 'manager' ? 'selected' : ''}>Manager</option></select>
       </div>
       <div><button class="btn" data-act="staff-add">${I.plus} Add</button></div>
@@ -7546,7 +7465,6 @@ function renderModal() {
   if (m.kind === 'key') return renderKeyModal();
   if (m.kind === 'colour') return renderColourModal();
   if (m.kind === 'who') return renderWhoModal();
-  if (m.kind === 'manager') return renderManagerModal();
   if (m.kind === 'cal') return renderCalModal();
   if (m.kind === 'more') return renderMoreModal();
   if (m.kind === 'confirm') return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1"><h2>${esc(m.title)}</h2>${m.body ? `<div class="ts">${esc(m.body)}</div>` : ''}<div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Cancel</span></button><button class="icon-action ${m.danger ? 'discard' : 'send'}" data-act="confirm-yes">${m.danger ? I.trash : I.tick}<span class="ia-label">${esc(m.yes || 'Yes')}</span></button></div></div></div>`;
@@ -8167,17 +8085,13 @@ document.addEventListener('click', async (ev) => {
   if (stop && stop !== el && el.contains(stop)) return;
   try {
     switch (act) {
-      // The keypad only ever answers the manager prompt now.
-      case 'pin-digit': { const m2 = state.modal; if (m2 && m2.kind === 'manager' && (m2.pin || '').length < 8) { m2.pin = (m2.pin || '') + val; m2.error = ''; render(); if (m2.pin.length >= 4) submitManagerPin(); } break; }
-      case 'pin-back': { const m2 = state.modal; if (m2 && m2.kind === 'manager') { m2.pin = (m2.pin || '').slice(0, -1); render(); } break; }
-      case 'pin-enter': submitManagerPin(); break;
       case 'open-who': { try { state.staffList = await api('/api/staff'); } catch (e) {} state.modal = { kind: 'who' }; render(); break; }
       case 'who-pick': { const st = (state.staffList || []).find(x => x.id === id); if (st) rememberWho(st); state.modal = null; render(); break; }
       case 'to-till': openTill(null); break;
       case 'to-till-table': openTill(el.dataset.table || null); break;
       // Settings is the one place that still asks for a code — and it asks
       // once, then holds it for as long as this tab is open.
-      case 'view': if (val === 'settings' && !isManager()) needManager('', () => setView('settings')); else setView(val); break;
+      case 'view': setView(val); break;
       case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.floorTime = null; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'mode': {
@@ -8320,7 +8234,7 @@ document.addEventListener('click', async (ev) => {
       case 'set-menu-remove': state.setMenus.splice(parseInt(el.dataset.i), 1); render(); queueSave('setmenus'); break;
       case 'table-add': state.tables.push({ id: 't' + Date.now(), label: String(state.tables.length + 1), seats: 2 }); render(); queueSave('tables'); break;
       case 'table-remove': state.tables.splice(parseInt(el.dataset.i), 1); render(); queueSave('tables'); break;
-      case 'staff-add': { const st = state.st || {}; await post('/api/staff', { name: st.name, pin: st.pin, role: st.role || 'staff' }); state.st = null; state.staffList = await api('/api/staff'); toast('Added'); render(); break; }
+      case 'staff-add': { const st = state.st || {}; await post('/api/staff', { name: st.name, role: st.role || 'staff' }); state.st = null; state.staffList = await api('/api/staff'); toast('Added'); render(); break; }
       case 'staff-remove': await del('/api/staff/' + id); state.staffList = await api('/api/staff'); render(); break;
     }
   } catch (e) { toast(e.message || 'Something went wrong', 3500); }
@@ -8678,7 +8592,7 @@ document.addEventListener('input', (ev) => {
   if (f === 'find.q') { state.find.q = raw; clearTimeout(_findTimer); _findTimer = setTimeout(runFind, 250); return; }
   if (f.startsWith('wl.')) { setPath(state, f, raw); return; }
   if (f.startsWith('nl.')) { setPath(state, f, raw); return; }
-  if (f.startsWith('st.')) { state.st = state.st || { name: '', pin: '', role: 'staff' }; setPath(state, f, raw); return; }
+  if (f.startsWith('st.')) { state.st = state.st || { name: '', role: 'staff' }; setPath(state, f, raw); return; }
   if (f.startsWith('modal.')) {
     setPath(state, f, raw);
     if (f === 'modal.dobD' || f === 'modal.dobM' || f === 'modal.dobY') { rebuildDob(); render(); return; }
@@ -8696,16 +8610,10 @@ document.addEventListener('change', (ev) => {
   const el = ev.target;
   if (el.dataset && el.dataset.act === 'pick-any') { queueSave('colours'); render(); return; }
   const f = el.dataset && el.dataset.field;
-  if (f && f.startsWith('st.') && el.tagName === 'SELECT') { state.st = state.st || { name: '', pin: '', role: 'staff' }; setPath(state, f, el.value); }
+  if (f && f.startsWith('st.') && el.tagName === 'SELECT') { state.st = state.st || { name: '', role: 'staff' }; setPath(state, f, el.value); }
 });
 document.addEventListener('keydown', (ev) => {
-  // A keyboard on the manager prompt drives the same keypad.
-  if (state.modal && state.modal.kind === 'manager') {
-    const m2 = state.modal;
-    if (/^\d$/.test(ev.key) && (m2.pin || '').length < 8) { m2.pin = (m2.pin || '') + ev.key; m2.error = ''; render(); if (m2.pin.length >= 4) submitManagerPin(); return; }
-    if (ev.key === 'Backspace') { m2.pin = (m2.pin || '').slice(0, -1); render(); return; }
-    if (ev.key === 'Enter') { submitManagerPin(); return; }
-  }
+
   // A live drag owns Escape first: the block goes back where it was.
   if (ev.key === 'Escape' && tlDrag) { cancelTlDrag(); return; }
   if (state.modal && state.modal.kind === 'find' && ev.key === 'Enter') { clearTimeout(_findTimer); runFind(); return; }

@@ -832,12 +832,20 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .deck-chip{height:var(--tap);min-width:76px;padding:0 14px;border-radius:var(--r-btn);
   background:var(--deck-chip-bg);color:var(--deck-chip-ink);font-weight:700;font-size:var(--fs-md);}
 .deck-chip.active{background:var(--deck-chip-on-bg);color:var(--deck-chip-on-ink);}
-.deck-date{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 14px;
-  margin-left:4px;border:none;border-radius:var(--r-btn);background:none;color:var(--text-primary);
-  font-weight:700;font-size:var(--fs-lg);white-space:nowrap;cursor:pointer;}
+.topbar{position:relative;}
+.deck-date{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  min-height:var(--tap);padding:2px 14px;border:none;border-radius:var(--r-btn);background:none;
+  color:var(--text-primary);cursor:pointer;
+  position:absolute;left:50%;transform:translateX(-50%);max-width:46%;}
 .deck-date:hover{background:var(--steel-200);}
+.dd-1{display:flex;align-items:center;gap:8px;font-weight:700;font-size:var(--fs-lg);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.dd-2{font-size:var(--fs-chip);font-weight:700;letter-spacing:.3px;color:var(--charcoal-soft);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .deck-date svg{width:20px;height:20px;flex:0 0 20px;opacity:.75;}
 @media (max-width:700px){ .deck-chip{min-width:0;padding:0 10px;} }
+/* A short bar has no room for a second line under the date. */
+@media (max-height:520px){ .dd-2{display:none;} }
 
 /* §§ The plan — a drawing, not a screen
    Chairs are the whole difference between a floor plan and a row of boxes
@@ -885,7 +893,10 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .phone-only{display:inline-flex;}
   .d-long{display:none;}
   .d-short{display:inline;}
-  .deck-date{flex:1;min-width:0;margin-left:0;font-size:var(--fs-lg);}
+  /* A phone's bar is three keys and the date; absolute centring would sit it
+     under them, so here it just takes the room that is left. */
+  .deck-date{position:static;transform:none;flex:1;min-width:0;max-width:none;align-items:flex-start;}
+  .dd-2{display:none;}
   .deck-spacer{display:none;}
   .deck-date span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .topbar{gap:4px;}
@@ -1536,7 +1547,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     bar.id = 'pv-bar';
     bar.innerHTML = '<span class="pv-say">' + (window.__RESV_IS_BOOK__
         ? 'Preview \u00b7 bookings made here land on the front desk.'
-        : 'Preview \u00b7 the whole app runs in this tab. Settings ask for the manager PIN 1234.')
+        : 'Preview \u00b7 the whole app runs in this tab, on its own copy of the data.')
       + '</span>'
       + (window.__RESV_IS_BOOK__
         ? '<a href="../">The front desk</a>'
@@ -4477,6 +4488,7 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public'), { setHeaders: (res) => { res.setHeader('Cache-Control', 'no-cache'); } }));
 app.get('/book', (req, res) => res.sendFile(path.join(__dirname, 'public', 'book.html')));
 
+
 // ---------- who did it ----------
 function staffFromReq(req) { return req.get('X-Staff-Name') || 'Unknown'; }
 function logAudit(data, staffName, action) {
@@ -4484,48 +4496,8 @@ function logAudit(data, staffName, action) {
   data.auditLog.unshift({ id: newId('a'), timestamp: Date.now(), staffName, action });
   if (data.auditLog.length > 2000) data.auditLog.length = 2000;
 }
-// A manager proves it with the PIN their session sends on every request —
-// checked against the POS when linked, else the local list.
-const _pinCache = new Map(); // pin -> { staff, at }
-async function staffForPin(data, pin) {
-  if (typeof pin !== 'string' || !pin) return null;
-  const cfg = data.settings.pos;
-  if (pos.ready(cfg) && cfg.useStaff !== false) {
-    const hit = _pinCache.get(pin);
-    if (hit && Date.now() - hit.at < 5 * 60000) return hit.staff;
-    try {
-      const s = await pos.verifyPin(cfg, pin);
-      if (s && s.id) { const staff = { id: s.id, name: s.name, role: s.role, via: 'pos' }; _pinCache.set(pin, { staff, at: Date.now() }); return staff; }
-      return null;
-    } catch (e) {
-      if (e.status === 401 || e.status === 429) return null;
-      // POS unreachable: fall through to the local list so service continues.
-    }
-  }
-  const s = data.staff.find(x => x.pin === pin);
-  return s ? { id: s.id, name: s.name, role: s.role, via: 'local' } : null;
-}
-async function managerFromReq(req, data) {
-  const s = await staffForPin(data, req.get('X-Staff-Pin') || (req.body && req.body.managerPin));
-  return s && s.role === 'manager' ? s : null;
-}
 
-// PIN brute-force guard, per device IP (the POS's numbers).
-const PIN_MAX_FAILS = 10, PIN_WINDOW_MS = 5 * 60000, PIN_LOCK_MS = 5 * 60000;
-const pinAttempts = new Map();
 function ipOf(req) { return req.ip || (req.connection && req.connection.remoteAddress) || 'unknown'; }
-function pinRateBlocked(req, res) {
-  const rec = pinAttempts.get(ipOf(req)) || { fails: [], lockUntil: 0 };
-  if (rec.lockUntil > Date.now()) { res.status(429).json({ error: `Too many incorrect PINs. Try again in ${Math.ceil((rec.lockUntil - Date.now()) / 1000)}s.` }); return true; }
-  return false;
-}
-function pinRecordFailure(req) {
-  const ip = ipOf(req), now = Date.now();
-  const rec = pinAttempts.get(ip) || { fails: [], lockUntil: 0 };
-  rec.fails = rec.fails.filter(ts => now - ts < PIN_WINDOW_MS); rec.fails.push(now);
-  if (rec.fails.length >= PIN_MAX_FAILS) { rec.lockUntil = now + PIN_LOCK_MS; rec.fails = []; }
-  pinAttempts.set(ip, rec);
-}
 
 // ---------- the venue's shape, from the POS when linked ----------
 function effectiveSettings(data) {
@@ -4558,20 +4530,8 @@ app.get('/api/staff', (req, res) => {
   res.json(list);
 });
 
-app.post('/api/login', async (req, res) => {
-  if (pinRateBlocked(req, res)) return;
-  const data = readData();
-  const pin = String((req.body && req.body.pin) || '');
-  if (!/^\d{1,8}$/.test(pin)) return res.status(400).json({ error: 'Enter your PIN' });
-  const s = await staffForPin(data, pin);
-  if (!s) { pinRecordFailure(req); return res.status(401).json({ error: 'Incorrect PIN' }); }
-  pinAttempts.delete(ipOf(req));
-  res.json(s);
-});
-
 app.post('/api/staff', async (req, res) => {
   const data = readData();
-  if (!(await managerFromReq(req, data))) return res.status(403).json({ error: 'Only a manager can add staff' });
   const { name, pin, role } = req.body || {};
   if (!name || !String(name).trim() || !/^\d{4,8}$/.test(String(pin || ''))) return res.status(400).json({ error: 'Name and a PIN of 4 to 8 digits are required' });
   if (data.staff.some(s => s.pin === pin)) return res.status(400).json({ error: 'That PIN is already in use' });
@@ -4584,7 +4544,6 @@ app.post('/api/staff', async (req, res) => {
 
 app.delete('/api/staff/:id', async (req, res) => {
   const data = readData();
-  if (!(await managerFromReq(req, data))) return res.status(403).json({ error: 'Only a manager can remove staff' });
   const st = data.staff.find(s => s.id === req.params.id);
   if (!st) return res.status(404).json({ error: 'Staff member not found' });
   if (data.staff.filter(s => s.role === 'manager').length <= 1 && st.role === 'manager') return res.status(400).json({ error: 'Keep at least one manager' });
@@ -4605,7 +4564,6 @@ app.get('/api/settings', (req, res) => { res.json(safeSettings(readData())); });
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 app.put('/api/settings', async (req, res) => {
   const data = readData();
-  if (!(await managerFromReq(req, data))) return res.status(403).json({ error: 'Only a manager can change settings' });
   const b = req.body || {}, s = data.settings;
 
   // Windows are normalised and CHECKED before a single field is written.
@@ -4685,7 +4643,6 @@ app.put('/api/settings', async (req, res) => {
     if (p.baseUrl !== undefined) s.pos.baseUrl = String(p.baseUrl || '').trim().replace(/\/+$/, '').slice(0, 120);
     if (p.enabled !== undefined) s.pos.enabled = !!p.enabled;
     for (const k of ['pushBookings', 'pullStatus', 'useStaff', 'useFloor', 'useOrders', 'useMenus']) if (p[k] !== undefined) s.pos[k] = !!p[k];
-    _pinCache.clear();
   }
   logAudit(data, staffFromReq(req), 'Updated settings');
   writeData(data);
@@ -4728,7 +4685,6 @@ app.get('/api/tables', (req, res) => {
 // Local floor editing — only when no POS holds the floor.
 app.put('/api/tables', async (req, res) => {
   const data = readData();
-  if (!(await managerFromReq(req, data))) return res.status(403).json({ error: 'Only a manager can change tables' });
   if (pos.ready(data.settings.pos) && data.settings.pos.useFloor !== false) return res.status(400).json({ error: 'Tables come from the POS while it is linked. Edit them there.' });
   const list = Array.isArray(req.body && req.body.tables) ? req.body.tables : [];
   const tables = list.slice(0, 200).map((t, i) => ({ id: t.id || newId('t'), label: String(t.label || (i + 1)).slice(0, 8), seats: Math.max(1, Math.min(40, parseInt(t.seats) || 2)), type: 'table' }));
@@ -4754,7 +4710,6 @@ app.get('/api/set-menus', (req, res) => { res.json(setMenusOf(readData())); });
 // Local set menus — only when no POS holds them. Mirrors PUT /api/tables.
 app.put('/api/set-menus', async (req, res) => {
   const data = readData();
-  if (!(await managerFromReq(req, data))) return res.status(403).json({ error: 'Only a manager can change set menus' });
   if (setMenusOf(data).fromPos) return res.status(400).json({ error: 'Set menus come from the POS while it is linked. Edit them there.' });
   const seen = new Set();
   data.setMenus = (Array.isArray(req.body && req.body.menus) ? req.body.menus : []).slice(0, 40)
