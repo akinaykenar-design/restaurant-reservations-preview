@@ -802,6 +802,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .desk{flex-direction:column;}
   .desk-col{flex:none;width:100%;max-height:none;}
 }
+@media (min-width:761px) and (max-width:900px){
+  .desk-col{max-height:38vh;overflow-y:auto;}
+}
 
 /* The rail now carries the whole app: what you are looking at above the rule,
    the sections of it below. One hairline is the only thing between them —
@@ -1510,6 +1513,10 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
       + (window.__RESV_IS_BOOK__
         ? '<a href="../">The front desk</a>'
         : '<a href="book/" target="_blank" rel="noopener">Guests\u2019 page</a>')
+      + (window.self === window.top
+        ? '<a href="' + (window.__RESV_IS_BOOK__ ? '../' : '') + 'phone.html">On a phone</a>'
+          + '<a href="' + (window.__RESV_IS_BOOK__ ? '../' : '') + 'tablet.html">On a tablet</a>'
+        : '')
       + '<button id="pv-save">Download data</button>'
       + '<button id="pv-reset">Start over</button>'
       + '<button id="pv-hide" aria-label="Hide this bar">\u2715</button>';
