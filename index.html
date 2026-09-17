@@ -157,7 +157,7 @@ h1,h2,h3{margin:0;}
 .staff-badge{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 10px;
   border:none;border-radius:var(--r-btn);background:none;font-weight:700;color:var(--deck-chip-ink);
   white-space:nowrap;cursor:pointer;}
-.staff-badge:hover{background:rgba(255,255,255,.08);}
+.staff-badge:hover{background:var(--steel-200);}
 .deck-dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none;}
 .deck-dot.off{background:var(--red);}
 .deck-dot.warn{background:var(--gold);}
@@ -790,6 +790,39 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .bk-k{flex:1 0 100%;}
   .bk-v{flex:1;}
 }
+
+/* §§ The desk — the book in one hand, the room in front of you
+   Two columns inside the pane. The LIST is always there, because it is the
+   thing a host reads; the rail decides what sits beside it. They stack on
+   anything narrow, list first, for the same reason. */
+.desk{display:flex;gap:var(--hub-edge);align-items:flex-start;min-height:0;}
+.desk-col{flex:0 0 340px;min-width:0;max-height:calc(100vh - var(--deck-h) - var(--hub-edge) * 2);
+  overflow-y:auto;background:var(--surface);border:1px solid var(--steel-300);
+  border-radius:var(--r-control);overflow-x:hidden;}
+.desk-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--hub-edge);}
+.desk-bar{margin:0;}
+@media (max-width:1100px){ .desk-col{flex-basis:300px;} }
+@media (max-width:900px){
+  .desk{flex-direction:column;}
+  .desk-col{flex:none;width:100%;max-height:none;}
+}
+
+/* The rail now carries the whole app: what you are looking at above the rule,
+   the sections of it below. One hairline is the only thing between them —
+   the POS's Border law, and all the separation two groups need. */
+.rail-rule{height:1px;background:var(--steel-200);margin:8px 12px;flex:none;}
+
+/* The top bar is the night you are working on, and the keys that belong to no
+   one screen. Tapping the date opens the month. */
+.deck-chip{height:var(--tap);min-width:76px;padding:0 14px;border-radius:var(--r-btn);
+  background:var(--deck-chip-bg);color:var(--deck-chip-ink);font-weight:700;font-size:var(--fs-md);}
+.deck-chip.active{background:var(--deck-chip-on-bg);color:var(--deck-chip-on-ink);}
+.deck-date{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 14px;
+  margin-left:4px;border:none;border-radius:var(--r-btn);background:none;color:var(--text-primary);
+  font-weight:700;font-size:var(--fs-lg);white-space:nowrap;cursor:pointer;}
+.deck-date:hover{background:var(--steel-200);}
+.deck-date svg{width:20px;height:20px;flex:0 0 20px;opacity:.75;}
+@media (max-width:700px){ .deck-date span{display:none;} .deck-chip{min-width:0;padding:0 10px;} }
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useStaff\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"staff\": [\n    {\n      \"id\": \"st1\",\n      \"name\": \"Alex (Manager)\",\n      \"pin\": \"1234\",\n      \"role\": \"manager\"\n    },\n    {\n      \"id\": \"st2\",\n      \"name\": \"Jamie\",\n      \"pin\": \"2222\",\n      \"role\": \"staff\"\n    },\n    {\n      \"id\": \"st3\",\n      \"name\": \"Sam\",\n      \"pin\": \"3333\",\n      \"role\": \"staff\"\n    }\n  ],\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}";window.__RESV_SEED_HASH__ = "2e63f256897b87b09c1216b9b1972ddfd67ce8ef";window.__RESV_IS_BOOK__ = false;</script>
@@ -5734,6 +5767,11 @@ const I = {
   alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20.5h20z"/><path d="M12 10v4.5"/><path d="M12 17.8v.2"/></svg>',
   noshow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M4.9 4.9l14.2 14.2"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.75" cy="10.75" r="8.75"/><path d="M22 22l-4.75 -4.75"/></svg>',
+  floorplan: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.6" y="2.6" width="8" height="8" rx="1.6"/><rect x="13.4" y="2.6" width="8" height="5"/><rect x="2.6" y="13.4" width="5" height="8"/><rect x="10.4" y="10.4" width="11" height="11" rx="1.6"/></svg>',
+  clipboard: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4.4" y="4" width="15.2" height="17.4" rx="2"/><path d="M9 4V2.6h6V4"/><path d="M8.4 10h7.2M8.4 14h7.2M8.4 18h4"/></svg>',
+  bell: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9.4a6 6 0 0 1 12 0c0 4.3 1.6 5.6 2.2 6.2.4.4.1 1.1-.5 1.1H4.3c-.6 0-.9-.7-.5-1.1.6-.6 2.2-1.9 2.2-6.2z"/><path d="M9.8 20.4a2.4 2.4 0 0 0 4.4 0"/></svg>',
+  settings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.4"/><path d="M12 2.4v2.6M12 19v2.6M21.6 12H19M5 12H2.4M18.8 5.2l-1.8 1.8M7 17l-1.8 1.8M18.8 18.8 17 17M7 7 5.2 5.2"/></svg>',
+  setMenus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2.6v8a2.4 2.4 0 0 0 4.8 0v-8"/><path d="M8.4 10.8V21.4"/><path d="M17.4 2.6c-1.6 1.4-2.4 3.4-2.4 5.6v3.4h3.6"/><path d="M18.6 11.6V21.4"/></svg>',
   cake: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M4 21v-6.5a2.5 2.5 0 0 1 2.5-2.5h11a2.5 2.5 0 0 1 2.5 2.5V21"/><path d="M3.6 16.5c1.7 1.4 3.4 1.4 5.1 0s3.4-1.4 5.1 0 3.4 1.4 5.1 0"/><path d="M8.5 8.5V6M12 8.5V5.5M15.5 8.5V6"/></svg>',
   note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h9.5L19 8v12.5H5z"/><path d="M14 3.5V8h5"/><path d="M8.5 12.5h7M8.5 16h4.5"/></svg>',
   chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></svg>',
@@ -5761,7 +5799,7 @@ const state = {
   // The set menus the desk can pick from, and whether they are the POS's own
   // combos (which makes the Settings card read-only, as the Staff card is).
   setMenus: [], setMenusFromPos: false,
-  view: 'today', date: localDay(new Date()), todayMode: 'timeline',
+  view: 'today', date: localDay(new Date()), todayMode: 'floor',
   // The moment the floor plan is showing, or null for "now". Cleared
   // whenever the day changes — a time belongs to the day it was scrubbed on.
   floorTime: null,
@@ -6038,11 +6076,16 @@ async function loadGuests() {
 }
 async function loadView() {
   if (state.view === 'today') await loadDay();
-  else if (state.view === 'diary') { const from = state.month + '-01', to = addDays(from, 41); state.days = await api(`/api/reservations/days?from=${from}&to=${to}`); state.today = await api('/api/today'); }
   else if (state.view === 'waitlist') { state.waitlist = await api('/api/waitlist'); state.today = await api('/api/today'); }
   else if (state.view === 'notify') { state.notify = await api('/api/notify'); state.today = await api('/api/today'); }
   else if (state.view === 'guests') await loadGuests();
   else if (state.view === 'settings') { state.posStatus = await api('/api/pos/status'); state.staffList = await api('/api/staff'); state.audit = await api('/api/audit'); }
+}
+// The month behind the calendar popup. Its own loader, because the calendar
+// is no longer a view — it opens over whatever you were looking at.
+async function loadMonth() {
+  const from = state.month + '-01', to = addDays(from, 41);
+  state.days = await api(`/api/reservations/days?from=${from}&to=${to}`);
 }
 async function refreshAll() {
   try { await loadBase(); await loadView(); if (state.view !== 'waitlist') state.waitlist = await api('/api/waitlist'); } catch (e) {}
@@ -6206,7 +6249,6 @@ const RAILS = {
     items: [
       ['floor', 'Floor', 'floor'],
       ['timeline', 'Timeline', 'timeline'],
-      ['list', 'List', 'list'],
       ['flow', 'Flow', 'flow'],
       ['sheet', 'Run sheet', 'sheet'],
     ],
@@ -6228,49 +6270,67 @@ const RAILS = {
     ],
   },
 };
+// What you are looking at. The badges count the things that need a person:
+// people standing at the door, and openings with somebody to ring about them.
+function modeItems() {
+  const t = state.today || {};
+  return [
+    ['today', 'Service', 'floorplan', null],
+    ['waitlist', 'Waitlist', 'clipboard', t.waiting || 0],
+    ['notify', 'Notify', 'bell', t.openings || 0],
+    ['guests', 'Guests', 'people', null],
+    ['settings', 'Settings', 'settings', null],
+  ];
+}
+function railTile(key, label, icon, n, on, act) {
+  return `<button class="rail-btn${on ? ' active' : ''}" data-act="${act}" data-val="${key}"
+    aria-current="${on ? 'page' : 'false'}">
+    <span class="rail-ico">${I[icon]}</span><span class="rail-label">${esc(label)}</span>
+    ${n == null ? '' : `<span class="rail-n">${n}</span>`}
+  </button>`;
+}
 function renderRail() {
+  const modes = modeItems().map(([k, label, icon, n]) =>
+    railTile(k, label, icon, n || null, state.view === k, 'view')).join('');
   const rail = RAILS[state.view];
-  if (!rail) return '';
-  const now = state[rail.key];
-  // Only the guest book carries counts. `null` is not `undefined`, and the
-  // difference printed the word "null" under every tile on Today.
-  const counts = state.view === 'guests' ? (state.guestCounts || {}) : null;
-  return `<nav class="rail" aria-label="Sections">
-    ${rail.items.map(([k, label, icon]) => {
-      const n = counts ? counts[k] : null;
-      return `<button class="rail-btn${now === k ? ' active' : ''}"
-        data-act="mode" data-val="${k}" aria-current="${now === k ? 'page' : 'false'}">
-        <span class="rail-ico">${I[icon]}</span><span class="rail-label">${esc(label)}</span>
-        ${n == null ? '' : `<span class="rail-n">${n}</span>`}
-      </button>`;
-    }).join('')}
-  </nav>`;
+  let parts = '';
+  if (rail) {
+    const now = state[rail.key];
+    // Only the guest book carries counts. `null` is not `undefined`, and the
+    // difference printed the word "null" under every tile on Today.
+    const counts = state.view === 'guests' ? (state.guestCounts || {}) : null;
+    parts = '<div class="rail-rule"></div>' + rail.items.map(([k, label, icon]) =>
+      railTile(k, label, icon, counts ? counts[k] : null, now === k, 'mode')).join('');
+  }
+  return `<nav class="rail" aria-label="Sections">${modes}${parts}</nav>`;
 }
 
 function renderDeck() {
-  // The Notify badge counts OPENINGS WITH SOMEBODY TO CALL, not entries: the
-  // deck only shouts when there is a phone call to make.
-  const tabs = [['today', 'Today'], ['diary', 'Diary'], ['waitlist', 'Waitlist' + ((state.today && state.today.waiting) ? ' · ' + state.today.waiting : '')], ['notify', 'Notify' + ((state.today && state.today.openings) ? ' · ' + state.today.openings : '')], ['guests', 'Guests']];
-  tabs.push(['settings', 'Settings']);
   const ps = state.settings && state.settings.pos;
   const linked = ps && ps.enabled && ps.baseUrl;
   const dot = !state.online ? 'off' : linked ? (state.posStatus && state.posStatus.connected === false ? 'warn' : '') : 'warn';
   const title = !state.online ? 'Offline' : linked ? 'POS linked' : 'No POS link';
+  const isToday = state.date === tradingDay();
   return `
   <div class="topbar">
-    <div class="tabs">${tabs.map(([k, l]) => `<button class="tab-btn${state.view === k ? ' active' : ''}" data-act="view" data-val="${k}">${esc(l)}</button>`).join('')}</div>
+    <button class="deck-sq" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
+    <button class="deck-chip${isToday ? ' active' : ''}" data-act="day" data-val="0">Today</button>
+    <button class="deck-sq" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
+    <button class="deck-date" data-act="open-cal" title="Open the month">
+      ${I.cal}<span>${esc(fmtDay(state.date, true))}</span>
+    </button>
     <div class="deck-spacer"></div>
     ${linked ? `<button class="deck-sq" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
+    <button class="deck-sq" data-act="open-key" aria-label="What the colours mean" title="What the colours mean">${I.key}</button>
     <button class="deck-sq" data-act="open-find" aria-label="Find a booking" title="Find a booking (/)">${I.search}</button>
     <button class="deck-sq" data-act="new-booking" aria-label="New booking" title="New booking">${I.plus}</button>
-    <button class="staff-badge" data-act="open-who" title="${esc(title)} · tap to change who is on"><span class="deck-dot ${dot}"></span><span class="name">${esc((state.staff && state.staff.name) || 'Who is on?')}</span></button>
+    <button class="staff-badge" data-act="open-who" title="${esc(title)} \u00b7 tap to change who is on"><span class="deck-dot ${dot}"></span><span class="name">${esc((state.staff && state.staff.name) || 'Who is on?')}</span></button>
   </div>`;
 }
 
 function renderView() {
   switch (state.view) {
     case 'today': return renderToday();
-    case 'diary': return renderDiary();
     case 'waitlist': return renderWaitlist();
     case 'notify': return renderNotify();
     case 'guests': return renderGuests();
@@ -6533,31 +6593,22 @@ function renderToday() {
     : ex && !ex.closed
       ? `<div class="notice special"><b>Special hours${ex.note ? ' — ' + esc(ex.note) : ''}.</b> ${svcs.map(x => esc(x.name) + ' ' + esc(x.start) + '–' + esc(x.end)).join(' · ')}</div>`
       : '';
-  return `
-  <div class="band">
-    <button class="chip sq" data-act="day" data-val="-1" aria-label="Previous day">${I.left}</button>
-    <button class="chip${isToday ? ' active' : ''}" data-act="day" data-val="0">Today</button>
-    <button class="chip sq" data-act="day" data-val="1" aria-label="Next day">${I.right}</button>
-    <span class="title">${esc(fmtDay(state.date, true))}</span>
-    <label class="chip" style="padding:0;overflow:hidden;"><input type="date" id="date-pick" value="${state.date}" style="border:none;min-height:36px;width:150px;background:transparent;" data-field="date-pick"></label>
-    <span class="spacer"></span>
-    ${state.todayMode === 'sheet' ? `<button class="chip" data-act="print-sheet" ${state.sheet && state.sheet.date === state.date ? '' : 'disabled'}>Print</button>` : ''}
-    <button class="chip sq" data-act="open-key" aria-label="What the colours mean" title="What the colours mean">${I.key}</button>
-  </div>
-  ${notice}
-  ${state.todayMode === 'sheet' ? '' : `<div class="stats">
-    <div class="stat"><b>${live.length}</b><span>Bookings</span></div>
-    <div class="stat"><b>${covers}</b><span>Covers</span></div>
-    <div class="stat"><b>${seated}</b><span>Seated</span></div>
-    ${isToday ? `<div class="stat"><b>${due}</b><span>Due now</span></div>` : ''}
-    ${isToday && overdue ? `<div class="stat" style="border-color:var(--violet);"><b style="color:var(--violet);">${overdue}</b><span>Not arrived</span></div>` : ''}
-    <div class="stat"><b>${(state.today && state.today.waiting) || 0}</b><span>Waiting</span></div>
-    ${(state.today && state.today.openings) ? `<div class="stat" data-act="view" data-val="notify" style="border-color:var(--teal);"><b style="color:var(--teal);">${state.today.openings}</b><span>Openings</span></div>` : ''}
-  </div>`}
-  ${state.todayMode === 'sheet' ? renderRunSheet()
-    : state.todayMode === 'floor' ? renderFloor()
+  // The desk is two columns, the way a host stands: the book in one hand and
+  // the room in front of them. The LIST is always there — it is the thing you
+  // read — and the rail decides what sits beside it. The run sheet is the one
+  // exception: it is a page for paper, so it takes the whole pane.
+  const whole = state.todayMode === 'sheet';
+  const side = state.todayMode === 'floor' ? renderFloor()
     : state.todayMode === 'flow' ? renderFlow()
-    : state.todayMode === 'timeline' ? renderTimeline() : renderDayList()}`;
+    : renderTimeline();
+  if (whole) return `<div class="band desk-bar">
+      <span class="spacer"></span>
+      <button class="chip" data-act="print-sheet" ${state.sheet && state.sheet.date === state.date ? '' : 'disabled'}>Print</button>
+    </div>${notice}${renderRunSheet()}`;
+  return `${notice}<div class="desk">
+    <div class="desk-col" data-keep="desk-col">${renderDayList()}</div>
+    <div class="desk-main">${side}</div>
+  </div>`;
 }
 const PX_PER_MIN = 2;
 // The day's live bookings holding any of these tables across [startMin, +dur).
@@ -6799,6 +6850,19 @@ function renderRunSheet() {
 }
 
 // §§ Diary — the month
+// The month, as a popup over the night you were on. It stopped being a view
+// of its own when the modes moved to the rail: a diary is not a place you go,
+// it is the question "what about another night?" — and that question is asked
+// of the date, so it is answered where the date is.
+function renderCalModal() {
+  return `<div class="modal-bg full" data-act="close-modal"><div class="modal full" data-stop="1">
+    <div class="modal-top">
+      <h2>${esc(state.month ? new Date(+state.month.split('-')[0], +state.month.split('-')[1] - 1, 1).toLocaleDateString([], { month: 'long', year: 'numeric' }) : '')}</h2>
+      <button class="chip sq" data-act="close-modal" aria-label="Close">${I.cross}</button>
+    </div>
+    <div class="modal-body">${renderDiary()}</div>
+  </div></div>`;
+}
 function renderDiary() {
   const [y, m] = state.month.split('-').map(Number);
   const first = new Date(y, m - 1, 1);
@@ -7208,6 +7272,7 @@ function renderModal() {
   if (m.kind === 'colour') return renderColourModal();
   if (m.kind === 'who') return renderWhoModal();
   if (m.kind === 'manager') return renderManagerModal();
+  if (m.kind === 'cal') return renderCalModal();
   if (m.kind === 'confirm') return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1"><h2>${esc(m.title)}</h2>${m.body ? `<div class="ts">${esc(m.body)}</div>` : ''}<div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Cancel</span></button><button class="icon-action ${m.danger ? 'discard' : 'send'}" data-act="confirm-yes">${m.danger ? I.trash : I.tick}<span class="ia-label">${esc(m.yes || 'Yes')}</span></button></div></div></div>`;
   return '';
 }
@@ -7853,8 +7918,8 @@ document.addEventListener('click', async (ev) => {
       }
       case 'floor-now': state.floorTime = null; render(); break;
       case 'print-sheet': window.print(); break;
-      case 'month': { if (val === '0') state.month = localDay(new Date()).slice(0, 7); else { const [y, m] = state.month.split('-').map(Number); const d = new Date(y, m - 1 + parseInt(val), 1); state.month = localDay(d).slice(0, 7); } render(); await loadView(); render(); break; }
-      case 'open-day': state.date = val; state.view = 'today'; render(); await loadDay(); render(); break;
+      case 'month': { if (val === '0') state.month = localDay(new Date()).slice(0, 7); else { const [y, m] = state.month.split('-').map(Number); const d = new Date(y, m - 1 + parseInt(val), 1); state.month = localDay(d).slice(0, 7); } render(); try { await loadMonth(); } catch (e) {} render(); break; }
+      case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.floorTime = null; render(); await loadDay(); render(); break;
       case 'new-booking': openBooking(null); break;
       case 'new-at': openBooking(null, { time: el.dataset.time, tableId: el.dataset.table || null }); break;
       // The release of a drag must not ALSO open the booking it landed on
@@ -7922,6 +7987,12 @@ document.addEventListener('click', async (ev) => {
       // accordion, because two open panels is a scroll and a host reading one
       // booking is not reading another.
       case 'list-group': { state.listShut = Object.assign({}, state.listShut, { [val]: !state.listShut[val] }); render(); break; }
+      case 'open-cal': {
+        state.month = state.date.slice(0, 7);
+        state.modal = { kind: 'cal' }; render();
+        try { await loadMonth(); } catch (e) {}
+        render(); break;
+      }
       case 'open-key': state.modal = { kind: 'key' }; render(); break;
       case 'open-colour': state.modal = { kind: 'colour', key: el.dataset.key, label: el.dataset.label || el.dataset.key }; render(); break;
       case 'pick-colour': {

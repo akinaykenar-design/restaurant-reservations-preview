@@ -150,7 +150,7 @@ h1,h2,h3{margin:0;}
 .staff-badge{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 10px;
   border:none;border-radius:var(--r-btn);background:none;font-weight:700;color:var(--deck-chip-ink);
   white-space:nowrap;cursor:pointer;}
-.staff-badge:hover{background:rgba(255,255,255,.08);}
+.staff-badge:hover{background:var(--steel-200);}
 .deck-dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none;}
 .deck-dot.off{background:var(--red);}
 .deck-dot.warn{background:var(--gold);}
@@ -783,6 +783,39 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .bk-k{flex:1 0 100%;}
   .bk-v{flex:1;}
 }
+
+/* §§ The desk — the book in one hand, the room in front of you
+   Two columns inside the pane. The LIST is always there, because it is the
+   thing a host reads; the rail decides what sits beside it. They stack on
+   anything narrow, list first, for the same reason. */
+.desk{display:flex;gap:var(--hub-edge);align-items:flex-start;min-height:0;}
+.desk-col{flex:0 0 340px;min-width:0;max-height:calc(100vh - var(--deck-h) - var(--hub-edge) * 2);
+  overflow-y:auto;background:var(--surface);border:1px solid var(--steel-300);
+  border-radius:var(--r-control);overflow-x:hidden;}
+.desk-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:var(--hub-edge);}
+.desk-bar{margin:0;}
+@media (max-width:1100px){ .desk-col{flex-basis:300px;} }
+@media (max-width:900px){
+  .desk{flex-direction:column;}
+  .desk-col{flex:none;width:100%;max-height:none;}
+}
+
+/* The rail now carries the whole app: what you are looking at above the rule,
+   the sections of it below. One hairline is the only thing between them —
+   the POS's Border law, and all the separation two groups need. */
+.rail-rule{height:1px;background:var(--steel-200);margin:8px 12px;flex:none;}
+
+/* The top bar is the night you are working on, and the keys that belong to no
+   one screen. Tapping the date opens the month. */
+.deck-chip{height:var(--tap);min-width:76px;padding:0 14px;border-radius:var(--r-btn);
+  background:var(--deck-chip-bg);color:var(--deck-chip-ink);font-weight:700;font-size:var(--fs-md);}
+.deck-chip.active{background:var(--deck-chip-on-bg);color:var(--deck-chip-on-ink);}
+.deck-date{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 14px;
+  margin-left:4px;border:none;border-radius:var(--r-btn);background:none;color:var(--text-primary);
+  font-weight:700;font-size:var(--fs-lg);white-space:nowrap;cursor:pointer;}
+.deck-date:hover{background:var(--steel-200);}
+.deck-date svg{width:20px;height:20px;flex:0 0 20px;opacity:.75;}
+@media (max-width:700px){ .deck-date span{display:none;} .deck-chip{min-width:0;padding:0 10px;} }
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
