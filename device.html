@@ -6,7 +6,7 @@
 <title>Reservations on a device</title>
 <style>
   :root{ --bar:#17191B; --bar-2:#2A2E31; --ink:#E9ECEF; --dim:#9AA3A9;
-    --pick:#3692E7; --pick-bg:#0F2233; --go:#2E7D32; --line:#34393D; }
+    --pick:#3692E7; --pick-bg:#0F2233; --line:#34393D; }
   *{box-sizing:border-box;}
   html,body{margin:0;height:100%;}
   body{background:var(--bar);color:var(--ink);overflow:hidden;
@@ -35,8 +35,6 @@
   button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;
     stroke-linecap:round;stroke-linejoin:round;}
   button.on{background:var(--pick-bg);border-color:var(--pick);color:var(--pick);}
-  button.go{background:var(--go);border-color:var(--go);color:#fff;}
-  button.go.on{background:var(--pick);border-color:var(--pick);color:#fff;}
 </style>
 </head>
 <body>
@@ -62,9 +60,13 @@
       <svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 0 1 14.4-6.1L21 8"/><path d="M21 3.5V8h-4.5"/><path d="M20.5 12a8.5 8.5 0 0 1-14.4 6.1L3 16"/><path d="M3 20.5V16h4.5"/></svg>
       Get latest
     </button>
-    <button id="touch" class="go">
+    <button id="touch">
       <svg viewBox="0 0 24 24"><path d="M9 11V5.4a1.9 1.9 0 0 1 3.8 0V11"/><path d="M12.8 11V9.2a1.7 1.7 0 0 1 3.4 0V13"/><path d="M16.2 11.4a1.7 1.7 0 0 1 3.4 0v3.1c0 3.8-2.6 6.4-6.2 6.4-3 0-4.6-1.4-6.2-4L5 13.4a1.8 1.8 0 0 1 2.9-2.1L9 12.8"/></svg>
-      Touch &amp; pinch
+      Touch
+    </button>
+    <button id="pinch">
+      <svg viewBox="0 0 24 24"><path d="M14.5 9.5 21 3"/><path d="M15.5 3H21v5.5"/><path d="M9.5 14.5 3 21"/><path d="M8.5 21H3v-5.5"/></svg>
+      Pinch
     </button>
   </div>
 
@@ -75,33 +77,67 @@
   var SIZES = { phone: [393, 852], tablet: [1180, 820] };
   var $ = function (id) { return document.getElementById(id); };
   var m = /[?&]d=(phone|tablet)/.exec(location.search);
-  var st = { id: m ? m[1] : (function () {
-    try { var s = localStorage.getItem('resv-device'); if (SIZES[s]) return s; } catch (e) {}
-    return 'phone';
-  })(), touch: false, zoom: 1 };
+  var st = {
+    id: m ? m[1] : (function () {
+      try { var s = localStorage.getItem('resv-device'); if (SIZES[s]) return s; } catch (e) {}
+      return 'phone';
+    })(),
+    touch: false,   // the frame answers a finger, not a mouse
+    pinch: false,   // and can be zoomed and pushed about, the way a phone is
+    zoom: 1, panX: 0, panY: 0
+  };
+  var base = 1;     // the scale that fits the window; zoom multiplies it
 
   function draw() {
-    var s = SIZES[st.id], w = s[0], h = s[1], el = $('screen');
+    var s = SIZES[st.id], w = s[0], h = s[1];
+    var stage = $('stage'), el = $('screen'), fit = $('fit');
     el.style.width = w + 'px';
     el.style.height = h + 'px';
-    var stage = $('stage');
-    var k = Math.min(stage.clientWidth / w, stage.clientHeight / h) * st.zoom;
-    el.style.transform = 'scale(' + k.toFixed(4) + ')';
-    var fit = $('fit');
-    fit.style.width = Math.round(w * k) + 'px';
-    fit.style.height = Math.round(Math.min(h * k, stage.clientHeight)) + 'px';
+    base = Math.min(stage.clientWidth / w, stage.clientHeight / h);
+    fit.style.width = Math.round(w * base) + 'px';
+    fit.style.height = Math.round(h * base) + 'px';
+    clampPan();
+    el.style.transform = 'translate(' + st.panX.toFixed(1) + 'px,' + st.panY.toFixed(1) + 'px) scale('
+      + (base * st.zoom).toFixed(4) + ')';
     $('phone').classList.toggle('on', st.id === 'phone');
     $('tablet').classList.toggle('on', st.id === 'tablet');
     $('touch').classList.toggle('on', st.touch);
+    $('pinch').classList.toggle('on', st.pinch);
     try { localStorage.setItem('resv-device', st.id); } catch (e) {}
   }
+  // Zoomed in, a phone lets you push the picture about but not off the edge.
+  function clampPan() {
+    var s = SIZES[st.id];
+    var over = function (n) { return Math.max(0, n * base * (st.zoom - 1)); };
+    var mx = over(s[0]), my = over(s[1]);
+    st.panX = Math.min(0, Math.max(-mx, st.panX));
+    st.panY = Math.min(0, Math.max(-my, st.panY));
+  }
+  // Zoom about the point under the finger, the way a pinch does.
+  function zoomAt(k, cx, cy) {
+    var was = st.zoom;
+    st.zoom = Math.max(1, Math.min(6, st.zoom * k));
+    if (st.zoom === was) return;
+    var r = $('fit').getBoundingClientRect();
+    var x = cx - r.left, y = cy - r.top;
+    var f = st.zoom / was;
+    st.panX = x - f * (x - st.panX);
+    st.panY = y - f * (y - st.panY);
+    draw();
+  }
 
-  // The finger: a 44 ring, the size of the finger law, so you can see what a
-  // thumb covers. Hover goes off with it, because a touchscreen has none.
-  var TOUCH_CSS = '*{cursor:none!important;}'
-    + '.chip:hover,.btn:hover,.row:hover,.bk-row:hover,.bl-main:hover,'
-    + '.rail-btn:hover,.deck-sq:hover,.deck-date:hover,.staff-badge:hover{background:inherit;}';
   function frameDoc() { try { return $('app').contentDocument; } catch (e) { return null; } }
+  function frameWin() { try { return $('app').contentWindow; } catch (e) { return null; } }
+
+  // ── TOUCH. Not a picture of a finger: the frame is sent real touch events,
+  //    so anything that listens for them runs, hover is switched off because a
+  //    touchscreen has none, and text stops selecting on a drag the way it
+  //    does not on a phone. The ring is 44 across — the finger law — so you
+  //    can see what a thumb actually covers.
+  var TOUCH_CSS = '*{cursor:none!important;-webkit-user-select:none!important;user-select:none!important;}'
+    + '.chip:hover,.btn:hover,.row:hover,.bk-row:hover,.bl-main:hover,'
+    + '.rail-btn:hover,.deck-sq:hover,.deck-date:hover,.staff-badge:hover,'
+    + '.bk-row:hover,.colour-swatch:hover{background:inherit;}';
   function applyTouch() {
     var doc = frameDoc(); if (!doc || !doc.head) return;
     var tag = doc.getElementById('pv-touch');
@@ -111,36 +147,107 @@
     } else if (!st.touch && tag) { tag.remove(); }
     if (!st.touch) $('ring').classList.remove('on');
   }
-  function zoomBy(dy) { st.zoom = Math.max(0.5, Math.min(4, st.zoom * Math.exp(-dy / 400))); draw(); }
+  var idSeq = 1;
+  function sendTouch(type, e, target) {
+    var win = frameWin(); if (!win || !win.Touch || !win.TouchEvent) return;
+    try {
+      var t = new win.Touch({
+        identifier: idSeq, target: target, clientX: e.clientX, clientY: e.clientY,
+        pageX: e.pageX, pageY: e.pageY, screenX: e.screenX, screenY: e.screenY,
+        radiusX: 22, radiusY: 22, rotationAngle: 0, force: 1
+      });
+      var live = type === 'touchend' || type === 'touchcancel' ? [] : [t];
+      target.dispatchEvent(new win.TouchEvent(type, {
+        touches: live, targetTouches: live, changedTouches: [t],
+        bubbles: true, cancelable: true, view: win
+      }));
+    } catch (err) {}
+  }
+
+  // ── PINCH. A trackpad pinch or the wheel zooms about the point under the
+  //    cursor; dragging pushes the picture about. A drag that never moves is
+  //    still a tap, so the app underneath keeps working while zoomed in.
+  var PAN_SLOP = 6;
+  var drag = null;
+
   function wire() {
     var doc = frameDoc(); if (!doc || !doc.body || doc.__wired) return;
     doc.__wired = true;
     var ring = $('ring');
+
+    doc.addEventListener('pointerdown', function (e) {
+      if (st.touch) {
+        ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px';
+        ring.classList.add('on');
+        sendTouch('touchstart', e, e.target);
+      }
+      if (st.pinch && st.zoom > 1) {
+        drag = { x: e.clientX, y: e.clientY, px: st.panX, py: st.panY, moved: false, id: e.pointerId };
+      }
+    }, true);
+
     doc.addEventListener('pointermove', function (e) {
-      if (!st.touch) return;
-      ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px';
-      ring.classList.add('on');
+      if (st.touch) {
+        ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px';
+        ring.classList.add('on');
+        if (drag || e.buttons) sendTouch('touchmove', e, e.target);
+      }
+      if (!drag) return;
+      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
+      if (!drag.moved && Math.abs(dx) + Math.abs(dy) < PAN_SLOP) return;
+      drag.moved = true;
+      // The frame is scaled, so a pointer delta inside it is already in the
+      // frame's own pixels: multiply back up to the page's.
+      st.panX = drag.px + dx * base * st.zoom;
+      st.panY = drag.py + dy * base * st.zoom;
+      draw();
+      e.preventDefault(); e.stopPropagation();
+    }, true);
+
+    var up = function (e) {
+      if (st.touch) sendTouch('touchend', e, e.target);
+      if (drag && drag.moved) { e.preventDefault(); e.stopPropagation(); }
+      drag = null;
+    };
+    doc.addEventListener('pointerup', up, true);
+    doc.addEventListener('pointercancel', up, true);
+    // A pan must not land as a tap on whatever was under the finger.
+    doc.addEventListener('click', function (e) {
+      if (drag && drag.moved) { e.preventDefault(); e.stopPropagation(); }
     }, true);
     doc.addEventListener('pointerleave', function () { ring.classList.remove('on'); }, true);
+
     // A gesture over the screen goes into the frame and never reaches this
     // page, so the frame hands it back.
     doc.addEventListener('wheel', function (e) {
-      if (!st.touch) return;
-      e.preventDefault(); zoomBy(e.deltaY);
+      if (!st.pinch) return;
+      e.preventDefault();
+      var r = $('app').getBoundingClientRect();
+      zoomAt(Math.exp(-e.deltaY / 700), r.left + e.clientX * base * st.zoom + st.panX,
+                                        r.top + e.clientY * base * st.zoom + st.panY);
     }, { passive: false, capture: true });
+
     applyTouch();
   }
 
   document.addEventListener('click', function (ev) {
     var b = ev.target.closest('button'); if (!b) return;
-    if (b.dataset.id) { st.id = b.dataset.id; st.zoom = 1; draw(); return; }
-    if (b.id === 'latest') { st.zoom = 1; $('app').contentWindow.location.reload(true); draw(); return; }
-    if (b.id === 'touch') { st.touch = !st.touch; st.zoom = 1; applyTouch(); draw(); return; }
+    if (b.dataset.id) { st.id = b.dataset.id; st.zoom = 1; st.panX = st.panY = 0; draw(); return; }
+    if (b.id === 'latest') { st.zoom = 1; st.panX = st.panY = 0; frameWin().location.reload(true); draw(); return; }
+    if (b.id === 'touch') { st.touch = !st.touch; applyTouch(); draw(); return; }
+    if (b.id === 'pinch') {
+      st.pinch = !st.pinch;
+      if (!st.pinch) { st.zoom = 1; st.panX = st.panY = 0; }
+      draw(); return;
+    }
   });
+  // The same gesture, when the cursor is beside the screen rather than on it.
   $('stage').addEventListener('wheel', function (e) {
-    if (!st.touch) return;
-    e.preventDefault(); zoomBy(e.deltaY);
+    if (!st.pinch) return;
+    e.preventDefault();
+    zoomAt(Math.exp(-e.deltaY / 700), e.clientX, e.clientY);
   }, { passive: false });
+
   $('app').addEventListener('load', function () { wire(); applyTouch(); });
   window.addEventListener('resize', draw);
   draw(); wire();
