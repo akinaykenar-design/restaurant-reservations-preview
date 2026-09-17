@@ -1536,8 +1536,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
         ? '<a href="../">The front desk</a>'
         : '<a href="book/" target="_blank" rel="noopener">Guests\u2019 page</a>')
       + (window.self === window.top
-        ? '<a href="' + (window.__RESV_IS_BOOK__ ? '../' : '') + 'phone.html">On a phone</a>'
-          + '<a href="' + (window.__RESV_IS_BOOK__ ? '../' : '') + 'tablet.html">On a tablet</a>'
+        ? '<a href="' + (window.__RESV_IS_BOOK__ ? '../' : '') + 'device.html">On a device</a>'
         : '')
       + '<button id="pv-save">Download data</button>'
       + '<button id="pv-reset">Start over</button>'
