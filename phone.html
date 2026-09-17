@@ -102,20 +102,16 @@
   // CSS pixels, which is what a layout actually sees — not the marketing
   // resolution. A phone that says 1179 across is 393 to a stylesheet.
   var DEVICES = [
-    { id: 'se',     name: 'iPhone SE',  w: 375,  h: 667,  bez: 14, r: 42, kind: 'phone' },
-    { id: 'phone',  name: 'iPhone',     w: 393,  h: 852,  bez: 12, r: 48, kind: 'phone' },
-    { id: 'max',    name: 'iPhone Max', w: 430,  h: 932,  bez: 12, r: 52, kind: 'phone' },
-    { id: 'mini',   name: 'iPad mini',  w: 744,  h: 1133, bez: 16, r: 34, kind: 'tablet' },
-    { id: 'ipad',   name: 'iPad',       w: 820,  h: 1180, bez: 18, r: 36, kind: 'tablet' },
-    { id: 'pro',    name: 'iPad Pro',   w: 1024, h: 1366, bez: 18, r: 38, kind: 'tablet' }
+    { id: 'phone',  name: 'Phone',  w: 393, h: 852,  bez: 12, r: 48, kind: 'phone' },
+    { id: 'tablet', name: 'Tablet', w: 820, h: 1180, bez: 18, r: 36, kind: 'tablet' }
   ];
   var KIND = 'phone';
   var st = {
     id: (function () {
       try { var s = localStorage.getItem('resv-device'); if (s && DEVICES.some(function (d) { return d.id === s; })) return s; } catch (e) {}
-      return KIND === 'tablet' ? 'ipad' : 'phone';
+      return KIND === 'tablet' ? 'tablet' : 'phone';
     })(),
-    land: false,
+    land: true,
     book: false
   };
   var $ = function (id) { return document.getElementById(id); };
