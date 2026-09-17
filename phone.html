@@ -58,6 +58,27 @@
   .device.tablet .notch{display:none;}
   .device.tablet .homebar{width:22%;}
 
+  /* The side buttons. Real devices keep theirs on the edge, so these are on
+     the edge: a sliver of the bezel that lights when the mode is on. */
+  .side{position:absolute;left:calc(100% - 2px);width:7px;border:0;padding:0;cursor:pointer;
+    background:#2A2E31;border-radius:0 4px 4px 0;box-shadow:2px 0 6px rgba(0,0,0,.35);}
+  .side span{position:absolute;left:18px;top:50%;transform:translateY(-50%);z-index:5;
+    font:700 9px/1 var(--font);letter-spacing:1px;color:var(--charcoal-soft);white-space:nowrap;}
+  .side.touch{top:22%;height:74px;}
+  .side.pinch{top:calc(22% + 92px);height:56px;}
+  .side.on{background:var(--accent);}
+  .side.on span{color:var(--accent);}
+  .device.pinching{cursor:zoom-in;}
+
+  /* The finger. A 44 ring, the size of the finger law, so you can see what a
+     thumb actually covers — which a 1-pixel arrow never tells you. */
+  .ring{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;
+    border:2px solid rgba(47,116,201,.9);background:rgba(47,116,201,.14);
+    pointer-events:none;opacity:0;z-index:4;transition:opacity .12s;}
+  .ring.on{opacity:1;}
+  .ring.tap{animation:tap .28s ease-out;}
+  @keyframes tap{from{transform:scale(.6);opacity:1;}to{transform:scale(1);opacity:1;}}
+
   .note{flex:none;padding:8px 16px 12px;color:var(--charcoal-soft);font-size:11px;line-height:1.6;
     border-top:1px solid var(--steel-300);background:var(--surface);}
   .note code{font-family:var(--mono);}
@@ -84,16 +105,24 @@
   <div class="stage" id="stage">
     <div class="device" id="device">
       <div class="notch"></div>
-      <div class="screen" id="screen"><iframe id="app" title="Reservations"></iframe></div>
+      <div class="screen" id="screen">
+        <iframe id="app" title="Reservations"></iframe>
+        <div class="ring" id="ring"></div>
+      </div>
       <div class="homebar"></div>
+      <!-- Where a device keeps its buttons: down the side. -->
+      <button class="side touch" id="touch" title="Touch — a finger instead of a pointer"><span>TOUCH</span></button>
+      <button class="side pinch" id="pinch" title="Pinch — zoom the screen"><span>PINCH</span></button>
     </div>
   </div>
 
   <div class="note">
-    The real app, running in a frame the size of the real screen — the same
-    code the full-window preview runs, sharing the same data. Book on one and
-    it is on the other. Sign-in is gone; <code>Settings</code> asks for the
-    manager PIN <code>1234</code>.
+    The real app in a frame the size of the real screen, sharing the real data
+    — book on one and it is on the other. The two buttons down the side:
+    <b>TOUCH</b> swaps the pointer for a 44-pixel finger and turns hover off,
+    because a phone has none; <b>PINCH</b> lets the wheel or a trackpad pinch
+    zoom the screen the way two fingers would. Sign-in is gone;
+    <code>Settings</code> asks for the manager PIN <code>1234</code>.
   </div>
 
 <script>
@@ -111,8 +140,11 @@
       try { var s = localStorage.getItem('resv-device'); if (s && DEVICES.some(function (d) { return d.id === s; })) return s; } catch (e) {}
       return KIND === 'tablet' ? 'tablet' : 'phone';
     })(),
-    land: true,
-    book: false
+    land: KIND === 'tablet',
+    book: false,
+    touch: false,
+    pinch: false,
+    zoom: 1
   };
   var $ = function (id) { return document.getElementById(id); };
   var dev = function () { return DEVICES.filter(function (d) { return d.id === st.id; })[0] || DEVICES[1]; };
@@ -141,18 +173,75 @@
     var pad = 40;
     var availW = stage.clientWidth - pad, availH = stage.clientHeight - pad;
     var boxW = w + d.bez * 2, boxH = h + d.bez * 2;
-    var k = Math.min(1, availW / boxW, availH / boxH);
+    var k = Math.min(1, availW / boxW, availH / boxH) * st.zoom;
     el.style.transform = 'scale(' + k.toFixed(4) + ')';
+    el.classList.toggle('pinching', st.pinch);
+    $('touch').classList.toggle('on', st.touch);
+    $('pinch').classList.toggle('on', st.pinch);
     // A scaled element still reserves its unscaled box, so the grid centres it
     // on the wrong size and the tall ones sit half off the bottom.
     el.style.marginBottom = Math.round(-(boxH * (1 - k))) + 'px';
 
-    $('size').textContent = w + ' × ' + h + (k < 1 ? '  ·  ' + Math.round(k * 100) + '%' : '');
+    $('size').textContent = w + ' × ' + h + '  ·  ' + Math.round(k * 100) + '%'
+      + (st.pinch ? '  ·  pinch' : '') + (st.touch ? '  ·  touch' : '');
     $('which').textContent = st.book ? 'Guests’ page' : 'The desk';
     var src = st.book ? 'book/index.html' : 'index.html';
     if (frame.getAttribute('data-src') !== src) { frame.setAttribute('data-src', src); frame.src = src; }
+    else wireFrame();
     $('full').href = src;
     try { localStorage.setItem('resv-device', st.id); } catch (e) {}
+  }
+
+  // ── TOUCH. The pointer becomes a finger: a 44 ring, the size of the finger
+  //    law, so you can see what a thumb actually covers — which a one-pixel
+  //    arrow never tells you. Hover is switched off inside the frame too,
+  //    because a phone has no hover and a preview that shows one lies.
+  var TOUCH_CSS = '*{cursor:none!important;}'
+    + '*:hover{background-image:none!important;}'
+    + '.chip:hover,.btn:hover,.row:hover,.bk-row:hover,.bl-main:hover,'
+    + '.rail-btn:hover,.deck-sq:hover,.deck-date:hover,.staff-badge:hover{background:inherit;}';
+  function wireFrame() {
+    var f = $('app'), doc;
+    try { doc = f.contentDocument; } catch (e) { return; }
+    if (!doc || !doc.body || doc.__wired) return;
+    doc.__wired = true;
+    var ring = $('ring');
+    doc.addEventListener('pointermove', function (e) {
+      if (!st.touch) return;
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+      ring.classList.add('on');
+    }, true);
+    doc.addEventListener('pointerdown', function (e) {
+      if (!st.touch) return;
+      ring.style.left = e.clientX + 'px';
+      ring.style.top = e.clientY + 'px';
+      ring.classList.remove('tap');
+      void ring.offsetWidth;
+      ring.classList.add('on', 'tap');
+    }, true);
+    doc.addEventListener('pointerleave', function () { ring.classList.remove('on'); }, true);
+    doc.addEventListener('wheel', function (e) {
+      if (!st.pinch) return;
+      e.preventDefault();
+      zoomBy(e.deltaY);
+    }, { passive: false, capture: true });
+    applyTouch();
+  }
+  function applyTouch() {
+    var f = $('app'), doc;
+    try { doc = f.contentDocument; } catch (e) { return; }
+    if (!doc || !doc.head) return;
+    var tag = doc.getElementById('pv-touch');
+    if (st.touch && !tag) {
+      tag = doc.createElement('style');
+      tag.id = 'pv-touch';
+      tag.textContent = TOUCH_CSS;
+      doc.head.appendChild(tag);
+    } else if (!st.touch && tag) {
+      tag.remove();
+    }
+    if (!st.touch) $('ring').classList.remove('on');
   }
 
   document.addEventListener('click', function (ev) {
@@ -160,7 +249,28 @@
     if (b) { st.id = b.getAttribute('data-id'); picks(); draw(); return; }
     if (ev.target.closest('#rotate')) { st.land = !st.land; draw(); return; }
     if (ev.target.closest('#which')) { st.book = !st.book; draw(); return; }
+    if (ev.target.closest('#touch')) { st.touch = !st.touch; applyTouch(); draw(); return; }
+    if (ev.target.closest('#pinch')) {
+      st.pinch = !st.pinch;
+      if (!st.pinch) st.zoom = 1;
+      draw(); return;
+    }
   });
+
+  // ── PINCH. With it on, a trackpad pinch or the wheel zooms the screen the
+  //    way two fingers would. Off, the page scrolls as normal, because a
+  //    preview that eats the scroll wheel is a preview nobody can read.
+  function zoomBy(deltaY) {
+    st.zoom = Math.max(0.5, Math.min(4, st.zoom * Math.exp(-deltaY / 400)));
+    draw();
+  }
+  $('stage').addEventListener('wheel', function (e) {
+    if (!st.pinch) return;
+    e.preventDefault();
+    zoomBy(e.deltaY);
+  }, { passive: false });
+
+  $('app').addEventListener('load', wireFrame);
   window.addEventListener('resize', draw);
   picks(); draw();
 })();
