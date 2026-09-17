@@ -52,6 +52,7 @@
   /* Booking status colours: the floor's own grammar. */
   --st-booked:#8B877F; --st-confirmed:#2F74C9; --st-arrived:#C08A00; --st-seated:#4FA51D; --st-done:#B3ADA0; --st-cancelled:#A8483A; --st-noshow:#6D4FC4;
   --st-due:#C08A00; --st-over:#6D4FC4; --src-online:#0E9E8A; --src-walkin:#C08A00; --src-pos:#918E88;
+  --plan-bg:#2A2F33; --plan-line:#F2F5F7; --plan-ink:#C9D1D6; --plan-seat:#E4EAEE; --plan-edge:#5A6268;
 }
 body[data-theme="dark"]{
   --steel-100:#161512; --steel-200:#332F2B; --steel-300:#4A463F; --steel-500:#6B645A;
@@ -67,6 +68,7 @@ body[data-theme="dark"]{
   --green-dim:color-mix(in srgb, var(--green) 20%, var(--surface));
   --st-booked:#A8A399; --st-confirmed:#3692E7; --st-arrived:#E8C24D; --st-seated:#7BC72F; --st-done:#6B645A; --st-cancelled:#CF6152; --st-noshow:#8B6FE8;
   --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#E8C24D; --src-pos:#D9D5CE;
+  --plan-bg:#16191B; --plan-line:#E7ECEF; --plan-ink:#B6BFC5; --plan-seat:#D2DADF; --plan-edge:#4A5157;
 }
 @media (max-height:560px){ :root{ --num-key-w:64px; --num-key-h:52px; --num-key-r:10px; --num-key-fs:19px; --num-gap:8px; } }
 @media (max-width:768px){ :root{ --deck-edge:12px; --hub-edge:8px; } }
@@ -522,7 +524,8 @@ body.book-page #app{display:block;height:auto;}
    wider than a phone — in its own scroller, never the page's. Below about
    560 the tables are 6% of nothing and no label survives. */
 .fl-wrap{overflow-x:auto;}
-.fl-room{position:relative;aspect-ratio:900/560;width:100%;min-width:560px;background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);overflow:hidden;}
+.fl-room{position:relative;aspect-ratio:900/560;width:100%;min-width:560px;background:var(--plan-bg);
+  border:1px solid var(--plan-edge);border-radius:var(--r-control);overflow:hidden;}
 /* No geometry from the POS: a plain wrapped row, which keeps the states, the
    scrubber and the tapping — the useful half — without inventing a room. */
 .fl-room.loose{aspect-ratio:auto;min-width:0;display:flex;flex-wrap:wrap;gap:8px;padding:8px;}
@@ -544,7 +547,7 @@ body.book-page #app{display:block;height:auto;}
 .fl-no{font-size:var(--fs-md);line-height:1.1;}
 .fl-sub{font-family:var(--font-body);font-size:var(--fs-chip);font-weight:700;opacity:.85;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .fl-flag{font-family:var(--font-body);font-size:var(--fs-chip);font-weight:700;opacity:.9;}
-.fl-decor{position:absolute;background:var(--steel-100);border:1px solid var(--steel-200);border-radius:var(--r-btn);
+.fl-decor{position:absolute;background:var(--plan-line);border:none;border-radius:2px;color:var(--plan-bg);
   display:flex;align-items:center;justify-content:center;overflow:hidden;
   font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);text-transform:uppercase;letter-spacing:.5px;pointer-events:none;}
 
@@ -816,6 +819,37 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .deck-date:hover{background:var(--steel-200);}
 .deck-date svg{width:20px;height:20px;flex:0 0 20px;opacity:.75;}
 @media (max-width:700px){ .deck-date span{display:none;} .deck-chip{min-width:0;padding:0 10px;} }
+
+/* §§ The plan — a drawing, not a screen
+   Chairs are the whole difference between a floor plan and a row of boxes
+   with numbers on. They sit OUTSIDE the table's box, so the table stops
+   clipping; the label keeps its own clip inside .fl-in. */
+.fl-table{overflow:visible;}
+.fl-seat{position:absolute;width:11px;height:11px;border-radius:50%;
+  background:var(--plan-seat);transform:translate(-50%,-50%);pointer-events:none;}
+/* A free table is an outline. Only a table with people on it is filled — which
+   is what makes a busy room legible from across it. */
+.fl-room .fl-table{background:none;border:1.5px solid var(--plan-line);color:var(--plan-ink);}
+.fl-room .fl-table.due{background:color-mix(in srgb, var(--st-due) 22%, transparent);border-color:var(--st-due);color:var(--plan-line);}
+.fl-room .fl-table.seated{background:var(--st-seated);border-color:var(--st-seated);color:#fff;}
+.fl-room .fl-table.over{background:var(--st-over);border-color:var(--st-over);color:#fff;}
+.fl-room .fl-table.seated .fl-seat,.fl-room .fl-table.over .fl-seat{background:var(--plan-seat);opacity:.8;}
+.fl-room.loose{background:none;border-color:var(--steel-200);}
+.fl-room.loose .fl-table{background:var(--surface);border:1px solid var(--steel-300);color:var(--charcoal-soft);}
+.fl-room.loose .fl-seat{display:none;}
+
+/* The night along the foot of the plan: covers landing in each slot, and how
+   many are in the room against what the venue said it would take. */
+.pace{display:flex;overflow-x:auto;margin-top:8px;background:var(--surface);
+  border:1px solid var(--steel-300);border-radius:var(--r-control);}
+.pace-col{flex:0 0 76px;display:flex;flex-direction:column;gap:2px;padding:8px 10px;
+  border-right:1px solid var(--steel-200);}
+.pace-col:last-child{border-right:none;}
+.pace-col.now{background:var(--pick-wash);box-shadow:inset 0 2px 0 var(--orange);}
+.pace-col.over .pace-n{color:var(--red);}
+.pace-t{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;}
+.pace-n{font-family:var(--font-mono);font-size:var(--fs-lg);font-weight:700;}
+.pace-c{font-family:var(--font-mono);font-size:var(--fs-chip);color:var(--charcoal-soft);}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
@@ -1233,11 +1267,46 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   }
   function book(o) { return call('POST', '/api/reservations', o); }
 
+  // A ROOM, not a grid of boxes. Without geometry the Floor view falls back to
+  // a plain wrapped row — right for a venue that has never linked the POS, and
+  // a poor advertisement for the one view this app is proudest of. So the
+  // preview gets a plausible dining room written straight into the store, the
+  // same shape the POS sends: x/y are the table's CENTRE as a percentage of a
+  // 900x560 canvas, width/height are percentages of each axis.
+  function seedRoom() {
+    var t = function (id, label, seats, x, y, w, h, round) {
+      return { id: id, label: label, seats: seats, x: x, y: y, width: w, height: h, shape: round ? 'circle' : 'rect', rotation: 0 };
+    };
+    var d = function (id, kind, x, y, w, h) {
+      return { id: id, type: 'decor', decorType: kind, x: x, y: y, width: w, height: h, rotation: 0 };
+    };
+    var tables = [
+      d('w1', '', 50, 2.4, 94, 1.4), d('w2', '', 2.6, 50, 1.2, 94),
+      d('w3', '', 97.4, 50, 1.2, 94), d('w4', '', 50, 97.6, 94, 1.4),
+      d('bar', 'bar', 24, 11, 34, 6), d('pass', 'pass', 79, 10, 24, 5.5),
+      t('t1', '1', 2, 11, 30, 8, 11), t('t2', '2', 2, 11, 48, 8, 11),
+      t('t3', '3', 2, 11, 66, 8, 11), t('t4', '4', 2, 11, 84, 8, 11),
+      t('t5', '5', 4, 36, 34, 12, 15), t('t6', '6', 4, 36, 60, 12, 15),
+      t('t7', '7', 4, 57, 34, 12, 15), t('t8', '8', 4, 57, 60, 12, 15),
+      t('t9', '9', 6, 81, 36, 14, 21, true), t('t10', '10', 6, 81, 70, 14, 21, true),
+      t('t11', '11', 6, 40, 86, 20, 10),
+    ];
+    try {
+      var raw = files[DB_LIVE];
+      if (!raw) return;
+      var data = JSON.parse(raw);
+      data.floorPlans = [{ id: 'fp1', name: 'Main', tables: tables }];
+      files[DB_LIVE] = JSON.stringify(data, null, 2);
+      touch(DB_LIVE); persist(DB_LIVE);
+    } catch (e) {}
+  }
+
   function seedDemo() {
     // The demo sits on the venue's own TRADING day, not on the calendar one.
     // A restaurant's Tuesday runs past midnight, and the desk knows it — so a
     // preview opened at one in the morning must seed the evening the desk is
     // still showing, or it lands a service on a day nobody is looking at.
+    seedRoom();
     return call('GET', '/api/today').then(function (t) { return seedOn((t && t.date) || dayOf(new Date())); });
   }
 
