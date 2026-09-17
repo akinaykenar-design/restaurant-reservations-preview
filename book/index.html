@@ -837,11 +837,21 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   min-height:var(--tap);padding:2px 14px;border:none;border-radius:var(--r-btn);background:none;
   color:var(--text-primary);cursor:pointer;
   position:absolute;left:50%;transform:translateX(-50%);max-width:46%;}
-.deck-date:hover{background:var(--steel-200);}
 .dd-1{display:flex;align-items:center;gap:8px;font-weight:700;font-size:var(--fs-lg);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
-.dd-2{font-size:var(--fs-chip);font-weight:700;letter-spacing:.3px;color:var(--charcoal-soft);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.deck-date{gap:2px;}
+.dd-1{border:none;background:none;color:inherit;cursor:pointer;padding:2px 6px;border-radius:var(--r-btn);}
+.dd-1:hover{background:var(--steel-200);}
+.dd-2{display:flex;align-items:center;gap:4px;font-size:var(--fs-chip);font-weight:700;
+  letter-spacing:.3px;color:var(--charcoal-soft);white-space:nowrap;max-width:100%;}
+.dd-2.shut{color:var(--red);}
+/* The services, as a switch. Small, because it is a narrowing and not a mode —
+   a chip's worth of weight, not a deck tile's. */
+.svc-b{padding:3px 8px;border-radius:var(--r-pill);border:1px solid transparent;
+  background:none;color:var(--charcoal-soft);font:inherit;cursor:pointer;white-space:nowrap;}
+.svc-b i{font-style:normal;font-family:var(--font-mono);font-weight:500;opacity:.75;}
+.svc-b:hover{background:var(--steel-200);}
+.svc-b.on{background:var(--orange-dim);border-color:transparent;color:var(--orange);}
 .deck-date svg{width:20px;height:20px;flex:0 0 20px;opacity:.75;}
 @media (max-width:700px){ .deck-chip{min-width:0;padding:0 10px;} }
 /* A short bar has no room for a second line under the date. */

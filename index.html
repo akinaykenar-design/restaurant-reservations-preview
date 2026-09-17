@@ -844,11 +844,21 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   min-height:var(--tap);padding:2px 14px;border:none;border-radius:var(--r-btn);background:none;
   color:var(--text-primary);cursor:pointer;
   position:absolute;left:50%;transform:translateX(-50%);max-width:46%;}
-.deck-date:hover{background:var(--steel-200);}
 .dd-1{display:flex;align-items:center;gap:8px;font-weight:700;font-size:var(--fs-lg);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
-.dd-2{font-size:var(--fs-chip);font-weight:700;letter-spacing:.3px;color:var(--charcoal-soft);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.deck-date{gap:2px;}
+.dd-1{border:none;background:none;color:inherit;cursor:pointer;padding:2px 6px;border-radius:var(--r-btn);}
+.dd-1:hover{background:var(--steel-200);}
+.dd-2{display:flex;align-items:center;gap:4px;font-size:var(--fs-chip);font-weight:700;
+  letter-spacing:.3px;color:var(--charcoal-soft);white-space:nowrap;max-width:100%;}
+.dd-2.shut{color:var(--red);}
+/* The services, as a switch. Small, because it is a narrowing and not a mode —
+   a chip's worth of weight, not a deck tile's. */
+.svc-b{padding:3px 8px;border-radius:var(--r-pill);border:1px solid transparent;
+  background:none;color:var(--charcoal-soft);font:inherit;cursor:pointer;white-space:nowrap;}
+.svc-b i{font-style:normal;font-family:var(--font-mono);font-weight:500;opacity:.75;}
+.svc-b:hover{background:var(--steel-200);}
+.svc-b.on{background:var(--orange-dim);border-color:transparent;color:var(--orange);}
 .deck-date svg{width:20px;height:20px;flex:0 0 20px;opacity:.75;}
 @media (max-width:700px){ .deck-chip{min-width:0;padding:0 10px;} }
 /* A short bar has no room for a second line under the date. */
@@ -5909,6 +5919,8 @@ const state = {
   // combos (which makes the Settings card read-only, as the Staff card is).
   setMenus: [], setMenusFromPos: false,
   view: 'today', date: localDay(new Date()), todayMode: 'floor',
+  // Which service the desk is narrowed to, '' for the whole night.
+  service: '',
   // The moment the floor plan is showing, or null for "now". Cleared
   // whenever the day changes — a time belongs to the day it was scrubbed on.
   floorTime: null,
@@ -6003,6 +6015,40 @@ function exceptionOn(day) { return (((state.settings || {}).exceptions) || []).f
 function weeklyServicesOn(day) { if (!/^\d{4}-\d{2}-\d{2}$/.test(String(day || ''))) return []; const wd = parseDay(day).getDay(); return (((state.settings || {}).services) || []).filter(x => (x.days || []).includes(wd)); }
 function servicesOnDay(day) { const ex = exceptionOn(day); if (ex) return ex.closed ? [] : (ex.services || []); return weeklyServicesOn(day); }
 function heldTables(r) { return [r.tableId, ...(r.tableIds || [])].filter(Boolean); }
+// §§ Which service a booking is in, and which one the desk is looking at
+// The browser's copy of availability.js:servicesInOrder + serviceAt — beside
+// the other mirrors here. Start-INCLUSIVE, end-EXCLUSIVE, first match, so a
+// booking's service on this screen and its group on the run sheet are the
+// same answer. test/service.test.js reads this file back and fails if the two
+// ever part company.
+function servicesInOrderOn(day) {
+  return servicesOnDay(day).slice().sort((a, b) => (toMin(a.start) - toMin(b.start)) || (toMin(a.end) - toMin(b.end)));
+}
+function serviceOfBooking(r) {
+  const t = toMin(hhmmOf(r.time));
+  return servicesInOrderOn(dayOf(r.time)).find(s => toMin(s.start) <= t && t < toMin(s.end)) || null;
+}
+// The service the desk is narrowed to, or null for the whole night. A service
+// the day does not have is not a service: a Sunday with no lunch drops back to
+// the whole day rather than showing an empty room.
+function pickedService() {
+  if (!state.service) return null;
+  return servicesInOrderOn(state.date).find(s => s.id === state.service) || null;
+}
+// What the floor, the timeline and the flow should cover. The BOOKING popup
+// never asks this — it offers every time the day takes, because a desk looking
+// at dinner still answers the phone about lunch.
+function deskServices(day) {
+  const sv = day === state.date ? pickedService() : null;
+  return sv ? [sv] : servicesOnDay(day);
+}
+function inPickedService(r) {
+  const sv = pickedService();
+  if (!sv) return true;
+  const t = toMin(hhmmOf(r.time));
+  return toMin(sv.start) <= t && t < toMin(sv.end);
+}
+
 // The set menu a booking carries, or ''. availability.js:setMenuNameOf() on
 // this side — the name is the identity, so a whitespace-only one is none.
 function setMenuName(r) { return String(((r && r.setMenu) || {}).name || '').trim(); }
@@ -6408,11 +6454,21 @@ function renderRail() {
 // takes bookings in, exceptions and all, which is the question a host is
 // asked on the phone before any other. servicesOnDay() already answers it for
 // the slot picker; this only chooses the words.
-function serviceLine(day) {
+function renderServiceBand(day) {
+  day = day || state.date;
   const ex = exceptionOn(day);
-  const svcs = servicesOnDay(day);
-  if (!svcs.length) return ex && ex.note ? 'Closed \u2014 ' + ex.note : 'Closed';
-  return svcs.map(sv => `${sv.name} ${fmtHHMM(sv.start)}\u2013${fmtHHMM(sv.end)}`).join(' \u00b7 ');
+  const svcs = servicesInOrderOn(day);
+  if (!svcs.length) return `<span class="dd-2 shut">${esc(ex && ex.note ? 'Closed \u2014 ' + ex.note : 'Closed')}</span>`;
+  // One service is not a choice, so it is stated rather than offered.
+  if (svcs.length === 1) {
+    return `<span class="dd-2">${esc(svcs[0].name)} ${esc(fmtHHMM(svcs[0].start))}\u2013${esc(fmtHHMM(svcs[0].end))}</span>`;
+  }
+  const on = pickedService();
+  return `<span class="dd-2 svc">
+    <button class="svc-b${on ? '' : ' on'}" data-act="service" data-val="">All night</button>
+    ${svcs.map(sv => `<button class="svc-b${on && on.id === sv.id ? ' on' : ''}" data-act="service" data-val="${esc(sv.id)}"
+      title="${esc(fmtHHMM(sv.start))}\u2013${esc(fmtHHMM(sv.end))}">${esc(sv.name)} <i>${esc(fmtHHMM(sv.start))}</i></button>`).join('')}
+  </span>`;
 }
 function renderDeck() {
   const ps = state.settings && state.settings.pos;
@@ -6425,10 +6481,12 @@ function renderDeck() {
     <button class="deck-sq wide-only" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
     <button class="deck-chip wide-only${isToday ? ' active' : ''}" data-act="day" data-val="0">Today</button>
     <button class="deck-sq wide-only" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
-    <button class="deck-date" data-act="open-cal" title="Open the month">
-      <span class="dd-1">${I.cal}<span class="d-long">${esc(fmtDay(state.date, true))}</span><span class="d-short">${esc(fmtDay(state.date))}</span></span>
-      <span class="dd-2">${esc(serviceLine(state.date))}</span>
-    </button>
+    <div class="deck-date">
+      <button class="dd-1" data-act="open-cal" title="Open the month">
+        ${I.cal}<span class="d-long">${esc(fmtDay(state.date, true))}</span><span class="d-short">${esc(fmtDay(state.date))}</span>
+      </button>
+      ${renderServiceBand()}
+    </div>
     <div class="deck-spacer"></div>
     ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
     <button class="deck-sq wide-only" data-act="open-key" aria-label="What the colours mean" title="What the colours mean">${I.key}</button>
@@ -6484,8 +6542,10 @@ function renderView() {
 function serviceWindow(day) {
   // A closed day falls back to 11:00–22:00 and is then widened by whatever is
   // still on the book — which is what keeps those bookings on the timeline.
-  const svcs = servicesOnDay(day);
-  const rows = state.reservations.filter(isLive);
+  const svcs = deskServices(day);
+  // Narrowed to one service, the window is THAT service's — the bookings
+  // outside it are not on this screen, so they must not stretch it.
+  const rows = state.reservations.filter(isLive).filter(r => pickedService() ? inPickedService(r) : true);
   let start = svcs.length ? Math.min(...svcs.map(x => toMin(x.start))) : 11 * 60;
   let end = svcs.length ? Math.max(...svcs.map(x => toMin(x.end))) : 22 * 60;
   for (const r of rows) { const a = toMin(hhmmOf(r.time)); start = Math.min(start, a); end = Math.max(end, a + durationOf(r)); }
@@ -6545,8 +6605,8 @@ function floorStateAt(hhmm) {
 function coverFlowFor() {
   const step = state.settings.slotMinutes || 15;
   const pacing = (state.settings && state.settings.pacing) || {};
-  const rows = state.reservations.filter(isLive);
-  const svcs = servicesOnDay(state.date);
+  const rows = state.reservations.filter(isLive).filter(inPickedService);
+  const svcs = deskServices(state.date);
   const times = [];
   for (const sv of svcs) for (let m = toMin(sv.start); m < toMin(sv.end); m += step) if (!times.includes(m)) times.push(m);
   times.sort((a, b) => a - b);
@@ -6885,7 +6945,7 @@ function listMarks(r) {
 }
 
 function renderDayList() {
-  const all = state.reservations.slice().sort((a, b) => a.time.localeCompare(b.time));
+  const all = state.reservations.filter(inPickedService).slice().sort((a, b) => a.time.localeCompare(b.time));
   const q = deskQuery();
   const rows = q.on ? all.filter(r => deskMatch(r, q)) : all;
   const find = `<div class="bl-find">
@@ -6894,7 +6954,10 @@ function renderDayList() {
       data-field="deskQ" autocomplete="off" aria-label="Search tonight's bookings">
     ${q.on ? `<button class="chip sq" data-act="desk-clear" aria-label="Clear">${I.cross}</button>` : ''}
   </div>`;
-  if (!all.length) return find + '<div class="empty">No bookings this day.</div>';
+  if (!all.length) {
+    const sv = pickedService();
+    return find + `<div class="empty">${sv ? 'Nothing booked for ' + esc(sv.name) + '.' : 'No bookings this day.'}</div>`;
+  }
   if (q.on && !rows.length) return find + `<div class="empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d.</div>`;
 
   const row = (r) => {
@@ -8092,7 +8155,7 @@ document.addEventListener('click', async (ev) => {
       // Settings is the one place that still asks for a code — and it asks
       // once, then holds it for as long as this tab is open.
       case 'view': setView(val); break;
-      case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.floorTime = null; render(); await loadDay(); render(); break;
+      case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.floorTime = null; state.service = ''; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'mode': {
         const rail = RAILS[state.view];
@@ -8109,7 +8172,7 @@ document.addEventListener('click', async (ev) => {
       case 'floor-now': state.floorTime = null; render(); break;
       case 'print-sheet': window.print(); break;
       case 'month': { if (val === '0') state.month = localDay(new Date()).slice(0, 7); else { const [y, m] = state.month.split('-').map(Number); const d = new Date(y, m - 1 + parseInt(val), 1); state.month = localDay(d).slice(0, 7); } render(); try { await loadMonth(); } catch (e) {} render(); break; }
-      case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.floorTime = null; render(); await loadDay(); render(); break;
+      case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.floorTime = null; state.service = ''; render(); await loadDay(); render(); break;
       case 'new-booking': openBooking(null); break;
       case 'new-at': openBooking(null, { time: el.dataset.time, tableId: el.dataset.table || null }); break;
       // The release of a drag must not ALSO open the booking it landed on
@@ -8176,6 +8239,9 @@ document.addEventListener('click', async (ev) => {
       // The List. A group shuts, and one booking at a time opens out — an
       // accordion, because two open panels is a scroll and a host reading one
       // booking is not reading another.
+      // Narrowing to a service moves the floor's clock into it, or the room
+      // would be drawn at a time this screen no longer shows.
+      case 'service': state.service = val || ''; state.floorTime = null; render(); break;
       case 'desk-clear': state.deskQ = ''; render(); break;
       case 'list-group': { state.listShut = Object.assign({}, state.listShut, { [val]: !state.listShut[val] }); render(); break; }
       case 'open-more': state.modal = { kind: 'more' }; render(); break;
@@ -8583,7 +8649,7 @@ document.addEventListener('input', (ev) => {
   const f = el.dataset && el.dataset.field;
   if (!f) return;
   const raw = el.type === 'number' ? (el.value === '' ? null : parseFloat(el.value)) : el.value;
-  if (f === 'date-pick') { if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) { state.date = raw; state.floorTime = null; loadDay().then(render); } return; }
+  if (f === 'date-pick') { if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) { state.date = raw; state.floorTime = null; state.service = ''; loadDay().then(render); } return; }
   // The floor's time scrubber. It repaints from what is already in memory —
   // no fetch — so the room follows the finger.
   if (f === 'floor-time') { state.floorTime = fromMin(parseInt(raw, 10) || 0); render(); return; }
