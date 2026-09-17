@@ -818,7 +818,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   font-weight:700;font-size:var(--fs-lg);white-space:nowrap;cursor:pointer;}
 .deck-date:hover{background:var(--steel-200);}
 .deck-date svg{width:20px;height:20px;flex:0 0 20px;opacity:.75;}
-@media (max-width:700px){ .deck-date span{display:none;} .deck-chip{min-width:0;padding:0 10px;} }
+@media (max-width:700px){ .deck-chip{min-width:0;padding:0 10px;} }
 
 /* §§ The plan — a drawing, not a screen
    Chairs are the whole difference between a floor plan and a row of boxes
@@ -850,6 +850,53 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .pace-t{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;}
 .pace-n{font-family:var(--font-mono);font-size:var(--fs-lg);font-weight:700;}
 .pace-c{font-family:var(--font-mono);font-size:var(--fs-chip);color:var(--charcoal-soft);}
+
+/* §§ The phone — a different machine, not a narrow one
+   A phone is a manager checking tonight from the train and a host looking up
+   one name on the floor. So: the modes go to a THUMB BAR at the foot, which is
+   where a phone puts navigation; the sections come back as a band of chips
+   where a phone puts a segmented control; the day arrows go, because the date
+   opens the month and that is how a thumb changes day; and the keys that are
+   not find-or-book fold into one sheet. */
+.phone-only{display:none;}
+.secband{display:none;}
+.d-short{display:none;}
+@media (max-width:760px){
+  .wide-only{display:none!important;}
+  .phone-only{display:inline-flex;}
+  .d-long{display:none;}
+  .d-short{display:inline;}
+  .deck-date{flex:1;min-width:0;margin-left:0;font-size:var(--fs-lg);}
+  .deck-spacer{display:none;}
+  .deck-date span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .topbar{gap:4px;}
+
+  /* The rail lies down at the FOOT, over the content, with the home bar's
+     inset added to its own padding so the last row of tiles is still tappable
+     on a phone with no button. */
+  .shell{padding-bottom:calc(64px + env(safe-area-inset-bottom, 0px));}
+  .rail{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:auto;
+    flex-direction:row;padding:0;padding-bottom:env(safe-area-inset-bottom, 0px);
+    border-right:none;border-top:1px solid var(--steel-300);background:var(--surface);
+    z-index:var(--z-panel);overflow:visible;box-shadow:var(--lift-1);}
+  .rail-secs,.rail-rule{display:none;}
+  .rail .rail-btn{flex:1;aspect-ratio:auto;min-height:64px;gap:2px;padding:6px 2px;}
+  .rail .rail-ico svg{width:22px;height:22px;}
+  .rail .rail-label{font-size:9.5px;letter-spacing:0;}
+  /* A count on a thumb bar is a badge, not a line of type under the label. */
+  .rail .rail-n{position:absolute;top:6px;right:50%;margin-right:-22px;
+    min-width:16px;height:16px;padding:0 4px;border-radius:var(--r-pill);
+    background:var(--red);color:#fff;font-size:9.5px;line-height:16px;text-align:center;opacity:1;}
+  .rail-btn{position:relative;}
+  .rail .rail-btn.active{background:none;color:var(--orange);}
+  .rail .rail-btn.active .rail-ico{background:var(--orange-dim);border-radius:var(--r-pill);padding:2px 12px;}
+
+  .secband{display:flex;gap:6px;overflow-x:auto;margin:0 0 var(--hub-edge);}
+  .secband .chip{flex:0 0 auto;}
+  .pane{padding-bottom:0;}
+}
+/* A count of nought is not news. */
+.rail .rail-n:empty,.rail-btn .rail-n[data-zero="1"]{display:none;}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
@@ -1444,6 +1491,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     '#pv-bar button:hover{background:rgba(255,255,255,.12);}',
     '#pv-bar #pv-hide{border-color:transparent;padding:5px 8px;}',
     '@media (max-width:520px){#pv-bar .pv-say{flex-basis:100%;}}',
+    // On a phone the app's own thumb bar owns the foot of the screen. The
+    // strip sits above it, or it covers the whole navigation.
+    '@media (max-width:760px){#pv-bar{bottom:calc(64px + env(safe-area-inset-bottom,0px));padding-bottom:8px;}}',
   ].join('');
 
   function banner() {

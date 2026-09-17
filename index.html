@@ -825,7 +825,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   font-weight:700;font-size:var(--fs-lg);white-space:nowrap;cursor:pointer;}
 .deck-date:hover{background:var(--steel-200);}
 .deck-date svg{width:20px;height:20px;flex:0 0 20px;opacity:.75;}
-@media (max-width:700px){ .deck-date span{display:none;} .deck-chip{min-width:0;padding:0 10px;} }
+@media (max-width:700px){ .deck-chip{min-width:0;padding:0 10px;} }
 
 /* §§ The plan — a drawing, not a screen
    Chairs are the whole difference between a floor plan and a row of boxes
@@ -857,6 +857,53 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .pace-t{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;}
 .pace-n{font-family:var(--font-mono);font-size:var(--fs-lg);font-weight:700;}
 .pace-c{font-family:var(--font-mono);font-size:var(--fs-chip);color:var(--charcoal-soft);}
+
+/* §§ The phone — a different machine, not a narrow one
+   A phone is a manager checking tonight from the train and a host looking up
+   one name on the floor. So: the modes go to a THUMB BAR at the foot, which is
+   where a phone puts navigation; the sections come back as a band of chips
+   where a phone puts a segmented control; the day arrows go, because the date
+   opens the month and that is how a thumb changes day; and the keys that are
+   not find-or-book fold into one sheet. */
+.phone-only{display:none;}
+.secband{display:none;}
+.d-short{display:none;}
+@media (max-width:760px){
+  .wide-only{display:none!important;}
+  .phone-only{display:inline-flex;}
+  .d-long{display:none;}
+  .d-short{display:inline;}
+  .deck-date{flex:1;min-width:0;margin-left:0;font-size:var(--fs-lg);}
+  .deck-spacer{display:none;}
+  .deck-date span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .topbar{gap:4px;}
+
+  /* The rail lies down at the FOOT, over the content, with the home bar's
+     inset added to its own padding so the last row of tiles is still tappable
+     on a phone with no button. */
+  .shell{padding-bottom:calc(64px + env(safe-area-inset-bottom, 0px));}
+  .rail{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:auto;
+    flex-direction:row;padding:0;padding-bottom:env(safe-area-inset-bottom, 0px);
+    border-right:none;border-top:1px solid var(--steel-300);background:var(--surface);
+    z-index:var(--z-panel);overflow:visible;box-shadow:var(--lift-1);}
+  .rail-secs,.rail-rule{display:none;}
+  .rail .rail-btn{flex:1;aspect-ratio:auto;min-height:64px;gap:2px;padding:6px 2px;}
+  .rail .rail-ico svg{width:22px;height:22px;}
+  .rail .rail-label{font-size:9.5px;letter-spacing:0;}
+  /* A count on a thumb bar is a badge, not a line of type under the label. */
+  .rail .rail-n{position:absolute;top:6px;right:50%;margin-right:-22px;
+    min-width:16px;height:16px;padding:0 4px;border-radius:var(--r-pill);
+    background:var(--red);color:#fff;font-size:9.5px;line-height:16px;text-align:center;opacity:1;}
+  .rail-btn{position:relative;}
+  .rail .rail-btn.active{background:none;color:var(--orange);}
+  .rail .rail-btn.active .rail-ico{background:var(--orange-dim);border-radius:var(--r-pill);padding:2px 12px;}
+
+  .secband{display:flex;gap:6px;overflow-x:auto;margin:0 0 var(--hub-edge);}
+  .secband .chip{flex:0 0 auto;}
+  .pane{padding-bottom:0;}
+}
+/* A count of nought is not news. */
+.rail .rail-n:empty,.rail-btn .rail-n[data-zero="1"]{display:none;}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useStaff\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"staff\": [\n    {\n      \"id\": \"st1\",\n      \"name\": \"Alex (Manager)\",\n      \"pin\": \"1234\",\n      \"role\": \"manager\"\n    },\n    {\n      \"id\": \"st2\",\n      \"name\": \"Jamie\",\n      \"pin\": \"2222\",\n      \"role\": \"staff\"\n    },\n    {\n      \"id\": \"st3\",\n      \"name\": \"Sam\",\n      \"pin\": \"3333\",\n      \"role\": \"staff\"\n    }\n  ],\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}";window.__RESV_SEED_HASH__ = "2e63f256897b87b09c1216b9b1972ddfd67ce8ef";window.__RESV_IS_BOOK__ = false;</script>
@@ -1450,6 +1497,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     '#pv-bar button:hover{background:rgba(255,255,255,.12);}',
     '#pv-bar #pv-hide{border-color:transparent;padding:5px 8px;}',
     '@media (max-width:520px){#pv-bar .pv-say{flex-basis:100%;}}',
+    // On a phone the app's own thumb bar owns the foot of the screen. The
+    // strip sits above it, or it covers the whole navigation.
+    '@media (max-width:760px){#pv-bar{bottom:calc(64px + env(safe-area-inset-bottom,0px));padding-bottom:8px;}}',
   ].join('');
 
   function banner() {
@@ -6207,7 +6257,7 @@ function render() {
   const app = document.getElementById('app');
   const focus = document.activeElement, focusId = focus && focus.id, selStart = focus && focus.selectionStart;
   const scrolls = {}; document.querySelectorAll('[data-keep]').forEach(el => { scrolls[el.dataset.keep] = [el.scrollTop, el.scrollLeft]; });
-  app.innerHTML = `<div class="shell">${renderDeck()}<div class="main">${renderRail()}<div class="pane" data-keep="pane">${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}</div>`;
+  app.innerHTML = `<div class="shell">${renderDeck()}<div class="main">${renderRail()}<div class="pane" data-keep="pane">${renderSecBand()}${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}</div>`;
   document.querySelectorAll('[data-keep]').forEach(el => { const s = scrolls[el.dataset.keep]; if (s) { el.scrollTop = s[0]; el.scrollLeft = s[1]; } });
   // A day drawn for the first time opens where the work is; after that the
   // line above has already put the desk's own scroll back and this does
@@ -6355,7 +6405,7 @@ function railTile(key, label, icon, n, on, act) {
   return `<button class="rail-btn${on ? ' active' : ''}" data-act="${act}" data-val="${key}"
     aria-current="${on ? 'page' : 'false'}">
     <span class="rail-ico">${I[icon]}</span><span class="rail-label">${esc(label)}</span>
-    ${n == null ? '' : `<span class="rail-n">${n}</span>`}
+    ${n == null ? '' : `<span class="rail-n" data-zero="${n ? '0' : '1'}">${n}</span>`}
   </button>`;
 }
 function renderRail() {
@@ -6370,6 +6420,7 @@ function renderRail() {
     const counts = state.view === 'guests' ? (state.guestCounts || {}) : null;
     parts = '<div class="rail-rule"></div>' + rail.items.map(([k, label, icon]) =>
       railTile(k, label, icon, counts ? counts[k] : null, now === k, 'mode')).join('');
+    parts = `<div class="rail-secs">${parts}</div>`;
   }
   return `<nav class="rail" aria-label="Sections">${modes}${parts}</nav>`;
 }
@@ -6382,19 +6433,50 @@ function renderDeck() {
   const isToday = state.date === tradingDay();
   return `
   <div class="topbar">
-    <button class="deck-sq" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
-    <button class="deck-chip${isToday ? ' active' : ''}" data-act="day" data-val="0">Today</button>
-    <button class="deck-sq" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
+    <button class="deck-sq wide-only" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
+    <button class="deck-chip wide-only${isToday ? ' active' : ''}" data-act="day" data-val="0">Today</button>
+    <button class="deck-sq wide-only" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
     <button class="deck-date" data-act="open-cal" title="Open the month">
-      ${I.cal}<span>${esc(fmtDay(state.date, true))}</span>
+      ${I.cal}<span class="d-long">${esc(fmtDay(state.date, true))}</span><span class="d-short">${esc(fmtDay(state.date))}${isToday ? '' : ''}</span>
     </button>
     <div class="deck-spacer"></div>
-    ${linked ? `<button class="deck-sq" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
-    <button class="deck-sq" data-act="open-key" aria-label="What the colours mean" title="What the colours mean">${I.key}</button>
+    ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
+    <button class="deck-sq wide-only" data-act="open-key" aria-label="What the colours mean" title="What the colours mean">${I.key}</button>
     <button class="deck-sq" data-act="open-find" aria-label="Find a booking" title="Find a booking (/)">${I.search}</button>
     <button class="deck-sq" data-act="new-booking" aria-label="New booking" title="New booking">${I.plus}</button>
-    <button class="staff-badge" data-act="open-who" title="${esc(title)} \u00b7 tap to change who is on"><span class="deck-dot ${dot}"></span><span class="name">${esc((state.staff && state.staff.name) || 'Who is on?')}</span></button>
+    <button class="staff-badge wide-only" data-act="open-who" title="${esc(title)} \u00b7 tap to change who is on"><span class="deck-dot ${dot}"></span><span class="name">${esc((state.staff && state.staff.name) || 'Who is on?')}</span></button>
+    <button class="deck-sq phone-only" data-act="open-more" aria-label="More"><span class="deck-dot ${dot}"></span></button>
   </div>`;
+}
+
+// On a phone the sections cannot live on the rail — the rail is a thumb bar at
+// the foot, and five modes already fill it. They come back as a band of chips
+// at the top of the pane, which is where a phone puts a segmented control.
+function renderSecBand() {
+  const rail = RAILS[state.view];
+  if (!rail) return '';
+  const now = state[rail.key];
+  const counts = state.view === 'guests' ? (state.guestCounts || {}) : null;
+  return `<div class="band secband">${rail.items.map(([k, label, icon]) => {
+    const n = counts ? counts[k] : null;
+    return `<button class="chip${now === k ? ' active' : ''}" data-act="mode" data-val="${k}">${esc(label)}${n == null ? '' : ` <span class="sub">${n}</span>`}</button>`;
+  }).join('')}</div>`;
+}
+
+// What the phone folded away: who is on, the key, and the till.
+function renderMoreModal() {
+  const ps = state.settings && state.settings.pos;
+  const linked = ps && ps.enabled && ps.baseUrl;
+  return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1">
+    <h2>${esc((state.staff && state.staff.name) || 'Who is on?')}</h2>
+    <div class="bk-rows">
+      <button class="bk-row" data-act="open-who"><span class="bk-k">Who is on</span><span class="bk-v">${esc((state.staff && state.staff.name) || 'Nobody yet')}</span><span class="bk-chev">${I.right}</span></button>
+      <button class="bk-row" data-act="open-key"><span class="bk-k">The key</span><span class="bk-v">What the colours mean</span><span class="bk-chev">${I.right}</span></button>
+      ${linked ? `<button class="bk-row" data-act="to-till"><span class="bk-k">The till</span><span class="bk-v">Open it on this venue</span><span class="bk-chev">${I.right}</span></button>` : ''}
+    </div>
+    <div class="ts" style="margin-top:12px;">${state.online ? (linked ? 'The POS is linked.' : 'No POS link.') : 'Offline \u2014 is the server running?'}</div>
+    <div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Close</span></button></div>
+  </div></div>`;
 }
 
 function renderView() {
@@ -7387,6 +7469,7 @@ function renderModal() {
   if (m.kind === 'who') return renderWhoModal();
   if (m.kind === 'manager') return renderManagerModal();
   if (m.kind === 'cal') return renderCalModal();
+  if (m.kind === 'more') return renderMoreModal();
   if (m.kind === 'confirm') return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1"><h2>${esc(m.title)}</h2>${m.body ? `<div class="ts">${esc(m.body)}</div>` : ''}<div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Cancel</span></button><button class="icon-action ${m.danger ? 'discard' : 'send'}" data-act="confirm-yes">${m.danger ? I.trash : I.tick}<span class="ia-label">${esc(m.yes || 'Yes')}</span></button></div></div></div>`;
   return '';
 }
@@ -8101,6 +8184,7 @@ document.addEventListener('click', async (ev) => {
       // accordion, because two open panels is a scroll and a host reading one
       // booking is not reading another.
       case 'list-group': { state.listShut = Object.assign({}, state.listShut, { [val]: !state.listShut[val] }); render(); break; }
+      case 'open-more': state.modal = { kind: 'more' }; render(); break;
       case 'open-cal': {
         state.month = state.date.slice(0, 7);
         state.modal = { kind: 'cal' }; render();
