@@ -147,7 +147,10 @@ h1,h2,h3{margin:0;}
 .deck-spacer{flex:1;}
 .deck-sq{width:var(--tap);height:var(--tap);min-width:var(--tap);border-radius:var(--r-control);border:1px solid var(--deck-chip-line);background:var(--deck-chip-bg);color:var(--deck-chip-ink);display:inline-flex;align-items:center;justify-content:center;}
 .deck-sq svg,.deck-sq .sys-i{width:20px;height:20px;}
-.staff-badge{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--deck-chip-ink);white-space:nowrap;}
+.staff-badge{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 10px;
+  border:none;border-radius:var(--r-btn);background:none;font-weight:700;color:var(--deck-chip-ink);
+  white-space:nowrap;cursor:pointer;}
+.staff-badge:hover{background:rgba(255,255,255,.08);}
 .deck-dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none;}
 .deck-dot.off{background:var(--red);}
 .deck-dot.warn{background:var(--gold);}
@@ -169,16 +172,9 @@ h1,h2,h3{margin:0;}
   -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);}
 
 /* §§ Login — the POS's number pad, the same five tokens */
-.login-screen{position:fixed;inset:0;background:var(--steel-100);display:flex;align-items:center;justify-content:center;gap:clamp(44px,9vw,110px);z-index:var(--z-lock);padding:20px;}
-.lg-left{display:flex;flex-direction:column;align-items:flex-start;border-right:1px solid var(--steel-200);padding-right:clamp(44px,9vw,110px);}
-.lg-venue{font-size:var(--fs-lg);font-weight:800;letter-spacing:5px;text-transform:uppercase;margin-bottom:18px;}
-.lg-app{font-size:var(--fs-md);font-weight:600;color:var(--charcoal-soft);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;}
-.lg-clock{font-family:var(--font-mono);font-size:var(--fs-num);font-weight:700;color:var(--charcoal-soft);line-height:1;}
-.lg-date{font-size:var(--fs-md);font-weight:600;color:var(--charcoal-soft);margin-top:8px;}
-.lg-offline{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:10px 16px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--steel-200);font-weight:600;}
-.lg-offline i{width:9px;height:9px;border-radius:50%;background:var(--red);}
-.lg-right{display:flex;flex-direction:column;align-items:center;}
-.pin-dots{display:flex;gap:16px;margin:0 0 26px;}
+/* The keypad the front door used to wear. There is no front door now — the
+   desk opens — and these are the manager prompt's. */
+.pin-dots{display:flex;gap:16px;justify-content:center;}
 .pin-dot{width:13px;height:13px;border-radius:50%;border:1px solid var(--steel-300);}
 .pin-dot.filled{background:var(--text-primary);border-color:var(--text-primary);}
 .pin-dots.shake{animation:lgShake .3s ease;}
@@ -190,7 +186,6 @@ h1,h2,h3{margin:0;}
 .pin-pad button.util{font-size:var(--fs-xl);color:var(--charcoal-soft);}
 .pin-pad button[data-act="pin-enter"]{grid-column:3;background:var(--green);border-color:var(--green);color:#fff;}
 .login-error{color:var(--red);font-weight:700;margin-top:14px;min-height:20px;text-align:center;}
-@media (max-width:768px){ .login-screen{flex-direction:column;gap:28px;} .lg-left{border-right:none;padding-right:0;align-items:center;text-align:center;} }
 
 /* §§ Bands and chips (Chip law: every selector is a chip; a row of chips is a band) */
 .band{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);flex-wrap:wrap;margin-bottom:var(--hub-edge);}
@@ -1358,7 +1353,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     bar.id = 'pv-bar';
     bar.innerHTML = '<span class="pv-say">' + (window.__RESV_IS_BOOK__
         ? 'Preview \u00b7 bookings made here land on the front desk.'
-        : 'Preview \u00b7 the whole app runs in this tab. Sign in with PIN 1234.')
+        : 'Preview \u00b7 the whole app runs in this tab. Settings ask for the manager PIN 1234.')
       + '</span>'
       + (window.__RESV_IS_BOOK__
         ? '<a href="../">The front desk</a>'
@@ -5701,7 +5696,7 @@ module.exports = { app, posPass };
 // from /api/public/*, which never exposes other guests' bookings.
 'use strict';
 
-const st = { info: null, party: 2, date: '', slots: null, reason: '', note: '', time: '', name: '', phone: '', email: '', notes: '', error: '', busy: false, done: null,
+const st = { info: null, party: 2, date: '', slots: null, reason: '', note: '', time: '', name: '', phone: '', email: '', notes: '', error: '', busy: false, done: null, lookup: '', found: null,
   // The notify list — "tell me if something opens". Its name and phone are
   // deliberately NOT the booking form's, so a half-typed booking is never
   // silently reused as a notify entry.
@@ -5810,7 +5805,7 @@ function render() {
   if (!i.enabled) { app.innerHTML = `<div class="book">${head}<div class="card"><h1>Bookings by phone</h1><div class="ts" style="text-align:center;">Online bookings are not open right now.${i.venuePhone ? ` Please call <a href="tel:${esc(i.venuePhone)}">${esc(i.venuePhone)}</a>.` : ''}</div></div></div>`; return; }
   if (st.done) {
     const d = st.done;
-    app.innerHTML = `<div class="book">${head}<div class="card done"><h1>See you soon, ${esc(d.name.split(' ')[0])}.</h1><div class="ts">${esc(fmtWhen(d.time))} · ${d.partySize} ${d.partySize === 1 ? 'guest' : 'guests'}</div><div class="field-label" style="margin-top:12px;">Your reference</div><div class="ref">${esc(d.ref)}</div><div class="ts">Quote it if you need to change or cancel${i.venuePhone ? ` — call <a href="tel:${esc(i.venuePhone)}">${esc(i.venuePhone)}</a>` : ''}.</div><button class="btn" data-act="again" style="margin-top:12px;">Make another booking</button></div>${i.venueAddress ? `<div class="foot">${esc(i.venueAddress)}</div>` : ''}</div>`;
+    app.innerHTML = `<div class="book">${head}<div class="card done"><h1>See you soon, ${esc(d.name.split(' ')[0])}.</h1><div class="ts">${esc(fmtWhen(d.time))} · ${d.partySize} ${d.partySize === 1 ? 'guest' : 'guests'}</div><div class="field-label" style="margin-top:12px;">Your reference</div><div class="ref">${esc(d.ref)}</div><div class="ts">Keep it to cancel online. ${i.venuePhone ? 'Or call ' + esc(i.venuePhone) + '.' : ''}</div><button class="btn" data-act="again" style="margin-top:12px;">Make another booking</button></div>${i.venueAddress ? `<div class="foot">${esc(i.venueAddress)}</div>` : ''}</div>`;
     return;
   }
   // On the list, not booked — and it says so twice, because the difference is
@@ -5873,6 +5868,11 @@ function render() {
       ${st.error ? `<div class="err" style="color:var(--red);font-weight:700;margin-top:8px;">${esc(st.error)}</div>` : ''}
       <button class="btn go" data-act="book" style="margin-top:12px;min-height:56px;" ${st.busy ? 'disabled' : ''}>Book ${st.party} for ${esc(fmtHHMM(st.time))} on ${esc(parseDay(st.date).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' }))}</button>
     </div>` : ''}
+    <div class="card">
+      <div class="field-label">Already booked?</div>
+      <div class="inline"><input type="text" id="b-ref" placeholder="Reference, e.g. BX7K2A" value="${esc(st.lookup)}" data-field="lookup" style="flex:1;text-transform:uppercase;" autocomplete="off"><button class="btn" data-act="lookup">Find</button></div>
+      ${st.found ? (st.found.error ? `<div class="ts">${esc(st.found.error)}</div>` : `<div class="ts">${esc(st.found.name)} · ${esc(fmtWhen(st.found.time))} · ${st.found.partySize} guests · ${esc(st.found.status)}</div>${['booked', 'confirmed'].includes(st.found.status) ? `<button class="btn danger" data-act="cancel">Cancel this booking</button>` : ''}`) : ''}
+    </div>
     <div class="foot">${esc(i.venueAddress || '')}${i.venuePhone ? (i.venueAddress ? ' · ' : '') + esc(i.venuePhone) : ''}</div>
   </div>`;
   if (focus) { const el = document.getElementById(focus); if (el) el.focus(); }
@@ -5900,6 +5900,8 @@ document.addEventListener('click', async (ev) => {
       st.busy = false; render();
     }
     else if (act === 'again') { st.done = null; st.notifyDone = null; st.notifyOpen = false; st.notifyError = ''; st.time = ''; st.slots = null; st.date = ''; st.reason = ''; st.note = ''; render(); }
+    else if (act === 'lookup') { try { st.found = await api('/api/public/booking/' + encodeURIComponent(st.lookup.trim().toUpperCase())); } catch (e) { st.found = { error: e.message }; } render(); }
+    else if (act === 'cancel') { if (!confirm('Cancel this booking?')) return; await api('/api/public/booking/' + encodeURIComponent(st.found.ref) + '/cancel', {}); st.found = Object.assign({}, st.found, { status: 'cancelled' }); render(); }
   } catch (e) { st.error = e.message; render(); }
 });
 document.addEventListener('input', (ev) => { const f = ev.target.dataset && ev.target.dataset.field; if (f) st[f] = ev.target.value; });

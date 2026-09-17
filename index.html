@@ -154,7 +154,10 @@ h1,h2,h3{margin:0;}
 .deck-spacer{flex:1;}
 .deck-sq{width:var(--tap);height:var(--tap);min-width:var(--tap);border-radius:var(--r-control);border:1px solid var(--deck-chip-line);background:var(--deck-chip-bg);color:var(--deck-chip-ink);display:inline-flex;align-items:center;justify-content:center;}
 .deck-sq svg,.deck-sq .sys-i{width:20px;height:20px;}
-.staff-badge{display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--deck-chip-ink);white-space:nowrap;}
+.staff-badge{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 10px;
+  border:none;border-radius:var(--r-btn);background:none;font-weight:700;color:var(--deck-chip-ink);
+  white-space:nowrap;cursor:pointer;}
+.staff-badge:hover{background:rgba(255,255,255,.08);}
 .deck-dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none;}
 .deck-dot.off{background:var(--red);}
 .deck-dot.warn{background:var(--gold);}
@@ -176,16 +179,9 @@ h1,h2,h3{margin:0;}
   -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);}
 
 /* §§ Login — the POS's number pad, the same five tokens */
-.login-screen{position:fixed;inset:0;background:var(--steel-100);display:flex;align-items:center;justify-content:center;gap:clamp(44px,9vw,110px);z-index:var(--z-lock);padding:20px;}
-.lg-left{display:flex;flex-direction:column;align-items:flex-start;border-right:1px solid var(--steel-200);padding-right:clamp(44px,9vw,110px);}
-.lg-venue{font-size:var(--fs-lg);font-weight:800;letter-spacing:5px;text-transform:uppercase;margin-bottom:18px;}
-.lg-app{font-size:var(--fs-md);font-weight:600;color:var(--charcoal-soft);letter-spacing:2px;text-transform:uppercase;margin-bottom:18px;}
-.lg-clock{font-family:var(--font-mono);font-size:var(--fs-num);font-weight:700;color:var(--charcoal-soft);line-height:1;}
-.lg-date{font-size:var(--fs-md);font-weight:600;color:var(--charcoal-soft);margin-top:8px;}
-.lg-offline{display:inline-flex;align-items:center;gap:8px;margin-top:14px;padding:10px 16px;border-radius:var(--r-pill);background:var(--surface);border:1px solid var(--steel-200);font-weight:600;}
-.lg-offline i{width:9px;height:9px;border-radius:50%;background:var(--red);}
-.lg-right{display:flex;flex-direction:column;align-items:center;}
-.pin-dots{display:flex;gap:16px;margin:0 0 26px;}
+/* The keypad the front door used to wear. There is no front door now — the
+   desk opens — and these are the manager prompt's. */
+.pin-dots{display:flex;gap:16px;justify-content:center;}
 .pin-dot{width:13px;height:13px;border-radius:50%;border:1px solid var(--steel-300);}
 .pin-dot.filled{background:var(--text-primary);border-color:var(--text-primary);}
 .pin-dots.shake{animation:lgShake .3s ease;}
@@ -197,7 +193,6 @@ h1,h2,h3{margin:0;}
 .pin-pad button.util{font-size:var(--fs-xl);color:var(--charcoal-soft);}
 .pin-pad button[data-act="pin-enter"]{grid-column:3;background:var(--green);border-color:var(--green);color:#fff;}
 .login-error{color:var(--red);font-weight:700;margin-top:14px;min-height:20px;text-align:center;}
-@media (max-width:768px){ .login-screen{flex-direction:column;gap:28px;} .lg-left{border-right:none;padding-right:0;align-items:center;text-align:center;} }
 
 /* §§ Bands and chips (Chip law: every selector is a chip; a row of chips is a band) */
 .band{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);flex-wrap:wrap;margin-bottom:var(--hub-edge);}
@@ -1364,7 +1359,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     bar.id = 'pv-bar';
     bar.innerHTML = '<span class="pv-say">' + (window.__RESV_IS_BOOK__
         ? 'Preview \u00b7 bookings made here land on the front desk.'
-        : 'Preview \u00b7 the whole app runs in this tab. Sign in with PIN 1234.')
+        : 'Preview \u00b7 the whole app runs in this tab. Settings ask for the manager PIN 1234.')
       + '</span>'
       + (window.__RESV_IS_BOOK__
         ? '<a href="../">The front desk</a>'
@@ -5759,7 +5754,9 @@ const I = {
 
 // §§ State
 const state = {
-  staff: null, pin: '', loginPin: '', loginError: '', online: true,
+  // A NAME, not a credential — nothing is unlocked by it. `pin` is the
+  // manager's, held in memory only, and is the one secret the desk carries.
+  staff: null, pin: '', online: true,
   settings: null, theme: { accent: '#2F74C9', mode: 'auto' }, tables: [], floorPlans: [], staffList: [], posStatus: null,
   // The set menus the desk can pick from, and whether they are the POS's own
   // combos (which makes the Settings card read-only, as the Staff card is).
@@ -5857,7 +5854,7 @@ function durationOf(r) {
 function exceptionOn(day) { return (((state.settings || {}).exceptions) || []).find(x => x && x.date === day) || null; }
 function weeklyServicesOn(day) { if (!/^\d{4}-\d{2}-\d{2}$/.test(String(day || ''))) return []; const wd = parseDay(day).getDay(); return (((state.settings || {}).services) || []).filter(x => (x.days || []).includes(wd)); }
 function servicesOnDay(day) { const ex = exceptionOn(day); if (ex) return ex.closed ? [] : (ex.services || []); return weeklyServicesOn(day); }
-function isManager() { return state.staff && state.staff.role === 'manager'; }
+function isManager() { return !!state.pin; }
 function heldTables(r) { return [r.tableId, ...(r.tableIds || [])].filter(Boolean); }
 // The set menu a booking carries, or ''. availability.js:setMenuNameOf() on
 // this side — the name is the identity, so a whitespace-only one is none.
@@ -6053,23 +6050,39 @@ async function refreshAll() {
 }
 async function setView(v) { state.view = v; render(); try { await loadView(); } catch (e) {} render(); }
 
-// §§ Login
-async function submitPin() {
-  if (!state.loginPin) return;
+// §§ Who's on
+// Remembered in localStorage, not sessionStorage: a tablet that goes to sleep
+// and wakes at eight should not ask again. It is a name, not a credential —
+// nothing is unlocked by it, so nothing is lost by keeping it.
+function rememberWho(st) {
+  state.staff = st;
+  try { if (st) localStorage.setItem('resv-who', JSON.stringify(st)); else localStorage.removeItem('resv-who'); } catch (e) {}
+}
+// The manager PIN, handed over once and held for as long as the tab lives.
+// NEVER written to storage: it is the only secret the desk holds.
+async function submitManagerPin() {
+  const m = state.modal;
+  if (!m || !m.pin) return;
   try {
-    const s = await post('/api/login', { pin: state.loginPin });
-    state.staff = s; state.pin = state.loginPin; state.loginPin = ''; state.loginError = '';
-    try { sessionStorage.setItem('resv-session', JSON.stringify({ staff: s, pin: state.pin })); } catch (e) {}
+    const who = await post('/api/login', { pin: m.pin });
+    if (who.role !== 'manager') { m.error = 'That is not a manager\u2019s PIN'; m.pin = ''; render(); return; }
+    state.pin = m.pin;
+    const then = m.then;
+    state.modal = null;
     render();
-    await refreshAll();
-    const l = state.pendingLink; state.pendingLink = null; await applyDeepLink(l);
+    if (then) then();
   } catch (e) {
-    state.loginError = e.message === 'Incorrect PIN' ? 'shake' : e.message; state.loginPin = '';
+    m.error = e.message === 'Incorrect PIN' ? 'shake' : e.message; m.pin = '';
     render();
-    if (state.loginError === 'shake') setTimeout(() => { state.loginError = 'Incorrect PIN'; render(); }, 350);
+    if (m.error === 'shake') setTimeout(() => { if (state.modal === m) { m.error = 'Incorrect PIN'; render(); } }, 350);
   }
 }
-function signOut() { state.staff = null; state.pin = ''; state.modal = null; try { sessionStorage.removeItem('resv-session'); } catch (e) {} render(); }
+// Ask for it, then do the thing that needed it. Already held: just do it.
+function needManager(why, then) {
+  if (state.pin) { then(); return; }
+  state.modal = { kind: 'manager', pin: '', error: '', why, then };
+  render();
+}
 
 // §§ Render
 function render() {
@@ -6082,8 +6095,7 @@ function render() {
   const app = document.getElementById('app');
   const focus = document.activeElement, focusId = focus && focus.id, selStart = focus && focus.selectionStart;
   const scrolls = {}; document.querySelectorAll('[data-keep]').forEach(el => { scrolls[el.dataset.keep] = [el.scrollTop, el.scrollLeft]; });
-  if (!state.staff) app.innerHTML = renderLogin();
-  else app.innerHTML = `<div class="shell">${renderDeck()}<div class="main">${renderRail()}<div class="pane" data-keep="pane">${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}</div>`;
+  app.innerHTML = `<div class="shell">${renderDeck()}<div class="main">${renderRail()}<div class="pane" data-keep="pane">${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}</div>`;
   document.querySelectorAll('[data-keep]').forEach(el => { const s = scrolls[el.dataset.keep]; if (s) { el.scrollTop = s[0]; el.scrollLeft = s[1]; } });
   // A day drawn for the first time opens where the work is; after that the
   // line above has already put the desk's own scroll back and this does
@@ -6134,30 +6146,46 @@ function tlOpenAt(el) {
   el.scrollLeft = Math.max(0, (at - start - 30) * PX_PER_MIN);
 }
 
-function renderLogin() {
-  const now = new Date();
-  const venue = (state.settings && state.settings.venueName) || '';
-  return `
-  <div class="login-screen">
-    <div class="lg-left">
-      ${venue ? `<div class="lg-venue">${esc(venue)}</div>` : ''}
-      <div class="lg-app">Reservations</div>
-      <div class="lg-clock">${esc(now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }))}</div>
-      <div class="lg-date">${esc(now.toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' }))}</div>
-      ${!state.online ? '<div class="lg-offline"><i></i>Offline — is the server running?</div>' : ''}
+// §§ Who's on, and the manager's PIN
+// There is no door any more. The tablet lives in the venue, behind the
+// venue's own lock, and a PIN typed forty times a shift protects nothing that
+// the front door does not already protect. What a name IS for is the record:
+// who took the booking, who moved it, who signed the run sheet. So the desk
+// asks who is on — a tap, no code — and remembers it.
+//
+// The one code left is the manager's, and it guards the one thing worth
+// guarding: Settings. It is checked on the server (managerFromReq), so this
+// popup is the way to hand it over, not the thing that decides.
+function renderWhoModal() {
+  const list = state.staffList || [];
+  return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1">
+    <h2>Who is on?</h2>
+    <div class="ts">The name goes on every booking taken from this screen, and on the run sheet. No code — tap yours.</div>
+    <div class="bk-pick" style="margin-top:12px;">${list.map(st => `<button class="bk-opt${state.staff && state.staff.id === st.id ? ' on' : ''}" data-act="who-pick" data-id="${esc(st.id)}">
+      <span class="bk-opt-text"><b>${esc(st.name)}</b><span>${esc(st.role === 'manager' ? 'Manager' : st.role === 'trainee' ? 'Trainee' : 'Staff')}</span></span>
+      ${state.staff && state.staff.id === st.id ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
+    </button>`).join('') || '<div class="ts">No staff yet. A manager adds them in Settings.</div>'}</div>
+    <div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Close</span></button></div>
+  </div></div>`;
+}
+
+// The keypad the front door used to wear, now doing the job it is for.
+function renderManagerModal() {
+  const m = state.modal;
+  return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1">
+    <h2>Manager PIN</h2>
+    <div class="ts">${esc(m.why || 'Settings are a manager\u2019s. The PIN is the same one they use on the till.')}</div>
+    <div class="pin-dots${m.error === 'shake' ? ' shake' : ''}" style="margin:16px auto;">${Array.from({ length: Math.max(4, (m.pin || '').length) }).map((_, i) => `<span class="pin-dot${i < (m.pin || '').length ? ' filled' : ''}"></span>`).join('')}</div>
+    <div class="pin-pad" style="margin:0 auto;">
+      ${['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => `<button data-act="pin-digit" data-val="${d}">${d}</button>`).join('')}
+      <button class="util" disabled aria-hidden="true">.</button>
+      <button data-act="pin-digit" data-val="0">0</button>
+      <button class="util" data-act="pin-back" aria-label="Backspace">${I.bsp}</button>
+      <button data-act="pin-enter" aria-label="Unlock" ${(m.pin || '').length ? '' : 'disabled'}>${I.tick}</button>
     </div>
-    <div class="lg-right">
-      <div class="pin-dots${state.loginError === 'shake' ? ' shake' : ''}">${Array.from({ length: Math.max(4, state.loginPin.length) }).map((_, i) => `<span class="pin-dot${i < state.loginPin.length ? ' filled' : ''}"></span>`).join('')}</div>
-      <div class="pin-pad">
-        ${['1', '2', '3', '4', '5', '6', '7', '8', '9'].map(d => `<button data-act="pin-digit" data-val="${d}">${d}</button>`).join('')}
-        <button class="util" disabled aria-hidden="true">.</button>
-        <button data-act="pin-digit" data-val="0">0</button>
-        <button class="util" data-act="pin-back" aria-label="Backspace">${I.bsp}</button>
-        <button data-act="pin-enter" aria-label="Sign in" ${state.loginPin.length ? '' : 'disabled'}>${I.tick}</button>
-      </div>
-      <div class="login-error">${state.loginError && state.loginError !== 'shake' ? esc(state.loginError) : ''}</div>
-    </div>
-  </div>`;
+    <div class="login-error">${m.error && m.error !== 'shake' ? esc(m.error) : ''}</div>
+    <div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Not now</span></button></div>
+  </div></div>`;
 }
 
 // §§ Rail — the sections of the panel you are in
@@ -6223,7 +6251,7 @@ function renderDeck() {
   // The Notify badge counts OPENINGS WITH SOMEBODY TO CALL, not entries: the
   // deck only shouts when there is a phone call to make.
   const tabs = [['today', 'Today'], ['diary', 'Diary'], ['waitlist', 'Waitlist' + ((state.today && state.today.waiting) ? ' · ' + state.today.waiting : '')], ['notify', 'Notify' + ((state.today && state.today.openings) ? ' · ' + state.today.openings : '')], ['guests', 'Guests']];
-  if (isManager()) tabs.push(['settings', 'Settings']);
+  tabs.push(['settings', 'Settings']);
   const ps = state.settings && state.settings.pos;
   const linked = ps && ps.enabled && ps.baseUrl;
   const dot = !state.online ? 'off' : linked ? (state.posStatus && state.posStatus.connected === false ? 'warn' : '') : 'warn';
@@ -6235,8 +6263,7 @@ function renderDeck() {
     ${linked ? `<button class="deck-sq" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
     <button class="deck-sq" data-act="open-find" aria-label="Find a booking" title="Find a booking (/)">${I.search}</button>
     <button class="deck-sq" data-act="new-booking" aria-label="New booking" title="New booking">${I.plus}</button>
-    <span class="staff-badge" title="${esc(title)}"><span class="deck-dot ${dot}"></span><span class="name">${esc(state.staff.name)}</span></span>
-    <button class="deck-sq" data-act="sign-out" aria-label="Sign out" title="Sign out">${I.out}</button>
+    <button class="staff-badge" data-act="open-who" title="${esc(title)} · tap to change who is on"><span class="deck-dot ${dot}"></span><span class="name">${esc((state.staff && state.staff.name) || 'Who is on?')}</span></button>
   </div>`;
 }
 
@@ -7179,6 +7206,8 @@ function renderModal() {
   if (m.kind === 'guest') return renderGuestModal();
   if (m.kind === 'key') return renderKeyModal();
   if (m.kind === 'colour') return renderColourModal();
+  if (m.kind === 'who') return renderWhoModal();
+  if (m.kind === 'manager') return renderManagerModal();
   if (m.kind === 'confirm') return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1"><h2>${esc(m.title)}</h2>${m.body ? `<div class="ts">${esc(m.body)}</div>` : ''}<div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Cancel</span></button><button class="icon-action ${m.danger ? 'discard' : 'send'}" data-act="confirm-yes">${m.danger ? I.trash : I.tick}<span class="ia-label">${esc(m.yes || 'Yes')}</span></button></div></div></div>`;
   return '';
 }
@@ -7797,13 +7826,17 @@ document.addEventListener('click', async (ev) => {
   if (stop && stop !== el && el.contains(stop)) return;
   try {
     switch (act) {
-      case 'pin-digit': if (state.loginPin.length < 8) { state.loginPin += val; state.loginError = ''; render(); if (state.loginPin.length >= 4) submitPin(); } break;
-      case 'pin-back': state.loginPin = state.loginPin.slice(0, -1); render(); break;
-      case 'pin-enter': submitPin(); break;
-      case 'sign-out': signOut(); break;
+      // The keypad only ever answers the manager prompt now.
+      case 'pin-digit': { const m2 = state.modal; if (m2 && m2.kind === 'manager' && (m2.pin || '').length < 8) { m2.pin = (m2.pin || '') + val; m2.error = ''; render(); if (m2.pin.length >= 4) submitManagerPin(); } break; }
+      case 'pin-back': { const m2 = state.modal; if (m2 && m2.kind === 'manager') { m2.pin = (m2.pin || '').slice(0, -1); render(); } break; }
+      case 'pin-enter': submitManagerPin(); break;
+      case 'open-who': { try { state.staffList = await api('/api/staff'); } catch (e) {} state.modal = { kind: 'who' }; render(); break; }
+      case 'who-pick': { const st = (state.staffList || []).find(x => x.id === id); if (st) rememberWho(st); state.modal = null; render(); break; }
       case 'to-till': openTill(null); break;
       case 'to-till-table': openTill(el.dataset.table || null); break;
-      case 'view': setView(val); break;
+      // Settings is the one place that still asks for a code — and it asks
+      // once, then holds it for as long as this tab is open.
+      case 'view': if (val === 'settings' && !isManager()) needManager('', () => setView('settings')); else setView(val); break;
       case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.floorTime = null; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'mode': {
@@ -8316,7 +8349,13 @@ document.addEventListener('change', (ev) => {
   if (f && f.startsWith('st.') && el.tagName === 'SELECT') { state.st = state.st || { name: '', pin: '', role: 'staff' }; setPath(state, f, el.value); }
 });
 document.addEventListener('keydown', (ev) => {
-  if (!state.staff) { if (/^\d$/.test(ev.key) && state.loginPin.length < 8) { state.loginPin += ev.key; render(); if (state.loginPin.length >= 4) submitPin(); } else if (ev.key === 'Backspace') { state.loginPin = state.loginPin.slice(0, -1); render(); } else if (ev.key === 'Enter') submitPin(); return; }
+  // A keyboard on the manager prompt drives the same keypad.
+  if (state.modal && state.modal.kind === 'manager') {
+    const m2 = state.modal;
+    if (/^\d$/.test(ev.key) && (m2.pin || '').length < 8) { m2.pin = (m2.pin || '') + ev.key; m2.error = ''; render(); if (m2.pin.length >= 4) submitManagerPin(); return; }
+    if (ev.key === 'Backspace') { m2.pin = (m2.pin || '').slice(0, -1); render(); return; }
+    if (ev.key === 'Enter') { submitManagerPin(); return; }
+  }
   // A live drag owns Escape first: the block goes back where it was.
   if (ev.key === 'Escape' && tlDrag) { cancelTlDrag(); return; }
   if (state.modal && state.modal.kind === 'find' && ev.key === 'Enter') { clearTimeout(_findTimer); runFind(); return; }
@@ -8423,7 +8462,9 @@ function openTill(tableId) {
   const link = readDeepLink();
   if (link) clearDeepLink();
   state.pendingLink = link;
-  try { const saved = JSON.parse(sessionStorage.getItem('resv-session') || 'null'); if (saved && saved.staff) { state.staff = saved.staff; state.pin = saved.pin; } } catch (e) {}
+  // Who was on last. A name only — the manager's PIN is never stored, so a
+  // reload always asks for it again before Settings will open.
+  try { const who = JSON.parse(localStorage.getItem('resv-who') || 'null'); if (who && who.name) state.staff = who; } catch (e) {}
   try { state.theme = await api('/api/theme'); } catch (e) {}
   applyTheme();
   try { state.settings = await api('/api/settings'); } catch (e) { state.online = false; }
@@ -8432,7 +8473,12 @@ function openTill(tableId) {
   // applied below, after the first load.
   state.date = tradingDay();
   render();
-  if (state.staff) { await refreshAll(); const l = state.pendingLink; state.pendingLink = null; await applyDeepLink(l); }
+  try { state.staffList = await api('/api/staff'); } catch (e) {}
+  // Nobody picked yet: take the first name on the list rather than opening on
+  // a question. It is on the deck, one tap from being right.
+  if (!state.staff && (state.staffList || []).length) rememberWho(state.staffList[0]);
+  await refreshAll();
+  const l = state.pendingLink; state.pendingLink = null; await applyDeepLink(l);
   // In a sandboxed frame READING navigator.serviceWorker throws outright, so
   // the `in` test passes and the property access is what fails — a rejected
   // promise is not the failure mode here and .catch() never sees it. The
