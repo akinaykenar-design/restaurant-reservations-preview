@@ -270,6 +270,9 @@ h1,h2,h3{margin:0;}
 .status-chip.online{background:var(--src-online);} .status-chip.walk-in{background:var(--src-walkin);} .status-chip.pos{background:var(--src-pos);}
 .tag{font-size:var(--fs-chip);font-weight:700;padding:3px 7px;border-radius:var(--r-pill);border:1px solid var(--steel-300);color:var(--charcoal-soft);white-space:nowrap;}
 .tag.hot{border-color:var(--red);color:var(--red);}
+/* A tag that carries a glyph — the cake on a birthday — lays out as a row. */
+.tag{display:inline-flex;align-items:center;gap:4px;vertical-align:middle;}
+.tag svg{width:13px;height:13px;flex:0 0 13px;}
 
 /* §§ Notify list — a freed slot and the people it could seat */
 .stat[data-act]{cursor:pointer;}
@@ -2173,6 +2176,10 @@ function migrate(data) {
   // a hand-edited or half-written file that has the key but not an array.
   if (!Array.isArray(s.exceptions)) s.exceptions = [];
   if (!s.statusColours || typeof s.statusColours !== 'object' || Array.isArray(s.statusColours)) s.statusColours = {};
+  for (const g of data.guests) {
+    if (g.dob === undefined) g.dob = '';
+    if (!Array.isArray(g.tags)) g.tags = [];
+  }
   for (const r of data.reservations) {
     if (!r.status) r.status = 'booked';
     if (!r.source) r.source = 'staff';
@@ -2226,6 +2233,31 @@ function dataVersion() { return { store: statMs(DB_FILE) }; }
 
 function newId(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
+// A guest's date of birth, off the wire. The YEAR IS OPTIONAL and that is the
+// point: a venue is told "the twelfth of March" far more often than it is told
+// a year, and a card that refuses the day because it was not given the year is
+// a card nobody fills in. A missing year is stored as 0000, which is not a
+// date anyone was born on and cannot be mistaken for one.
+//
+// Returns '' for "no date of birth", a 'YYYY-MM-DD' string, or null when what
+// came in was not a date at all — so a caller can tell "cleared" from "wrong".
+function cleanDob(input) {
+  const raw = String(input == null ? '' : input).trim();
+  if (!raw) return '';
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+  if (!m) return null;
+  const y = +m[1], mo = +m[2], d = +m[3];
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  // The day has to exist in that month. With no year, February is given its
+  // leap day: somebody born on the 29th still has a birthday to record.
+  const days = [31, (y === 0 || (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0))) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1];
+  if (d > days) return null;
+  // A year nobody alive was born in is a typo, not a birthday. 0000 is the
+  // agreed "not given" and passes.
+  if (y !== 0 && (y < 1900 || y > new Date().getFullYear())) return null;
+  return `${String(y).padStart(4, '0')}-${m[2]}-${m[3]}`;
+}
+
 // Reading a venue's colour code off the wire. Pure, so the rule that decides
 // whether a colour is kept can be read and tested without a request: a key we
 // do not know how to re-point, or a value that is not a full six-digit hex, is
@@ -2258,7 +2290,7 @@ const COLOUR_KEYS = {
   due: '--st-due', over: '--st-over',
   online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
 };
-module.exports = { readData, writeData, dataVersion, newId, migrate, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
+module.exports = { readData, writeData, dataVersion, newId, migrate, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./db'] = module;
@@ -3394,6 +3426,47 @@ function hasAllergy(g) {
   return av.ALLERGY_RE.test(String((g && g.notes) || ''));
 }
 
+// §§ Birthdays
+// Stored as YYYY-MM-DD with 0000 for a year nobody gave (see cleanDob in
+// db.js). Everything here is pure and takes `today` as a 'YYYY-MM-DD' string,
+// so no test depends on the wall clock and no venue's answer depends on the
+// server's timezone.
+const BIRTHDAY_WINDOW = 14;
+function dobParts(dob) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dob || ''));
+  if (!m) return null;
+  return { year: +m[1] || null, month: +m[2], day: +m[3] };
+}
+// How many sleeps until the next one. 0 is today. A 29 February birthday
+// lands on the 1st of March in a year that has no 29th — the guest is still
+// having a birthday, and a card that skipped three years out of four would be
+// worse than wrong.
+function daysToBirthday(dob, today) {
+  const p = dobParts(dob), t = dobParts(today);
+  if (!p || !t) return null;
+  const at = (year) => {
+    let m = p.month, d = p.day;
+    if (m === 2 && d === 29 && !(year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0))) { m = 3; d = 1; }
+    return Date.UTC(year, m - 1, d);
+  };
+  const now = Date.UTC(t.year, t.month - 1, t.day);
+  let next = at(t.year);
+  if (next < now) next = at(t.year + 1);
+  return Math.round((next - now) / 86400000);
+}
+// Only when a year was actually given.
+function ageOn(dob, today) {
+  const p = dobParts(dob), t = dobParts(today);
+  if (!p || !t || !p.year) return null;
+  let age = t.year - p.year;
+  if (t.month < p.month || (t.month === p.month && t.day < p.day)) age--;
+  return age >= 0 ? age : null;
+}
+function birthdaySoon(g, today) {
+  const n = daysToBirthday(g && g.dob, today);
+  return n !== null && n <= BIRTHDAY_WINDOW;
+}
+
 const LENSES = {
   all: { keep: () => true, order: (a, b) => (b.lastSeen || 0) - (a.lastSeen || 0) },
   regulars: {
@@ -3405,6 +3478,12 @@ const LENSES = {
   noshows: {
     keep: (g) => (g.noShows || 0) > 0,
     order: (a, b) => (b.noShows || 0) - (a.noShows || 0) || (b.lastSeen || 0) - (a.lastSeen || 0),
+  },
+  // The only lens that is about the calendar rather than the guest, so it is
+  // the only one that uses the second argument. Soonest first.
+  birthdays: {
+    keep: (g, today) => birthdaySoon(g, today),
+    order: (a, b, today) => (daysToBirthday(a.dob, today) - daysToBirthday(b.dob, today)) || (b.visits || 0) - (a.visits || 0),
   },
 };
 
@@ -3425,17 +3504,18 @@ function guestLens(guests, lens, opts) {
   const asked = parseInt(opts.limit, 10);
   const limit = asked > 0 ? asked : 300;
   const typed = !!(opts.q && String(opts.q).trim());
-  const hits = (guests || []).filter(g => g && l.keep(g) && (!typed || guestMatches(g, q)));
-  return { lens: LENSES[lens] ? lens : 'all', total: hits.length, results: hits.slice().sort(l.order).slice(0, limit) };
+  const today = opts.today || '';
+  const hits = (guests || []).filter(g => g && l.keep(g, today) && (!typed || guestMatches(g, q)));
+  return { lens: LENSES[lens] ? lens : 'all', total: hits.length, results: hits.slice().sort((a, b) => l.order(a, b, today)).slice(0, limit) };
 }
 
 // What each tile on the rail would hold, in one pass over the book.
-function guestLensCounts(guests) {
+function guestLensCounts(guests, today) {
   const out = {};
   for (const k of Object.keys(LENSES)) out[k] = 0;
   for (const g of (guests || [])) {
     if (!g) continue;
-    for (const k of Object.keys(LENSES)) if (LENSES[k].keep(g)) out[k]++;
+    for (const k of Object.keys(LENSES)) if (LENSES[k].keep(g, today || '')) out[k]++;
   }
   return out;
 }
@@ -3444,6 +3524,7 @@ module.exports = {
   fold, digits, prepareQuery, matches, relevanceSort, searchReservations,
   MIN_CHARS, MIN_PHONE_DIGITS, DEFAULT_LIMIT, MAX_LIMIT,
   REGULAR_VISITS, VIP_TAGS, LENSES, hasAllergy, guestMatches, guestLens, guestLensCounts,
+  BIRTHDAY_WINDOW, dobParts, daysToBirthday, ageOn, birthdaySoon,
 };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
@@ -4166,7 +4247,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db');
-const { readData, writeData, dataVersion, newId, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, DEFAULT_SETTINGS } = db;
+const { readData, writeData, dataVersion, newId, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_SETTINGS } = db;
 const lock = require('./lock');
 const av = require('./availability');
 const search = require('./search');
@@ -4565,7 +4646,7 @@ function touchGuest(data, r) {
   const key = phone ? 'p:' + phone : 'n:' + String(r.name || '').toLowerCase().trim();
   let g = data.guests.find(x => x.key === key);
   if (!g) {
-    g = { id: newId('g'), key, name: r.name, phone: r.phone || '', email: r.email || '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0, firstSeen: Date.now(), lastSeen: Date.now() };
+    g = { id: newId('g'), key, name: r.name, phone: r.phone || '', email: r.email || '', dob: '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0, firstSeen: Date.now(), lastSeen: Date.now() };
     data.guests.push(g);
   }
   if (r.name && !g.name) g.name = r.name;
@@ -5154,10 +5235,19 @@ app.post('/api/openings/:id/dismiss', (req, res) => {
 // no-shows" mean "three no-shows among the three hundred seen most recently",
 // which is a different and useless sentence. The counts on the rail are over
 // the whole book for the same reason.
+// How many sleeps, and how old they will be — worked out where the rule is
+// tested, so the browser only ever renders the answer.
+function withBirthday(g, today) {
+  return Object.assign({}, g, {
+    birthdayIn: search.daysToBirthday(g.dob, today),
+    age: search.ageOn(g.dob, today),
+  });
+}
 app.get('/api/guests', (req, res) => {
   const data = readData();
-  const got = search.guestLens(data.guests, String(req.query.lens || 'all'), { q: String(req.query.q || '') });
-  res.json({ lens: got.lens, total: got.total, counts: search.guestLensCounts(data.guests), guests: got.results });
+  const today = av.localDay(new Date());
+  const got = search.guestLens(data.guests, String(req.query.lens || 'all'), { q: String(req.query.q || ''), today });
+  res.json({ lens: got.lens, total: got.total, today, counts: search.guestLensCounts(data.guests, today), guests: got.results.map(g => withBirthday(g, today)) });
 });
 // The card carries what they spent — eleven visits AND $1,340. `sp` is the
 // value, never `spend`: that name is the module. The whole body is inside
@@ -5175,7 +5265,7 @@ app.get('/api/guests/:id', async (req, res) => {
     const bookings = data.reservations.filter(r => r.guestId === g.id).sort((a, b) => b.time.localeCompare(a.time));
     const money = spend.spendForGuest(ctxOf(data), sp.orders, bookings, { since: sp.since });
     if (keepSpendTotals(data, sp)) writeData(data);
-    res.json(Object.assign({}, g, {
+    res.json(Object.assign(withBirthday(g, av.localDay(new Date())), {
       bookings,
       spend: Object.assign({ linked: sp.linked, readAt: sp.at, from: sp.from, slow: sp.slow, error: sp.error }, money),
     }));
@@ -5191,6 +5281,11 @@ app.put('/api/guests/:id', (req, res) => {
   if (b.name !== undefined && String(b.name).trim()) g.name = String(b.name).trim().slice(0, 60);
   if (b.phone !== undefined) g.phone = String(b.phone || '').trim().slice(0, 30);
   if (b.email !== undefined) g.email = String(b.email || '').trim().slice(0, 80);
+  if (b.dob !== undefined) {
+    const dob = cleanDob(b.dob);
+    if (dob === null) return res.status(400).json({ error: 'That date of birth is not a date' });
+    g.dob = dob;
+  }
   if (b.notes !== undefined) g.notes = String(b.notes || '').trim().slice(0, 500);
   if (Array.isArray(b.tags)) g.tags = b.tags.map(t => String(t).trim().slice(0, 20)).filter(Boolean).slice(0, 8);
   logAudit(data, staffFromReq(req), `Updated guest ${g.name}`);
@@ -5644,6 +5739,7 @@ const I = {
   alert: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3L2 20.5h20z"/><path d="M12 10v4.5"/><path d="M12 17.8v.2"/></svg>',
   noshow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M4.9 4.9l14.2 14.2"/></svg>',
   search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.75" cy="10.75" r="8.75"/><path d="M22 22l-4.75 -4.75"/></svg>',
+  cake: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M4 21v-6.5a2.5 2.5 0 0 1 2.5-2.5h11a2.5 2.5 0 0 1 2.5 2.5V21"/><path d="M3.6 16.5c1.7 1.4 3.4 1.4 5.1 0s3.4-1.4 5.1 0 3.4 1.4 5.1 0"/><path d="M8.5 8.5V6M12 8.5V5.5M15.5 8.5V6"/></svg>',
   note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h9.5L19 8v12.5H5z"/><path d="M14 3.5V8h5"/><path d="M8.5 12.5h7M8.5 16h4.5"/></svg>',
   chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></svg>',
   key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.6" cy="14.4" r="4.6"/><path d="M10.9 11.1L20.4 1.6"/><path d="M17.2 4.8l2.4 2.4M14.6 7.4l2.4 2.4"/></svg>',
@@ -6087,7 +6183,7 @@ const RAILS = {
       ['sheet', 'Run sheet', 'sheet'],
     ],
   },
-  // The guest book is one list until you ask it something. These are the five
+  // The guest book is one list until you ask it something. These are the six
   // questions a desk actually has of it — search.js holds the rules and the
   // order each one wants. The counts come from the WHOLE book, not the page
   // on screen, or "3 no-shows" would quietly mean "3 among the 300 most
@@ -6100,6 +6196,7 @@ const RAILS = {
       ['vips', 'VIPs', 'star'],
       ['allergies', 'Allergies', 'alert'],
       ['noshows', 'No-shows', 'noshow'],
+      ['birthdays', 'Birthdays', 'cake'],
     ],
   },
 };
@@ -6830,6 +6927,7 @@ const GUEST_EMPTY = {
   vips: 'Nobody is tagged VIP, food critic or friend of the owner.',
   allergies: 'Nobody in the book has an allergy on their card.',
   noshows: 'Nobody has missed a booking. Good.',
+  birthdays: 'No birthdays in the next fortnight. Dates of birth live on a guest\u2019s card.',
 };
 function renderGuests() {
   const lens = state.guestLens || 'all';
@@ -6845,7 +6943,7 @@ function renderGuests() {
   ${!shown ? `<div class="empty">${esc(searching ? 'Nobody in this list matches that.' : (GUEST_EMPTY[lens] || GUEST_EMPTY.all))}</div>` : `<div class="rows">${state.guests.map(g => `
     <div class="row" data-act="open-guest" data-id="${g.id}">
       <div class="cell">${lens === 'noshows' ? g.noShows : g.visits}<small>${lens === 'noshows' ? 'missed' : 'visits'}</small></div>
-      <div class="body"><div class="t1">${esc(g.name)}${(g.tags || []).map(t => `<span class="tag${t === 'Allergy' ? ' hot' : ''}">${esc(t)}</span>`).join('')}${g.noShows ? `<span class="tag hot">${g.noShows} no-show${g.noShows > 1 ? 's' : ''}</span>` : ''}</div>
+      <div class="body"><div class="t1">${esc(g.name)}${(g.tags || []).map(t => `<span class="tag${t === 'Allergy' ? ' hot' : ''}">${esc(t)}</span>`).join('')}${g.noShows ? `<span class="tag hot">${g.noShows} no-show${g.noShows > 1 ? 's' : ''}</span>` : ''}${g.birthdayIn !== null && g.birthdayIn !== undefined && g.birthdayIn <= 14 ? `<span class="tag good">${I.cake}${esc(birthdayWord(g))}</span>` : ''}</div>
       <div class="t2">${esc(g.phone || 'No phone')}${g.email ? ' · ' + esc(g.email) : ''}${g.notes ? ' · ' + esc(g.notes) : ''}</div></div>
     </div>`).join('')}</div>`}`;
 }
@@ -7382,25 +7480,131 @@ function renderSeatModal() {
     ${actionKeys({ saveAct: 'seat-confirm', saveLabel: 'Seat' })}
   </div></div>`;
 }
+// §§ The guest's card — a summary of rows, a page behind each
+// Same shape as the booking, for the same reason: everything at once reads as
+// nothing. What the desk wants at a glance is who they are, how often they
+// come, what they are worth and whether anything must not be forgotten.
+const GUEST_TAGS = ['VIP', 'Regular', 'Allergy', 'Food critic', 'Friend of owner', 'Difficult'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'];
+
+// "Today", "tomorrow", "in 9 days" — and the age only when a year was given.
+// The arithmetic itself is search.js's, done on the server where it is tested;
+// this only chooses the words.
+function birthdayWord(g) {
+  const n = g.birthdayIn;
+  if (n === null || n === undefined) return '';
+  return n === 0 ? 'Birthday today' : n === 1 ? 'Birthday tomorrow' : `Birthday in ${n} days`;
+}
+function dobWord(g) {
+  const p = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(g.dob || ''));
+  if (!p) return '';
+  const day = +p[3], month = MONTHS[+p[2] - 1], year = +p[1];
+  return `${day} ${month}${year ? ' ' + year : ''}${g.age !== null && g.age !== undefined ? ` · turning ${g.age + (g.birthdayIn === 0 ? 0 : 1)}` : ''}`;
+}
+// The three controls, back into one stored date. A day and a month with no
+// year is a real answer, stored with 0000 (see cleanDob in db.js).
+function rebuildDob() {
+  const m = state.modal;
+  const d = parseInt(m.dobD, 10), mo = parseInt(m.dobM, 10);
+  const y = String(m.dobY == null ? '' : m.dobY).trim();
+  if (!(d >= 1 && d <= 31) || !(mo >= 1 && mo <= 12)) { m.g.dob = ''; return; }
+  m.g.dob = `${y ? y.padStart(4, '0') : '0000'}-${String(mo).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+}
+
 function renderGuestModal() {
   const m = state.modal, g = m.g;
-  const tags = ['VIP', 'Regular', 'Allergy', 'Food critic', 'Friend of owner', 'Difficult'];
-  return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1">
-    <h2>${esc(g.name)}</h2>
+  const page = m.page || '';
+  const tagTxt = (g.tags || []).join(', ');
+  const noteTxt = String(g.notes || '').trim();
+  const contact = [g.phone, g.email].filter(Boolean).join(' · ');
+
+  const body = page ? renderGuestPage(page) : `
     <div class="grid3"><div class="stat"><b>${g.visits}</b><span>Visits</span></div><div class="stat"><b>${g.noShows}</b><span>No-shows</span></div><div class="stat"><b>${g.cancellations}</b><span>Cancelled</span></div></div>
-    ${g.spend && g.spend.spentVisits > 0 ? `<div class="grid3">
+    ${g.spend && g.spend.spentVisits > 0 ? `<div class="grid3" style="margin-top:8px;">
       <div class="stat money"><b>${money(g.spend.total)}</b><span>Spent</span></div>
       <div class="stat money"><b>${money(g.spend.perHead)}</b><span>Per head</span></div>
       <div class="stat money"><b>${money(g.spend.perVisitAvg)}</b><span>Per visit · ${g.spend.spentVisits}/${g.spend.visits}</span></div>
     </div>` : ''}
     ${g.spend && g.spend.unknown > 0 ? `<div class="ts">${g.spend.unknown} earlier visit${g.spend.unknown === 1 ? '' : 's'} came before we were counting, and ${g.spend.unknown === 1 ? 'is' : 'are'} not in these figures.</div>` : ''}
-    <div class="grid2"><div><label for="g-phone">Phone</label><input id="g-phone" type="tel" value="${esc(g.phone)}" data-field="modal.g.phone"></div><div><label for="g-email">Email</label><input id="g-email" type="email" value="${esc(g.email)}" data-field="modal.g.email"></div></div>
-    <label>Tags</label><div class="chips">${tags.map(t => `<button class="chip${(g.tags || []).includes(t) ? ' active' : ''}" data-act="guest-tag" data-val="${esc(t)}">${esc(t)}</button>`).join('')}</div>
-    <label for="g-notes">Notes (the desk sees these on every booking)</label><textarea id="g-notes" data-field="modal.g.notes">${esc(g.notes)}</textarea>
-    <label>History</label>
-    <div class="hist">${(g.bookings || []).map(r => `<div><span class="mono">${esc(fmtDay(dayOf(r.time)))} ${esc(hhmmOf(r.time))}</span><span>${r.partySize} pax</span>${statusChip(r.status)}${(g.spend && g.spend.perVisit && g.spend.perVisit[r.id]) ? `<span class="mono">${money(g.spend.perVisit[r.id].total)}</span>` : ''}${r.notes ? `<span class="ts">${esc(r.notes)}</span>` : ''}</div>`).join('') || '<div class="ts">No bookings yet.</div>'}</div>
-    ${actionKeys({ saveAct: 'save-guest', left: `<button class="icon-action warn left" data-act="guest-book">${I.cal}<span class="ia-label">Book</span></button>` })}
+    <div class="bk-rows" style="margin-top:16px;">
+      ${bkRow('gname', 'Name', g.name || 'No name', { none: !g.name })}
+      ${bkRow('gcontact', 'Phone & email', contact || 'None', { none: !contact })}
+      ${bkRow('gdob', 'Born', dobWord(g) || 'Not known', { none: !g.dob })}
+      ${bkRow('gtags', 'Tags', tagTxt || 'None', { none: !tagTxt })}
+      ${bkRow('gnotes', 'Notes', noteTxt || 'None', { none: !noteTxt })}
+    </div>
+    <label style="margin-top:16px;">History</label>
+    <div class="hist">${(g.bookings || []).map(r => `<div><span class="mono">${esc(fmtDay(dayOf(r.time)))} ${esc(hhmmOf(r.time))}</span><span>${r.partySize} pax</span>${statusChip(r.status)}${(g.spend && g.spend.perVisit && g.spend.perVisit[r.id]) ? `<span class="mono">${money(g.spend.perVisit[r.id].total)}</span>` : ''}${r.notes ? `<span class="ts">${esc(r.notes)}</span>` : ''}</div>`).join('') || '<div class="ts">No bookings yet.</div>'}</div>`;
+
+  const titles = { gname: 'Name', gcontact: 'Phone & email', gdob: 'Born', gtags: 'Tags', gnotes: 'Notes' };
+  return `<div class="modal-bg full" data-act="close-modal"><div class="modal full" data-stop="1">
+    <div class="modal-top">
+      ${page ? `<button class="chip sq" data-act="bk-back" aria-label="Back to the card">${I.left}</button>` : ''}
+      <h2>${page ? esc(titles[page] || '') : esc(g.name || 'Guest')}
+        ${page || !(g.birthdayIn !== null && g.birthdayIn !== undefined && g.birthdayIn <= 14) ? '' : `<span class="tag good">${I.cake}${esc(birthdayWord(g))}</span>`}</h2>
+      <button class="chip sq" data-act="close-modal" aria-label="Close">${I.cross}</button>
+    </div>
+    <div class="modal-body">${body}</div>
+    ${actionKeys({ saveAct: 'save-guest', left: page ? '' : `<button class="icon-action warn left" data-act="guest-book">${I.cal}<span class="ia-label">Book</span></button>` })}
   </div></div>`;
+}
+
+function renderGuestPage(page) {
+  const m = state.modal, g = m.g;
+
+  if (page === 'gname') {
+    return `<div class="bk-form">
+      <div><label for="g-name">Name</label><input id="g-name" type="text" value="${esc(g.name)}" data-field="modal.g.name" autocomplete="off"></div>
+      <div class="ts">The name on the card. Changing it here does not rewrite the name on bookings already taken — those are what was said at the time.</div>
+    </div>`;
+  }
+
+  if (page === 'gcontact') {
+    return `<div class="bk-form">
+      <div><label for="g-phone">Phone</label><input id="g-phone" type="tel" value="${esc(g.phone)}" data-field="modal.g.phone"></div>
+      <div><label for="g-email">Email</label><input id="g-email" type="email" value="${esc(g.email)}" data-field="modal.g.email"></div>
+      <div class="ts">The phone number is how the book knows two bookings are the same person. Change it and the next booking under the old number starts a new card.</div>
+    </div>`;
+  }
+
+  if (page === 'gdob') {
+    return `<div class="bk-form">
+      <div class="grid3">
+        <div><label for="g-dob-d">Day</label><input id="g-dob-d" type="number" min="1" max="31" value="${esc(m.dobD || '')}" data-field="modal.dobD" placeholder="12"></div>
+        <div><label for="g-dob-m">Month</label><select id="g-dob-m" data-field="modal.dobM">
+          <option value="">—</option>
+          ${MONTHS.map((name, i) => `<option value="${i + 1}"${String(m.dobM) === String(i + 1) ? ' selected' : ''}>${esc(name)}</option>`).join('')}
+        </select></div>
+        <div><label for="g-dob-y">Year</label><input id="g-dob-y" type="number" min="1900" max="${new Date().getFullYear()}" value="${esc(m.dobY || '')}" data-field="modal.dobY" placeholder="optional"></div>
+      </div>
+      <div class="ts">${g.dob ? esc(dobWord(g)) + (g.birthdayIn !== null && g.birthdayIn !== undefined ? ' · ' + esc(birthdayWord(g)).toLowerCase() : '') : 'Nothing set.'}</div>
+      <div class="ts">A year is optional, and usually unknown — most people give a venue the day and the month and no more. Without it the birthday still works; only the age does not.</div>
+      ${g.dob ? '<div><button class="chip" data-act="g-dob-clear">Clear it</button></div>' : ''}
+    </div>`;
+  }
+
+  if (page === 'gtags') {
+    return `<div class="ts">What the desk should know before this guest walks in. These sit on the card, not on one booking.</div>
+      <div class="bk-pick">${GUEST_TAGS.map(t => {
+        const on = (g.tags || []).includes(t);
+        const hot = t === 'Allergy';
+        return `<button class="bk-opt${on ? ' on' : ''}" data-act="guest-tag" data-val="${esc(t)}">
+          <span class="bk-opt-mark">${hot ? `<span class="bl-mark hot">${I.alert}</span>` : ''}</span>
+          <span class="bk-opt-text"><b>${esc(t)}</b>${hot ? '<span>Puts them in the Allergies list, and the note below is what the kitchen reads.</span>' : ''}</span>
+          ${on ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
+        </button>`;
+      }).join('')}</div>`;
+  }
+
+  if (page === 'gnotes') {
+    return `<div class="bk-form">
+      <div><label for="g-notes">Notes</label>
+      <textarea id="g-notes" data-field="modal.g.notes" style="min-height:160px;" placeholder="Hates the window table. Coeliac. Always orders the pinot.">${esc(g.notes)}</textarea></div>
+      <div class="ts">The desk sees these on every booking this guest makes, for as long as the card lives. A booking's own notes are for one night; these are for the person.</div>
+    </div>`;
+  }
+  return '';
 }
 
 // §§ Booking popup logic
@@ -7637,6 +7841,7 @@ document.addEventListener('click', async (ev) => {
       // a table can be joined to another, a booking can carry three tags.
       case 'bk-page': state.modal.page = val; render(); break;
       case 'bk-back': state.modal.page = ''; render(); break;
+      case 'g-dob-clear': { const m2 = state.modal; m2.dobD = ''; m2.dobM = ''; m2.dobY = ''; m2.g.dob = ''; render(); break; }
       case 'pick-time': state.modal.b.time = val; state.modal.page = ''; render(); loadAvailability(false); break;
       case 'pick-table': { const b = state.modal.b; if (b.tableId === val) { b.tableId = (b.tableIds || []).shift() || null; } else if (!b.tableId) b.tableId = val; else { b.tableIds = b.tableIds || []; const i = b.tableIds.indexOf(val); if (i >= 0) b.tableIds.splice(i, 1); else b.tableIds.push(val); } render(); loadAvailability(false); break; }
       // A fresh object every time, never a mutation of the row the day list
@@ -7702,9 +7907,14 @@ document.addEventListener('click', async (ev) => {
         } };
         render(); break;
       }
-      case 'open-guest': { const g = await api('/api/guests/' + id); state.modal = { kind: 'guest', g }; render(); break; }
+      case 'open-guest': {
+        const g = await api('/api/guests/' + id);
+        const p = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(g.dob || ''));
+        state.modal = { kind: 'guest', page: '', g, dobD: p ? String(+p[3]) : '', dobM: p ? String(+p[2]) : '', dobY: p && +p[1] ? p[1] : '' };
+        render(); break;
+      }
       case 'guest-tag': { const g = state.modal.g; g.tags = g.tags || []; const i = g.tags.indexOf(val); if (i >= 0) g.tags.splice(i, 1); else g.tags.push(val); render(); break; }
-      case 'save-guest': { const g = state.modal.g; await put('/api/guests/' + g.id, { phone: g.phone, email: g.email, notes: g.notes, tags: g.tags }); state.modal = null; await loadView(); toast('Saved'); render(); break; }
+      case 'save-guest': { const g = state.modal.g; await put('/api/guests/' + g.id, { name: g.name, phone: g.phone, email: g.email, dob: g.dob, notes: g.notes, tags: g.tags }); state.modal = null; await loadView(); toast('Saved'); render(); break; }
       case 'guest-book': { const g = state.modal.g; openBooking(null, { name: g.name, phone: g.phone, email: g.email, date: localDay(new Date()), tags: (g.tags || []).filter(t => ['VIP', 'Allergy'].includes(t)) }); break; }
       case 'set-toggle': { const on = el.dataset.on !== '1'; setPath(state.settings, val, on); render(); queueSave(val.split('.')[0]); break; }
       case 'set-num': state.settings[el.dataset.key] = parseInt(val); render(); queueSave('services'); break;
@@ -8088,6 +8298,7 @@ document.addEventListener('input', (ev) => {
   if (f.startsWith('st.')) { state.st = state.st || { name: '', pin: '', role: 'staff' }; setPath(state, f, raw); return; }
   if (f.startsWith('modal.')) {
     setPath(state, f, raw);
+    if (f === 'modal.dobD' || f === 'modal.dobM' || f === 'modal.dobY') { rebuildDob(); render(); return; }
     if (el.dataset.avail && state.modal && state.modal.kind === 'booking') {
       clearTimeout(_saveTimer);
       _saveTimer = setTimeout(() => { if (el.dataset.avail === 'tables') loadAvailability(false); else { state.modal.b.time = el.dataset.field === 'modal.b.date' ? '' : state.modal.b.time; loadAvailability(true); } }, 300);

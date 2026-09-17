@@ -263,6 +263,9 @@ h1,h2,h3{margin:0;}
 .status-chip.online{background:var(--src-online);} .status-chip.walk-in{background:var(--src-walkin);} .status-chip.pos{background:var(--src-pos);}
 .tag{font-size:var(--fs-chip);font-weight:700;padding:3px 7px;border-radius:var(--r-pill);border:1px solid var(--steel-300);color:var(--charcoal-soft);white-space:nowrap;}
 .tag.hot{border-color:var(--red);color:var(--red);}
+/* A tag that carries a glyph — the cake on a birthday — lays out as a row. */
+.tag{display:inline-flex;align-items:center;gap:4px;vertical-align:middle;}
+.tag svg{width:13px;height:13px;flex:0 0 13px;}
 
 /* §§ Notify list — a freed slot and the people it could seat */
 .stat[data-act]{cursor:pointer;}
@@ -2167,6 +2170,10 @@ function migrate(data) {
   // a hand-edited or half-written file that has the key but not an array.
   if (!Array.isArray(s.exceptions)) s.exceptions = [];
   if (!s.statusColours || typeof s.statusColours !== 'object' || Array.isArray(s.statusColours)) s.statusColours = {};
+  for (const g of data.guests) {
+    if (g.dob === undefined) g.dob = '';
+    if (!Array.isArray(g.tags)) g.tags = [];
+  }
   for (const r of data.reservations) {
     if (!r.status) r.status = 'booked';
     if (!r.source) r.source = 'staff';
@@ -2220,6 +2227,31 @@ function dataVersion() { return { store: statMs(DB_FILE) }; }
 
 function newId(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
 
+// A guest's date of birth, off the wire. The YEAR IS OPTIONAL and that is the
+// point: a venue is told "the twelfth of March" far more often than it is told
+// a year, and a card that refuses the day because it was not given the year is
+// a card nobody fills in. A missing year is stored as 0000, which is not a
+// date anyone was born on and cannot be mistaken for one.
+//
+// Returns '' for "no date of birth", a 'YYYY-MM-DD' string, or null when what
+// came in was not a date at all — so a caller can tell "cleared" from "wrong".
+function cleanDob(input) {
+  const raw = String(input == null ? '' : input).trim();
+  if (!raw) return '';
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+  if (!m) return null;
+  const y = +m[1], mo = +m[2], d = +m[3];
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  // The day has to exist in that month. With no year, February is given its
+  // leap day: somebody born on the 29th still has a birthday to record.
+  const days = [31, (y === 0 || (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0))) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1];
+  if (d > days) return null;
+  // A year nobody alive was born in is a typo, not a birthday. 0000 is the
+  // agreed "not given" and passes.
+  if (y !== 0 && (y < 1900 || y > new Date().getFullYear())) return null;
+  return `${String(y).padStart(4, '0')}-${m[2]}-${m[3]}`;
+}
+
 // Reading a venue's colour code off the wire. Pure, so the rule that decides
 // whether a colour is kept can be read and tested without a request: a key we
 // do not know how to re-point, or a value that is not a full six-digit hex, is
@@ -2252,7 +2284,7 @@ const COLOUR_KEYS = {
   due: '--st-due', over: '--st-over',
   online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
 };
-module.exports = { readData, writeData, dataVersion, newId, migrate, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
+module.exports = { readData, writeData, dataVersion, newId, migrate, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./db'] = module;
@@ -3388,6 +3420,47 @@ function hasAllergy(g) {
   return av.ALLERGY_RE.test(String((g && g.notes) || ''));
 }
 
+// §§ Birthdays
+// Stored as YYYY-MM-DD with 0000 for a year nobody gave (see cleanDob in
+// db.js). Everything here is pure and takes `today` as a 'YYYY-MM-DD' string,
+// so no test depends on the wall clock and no venue's answer depends on the
+// server's timezone.
+const BIRTHDAY_WINDOW = 14;
+function dobParts(dob) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(dob || ''));
+  if (!m) return null;
+  return { year: +m[1] || null, month: +m[2], day: +m[3] };
+}
+// How many sleeps until the next one. 0 is today. A 29 February birthday
+// lands on the 1st of March in a year that has no 29th — the guest is still
+// having a birthday, and a card that skipped three years out of four would be
+// worse than wrong.
+function daysToBirthday(dob, today) {
+  const p = dobParts(dob), t = dobParts(today);
+  if (!p || !t) return null;
+  const at = (year) => {
+    let m = p.month, d = p.day;
+    if (m === 2 && d === 29 && !(year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0))) { m = 3; d = 1; }
+    return Date.UTC(year, m - 1, d);
+  };
+  const now = Date.UTC(t.year, t.month - 1, t.day);
+  let next = at(t.year);
+  if (next < now) next = at(t.year + 1);
+  return Math.round((next - now) / 86400000);
+}
+// Only when a year was actually given.
+function ageOn(dob, today) {
+  const p = dobParts(dob), t = dobParts(today);
+  if (!p || !t || !p.year) return null;
+  let age = t.year - p.year;
+  if (t.month < p.month || (t.month === p.month && t.day < p.day)) age--;
+  return age >= 0 ? age : null;
+}
+function birthdaySoon(g, today) {
+  const n = daysToBirthday(g && g.dob, today);
+  return n !== null && n <= BIRTHDAY_WINDOW;
+}
+
 const LENSES = {
   all: { keep: () => true, order: (a, b) => (b.lastSeen || 0) - (a.lastSeen || 0) },
   regulars: {
@@ -3399,6 +3472,12 @@ const LENSES = {
   noshows: {
     keep: (g) => (g.noShows || 0) > 0,
     order: (a, b) => (b.noShows || 0) - (a.noShows || 0) || (b.lastSeen || 0) - (a.lastSeen || 0),
+  },
+  // The only lens that is about the calendar rather than the guest, so it is
+  // the only one that uses the second argument. Soonest first.
+  birthdays: {
+    keep: (g, today) => birthdaySoon(g, today),
+    order: (a, b, today) => (daysToBirthday(a.dob, today) - daysToBirthday(b.dob, today)) || (b.visits || 0) - (a.visits || 0),
   },
 };
 
@@ -3419,17 +3498,18 @@ function guestLens(guests, lens, opts) {
   const asked = parseInt(opts.limit, 10);
   const limit = asked > 0 ? asked : 300;
   const typed = !!(opts.q && String(opts.q).trim());
-  const hits = (guests || []).filter(g => g && l.keep(g) && (!typed || guestMatches(g, q)));
-  return { lens: LENSES[lens] ? lens : 'all', total: hits.length, results: hits.slice().sort(l.order).slice(0, limit) };
+  const today = opts.today || '';
+  const hits = (guests || []).filter(g => g && l.keep(g, today) && (!typed || guestMatches(g, q)));
+  return { lens: LENSES[lens] ? lens : 'all', total: hits.length, results: hits.slice().sort((a, b) => l.order(a, b, today)).slice(0, limit) };
 }
 
 // What each tile on the rail would hold, in one pass over the book.
-function guestLensCounts(guests) {
+function guestLensCounts(guests, today) {
   const out = {};
   for (const k of Object.keys(LENSES)) out[k] = 0;
   for (const g of (guests || [])) {
     if (!g) continue;
-    for (const k of Object.keys(LENSES)) if (LENSES[k].keep(g)) out[k]++;
+    for (const k of Object.keys(LENSES)) if (LENSES[k].keep(g, today || '')) out[k]++;
   }
   return out;
 }
@@ -3438,6 +3518,7 @@ module.exports = {
   fold, digits, prepareQuery, matches, relevanceSort, searchReservations,
   MIN_CHARS, MIN_PHONE_DIGITS, DEFAULT_LIMIT, MAX_LIMIT,
   REGULAR_VISITS, VIP_TAGS, LENSES, hasAllergy, guestMatches, guestLens, guestLensCounts,
+  BIRTHDAY_WINDOW, dobParts, daysToBirthday, ageOn, birthdaySoon,
 };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
@@ -4160,7 +4241,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db');
-const { readData, writeData, dataVersion, newId, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, DEFAULT_SETTINGS } = db;
+const { readData, writeData, dataVersion, newId, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_SETTINGS } = db;
 const lock = require('./lock');
 const av = require('./availability');
 const search = require('./search');
@@ -4559,7 +4640,7 @@ function touchGuest(data, r) {
   const key = phone ? 'p:' + phone : 'n:' + String(r.name || '').toLowerCase().trim();
   let g = data.guests.find(x => x.key === key);
   if (!g) {
-    g = { id: newId('g'), key, name: r.name, phone: r.phone || '', email: r.email || '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0, firstSeen: Date.now(), lastSeen: Date.now() };
+    g = { id: newId('g'), key, name: r.name, phone: r.phone || '', email: r.email || '', dob: '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0, firstSeen: Date.now(), lastSeen: Date.now() };
     data.guests.push(g);
   }
   if (r.name && !g.name) g.name = r.name;
@@ -5148,10 +5229,19 @@ app.post('/api/openings/:id/dismiss', (req, res) => {
 // no-shows" mean "three no-shows among the three hundred seen most recently",
 // which is a different and useless sentence. The counts on the rail are over
 // the whole book for the same reason.
+// How many sleeps, and how old they will be — worked out where the rule is
+// tested, so the browser only ever renders the answer.
+function withBirthday(g, today) {
+  return Object.assign({}, g, {
+    birthdayIn: search.daysToBirthday(g.dob, today),
+    age: search.ageOn(g.dob, today),
+  });
+}
 app.get('/api/guests', (req, res) => {
   const data = readData();
-  const got = search.guestLens(data.guests, String(req.query.lens || 'all'), { q: String(req.query.q || '') });
-  res.json({ lens: got.lens, total: got.total, counts: search.guestLensCounts(data.guests), guests: got.results });
+  const today = av.localDay(new Date());
+  const got = search.guestLens(data.guests, String(req.query.lens || 'all'), { q: String(req.query.q || ''), today });
+  res.json({ lens: got.lens, total: got.total, today, counts: search.guestLensCounts(data.guests, today), guests: got.results.map(g => withBirthday(g, today)) });
 });
 // The card carries what they spent — eleven visits AND $1,340. `sp` is the
 // value, never `spend`: that name is the module. The whole body is inside
@@ -5169,7 +5259,7 @@ app.get('/api/guests/:id', async (req, res) => {
     const bookings = data.reservations.filter(r => r.guestId === g.id).sort((a, b) => b.time.localeCompare(a.time));
     const money = spend.spendForGuest(ctxOf(data), sp.orders, bookings, { since: sp.since });
     if (keepSpendTotals(data, sp)) writeData(data);
-    res.json(Object.assign({}, g, {
+    res.json(Object.assign(withBirthday(g, av.localDay(new Date())), {
       bookings,
       spend: Object.assign({ linked: sp.linked, readAt: sp.at, from: sp.from, slow: sp.slow, error: sp.error }, money),
     }));
@@ -5185,6 +5275,11 @@ app.put('/api/guests/:id', (req, res) => {
   if (b.name !== undefined && String(b.name).trim()) g.name = String(b.name).trim().slice(0, 60);
   if (b.phone !== undefined) g.phone = String(b.phone || '').trim().slice(0, 30);
   if (b.email !== undefined) g.email = String(b.email || '').trim().slice(0, 80);
+  if (b.dob !== undefined) {
+    const dob = cleanDob(b.dob);
+    if (dob === null) return res.status(400).json({ error: 'That date of birth is not a date' });
+    g.dob = dob;
+  }
   if (b.notes !== undefined) g.notes = String(b.notes || '').trim().slice(0, 500);
   if (Array.isArray(b.tags)) g.tags = b.tags.map(t => String(t).trim().slice(0, 20)).filter(Boolean).slice(0, 8);
   logAudit(data, staffFromReq(req), `Updated guest ${g.name}`);
