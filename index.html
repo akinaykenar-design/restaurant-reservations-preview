@@ -633,23 +633,10 @@ body.book-page #app{display:block;height:auto;}
   .sheet .section-h{break-after:avoid;page-break-after:avoid;}
 }
 
-/* §§ The key — every colour on the screen, in one popup. The samples are the
-   REAL chips and the REAL table states, so a colour that drifts in this file
-   drifts in the key as well and is caught. */
-.key-list{display:flex;flex-direction:column;gap:var(--list-gap);}
-.key-row{display:flex;align-items:flex-start;gap:12px;min-height:44px;padding:8px 10px;
-  border:1px solid var(--steel-300);border-radius:var(--r-control);background:var(--surface);}
-.key-sample{flex:0 0 150px;gap:8px;display:flex;align-items:center;justify-content:flex-start;min-height:28px;}
+/* The name beside a colour in Settings: what it is, and what it is set to. */
 .key-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
 .key-text b{font-size:var(--fs-md);font-weight:700;}
 .key-text span{font-size:var(--fs-chip);color:var(--charcoal-soft);line-height:1.5;}
-.key-tile{position:static;width:64px;height:34px;cursor:default;}
-.key-none{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);text-transform:uppercase;letter-spacing:.3px;}
-.key-strip{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;}
-@media (max-width:520px){
-  .key-row{flex-direction:column;gap:6px;}
-  .key-sample{flex:none;}
-}
 
 /* §§ The colour code, as the venue can change it.
    The list's circle. Colour is never the only carrier — the dot has the
@@ -1406,13 +1393,183 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     } catch (e) {}
   }
 
+  // ---------- two months of a working book ----------
+  // A night is easy to fake and tells you almost nothing. The diary, the guest
+  // book and the flow only mean something over WEEKS: regulars who have been
+  // back nine times, a Saturday that is full at seven and empty at nine, a
+  // no-show rate you can see. So the preview carries a real book — a month
+  // behind for the guest cards to have a past, two months ahead for the diary
+  // to have a shape — written straight into the store rather than through 800
+  // POSTs, which would take the best part of a minute on first open.
+  //
+  // Deterministic on purpose: everyone who opens the preview sees the same
+  // book, so a screenshot means the same thing twice.
+  function rng(seed) {
+    var x = seed >>> 0;
+    return function () { x = (x * 1664525 + 1013904223) >>> 0; return x / 4294967296; };
+  }
+  var SURNAMES = ['Abbott','Ahmadi','Bartolo','Beckett','Bhandari','Calloway','Cheng','Comerford','Dalgleish',
+    'Delaney','Eriksen','Farrugia','Fitzroy','Gallagher','Georgiou','Haddad','Halloran','Ibrahim','Ivanov',
+    'Jarvis','Kalani','Kaur','Kilpatrick','Lattimore','Leung','Lindqvist','Macrae','Mahoney','Mbeki','Merchant',
+    'Nakamura','Novak','Oyelaran','Pappas','Petrov','Quilty','Rasmussen','Ruiz','Salvatore','Sandoval','Sarkis',
+    'Sciberras','Sinclair','Tahir','Tran','Vanterpool','Vella','Wickham','Yilmaz','Zanetti'];
+  // The people who come back. Their numbers are the SAME ones tonight's
+  // service uses, because the guest book is keyed on the phone — give a
+  // regular a fresh number here and the desk gets two cards for one person
+  // and neither of them has the history that makes them a regular.
+  var REGULARS = [['Okafor','0455 200 118'], ['Whitfield','0412 118 220'], ['Nguyen T','0413 552 901'],
+    ['Brennan','0400 771 302'], ['Maguire','0477 314 208'], ['Duarte','0432 067 118'],
+    ['Adeyemi','0421 889 043'], ['Sorrell','0466 900 214'], ['Lindqvist','0438 402 771'],
+    ['Vella','0409 655 130']];
+  var NOTES = ['', '', '', '', 'window if you can', 'celebrating', 'early sitting, theatre after',
+    'high chair please', 'quiet corner', 'pram', 'birthday cake at dessert', 'regular — knows the room'];
+  var TAGPOOL = [[], [], [], [], ['Window'], ['Birthday'], ['Anniversary'], ['VIP'], ['Allergy'], ['High chair'], ['Pram'], ['Quiet']];
+  var MONTHDAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+  function seedBook(base) {
+    var raw;
+    try { raw = files[DB_LIVE]; } catch (e) { return; }
+    if (!raw) return;
+    var data;
+    try { data = JSON.parse(raw); } catch (e) { return; }
+
+    var tables = ((data.floorPlans && data.floorPlans[0] && data.floorPlans[0].tables) || [])
+      .filter(function (t) { return t.type !== 'decor'; })
+      .map(function (t) { return { id: t.id, seats: t.seats || 2 }; })
+      .sort(function (a, b) { return a.seats - b.seats; });
+    if (!tables.length) return;
+
+    var r = rng(20260918);
+    var pick = function (a) { return a[Math.floor(r() * a.length) % a.length]; };
+    var num = function (lo, hi) { return lo + Math.floor(r() * (hi - lo + 1)); };
+    var phoneFor = {};
+    REGULARS.forEach(function (x) { phoneFor[x[0]] = x[1]; });
+    var phone = function (name) {
+      if (!phoneFor[name]) {
+        phoneFor[name] = '04' + String(num(10, 99)) + ' ' + String(num(100, 999)) + ' ' + String(num(100, 999));
+      }
+      return phoneFor[name];
+    };
+    // The app's own duration ladder, so a party of eight holds its table for
+    // as long here as it would if the desk had typed it in.
+    var holds = function (n) { return n <= 2 ? 75 : n <= 4 ? 90 : n <= 8 ? 120 : 150; };
+
+    var LUNCH = [11 * 60 + 30, 14 * 60 + 30], DINNER = [17 * 60, 21 * 60 + 30];
+    var byWeekday = [12, 0, 6, 8, 10, 16, 20];   // Sun … Sat. Monday is shut.
+    var rows = [], seq = 0;
+
+    for (var d = -28; d <= 60; d++) {
+      if (d === 0) continue;                      // tonight belongs to seedOn
+      var day = shiftDay(base, d);
+      var wd = new Date(day.slice(0, 4), +day.slice(5, 7) - 1, +day.slice(8, 10)).getDay();
+      var want = byWeekday[wd];
+      if (!want) continue;
+      // Further out, fewer are on the book yet — a diary that is as full in
+      // November as it is next week is not a diary anybody recognises.
+      if (d > 21) want = Math.round(want * 0.55);
+      else if (d > 10) want = Math.round(want * 0.8);
+      var busy = {};                              // tableId -> [[from,to],…]
+      for (var i = 0; i < want; i++) {
+        var lunch = wd !== 6 && r() < 0.3;
+        var win = lunch ? LUNCH : DINNER;
+        var slot = win[0] + num(0, Math.floor((win[1] - win[0] - 30) / 15)) * 15;
+        var party = r() < 0.45 ? 2 : r() < 0.78 ? 4 : r() < 0.93 ? 6 : 8;
+        var mins = holds(party);
+        var name = r() < 0.42 ? pick(REGULARS)[0] : pick(SURNAMES);
+        // The smallest table that fits, and not a six-top for a couple.
+        var tableId = null;
+        for (var t = 0; t < tables.length; t++) {
+          var tb = tables[t];
+          if (tb.seats < party || tb.seats > party + 2) continue;
+          var clash = (busy[tb.id] || []).some(function (b) { return slot < b[1] && b[0] < slot + mins; });
+          if (clash) continue;
+          tableId = tb.id;
+          (busy[tb.id] = busy[tb.id] || []).push([slot, slot + mins]);
+          break;
+        }
+        var status = d < 0
+          ? (r() < 0.86 ? 'done' : r() < 0.5 ? 'no-show' : 'cancelled')
+          : (r() < 0.4 ? 'confirmed' : 'booked');
+        // Booked a few weeks before the night, but never in the future: a
+        // card that says it was made tomorrow is a card nobody believes.
+        var made = Math.min(Date.now() - num(1, 20) * 86400000,
+                            Date.now() + (d - num(3, 30)) * 86400000);
+        rows.push({
+          id: 'rvs' + (++seq), name: name, phone: phone(name), email: '',
+          partySize: party, time: day + 'T' + pad(Math.floor(slot / 60)) + ':' + pad(slot % 60),
+          durationMin: null, tableId: tableId, tableIds: [],
+          status: status, source: r() < 0.28 ? 'online' : 'staff',
+          tags: pick(TAGPOOL).slice(), notes: pick(NOTES), setMenu: null,
+          createdAt: made, updatedAt: made, createdBy: 'Alex (Manager)', events: [],
+          ref: r() < 0.28 ? 'B' + String(num(10000, 99999)) : '',
+        });
+      }
+    }
+
+    // The guest book builds itself from the bookings, the way the app's own
+    // touchGuest does: one card a phone number, counts recomputed rather than
+    // tallied as we go, so they cannot drift from the rows they describe.
+    var guests = {}, gseq = 0;
+    rows.forEach(function (row) {
+      var key = 'p:' + row.phone.replace(/\s+/g, '');
+      var g = guests[key];
+      if (!g) {
+        g = guests[key] = { id: 'gs' + (++gseq), key: key, name: row.name, phone: row.phone, email: '',
+          dob: '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0,
+          firstSeen: row.createdAt, lastSeen: row.createdAt };
+      }
+      g.firstSeen = Math.min(g.firstSeen, row.createdAt);
+      g.lastSeen = Math.max(g.lastSeen, row.createdAt);
+      row.guestId = g.id;
+      if (row.status === 'seated' || row.status === 'done') g.visits++;
+      else if (row.status === 'no-show') g.noShows++;
+      else if (row.status === 'cancelled') g.cancellations++;
+    });
+
+    // Dates of birth on about half the book, and five of them inside the next
+    // fortnight, so the Birthdays lens has something to be about. The year is
+    // left off some of them on purpose: that is how a venue is usually told.
+    var list = Object.keys(guests).map(function (k) { return guests[k]; });
+    var soon = 0;
+    list.forEach(function (g, i) {
+      if (r() < 0.45) return;
+      var when;
+      if (soon < 5 && r() < 0.14) {
+        soon++;
+        var ahead = shiftDay(base, num(0, 13));
+        when = ahead.slice(5);
+      } else {
+        var mo = num(1, 12);
+        when = pad(mo) + '-' + pad(num(1, MONTHDAYS[mo - 1]));
+      }
+      g.dob = (r() < 0.65 ? String(num(1955, 2005)) : '0000') + '-' + when;
+    });
+    // A handful the desk has written on, so the lenses are not all empty.
+    list.slice(0, 40).forEach(function (g) {
+      if (g.visits >= 4 && r() < 0.35) g.tags.push('Regular');
+      if (r() < 0.10) { g.tags.push('VIP'); g.notes = 'Owner knows them. Never the door table.'; }
+      if (r() < 0.08) { g.tags.push('Allergy'); g.notes = 'Coeliac — the kitchen has it on the card.'; }
+    });
+
+    data.reservations = (data.reservations || []).concat(rows);
+    data.guests = (data.guests || []).concat(list);
+    try {
+      files[DB_LIVE] = JSON.stringify(data, null, 2);
+      touch(DB_LIVE); persist(DB_LIVE);
+    } catch (e) {}
+  }
+
   function seedDemo() {
     // The demo sits on the venue's own TRADING day, not on the calendar one.
     // A restaurant's Tuesday runs past midnight, and the desk knows it — so a
     // preview opened at one in the morning must seed the evening the desk is
     // still showing, or it lands a service on a day nobody is looking at.
     seedRoom();
-    return call('GET', '/api/today').then(function (t) { return seedOn((t && t.date) || dayOf(new Date())); });
+    return call('GET', '/api/today').then(function (t) {
+      var base = (t && t.date) || dayOf(new Date());
+      seedBook(base);
+      return seedOn(base);
+    });
   }
 
   function seedOn(base) {
@@ -5893,7 +6050,6 @@ const I = {
   cake: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M4 21v-6.5a2.5 2.5 0 0 1 2.5-2.5h11a2.5 2.5 0 0 1 2.5 2.5V21"/><path d="M3.6 16.5c1.7 1.4 3.4 1.4 5.1 0s3.4-1.4 5.1 0 3.4 1.4 5.1 0"/><path d="M8.5 8.5V6M12 8.5V5.5M15.5 8.5V6"/></svg>',
   note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h9.5L19 8v12.5H5z"/><path d="M14 3.5V8h5"/><path d="M8.5 12.5h7M8.5 16h4.5"/></svg>',
   chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></svg>',
-  key: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="7.6" cy="14.4" r="4.6"/><path d="M10.9 11.1L20.4 1.6"/><path d="M17.2 4.8l2.4 2.4M14.6 7.4l2.4 2.4"/></svg>',
   stBooked: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
   stConfirmed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M7.8 12.4l2.7 2.7 5.7-5.7"/></svg>',
   stArrived: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5S19 15.6 19 10.5a7 7 0 1 0-14 0c0 5.1 7 11 7 11z"/><circle cx="12" cy="10.2" r="2.6"/></svg>',
@@ -6489,8 +6645,6 @@ function renderDeck() {
     </div>
     <div class="deck-spacer"></div>
     ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
-    <button class="deck-sq wide-only" data-act="open-key" aria-label="What the colours mean" title="What the colours mean">${I.key}</button>
-    <button class="deck-sq" data-act="open-find" aria-label="Find a booking" title="Find a booking (/)">${I.search}</button>
     <button class="deck-sq" data-act="new-booking" aria-label="New booking" title="New booking">${I.plus}</button>
     <button class="staff-badge wide-only" data-act="open-who" title="${esc(title)} \u00b7 tap to change who is on"><span class="deck-dot ${dot}"></span><span class="name">${esc((state.staff && state.staff.name) || 'Who is on?')}</span></button>
     <button class="deck-sq phone-only" data-act="open-more" aria-label="More"><span class="deck-dot ${dot}"></span></button>
@@ -6511,7 +6665,7 @@ function renderSecBand() {
   }).join('')}</div>`;
 }
 
-// What the phone folded away: who is on, the key, and the till.
+// What the phone folded away: who is on, and the till.
 function renderMoreModal() {
   const ps = state.settings && state.settings.pos;
   const linked = ps && ps.enabled && ps.baseUrl;
@@ -6519,7 +6673,7 @@ function renderMoreModal() {
     <h2>${esc((state.staff && state.staff.name) || 'Who is on?')}</h2>
     <div class="bk-rows">
       <button class="bk-row" data-act="open-who"><span class="bk-k">Who is on</span><span class="bk-v">${esc((state.staff && state.staff.name) || 'Nobody yet')}</span><span class="bk-chev">${I.right}</span></button>
-      <button class="bk-row" data-act="open-key"><span class="bk-k">The key</span><span class="bk-v">What the colours mean</span><span class="bk-chev">${I.right}</span></button>
+      <button class="bk-row" data-act="open-find"><span class="bk-k">Find a booking</span><span class="bk-v">On any night, not just this one</span><span class="bk-chev">${I.right}</span></button>
       ${linked ? `<button class="bk-row" data-act="to-till"><span class="bk-k">The till</span><span class="bk-v">Open it on this venue</span><span class="bk-chev">${I.right}</span></button>` : ''}
     </div>
     <div class="ts" style="margin-top:12px;">${state.online ? (linked ? 'The POS is linked.' : 'No POS link.') : 'Offline \u2014 is the server running?'}</div>
@@ -6958,7 +7112,8 @@ function renderDayList() {
     const sv = pickedService();
     return find + `<div class="empty">${sv ? 'Nothing booked for ' + esc(sv.name) + '.' : 'No bookings this day.'}</div>`;
   }
-  if (q.on && !rows.length) return find + `<div class="empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d.</div>`;
+  if (q.on && !rows.length) return find + `<div class="empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d.
+    <div style="margin-top:12px;"><button class="btn" data-act="find-every-day">${I.search} Look on every day</button></div></div>`;
 
   const row = (r) => {
     const tables = listTables(r);
@@ -7406,12 +7561,6 @@ function renderSettings() {
       <div><button class="btn" data-act="colours-reset">${I.refresh} Put them all back</button></div>
     </div>
     <div class="settings-card">
-      <div class="th">The key</div>
-      <div class="ts">Every colour this screen uses and what it means — the booking's seven states, the four a table can be in, and where a booking came from. Worth showing a new host on their first shift.</div>
-      <div class="key-strip">${STATUS_KEY.map(k => statusChip(k[0])).join('')}</div>
-      <div><button class="btn" data-act="open-key">Open the key</button></div>
-    </div>
-    <div class="settings-card">
       <div class="th">Set menus${state.setMenusFromPos ? ' (from the POS)' : ''}</div>
       <div class="ts">${state.setMenusFromPos
         ? 'The POS holds these — they are its set menus (Menu → Set menus there). The desk puts one on a booking, and the till sees it in the booking\'s notes.'
@@ -7472,9 +7621,6 @@ function renderExceptions() {
 }
 
 // §§ Popups
-// §§ The key. Everything on this screen that carries a colour, in one place,
-// drawn with the REAL chips and the REAL table states rather than a picture of
-// them — so a colour that drifts in the stylesheet drifts here too and is seen.
 // The colour picker. The POS's shape: a row of presets first, because nobody
 // wants a colour wheel in the middle of a Friday, with the full picker and a
 // way back to the built-in underneath.
@@ -7497,27 +7643,6 @@ function renderColourModal() {
     </div>
   </div></div>`;
 }
-function renderKeyModal() {
-  const row = (sample, name, meaning) =>
-    `<div class="key-row"><span class="key-sample">${sample}</span>
-      <span class="key-text"><b>${esc(name)}</b><span>${esc(meaning)}</span></span></div>`;
-  const tile = (st) => `<span class="fl-table ${st} key-tile"><span class="fl-in"><span class="fl-no">12</span></span></span>`;
-  return `<div class="modal-bg" data-act="close-modal"><div class="modal key-modal" data-stop="1">
-    <h2>The key</h2>
-    <div class="section-h">The booking</div>
-    <div class="ts">The List wears the circle, the way the till's admin rows do. Everywhere else wears the chip.</div>
-    <div class="key-list">${STATUS_KEY.map(k => row(statusDot(k[0]) + statusChip(k[0]), k[1], k[3])).join('')}</div>
-    <div class="section-h">The table, right now</div>
-    <div class="key-list">${FLOOR_KEY.map(k => row(tile(k[0]), k[1], k[3])).join('')}</div>
-    <div class="section-h">Where it came from</div>
-    <div class="key-list">${SOURCE_KEY.map(k => row(k[0] === 'staff' ? '<span class="key-none">no chip</span>' : sourceChip(k[0]), k[1], k[3])).join('')}</div>
-    <div class="section-h">Tags</div>
-    <div class="ts">Tags are never coloured. ${esc(TAG_LIST.join(', '))} all wear the same neutral chip, and only <span class="tag hot">Allergy</span> is marked, because it is the one a cook has to act on. Colour is spent on what changes during service; a label that never changes does not earn any.</div>
-    <div class="ts" style="margin-top:8px;">On the waitlist, <span class="status-chip confirmed">Told</span> borrows the confirmed blue for the same reason: somebody has spoken to them.</div>
-    <div class="ts" style="margin-top:8px;">Any of these can be changed in Settings &rarr; Colours, and the change reaches the chips, the blocks, the floor and this page at once.</div>
-    <div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Close</span></button></div>
-  </div></div>`;
-}
 function renderModal() {
   const m = state.modal;
   if (m.kind === 'booking') return renderBookingModal();
@@ -7525,7 +7650,6 @@ function renderModal() {
   if (m.kind === 'exception') return renderExceptionModal();
   if (m.kind === 'seat') return renderSeatModal();
   if (m.kind === 'guest') return renderGuestModal();
-  if (m.kind === 'key') return renderKeyModal();
   if (m.kind === 'colour') return renderColourModal();
   if (m.kind === 'who') return renderWhoModal();
   if (m.kind === 'cal') return renderCalModal();
@@ -8180,6 +8304,9 @@ document.addEventListener('click', async (ev) => {
       case 'edit-booking': { if (Date.now() - _tlDropAt < 700) break; const r = state.reservations.find(x => x.id === id); if (r) openBooking(r); break; }
       case 'status': setStatus(id, val); break;
       case 'open-find': openFind(true); break;
+      // Carry what they already typed into the wider search: they have said
+      // the name once, and a box that opens empty makes them say it twice.
+      case 'find-every-day': state.find.q = state.deskQ; openFind(true); runFind(); break;
       // A result is resolved out of `state.find.results`, NOT `state.reservations`:
       // that only ever holds the day on screen, so edit-booking's line would
       // silently do nothing for any result from another date.
@@ -8251,7 +8378,6 @@ document.addEventListener('click', async (ev) => {
         try { await loadMonth(); } catch (e) {}
         render(); break;
       }
-      case 'open-key': state.modal = { kind: 'key' }; render(); break;
       case 'open-colour': state.modal = { kind: 'colour', key: el.dataset.key, label: el.dataset.label || el.dataset.key }; render(); break;
       case 'pick-colour': {
         const s2 = state.settings; s2.statusColours = s2.statusColours || {};
@@ -8264,7 +8390,7 @@ document.addEventListener('click', async (ev) => {
         applyStatusColours(); queueSave('colours'); render(); break;
       }
       case 'colours-reset': {
-        state.modal = { kind: 'confirm', title: 'Put every colour back?', body: 'The key goes back to what the app ships with. Nothing else changes.', yes: 'Put back', onYes: async () => {
+        state.modal = { kind: 'confirm', title: 'Put every colour back?', body: 'Every colour goes back to what the app ships with. Nothing else changes.', yes: 'Put back', onYes: async () => {
           state.settings.statusColours = {}; applyStatusColours(); queueSave('colours'); state.modal = null; render();
         } };
         render(); break;

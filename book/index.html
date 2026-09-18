@@ -626,23 +626,10 @@ body.book-page #app{display:block;height:auto;}
   .sheet .section-h{break-after:avoid;page-break-after:avoid;}
 }
 
-/* §§ The key — every colour on the screen, in one popup. The samples are the
-   REAL chips and the REAL table states, so a colour that drifts in this file
-   drifts in the key as well and is caught. */
-.key-list{display:flex;flex-direction:column;gap:var(--list-gap);}
-.key-row{display:flex;align-items:flex-start;gap:12px;min-height:44px;padding:8px 10px;
-  border:1px solid var(--steel-300);border-radius:var(--r-control);background:var(--surface);}
-.key-sample{flex:0 0 150px;gap:8px;display:flex;align-items:center;justify-content:flex-start;min-height:28px;}
+/* The name beside a colour in Settings: what it is, and what it is set to. */
 .key-text{display:flex;flex-direction:column;gap:2px;min-width:0;}
 .key-text b{font-size:var(--fs-md);font-weight:700;}
 .key-text span{font-size:var(--fs-chip);color:var(--charcoal-soft);line-height:1.5;}
-.key-tile{position:static;width:64px;height:34px;cursor:default;}
-.key-none{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);text-transform:uppercase;letter-spacing:.3px;}
-.key-strip{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;}
-@media (max-width:520px){
-  .key-row{flex-direction:column;gap:6px;}
-  .key-sample{flex:none;}
-}
 
 /* §§ The colour code, as the venue can change it.
    The list's circle. Colour is never the only carrier — the dot has the
@@ -1400,13 +1387,183 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     } catch (e) {}
   }
 
+  // ---------- two months of a working book ----------
+  // A night is easy to fake and tells you almost nothing. The diary, the guest
+  // book and the flow only mean something over WEEKS: regulars who have been
+  // back nine times, a Saturday that is full at seven and empty at nine, a
+  // no-show rate you can see. So the preview carries a real book — a month
+  // behind for the guest cards to have a past, two months ahead for the diary
+  // to have a shape — written straight into the store rather than through 800
+  // POSTs, which would take the best part of a minute on first open.
+  //
+  // Deterministic on purpose: everyone who opens the preview sees the same
+  // book, so a screenshot means the same thing twice.
+  function rng(seed) {
+    var x = seed >>> 0;
+    return function () { x = (x * 1664525 + 1013904223) >>> 0; return x / 4294967296; };
+  }
+  var SURNAMES = ['Abbott','Ahmadi','Bartolo','Beckett','Bhandari','Calloway','Cheng','Comerford','Dalgleish',
+    'Delaney','Eriksen','Farrugia','Fitzroy','Gallagher','Georgiou','Haddad','Halloran','Ibrahim','Ivanov',
+    'Jarvis','Kalani','Kaur','Kilpatrick','Lattimore','Leung','Lindqvist','Macrae','Mahoney','Mbeki','Merchant',
+    'Nakamura','Novak','Oyelaran','Pappas','Petrov','Quilty','Rasmussen','Ruiz','Salvatore','Sandoval','Sarkis',
+    'Sciberras','Sinclair','Tahir','Tran','Vanterpool','Vella','Wickham','Yilmaz','Zanetti'];
+  // The people who come back. Their numbers are the SAME ones tonight's
+  // service uses, because the guest book is keyed on the phone — give a
+  // regular a fresh number here and the desk gets two cards for one person
+  // and neither of them has the history that makes them a regular.
+  var REGULARS = [['Okafor','0455 200 118'], ['Whitfield','0412 118 220'], ['Nguyen T','0413 552 901'],
+    ['Brennan','0400 771 302'], ['Maguire','0477 314 208'], ['Duarte','0432 067 118'],
+    ['Adeyemi','0421 889 043'], ['Sorrell','0466 900 214'], ['Lindqvist','0438 402 771'],
+    ['Vella','0409 655 130']];
+  var NOTES = ['', '', '', '', 'window if you can', 'celebrating', 'early sitting, theatre after',
+    'high chair please', 'quiet corner', 'pram', 'birthday cake at dessert', 'regular — knows the room'];
+  var TAGPOOL = [[], [], [], [], ['Window'], ['Birthday'], ['Anniversary'], ['VIP'], ['Allergy'], ['High chair'], ['Pram'], ['Quiet']];
+  var MONTHDAYS = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+  function seedBook(base) {
+    var raw;
+    try { raw = files[DB_LIVE]; } catch (e) { return; }
+    if (!raw) return;
+    var data;
+    try { data = JSON.parse(raw); } catch (e) { return; }
+
+    var tables = ((data.floorPlans && data.floorPlans[0] && data.floorPlans[0].tables) || [])
+      .filter(function (t) { return t.type !== 'decor'; })
+      .map(function (t) { return { id: t.id, seats: t.seats || 2 }; })
+      .sort(function (a, b) { return a.seats - b.seats; });
+    if (!tables.length) return;
+
+    var r = rng(20260918);
+    var pick = function (a) { return a[Math.floor(r() * a.length) % a.length]; };
+    var num = function (lo, hi) { return lo + Math.floor(r() * (hi - lo + 1)); };
+    var phoneFor = {};
+    REGULARS.forEach(function (x) { phoneFor[x[0]] = x[1]; });
+    var phone = function (name) {
+      if (!phoneFor[name]) {
+        phoneFor[name] = '04' + String(num(10, 99)) + ' ' + String(num(100, 999)) + ' ' + String(num(100, 999));
+      }
+      return phoneFor[name];
+    };
+    // The app's own duration ladder, so a party of eight holds its table for
+    // as long here as it would if the desk had typed it in.
+    var holds = function (n) { return n <= 2 ? 75 : n <= 4 ? 90 : n <= 8 ? 120 : 150; };
+
+    var LUNCH = [11 * 60 + 30, 14 * 60 + 30], DINNER = [17 * 60, 21 * 60 + 30];
+    var byWeekday = [12, 0, 6, 8, 10, 16, 20];   // Sun … Sat. Monday is shut.
+    var rows = [], seq = 0;
+
+    for (var d = -28; d <= 60; d++) {
+      if (d === 0) continue;                      // tonight belongs to seedOn
+      var day = shiftDay(base, d);
+      var wd = new Date(day.slice(0, 4), +day.slice(5, 7) - 1, +day.slice(8, 10)).getDay();
+      var want = byWeekday[wd];
+      if (!want) continue;
+      // Further out, fewer are on the book yet — a diary that is as full in
+      // November as it is next week is not a diary anybody recognises.
+      if (d > 21) want = Math.round(want * 0.55);
+      else if (d > 10) want = Math.round(want * 0.8);
+      var busy = {};                              // tableId -> [[from,to],…]
+      for (var i = 0; i < want; i++) {
+        var lunch = wd !== 6 && r() < 0.3;
+        var win = lunch ? LUNCH : DINNER;
+        var slot = win[0] + num(0, Math.floor((win[1] - win[0] - 30) / 15)) * 15;
+        var party = r() < 0.45 ? 2 : r() < 0.78 ? 4 : r() < 0.93 ? 6 : 8;
+        var mins = holds(party);
+        var name = r() < 0.42 ? pick(REGULARS)[0] : pick(SURNAMES);
+        // The smallest table that fits, and not a six-top for a couple.
+        var tableId = null;
+        for (var t = 0; t < tables.length; t++) {
+          var tb = tables[t];
+          if (tb.seats < party || tb.seats > party + 2) continue;
+          var clash = (busy[tb.id] || []).some(function (b) { return slot < b[1] && b[0] < slot + mins; });
+          if (clash) continue;
+          tableId = tb.id;
+          (busy[tb.id] = busy[tb.id] || []).push([slot, slot + mins]);
+          break;
+        }
+        var status = d < 0
+          ? (r() < 0.86 ? 'done' : r() < 0.5 ? 'no-show' : 'cancelled')
+          : (r() < 0.4 ? 'confirmed' : 'booked');
+        // Booked a few weeks before the night, but never in the future: a
+        // card that says it was made tomorrow is a card nobody believes.
+        var made = Math.min(Date.now() - num(1, 20) * 86400000,
+                            Date.now() + (d - num(3, 30)) * 86400000);
+        rows.push({
+          id: 'rvs' + (++seq), name: name, phone: phone(name), email: '',
+          partySize: party, time: day + 'T' + pad(Math.floor(slot / 60)) + ':' + pad(slot % 60),
+          durationMin: null, tableId: tableId, tableIds: [],
+          status: status, source: r() < 0.28 ? 'online' : 'staff',
+          tags: pick(TAGPOOL).slice(), notes: pick(NOTES), setMenu: null,
+          createdAt: made, updatedAt: made, createdBy: 'Alex (Manager)', events: [],
+          ref: r() < 0.28 ? 'B' + String(num(10000, 99999)) : '',
+        });
+      }
+    }
+
+    // The guest book builds itself from the bookings, the way the app's own
+    // touchGuest does: one card a phone number, counts recomputed rather than
+    // tallied as we go, so they cannot drift from the rows they describe.
+    var guests = {}, gseq = 0;
+    rows.forEach(function (row) {
+      var key = 'p:' + row.phone.replace(/\s+/g, '');
+      var g = guests[key];
+      if (!g) {
+        g = guests[key] = { id: 'gs' + (++gseq), key: key, name: row.name, phone: row.phone, email: '',
+          dob: '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0,
+          firstSeen: row.createdAt, lastSeen: row.createdAt };
+      }
+      g.firstSeen = Math.min(g.firstSeen, row.createdAt);
+      g.lastSeen = Math.max(g.lastSeen, row.createdAt);
+      row.guestId = g.id;
+      if (row.status === 'seated' || row.status === 'done') g.visits++;
+      else if (row.status === 'no-show') g.noShows++;
+      else if (row.status === 'cancelled') g.cancellations++;
+    });
+
+    // Dates of birth on about half the book, and five of them inside the next
+    // fortnight, so the Birthdays lens has something to be about. The year is
+    // left off some of them on purpose: that is how a venue is usually told.
+    var list = Object.keys(guests).map(function (k) { return guests[k]; });
+    var soon = 0;
+    list.forEach(function (g, i) {
+      if (r() < 0.45) return;
+      var when;
+      if (soon < 5 && r() < 0.14) {
+        soon++;
+        var ahead = shiftDay(base, num(0, 13));
+        when = ahead.slice(5);
+      } else {
+        var mo = num(1, 12);
+        when = pad(mo) + '-' + pad(num(1, MONTHDAYS[mo - 1]));
+      }
+      g.dob = (r() < 0.65 ? String(num(1955, 2005)) : '0000') + '-' + when;
+    });
+    // A handful the desk has written on, so the lenses are not all empty.
+    list.slice(0, 40).forEach(function (g) {
+      if (g.visits >= 4 && r() < 0.35) g.tags.push('Regular');
+      if (r() < 0.10) { g.tags.push('VIP'); g.notes = 'Owner knows them. Never the door table.'; }
+      if (r() < 0.08) { g.tags.push('Allergy'); g.notes = 'Coeliac — the kitchen has it on the card.'; }
+    });
+
+    data.reservations = (data.reservations || []).concat(rows);
+    data.guests = (data.guests || []).concat(list);
+    try {
+      files[DB_LIVE] = JSON.stringify(data, null, 2);
+      touch(DB_LIVE); persist(DB_LIVE);
+    } catch (e) {}
+  }
+
   function seedDemo() {
     // The demo sits on the venue's own TRADING day, not on the calendar one.
     // A restaurant's Tuesday runs past midnight, and the desk knows it — so a
     // preview opened at one in the morning must seed the evening the desk is
     // still showing, or it lands a service on a day nobody is looking at.
     seedRoom();
-    return call('GET', '/api/today').then(function (t) { return seedOn((t && t.date) || dayOf(new Date())); });
+    return call('GET', '/api/today').then(function (t) {
+      var base = (t && t.date) || dayOf(new Date());
+      seedBook(base);
+      return seedOn(base);
+    });
   }
 
   function seedOn(base) {
