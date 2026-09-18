@@ -546,6 +546,18 @@ body.book-page #app{display:block;height:auto;}
 .fl-room.loose{aspect-ratio:auto;min-width:0;display:flex;flex-wrap:wrap;gap:8px;padding:8px;}
 .fl-room.loose .fl-table{position:static;width:96px;height:64px;}
 .fl-room.loose .fl-decor{display:none;}
+/* Arranging it. The room is the room — the only differences are that a table
+   says it can be picked up, and that the drawing is a little shorter, because
+   Settings is a column of cards and a full-height plan would push everything
+   under it off the screen. */
+.fl-wrap.arrange{margin:8px 0 12px;}
+.fl-wrap.arrange .fl-room{min-width:420px;}
+.fl-table.arr{cursor:grab;touch-action:none;}
+.fl-table.arr:hover{border-color:var(--plan-ink);}
+.fl-table.arr.lifting{cursor:grabbing;z-index:2;box-shadow:var(--lift-2);opacity:.92;}
+.room-edit{display:grid;grid-template-columns:minmax(0,2fr) minmax(220px,1fr);gap:var(--hub-edge);align-items:start;}
+.room-list{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;}
+@media (max-width:900px){ .room-edit{grid-template-columns:1fr;} .room-list{max-height:none;} }
 
 .fl-table{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;overflow:hidden;
   border:1px solid var(--steel-300);border-radius:var(--r-btn);background:var(--surface);color:var(--charcoal-soft);
@@ -2406,10 +2418,27 @@ const NOTIFY_STATUSES = ['waiting', 'told', 'booked', 'removed'];
 
 // Fallback floor when no POS is linked: the POS's own default tables, same
 // ids, so linking later maps every booking onto the real floor unchanged.
+// The fallback floor is a ROOM, not a list. It carries the POS's own layout
+// maths verbatim — x/y are the CENTRE of a table as a percentage of a 900x560
+// canvas, width/height are percentages of each axis, rotation is degrees — so
+// a venue with no POS gets the same drawing the linked one does, and the same
+// drawing is what Settings arranges. Without geometry the Floor view can only
+// deal the tables out in reading order, and a room that is not the room is
+// worse than no room: a host reads position before they read a number.
+const T = (id, label, seats, x, y, width, height, shape) =>
+  ({ id, label, seats, x, y, width, height, shape: shape || 'rect', rotation: 0 });
+const D = (id, decorType, x, y, width, height) =>
+  ({ id, type: 'decor', decorType, x, y, width, height, rotation: 0 });
 const DEFAULT_TABLES = [
-  { id: 't1', label: '1', seats: 2 }, { id: 't2', label: '2', seats: 2 }, { id: 't3', label: '3', seats: 2 }, { id: 't4', label: '4', seats: 2 },
-  { id: 't5', label: '5', seats: 4 }, { id: 't6', label: '6', seats: 4 }, { id: 't7', label: '7', seats: 4 }, { id: 't8', label: '8', seats: 4 },
-  { id: 't9', label: '9', seats: 6 }, { id: 't10', label: '10', seats: 6 }, { id: 't11', label: '11', seats: 6 },
+  D('w1', '', 50, 2.4, 94, 1.4), D('w2', '', 2.6, 50, 1.2, 94),
+  D('w3', '', 97.4, 50, 1.2, 94), D('w4', '', 50, 97.6, 94, 1.4),
+  D('bar', 'bar', 24, 11, 34, 6), D('pass', 'pass', 79, 10, 24, 5.5),
+  T('t1', '1', 2, 11, 30, 8, 11), T('t2', '2', 2, 11, 48, 8, 11),
+  T('t3', '3', 2, 11, 66, 8, 11), T('t4', '4', 2, 11, 84, 8, 11),
+  T('t5', '5', 4, 36, 34, 12, 15), T('t6', '6', 4, 36, 60, 12, 15),
+  T('t7', '7', 4, 57, 34, 12, 15), T('t8', '8', 4, 57, 60, 12, 15),
+  T('t9', '9', 6, 81, 36, 14, 21, 'circle'), T('t10', '10', 6, 81, 70, 14, 21, 'circle'),
+  T('t11', '11', 6, 40, 86, 20, 10),
 ];
 const DEFAULT_FLOORPLANS = [{ id: 'fp1', name: 'Main', tables: DEFAULT_TABLES }];
 
@@ -4850,13 +4879,61 @@ app.get('/api/tables', (req, res) => {
 });
 
 // Local floor editing — only when no POS holds the floor.
+//
+// THE FLOOR EDITED HERE IS THE FLOOR THE DESK DRAWS. There is one plan, and
+// this route merges into it rather than rebuilding it: a seat count typed in
+// Settings used to come back as `{id,label,seats}` and flatten the whole room
+// — every position, every wall, the bar — so the Floor view fell back to
+// dealing the tables out in reading order and the room a host had arranged was
+// gone. Geometry is kept off the stored table unless the caller sends its own,
+// and decor (walls, the bar, the pass) is never something the list can touch.
+const NUM = (v, lo, hi, fallback) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : fallback;
+};
+// A table nobody has placed goes where there is room: down the grid in reading
+// order, which is what the Floor view would have done with it anyway.
+function freeSpot(taken) {
+  for (let row = 0; row < 6; row++) {
+    for (let col = 0; col < 6; col++) {
+      const x = 14 + col * 14.5, y = 20 + row * 13;
+      if (!taken.some(t => Math.abs((t.x ?? -99) - x) < 7 && Math.abs((t.y ?? -99) - y) < 7)) return { x, y };
+    }
+  }
+  return { x: 50, y: 50 };
+}
 app.put('/api/tables', async (req, res) => {
   const data = readData();
   if (pos.ready(data.settings.pos) && data.settings.pos.useFloor !== false) return res.status(400).json({ error: 'Tables come from the POS while it is linked. Edit them there.' });
   const list = Array.isArray(req.body && req.body.tables) ? req.body.tables : [];
-  const tables = list.slice(0, 200).map((t, i) => ({ id: t.id || newId('t'), label: String(t.label || (i + 1)).slice(0, 8), seats: Math.max(1, Math.min(40, parseInt(t.seats) || 2)), type: 'table' }));
+  const plan = data.floorPlans[0] || { id: 'fp1', name: 'Main', tables: [] };
+  const was = new Map((plan.tables || []).map(t => [t.id, t]));
+  const decor = (plan.tables || []).filter(t => t.type === 'decor');
+  const placed = [];
+  const tables = list.slice(0, 200).map((t, i) => {
+    const old = was.get(t.id) || {};
+    const next = Object.assign({}, old, {
+      id: t.id || newId('t'),
+      label: String(t.label || (i + 1)).slice(0, 8),
+      seats: Math.max(1, Math.min(40, parseInt(t.seats) || 2)),
+      type: 'table',
+    });
+    // Only what the caller actually sent moves. A Settings list that carries
+    // no geometry leaves the room exactly where the host dragged it.
+    if (t.x !== undefined) next.x = NUM(t.x, 0, 100, old.x);
+    if (t.y !== undefined) next.y = NUM(t.y, 0, 100, old.y);
+    if (t.width !== undefined) next.width = NUM(t.width, 1, 100, old.width);
+    if (t.height !== undefined) next.height = NUM(t.height, 1, 100, old.height);
+    if (t.rotation !== undefined) next.rotation = NUM(t.rotation, -360, 360, old.rotation || 0);
+    if (t.shape !== undefined) next.shape = t.shape === 'circle' ? 'circle' : 'rect';
+    if (next.width === undefined) { next.width = next.seats > 4 ? 14 : next.seats > 2 ? 12 : 8; }
+    if (next.height === undefined) { next.height = next.seats > 4 ? 18 : next.seats > 2 ? 15 : 11; }
+    if (next.x === undefined || next.y === undefined) Object.assign(next, freeSpot(placed.concat(decor)));
+    placed.push(next);
+    return next;
+  });
   if (!tables.length) return res.status(400).json({ error: 'Keep at least one table' });
-  data.floorPlans = [{ id: 'fp1', name: 'Main', tables }];
+  data.floorPlans = [Object.assign({}, plan, { id: plan.id || 'fp1', name: plan.name || 'Main', tables: decor.concat(tables) })];
   logAudit(data, staffFromReq(req), `Updated tables (${tables.length})`);
   writeData(data);
   res.json({ tables: tablesOf(data) });
@@ -6828,6 +6905,81 @@ function renderFloor() {
   <div class="ts" style="margin-top:8px;">Tap a free table to book it at ${esc(fmtHHMM(at))}. Tap a taken one to open the booking. Drag the slider to see the room later tonight.</div>`;
 }
 
+// §§ Arranging the room
+// ONE floor plan, drawn twice. This is the same `.fl-room` the Service view
+// draws, with the same decor, the same geometry and the same chairs — only
+// the states and the bookings are left off, because nothing is booked in
+// Settings. Drawing it any other way would be a second picture of the room,
+// and a second picture drifts.
+function renderArrange() {
+  const plan = (state.floorPlans || [])[0];
+  const list = (plan && plan.tables) || [];
+  if (!list.length) return '<div class="ts">No tables yet.</div>';
+  const el = (t) => {
+    if (t.type === 'decor' || t.kind === 'decor') {
+      return `<div class="fl-decor" style="${placeStyle(t)}" aria-hidden="true">${t.decorType ? `<span style="${uprightStyle(t)}">${esc(String(t.decorType).replace(/-/g, ' '))}</span>` : ''}</div>`;
+    }
+    return `<button class="fl-table free arr${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}"
+      data-arrange="${esc(t.id)}" title="Table ${esc(t.label)} \u00b7 ${esc(String(t.seats))} seats \u2014 drag to move">
+      ${seatRing(t)}
+      <span class="fl-in" style="${uprightStyle(t)}">
+        <span class="fl-no">${esc(t.label)}</span>
+        <span class="fl-sub">${esc(String(t.seats))} seats</span>
+      </span>
+    </button>`;
+  };
+  return `<div class="fl-wrap arrange"><div class="fl-room">${list.map(el).join('')}</div></div>`;
+}
+
+// The drag. Hand-applied to the element under the pointer and never rendered
+// mid-move — the same law the timeline drag obeys, and for the same reason: a
+// render would destroy the node the finger is holding.
+let arrDrag = null;
+function startArrange(e, el, id) {
+  const room = el.closest('.fl-room');
+  const box = room.getBoundingClientRect();
+  const t = ((state.floorPlans[0] || {}).tables || []).find(x => x.id === id);
+  if (!t || !box.width || !box.height) return;
+  arrDrag = { id, el, box, t, x0: e.clientX, y0: e.clientY, sx: Number(t.x), sy: Number(t.y), x: Number(t.x), y: Number(t.y), moved: false };
+  el.setPointerCapture(e.pointerId);
+  el.classList.add('lifting');
+  e.preventDefault();
+}
+function moveArrange(e) {
+  const d = arrDrag; if (!d) return;
+  const dx = (e.clientX - d.x0) / d.box.width * 100;
+  const dy = (e.clientY - d.y0) / d.box.height * 100;
+  if (!d.moved && Math.abs(e.clientX - d.x0) + Math.abs(e.clientY - d.y0) < 4) return;
+  d.moved = true;
+  // Half a table in from every wall, so a table can never be dragged to a
+  // place it could not stand: the room's edge is the room's edge.
+  const halfW = (Number(d.t.width) || 8) / 2, halfH = (Number(d.t.height) || 11) / 2;
+  d.x = Math.max(halfW, Math.min(100 - halfW, d.sx + dx));
+  d.y = Math.max(halfH, Math.min(100 - halfH, d.sy + dy));
+  d.el.style.left = d.x.toFixed(1) + '%';
+  d.el.style.top = d.y.toFixed(1) + '%';
+}
+async function endArrange() {
+  const d = arrDrag; arrDrag = null;
+  if (!d) return;
+  d.el.classList.remove('lifting');
+  if (!d.moved) return;
+  d.t.x = Math.round(d.x * 10) / 10;
+  d.t.y = Math.round(d.y * 10) / 10;
+  // The list is what the route takes, so the moved table carries its new
+  // place on it. Every other row sends no geometry and so moves nothing.
+  const row = state.tables.find(x => x.id === d.id);
+  if (row) { row.x = d.t.x; row.y = d.t.y; }
+  render();
+  try {
+    const r = await put('/api/tables', { tables: state.tables });
+    state.tables = r.tables;
+    const t = await api('/api/tables');
+    state.tables = t.tables; state.floorPlans = t.floorPlans;
+  } catch (e) { toast(e.message); }
+  render();
+}
+
 function seatRing(t) {
   const n = Math.max(0, Math.min(24, Number(t.seats) || 0));
   if (!n) return '';
@@ -7506,11 +7658,16 @@ function renderSettings() {
       <label class="toggle-row">${switchHtml(!!s.online.notifyList, 'set-toggle', 'online.notifyList')} Offer a notify list when a day is full</label>
       <div class="inline" style="margin-top:8px;"><img class="qr" src="/connect.svg?to=book&host=${encodeURIComponent(origin)}" alt="QR code for the booking page"><div class="ts">Print this for the door or the counter. Guests scan it to book. It points at this computer's address, so it works on the venue wifi; a public address needs the router to forward it.</div></div>
     </div>
-    ${linkedFloor ? '' : `<div class="settings-card">
-      <div class="th">Tables</div>
-      <div class="ts">No POS floor is linked, so tables live here. Numbers and seats only — link the POS to get the real floor.</div>
-      ${state.tables.map((t, i) => `<div class="inline"><span class="ts">Table</span><input type="text" value="${esc(t.label)}" data-field="tables.${i}.label" data-save="tables" style="width:72px;" aria-label="Table number"><span class="ts">seats</span><input type="number" min="1" value="${t.seats}" data-field="tables.${i}.seats" data-save="tables" style="width:72px;" aria-label="Seats"><button class="chip sq" data-act="table-remove" data-i="${i}" aria-label="Remove table">${I.cross}</button></div>`).join('')}
-      <div><button class="btn" data-act="table-add">${I.plus} Add a table</button></div>
+    ${linkedFloor ? '' : `<div class="settings-card wide">
+      <div class="th">The room</div>
+      <div class="ts">No POS floor is linked, so the floor lives here \u2014 and this IS the floor Service draws, the same drawing with the bookings left off. Drag a table to move it: the room a host reads tonight is the room you arrange now.</div>
+      <div class="room-edit">
+        ${renderArrange()}
+        <div class="room-list">
+          ${state.tables.map((t, i) => `<div class="inline"><span class="ts">Table</span><input type="text" value="${esc(t.label)}" data-field="tables.${i}.label" data-save="tables" style="width:64px;" aria-label="Table number"><span class="ts">seats</span><input type="number" min="1" value="${t.seats}" data-field="tables.${i}.seats" data-save="tables" style="width:64px;" aria-label="Seats"><button class="chip sq" data-act="table-remove" data-i="${i}" aria-label="Remove table ${esc(t.label)}">${I.cross}</button></div>`).join('')}
+          <div><button class="btn" data-act="table-add">${I.plus} Add a table</button></div>
+        </div>
+      </div>
     </div>`}
     <div class="settings-card">
       <div class="th">Colours</div>
@@ -8468,7 +8625,12 @@ function tlPreview(r, tableId, min) {
 document.addEventListener('pointerdown', (e) => {
   if (e.isPrimary === false) return;                                   // a pinch is never a drag
   if (e.pointerType === 'mouse' && e.button !== 0) return;
-  if (tlDrag || state.modal || !state.settings) return;
+  if (tlDrag || arrDrag || state.modal || !state.settings) return;
+  // Arranging the room. Not passive: a table has to be able to swallow the
+  // scroll, or on a tablet the page moves under the finger instead of the
+  // table.
+  const arr = e.target.closest && e.target.closest('[data-arrange]');
+  if (arr) { startArrange(e, arr, arr.dataset.arrange); return; }
   if (state.view !== 'today' || state.todayMode !== 'timeline') return;
   const el = e.target.closest && e.target.closest('.tl-block');
   if (!el) return;
@@ -8476,7 +8638,10 @@ document.addEventListener('pointerdown', (e) => {
   if (!r) return;
   if (!el.classList.contains('movable')) { tlRefuse(e); return; }
   startTlDrag(e, el, r);
-}, { passive: true });
+});
+document.addEventListener('pointermove', moveArrange);
+document.addEventListener('pointerup', endArrange);
+document.addEventListener('pointercancel', endArrange);
 
 // A block the floor owns, or a joined booking's shadow on a second lane:
 // nothing lifts, but a hold says why rather than feeling broken. The drop
