@@ -114,8 +114,12 @@ h1,h2,h3{margin:0;}
    body, ONE hairline down its edge. Chosen is a pale accent block with accent
    ink; unchosen has no body at all. A solid accent fill is the deck's
    language and never appears here. */
-.rail{width:104px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--steel-200);
-  overflow-y:auto;padding:var(--deck-pad) 0;display:flex;flex-direction:column;}
+/* 88, not 104. A rail tile is a square, so its WIDTH is what sets how many
+   fit down a laptop: at 104 the nine tiles of Service came to 936 and Settings
+   fell off the end of an 880 screen. 88 puts the whole app on the rail with no
+   scroll at all, and is still twice the finger law. */
+.rail{width:88px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--steel-200);
+  overflow:hidden;padding:var(--deck-pad) 0;display:flex;flex-direction:column;}
 .rail-btn{width:100%;aspect-ratio:1;background:none;border:none;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   padding:8px 4px;color:var(--charcoal-soft);font-size:var(--fs-chip);font-weight:700;
@@ -156,10 +160,15 @@ h1,h2,h3{margin:0;}
 .deck-spacer{flex:1;}
 .deck-sq{width:var(--tap);height:var(--tap);min-width:var(--tap);border-radius:var(--r-control);border:1px solid var(--deck-chip-line);background:var(--deck-chip-bg);color:var(--deck-chip-ink);display:inline-flex;align-items:center;justify-content:center;}
 .deck-sq svg,.deck-sq .sys-i{width:20px;height:20px;}
-.staff-badge{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 10px;
-  border:none;border-radius:var(--r-btn);background:none;font-weight:700;color:var(--deck-chip-ink);
+/* The two keys that make something: a walk-in and a booking. Both say what
+   they are on a desk and fall back to the icon alone on a phone, where the
+   bar has the date to carry as well. */
+.deck-key{display:inline-flex;align-items:center;gap:8px;height:var(--tap);min-height:var(--tap);
+  padding:0 14px;border-radius:var(--r-control);border:1px solid var(--deck-chip-line);
+  background:var(--deck-chip-bg);color:var(--deck-chip-ink);font-weight:700;font-size:var(--fs-md);
   white-space:nowrap;cursor:pointer;}
-.staff-badge:hover{background:var(--steel-200);}
+.deck-key:hover{background:var(--steel-200);}
+.deck-key svg{width:20px;height:20px;flex:0 0 20px;}
 .deck-dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none;}
 .deck-dot.off{background:var(--red);}
 .deck-dot.warn{background:var(--gold);}
@@ -167,10 +176,9 @@ h1,h2,h3{margin:0;}
    stops fitting long before a phone does. A tablet in PORTRAIT is where it
    first bites: at 820 the row overflowed and "Settings" was the half off the
    end — on a manager's tablet, the one tab they need is the one they cannot
-   see. So the squeeze comes in stages, and the name goes last because on a
-   shared front desk it matters who is signed in. */
+   see. So the squeeze comes in stages. */
 @media (max-width:1100px){ .tab-btn{min-width:0;flex:none;padding:8px 10px;} }
-@media (max-width:900px){ .staff-badge .name{display:none;} }
+@media (max-width:1000px){ .deck-key{padding:0;width:var(--tap);min-width:var(--tap);justify-content:center;} .dk-t{display:none;} }
 /* And when it still does not fit — a long count on Waitlist, a narrow phone —
    nothing is ever sliced: the row fades at the cut end so a half-shown tab
    reads as "more this way" rather than a broken word. The POS's nav law. */
@@ -807,8 +815,13 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    everything gets shorter. */
 @media (min-width:761px) and (max-height:520px){
   .topbar{min-height:48px;padding:4px 12px;}
-  .deck-sq,.deck-chip,.staff-badge{min-height:38px;height:38px;}
+  .deck-sq,.deck-chip,.deck-key{min-height:38px;height:38px;}
   .rail{width:78px;}
+  /* 393 pixels of height hold five tiles, not nine, so holding the places
+     still while the sections scroll inside 78 of them helps nobody: here the
+     whole rail scrolls as one, sections first. */
+  .rail{overflow-y:auto;}
+  .rail-secs{flex:none;overflow:visible;}
   .rail-btn{aspect-ratio:auto;min-height:50px;gap:1px;padding:4px 2px;}
   .rail-ico svg{width:20px;height:20px;}
   .rail-label{font-size:9px;line-height:1.1;}
@@ -816,10 +829,22 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .desk-col{flex:0 0 300px;width:auto;max-height:calc(100vh - 58px);overflow-y:auto;}
 }
 
-/* The rail now carries the whole app: what you are looking at above the rule,
-   the sections of it below. One hairline is the only thing between them —
-   the POS's Border law, and all the separation two groups need. */
+/* The rail carries the whole app: the SECTIONS of what you are looking at
+   above the rule, and below it the five places you can go. One hairline is
+   all the separation two groups need — the POS's Border law.
+
+   The sections are on top because the top of the rail is where the thumb
+   lands and the floor is what a host comes back to forty times a shift; the
+   places are at the foot because they are a journey, not a flick.
+
+   Nine square tiles do not fit a laptop, so ONE of the two groups has to give.
+   It is the sections: they vary (four on Service, six on the guest book) and
+   whichever you want is near the top, while the five places must be reachable
+   at all times — Settings falling off the end of a scroll is how a desk loses
+   its way back. So the sections scroll and the places never move. */
 .rail-rule{height:1px;background:var(--steel-200);margin:8px 12px;flex:none;}
+.rail-secs{flex:1 1 auto;min-height:0;overflow-y:auto;}
+.rail-modes{flex:none;}
 
 /* The top bar is the night you are working on, and the keys that belong to no
    one screen. Tapping the date opens the month. */
@@ -914,6 +939,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     border-right:none;border-top:1px solid var(--steel-300);background:var(--surface);
     z-index:var(--z-panel);overflow:visible;box-shadow:var(--lift-1);}
   .rail-secs,.rail-rule{display:none;}
+  /* The thumb bar is one row of five: the modes must be flex children of
+     the bar itself, not of a box inside it, or `flex:1` divides nothing. */
+  .rail-modes{display:contents;}
   .rail .rail-btn{flex:1;aspect-ratio:auto;min-height:64px;gap:2px;padding:6px 2px;}
   .rail .rail-ico svg{width:22px;height:22px;}
   .rail .rail-label{font-size:9.5px;letter-spacing:0;}
@@ -945,7 +973,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-find .chip.sq{flex:none;min-height:34px;width:34px;}
 </style>
 <div id="app">Loading…</div>
-<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useStaff\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"staff\": [\n    {\n      \"id\": \"st1\",\n      \"name\": \"Alex (Manager)\",\n      \"pin\": \"1234\",\n      \"role\": \"manager\"\n    },\n    {\n      \"id\": \"st2\",\n      \"name\": \"Jamie\",\n      \"pin\": \"2222\",\n      \"role\": \"staff\"\n    },\n    {\n      \"id\": \"st3\",\n      \"name\": \"Sam\",\n      \"pin\": \"3333\",\n      \"role\": \"staff\"\n    }\n  ],\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}";window.__RESV_SEED_HASH__ = "2e63f256897b87b09c1216b9b1972ddfd67ce8ef";window.__RESV_IS_BOOK__ = false;</script>
+<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "0d109bbd89554805310a037fb3df774e3fd22c26";window.__RESV_IS_BOOK__ = false;</script>
 <script>(function () {
   'use strict';
   // preview/shim.js — the front desk, running with no server.
@@ -1354,7 +1382,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     return dayOf(d);
   }
   function call(method, url, body) {
-    return dispatchRaw(method, url, body || null, { 'X-Staff-Name': 'Alex (Manager)', 'X-Staff-Pin': '1234' })
+    return dispatchRaw(method, url, body || null, {})
       .then(function (r) { return r.json().catch(function () { return {}; }); });
   }
   function book(o) { return call('POST', '/api/reservations', o); }
@@ -1500,7 +1528,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
           durationMin: null, tableId: tableId, tableIds: [],
           status: status, source: r() < 0.28 ? 'online' : 'staff',
           tags: pick(TAGPOOL).slice(), notes: pick(NOTES), setMenu: null,
-          createdAt: made, updatedAt: made, createdBy: 'Alex (Manager)', events: [],
+          createdAt: made, updatedAt: made, createdBy: 'The desk', events: [],
           ref: r() < 0.28 ? 'B' + String(num(10000, 99999)) : '',
         });
       }
@@ -2028,7 +2056,6 @@ const getVersion = (c) => request(c, 'GET', '/api/version');
 const getSettings = (c) => request(c, 'GET', '/api/settings');
 const getTheme = (c) => request(c, 'GET', '/api/theme');
 const getFloorPlans = (c) => request(c, 'GET', '/api/floorplans');
-const getStaff = (c) => request(c, 'GET', '/api/staff');
 // The POS's set menus. Read only, always — nothing in this app ever POSTs,
 // PUTs or DELETEs a POS combo; the till owns its own menu.
 const getCombos = (c) => request(c, 'GET', '/api/combos');
@@ -2197,7 +2224,6 @@ function streamOrders(config, opts) {
 }
 // The POS answers { id, name, role } for a good PIN and 401 for a bad one.
 // force:true skips the POS's "still typing?" hold — we send whole PINs.
-const verifyPin = (c, pin) => request(c, 'POST', '/api/staff/verify-pin', { pin, force: true });
 
 // ---------- mapping ----------
 
@@ -2334,8 +2360,8 @@ function menusFromCombos(list) {
 }
 
 module.exports = {
-  request, ready, testConnection, getVersion, getSettings, getTheme, getFloorPlans, getStaff, getReservations,
-  createReservation, updateReservation, deleteReservation, verifyPin, getCombos, menusFromCombos,
+  request, ready, testConnection, getVersion, getSettings, getTheme, getFloorPlans, getReservations,
+  createReservation, updateReservation, deleteReservation, getCombos, menusFromCombos,
   streamOrders, countable, dayStamp, MAX_ORDER_ROWS, MAX_ORDER_BYTES, ORDER_DEADLINE_MS, OLD_RUN,
   posStatus, toPos, plainText, posNotes, fieldsOf, hashOf, splitNotes, orderNet, slimOrder, STAFF_NAME,
 };
@@ -2377,15 +2403,6 @@ const TAGS = ['VIP', 'Birthday', 'Anniversary', 'Allergy', 'Pram', 'Wheelchair',
 // 'booked' and 'removed' are dead. Expiry is NOT a status: an entry whose
 // date has passed is simply not live, read-time, with nothing written.
 const NOTIFY_STATUSES = ['waiting', 'told', 'booked', 'removed'];
-
-// Fallback staff — the POS's own defaults, so a venue that links the POS
-// later has been using the same PINs all along. When the POS link is on,
-// PINs are checked against the POS and this list is only the offline fallback.
-const DEFAULT_STAFF = [
-  { id: 'st1', name: 'Alex (Manager)', pin: '1234', role: 'manager' },
-  { id: 'st2', name: 'Jamie', pin: '2222', role: 'staff' },
-  { id: 'st3', name: 'Sam', pin: '3333', role: 'staff' },
-];
 
 // Fallback floor when no POS is linked: the POS's own default tables, same
 // ids, so linking later maps every booking onto the real floor unchanged.
@@ -2441,21 +2458,19 @@ const DEFAULT_SETTINGS = {
   // order is ever fetched from the till, and no money is shown anywhere.
   // `useMenus` off means the desk's set menus are the local `setMenus` list
   // below, even while the POS is linked.
-  pos: { enabled: false, baseUrl: '', pushBookings: true, pullStatus: true, useStaff: true, useFloor: true, useOrders: true, useMenus: true },
+  pos: { enabled: false, baseUrl: '', pushBookings: true, pullStatus: true, useFloor: true, useOrders: true, useMenus: true },
 };
 
 const DEFAULT_DATA = {
   settings: DEFAULT_SETTINGS,
-  staff: DEFAULT_STAFF,
   floorPlans: DEFAULT_FLOORPLANS, // replaced by the POS's when linked
   // The venue's own set menus — "Christmas menu", the eight-course tasting —
-  // as [{ id: 'sm…', name }]. The same standing `staff` has against the POS's
-  // staff list: this is the fallback the desk edits in Settings, and the POS's
-  // own combos win whenever the link is on (see `posCombos`).
+  // as [{ id: 'sm…', name }]: the fallback the desk edits in Settings, with
+  // the POS's own combos winning whenever the link is on (see `posCombos`).
   setMenus: [],
   // The POS's set menus (its combos), cached on the last moved pass, as
-  // [{ id: 'c…', name }]. Declared here — unlike the older `posStaff` and
-  // `posSettings` caches — so /api/set-menus can read it without a branch.
+  // [{ id: 'c…', name }]. Declared here — unlike the older `posSettings`
+  // cache — so /api/set-menus can read it without a branch.
   posCombos: [],
   theme: { accent: '#3692E7', mode: 'auto' },
   reservations: [],
@@ -2535,6 +2550,10 @@ function migrate(data) {
   // a hand-edited or half-written file that has the key but not an array.
   if (!Array.isArray(s.exceptions)) s.exceptions = [];
   if (!s.statusColours || typeof s.statusColours !== 'object' || Array.isArray(s.statusColours)) s.statusColours = {};
+  // The desk has no users any more — no sign-in, no PIN, nobody to pick. An
+  // older store still carries the list, and a PIN that nothing checks is only
+  // a credential waiting to leak, so it goes on the first read after update.
+  delete data.staff; delete data.posStaff; delete s.pos.useStaff;
   for (const g of data.guests) {
     if (g.dob === undefined) g.dob = '';
     if (!Array.isArray(g.tags)) g.tags = [];
@@ -4663,7 +4682,12 @@ app.get('/book', (req, res) => res.sendFile(path.join(__dirname, 'public', 'book
 
 
 // ---------- who did it ----------
-function staffFromReq(req) { return req.get('X-Staff-Name') || 'Unknown'; }
+// Every hand at this desk is the same hand. There is no sign-in, no PIN and
+// nobody to pick: the tablet lives in the venue behind the venue's own lock,
+// and a name typed by whoever walked past is a record of nothing. What the
+// history and the audit want is WHERE a change came from — the desk, the
+// online form, or the till — and that they still get.
+function staffFromReq() { return 'The desk'; }
 function logAudit(data, staffName, action) {
   if (!data.auditLog) data.auditLog = [];
   data.auditLog.unshift({ id: newId('a'), timestamp: Date.now(), staffName, action });
@@ -4695,36 +4719,6 @@ function tradingDay(data, d) {
   if (d.getHours() < h) d = new Date(d.getTime() - 24 * 3600000);
   return av.localDay(d);
 }
-
-// ---------- staff ----------
-app.get('/api/staff', (req, res) => {
-  const data = readData();
-  const list = (data.posStaff && data.posStaff.length ? data.posStaff : data.staff).map(({ id, name, role }) => ({ id, name, role }));
-  res.json(list);
-});
-
-app.post('/api/staff', async (req, res) => {
-  const data = readData();
-  const { name, pin, role } = req.body || {};
-  if (!name || !String(name).trim() || !/^\d{4,8}$/.test(String(pin || ''))) return res.status(400).json({ error: 'Name and a PIN of 4 to 8 digits are required' });
-  if (data.staff.some(s => s.pin === pin)) return res.status(400).json({ error: 'That PIN is already in use' });
-  const st = { id: newId('st'), name: String(name).trim(), pin: String(pin), role: role === 'manager' ? 'manager' : 'staff' };
-  data.staff.push(st);
-  logAudit(data, staffFromReq(req), `Added staff member: ${st.name}`);
-  writeData(data);
-  res.json({ id: st.id, name: st.name, role: st.role });
-});
-
-app.delete('/api/staff/:id', async (req, res) => {
-  const data = readData();
-  const st = data.staff.find(s => s.id === req.params.id);
-  if (!st) return res.status(404).json({ error: 'Staff member not found' });
-  if (data.staff.filter(s => s.role === 'manager').length <= 1 && st.role === 'manager') return res.status(400).json({ error: 'Keep at least one manager' });
-  data.staff = data.staff.filter(s => s.id !== st.id);
-  logAudit(data, staffFromReq(req), `Removed staff member: ${st.name}`);
-  writeData(data);
-  res.json({ ok: true });
-});
 
 // ---------- settings, theme, tables ----------
 function safeSettings(data) {
@@ -4815,7 +4809,7 @@ app.put('/api/settings', async (req, res) => {
     const p = b.pos;
     if (p.baseUrl !== undefined) s.pos.baseUrl = String(p.baseUrl || '').trim().replace(/\/+$/, '').slice(0, 120);
     if (p.enabled !== undefined) s.pos.enabled = !!p.enabled;
-    for (const k of ['pushBookings', 'pullStatus', 'useStaff', 'useFloor', 'useOrders', 'useMenus']) if (p[k] !== undefined) s.pos[k] = !!p[k];
+    for (const k of ['pushBookings', 'pullStatus', 'useFloor', 'useOrders', 'useMenus']) if (p[k] !== undefined) s.pos[k] = !!p[k];
   }
   logAudit(data, staffFromReq(req), 'Updated settings');
   writeData(data);
@@ -5842,20 +5836,18 @@ async function posPass(force) {
     }
     const moved = force || !data.posState.version || data.posState.version.store !== version.store;
     if (moved) {
-      const [floorPlans, settings, theme, staff, combos] = await Promise.all([
+      const [floorPlans, settings, theme, combos] = await Promise.all([
         cfg.useFloor !== false ? pos.getFloorPlans(cfg).catch(() => null) : null,
         pos.getSettings(cfg).catch(() => null),
         pos.getTheme(cfg).catch(() => null),
-        cfg.useStaff !== false ? pos.getStaff(cfg).catch(() => null) : null,
         cfg.useMenus !== false ? pos.getCombos(cfg).catch(() => null) : null,
       ]);
       data = readData();
       if (Array.isArray(floorPlans) && floorPlans.length) data.floorPlans = floorPlans;
       if (settings) data.posSettings = { venueName: settings.venueName || '', venueAddress: settings.venueAddress || '', seatingMinutes: settings.seatingMinutes || null, dayStartsAt: settings.dayStartsAt, coversEnabled: !!settings.coversEnabled };
       if (theme && theme.accent) data.theme = { accent: theme.accent, mode: theme.mode || 'auto' };
-      if (Array.isArray(staff)) data.posStaff = staff.map(({ id, name, role }) => ({ id, name, role }));
-      // Guarded like `staff`: a POS that 404s /api/combos, or answers oddly,
-      // leaves the last good list in place rather than wiping the picker.
+      // Guarded: a POS that 404s /api/combos, or answers oddly, leaves the
+      // last good list in place rather than wiping the picker.
       if (Array.isArray(combos)) data.posCombos = pos.menusFromCombos(combos);
       writeData(data);
     }
@@ -6069,8 +6061,8 @@ const state = {
   // A NAME, not a credential. There is nothing to unlock: the desk has no
   // door and Settings has no PIN — what guards this app is the front door of
   // the restaurant it is standing in.
-  staff: null, online: true,
-  settings: null, theme: { accent: '#2F74C9', mode: 'auto' }, tables: [], floorPlans: [], staffList: [], posStatus: null,
+  online: true,
+  settings: null, theme: { accent: '#2F74C9', mode: 'auto' }, tables: [], floorPlans: [], posStatus: null,
   // The set menus the desk can pick from, and whether they are the POS's own
   // combos (which makes the Settings card read-only, as the Staff card is).
   setMenus: [], setMenusFromPos: false,
@@ -6342,12 +6334,11 @@ function sinceLabel(ts) {
 function toast(msg, ms) { state.toast = msg; render(); clearTimeout(_toastTimer); _toastTimer = setTimeout(() => { state.toast = ''; render(); }, ms || 2600); }
 function typingInField() { const el = document.activeElement; return !!el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !['checkbox', 'radio', 'date'].includes(el.type))); }
 
-// §§ API — one wrapper, staff headers on every call, offline flag on failure
+// §§ API — one wrapper, offline flag on failure
 async function api(path, opts) {
   opts = opts || {};
   opts.headers = Object.assign({}, opts.headers);
   if (opts.body && !opts.headers['Content-Type']) opts.headers['Content-Type'] = 'application/json';
-  if (state.staff) opts.headers['X-Staff-Name'] = state.staff.name;
   let res;
   try { res = await fetch(path, opts); } catch (e) { state.online = false; throw new Error('Could not reach the server'); }
   state.online = true;
@@ -6424,7 +6415,7 @@ async function loadView() {
   else if (state.view === 'waitlist') { state.waitlist = await api('/api/waitlist'); state.today = await api('/api/today'); }
   else if (state.view === 'notify') { state.notify = await api('/api/notify'); state.today = await api('/api/today'); }
   else if (state.view === 'guests') await loadGuests();
-  else if (state.view === 'settings') { state.posStatus = await api('/api/pos/status'); state.staffList = await api('/api/staff'); state.audit = await api('/api/audit'); }
+  else if (state.view === 'settings') { state.posStatus = await api('/api/pos/status'); state.audit = await api('/api/audit'); }
 }
 // The month behind the calendar popup. Its own loader, because the calendar
 // is no longer a view — it opens over whatever you were looking at.
@@ -6438,14 +6429,6 @@ async function refreshAll() {
 }
 async function setView(v) { state.view = v; render(); try { await loadView(); } catch (e) {} render(); }
 
-// §§ Who's on
-// Remembered in localStorage, not sessionStorage: a tablet that goes to sleep
-// and wakes at eight should not ask again. It is a name, not a credential —
-// nothing is unlocked by it, so nothing is lost by keeping it.
-function rememberWho(st) {
-  state.staff = st;
-  try { if (st) localStorage.setItem('resv-who', JSON.stringify(st)); else localStorage.removeItem('resv-who'); } catch (e) {}
-}
 // §§ Render
 function render() {
   // NEVER rebuild the DOM while a block is being dragged: it destroys the
@@ -6508,29 +6491,6 @@ function tlOpenAt(el) {
   el.scrollLeft = Math.max(0, (at - start - 30) * PX_PER_MIN);
 }
 
-// §§ Who's on, and the manager's PIN
-// There is no door any more. The tablet lives in the venue, behind the
-// venue's own lock, and a PIN typed forty times a shift protects nothing that
-// the front door does not already protect. What a name IS for is the record:
-// who took the booking, who moved it, who signed the run sheet. So the desk
-// asks who is on — a tap, no code — and remembers it.
-//
-// The one code left is the manager's, and it guards the one thing worth
-// guarding: Settings. It is checked on the server (managerFromReq), so this
-// popup is the way to hand it over, not the thing that decides.
-function renderWhoModal() {
-  const list = state.staffList || [];
-  return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1">
-    <h2>Who is on?</h2>
-    <div class="ts">The name goes on every booking taken from this screen, and on the run sheet. No code — tap yours.</div>
-    <div class="bk-pick" style="margin-top:12px;">${list.map(st => `<button class="bk-opt${state.staff && state.staff.id === st.id ? ' on' : ''}" data-act="who-pick" data-id="${esc(st.id)}">
-      <span class="bk-opt-text"><b>${esc(st.name)}</b><span>${esc(st.role === 'manager' ? 'Manager' : st.role === 'trainee' ? 'Trainee' : 'Staff')}</span></span>
-      ${state.staff && state.staff.id === st.id ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
-    </button>`).join('') || '<div class="ts">No staff yet. A manager adds them in Settings.</div>'}</div>
-    <div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Close</span></button></div>
-  </div></div>`;
-}
-
 // §§ Rail — the sections of the panel you are in
 // Borrowed whole from the POS's order panel, where the categories stand in a
 // column down the left of the till. The deck across the top is the app's
@@ -6589,6 +6549,11 @@ function railTile(key, label, icon, n, on, act) {
     ${n == null ? '' : `<span class="rail-n" data-zero="${n ? '0' : '1'}">${n}</span>`}
   </button>`;
 }
+// The SECTIONS come first and the modes below them, because the top of the
+// rail is where the thumb lands and the floor is what a host switches back to
+// forty times a shift. Waitlist, Guests and Settings are places you visit;
+// Floor, Timeline and Flow are the thing you are doing. Visits go under the
+// rule.
 function renderRail() {
   const modes = modeItems().map(([k, label, icon, n]) =>
     railTile(k, label, icon, n || null, state.view === k, 'view')).join('');
@@ -6599,11 +6564,11 @@ function renderRail() {
     // Only the guest book carries counts. `null` is not `undefined`, and the
     // difference printed the word "null" under every tile on Today.
     const counts = state.view === 'guests' ? (state.guestCounts || {}) : null;
-    parts = '<div class="rail-rule"></div>' + rail.items.map(([k, label, icon]) =>
-      railTile(k, label, icon, counts ? counts[k] : null, now === k, 'mode')).join('');
-    parts = `<div class="rail-secs">${parts}</div>`;
+    parts = `<div class="rail-secs">${rail.items.map(([k, label, icon]) =>
+      railTile(k, label, icon, counts ? counts[k] : null, now === k, 'mode')).join('')}</div>`
+      + '<div class="rail-rule"></div>';
   }
-  return `<nav class="rail" aria-label="Sections">${modes}${parts}</nav>`;
+  return `<nav class="rail" aria-label="Sections">${parts}<div class="rail-modes">${modes}</div></nav>`;
 }
 
 // "Lunch 11:30–2:30 · Dinner 5:00–9:30" — the windows this day actually
@@ -6645,9 +6610,9 @@ function renderDeck() {
     </div>
     <div class="deck-spacer"></div>
     ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
-    <button class="deck-sq" data-act="new-booking" aria-label="New booking" title="New booking">${I.plus}</button>
-    <button class="staff-badge wide-only" data-act="open-who" title="${esc(title)} \u00b7 tap to change who is on"><span class="deck-dot ${dot}"></span><span class="name">${esc((state.staff && state.staff.name) || 'Who is on?')}</span></button>
-    <button class="deck-sq phone-only" data-act="open-more" aria-label="More"><span class="deck-dot ${dot}"></span></button>
+    <button class="deck-key" data-act="new-walkin" title="Somebody is at the door \u2014 seat them now">${I.srcWalkIn}<span class="dk-t">Walk-in</span></button>
+    <button class="deck-key" data-act="new-booking" title="Take a booking">${I.plus}<span class="dk-t">Booking</span></button>
+    <button class="deck-sq" data-act="open-more" aria-label="${esc(title)}" title="${esc(title)}"><span class="deck-dot ${dot}"></span></button>
   </div>`;
 }
 
@@ -6665,14 +6630,14 @@ function renderSecBand() {
   }).join('')}</div>`;
 }
 
-// What the phone folded away: who is on, and the till.
+// What belongs to no one screen: the link to the till, the wider search,
+// and whether this machine can reach anything at all.
 function renderMoreModal() {
   const ps = state.settings && state.settings.pos;
   const linked = ps && ps.enabled && ps.baseUrl;
   return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1">
-    <h2>${esc((state.staff && state.staff.name) || 'Who is on?')}</h2>
+    <h2>The desk</h2>
     <div class="bk-rows">
-      <button class="bk-row" data-act="open-who"><span class="bk-k">Who is on</span><span class="bk-v">${esc((state.staff && state.staff.name) || 'Nobody yet')}</span><span class="bk-chev">${I.right}</span></button>
       <button class="bk-row" data-act="open-find"><span class="bk-k">Find a booking</span><span class="bk-v">On any night, not just this one</span><span class="bk-chev">${I.right}</span></button>
       ${linked ? `<button class="bk-row" data-act="to-till"><span class="bk-k">The till</span><span class="bk-v">Open it on this venue</span><span class="bk-chev">${I.right}</span></button>` : ''}
     </div>
@@ -7258,7 +7223,7 @@ function renderRunSheet() {
     ${groups}
     ${waitlist}
     ${dropped}
-    <div class="ts">Sheet built ${esc(fmtTime(s.generatedAt))} · ${esc((state.staff && state.staff.name) || '')}</div>
+    <div class="ts">Sheet built ${esc(fmtTime(s.generatedAt))}</div>
   </div>`;
 }
 
@@ -7461,7 +7426,7 @@ function renderSettings() {
   return `<div class="cards">
     <div class="settings-card">
       <div class="th">POS link</div>
-      <div class="ts">Point this at the computer running restaurant-pos. Tables, staff PINs, the venue name and the look all come from there, and every booking shows on the till's floor.</div>
+      <div class="ts">Point this at the computer running restaurant-pos. Tables, the venue name and the look all come from there, and every booking shows on the till's floor.</div>
       <label class="field-label" for="pos-url">POS address</label>
       <input id="pos-url" type="url" value="${esc(p.baseUrl)}" placeholder="http://192.168.1.42:3000" data-field="settings.pos.baseUrl" data-save="pos">
       <div class="inline" style="margin-top:8px;">
@@ -7475,7 +7440,6 @@ function renderSettings() {
         <b>On the till</b><span>${ps.linked || 0} bookings mirrored${ps.pendingDeletes ? ', ' + ps.pendingDeletes + ' deletions waiting' : ''}</span>
       </div>
       <label class="toggle-row">${switchHtml(p.pushBookings !== false, 'set-toggle', 'pos.pushBookings')} Send bookings to the till</label>
-      <label class="toggle-row">${switchHtml(p.useStaff !== false, 'set-toggle', 'pos.useStaff')} Take the staff list from the POS</label>
       <label class="toggle-row">${switchHtml(p.useFloor !== false, 'set-toggle', 'pos.useFloor')} Use the POS floor plan</label>
       <label class="toggle-row">${switchHtml(p.useOrders !== false, 'set-toggle', 'pos.useOrders')} Read what tables spent</label>
       <label class="toggle-row">${switchHtml(p.useMenus !== false, 'set-toggle', 'pos.useMenus')} Use the POS's set menus</label>
@@ -7572,16 +7536,6 @@ function renderSettings() {
         + '<div><button class="btn" data-act="set-menu-add">' + I.plus + ' Add a set menu</button></div>'}
     </div>
     <div class="settings-card">
-      <div class="th">Staff${p.enabled && p.useStaff !== false ? ' (fallback)' : ''}</div>
-      <div class="ts">${p.enabled && p.useStaff !== false ? 'The POS holds the staff list. This one is only used when the POS is unreachable.' : 'Who can be on. The name picked on the deck goes onto every booking taken from this screen, and onto the run sheet.'}</div>
-      ${state.staffList.map(st => `<div class="inline"><span style="flex:1;font-weight:700;">${esc(st.name)}</span><span class="tag">${esc(st.role)}</span>${state.settings.pos.enabled && state.settings.pos.useStaff !== false ? '' : `<button class="chip sq" data-act="staff-remove" data-id="${st.id}" aria-label="Remove">${I.cross}</button>`}</div>`).join('')}
-      <div class="grid2" style="margin-top:8px;">
-        <input type="text" id="st-name" placeholder="Name" data-field="st.name" value="${esc(state.st ? state.st.name : '')}">
-        <select id="st-role" data-field="st.role"><option value="staff">Staff</option><option value="manager" ${state.st && state.st.role === 'manager' ? 'selected' : ''}>Manager</option></select>
-      </div>
-      <div><button class="btn" data-act="staff-add">${I.plus} Add</button></div>
-    </div>
-    <div class="settings-card">
       <div class="th">Data</div>
       <div class="ts">Everything lives in <span class="mono">data/store.local.json</span> on this computer. A backup is written twice a day to <span class="mono">data/backups/</span>.</div>
       <div><a class="btn" href="/api/export" download>Download everything</a></div>
@@ -7651,7 +7605,6 @@ function renderModal() {
   if (m.kind === 'seat') return renderSeatModal();
   if (m.kind === 'guest') return renderGuestModal();
   if (m.kind === 'colour') return renderColourModal();
-  if (m.kind === 'who') return renderWhoModal();
   if (m.kind === 'cal') return renderCalModal();
   if (m.kind === 'more') return renderMoreModal();
   if (m.kind === 'confirm') return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1"><h2>${esc(m.title)}</h2>${m.body ? `<div class="ts">${esc(m.body)}</div>` : ''}<div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Cancel</span></button><button class="icon-action ${m.danger ? 'discard' : 'send'}" data-act="confirm-yes">${m.danger ? I.trash : I.tick}<span class="ia-label">${esc(m.yes || 'Yes')}</span></button></div></div></div>`;
@@ -7745,6 +7698,9 @@ function bkRow(page, label, value, opts) {
 
 function renderBookingModal() {
   const m = state.modal, b = m.b, isEdit = !!b.id;
+  // A walk-in is not a booking with the boxes left empty — it is already at
+  // the table. The popup says so, and the key says Seat them, not Book.
+  const walkIn = !isEdit && b.source === 'walk-in';
   const page = m.page && BK_PAGES[m.page] ? m.page : '';
   const tables = heldTables(b).map(tableName).join(' + ');
   const whenTxt = `${fmtDay(b.date)}${b.time ? ' · ' + fmtHHMM(b.time) : ''}`;
@@ -7770,13 +7726,13 @@ function renderBookingModal() {
   return `<div class="modal-bg full" data-act="close-modal"><div class="modal full" data-stop="1">
     <div class="modal-top">
       ${page ? `<button class="chip sq" data-act="bk-back" aria-label="Back to the booking">${I.left}</button>` : ''}
-      <h2>${page ? esc(BK_PAGES[page]) : (isEdit ? esc(b.name || 'Booking') : 'New booking')}
+      <h2>${page ? esc(BK_PAGES[page]) : (isEdit ? esc(b.name || 'Booking') : (walkIn ? 'Walk-in' : 'New booking'))}
         ${page ? '' : (isEdit ? statusChip(b.status) + sourceChip(b.source) : '')}
         ${page || !b.ref ? '' : `<span class="tag mono">${esc(b.ref)}</span>`}</h2>
       <button class="chip sq" data-act="close-modal" aria-label="Close">${I.cross}</button>
     </div>
     <div class="modal-body">${body}</div>
-    ${actionKeys({ saveAct: 'save-booking', saveLabel: isEdit ? 'Save' : 'Book', left: isEdit && !page ? `<button class="icon-action discard left" data-act="delete-booking">${I.trash}<span class="ia-label">Delete</span></button>` : '' })}
+    ${actionKeys({ saveAct: 'save-booking', saveLabel: isEdit ? 'Save' : (walkIn ? 'Seat them' : 'Book'), left: isEdit && !page ? `<button class="icon-action discard left" data-act="delete-booking">${I.trash}<span class="ia-label">Delete</span></button>` : '' })}
   </div></div>`;
 }
 
@@ -8167,6 +8123,10 @@ async function saveBooking() {
   if (!b.name.trim()) { m.error = 'Guest name is required.'; render(); return; }
   if (!b.date || !b.time) { m.error = 'Pick a date and a time.'; render(); return; }
   const payload = { name: b.name, phone: b.phone, email: b.email, partySize: b.partySize, time: b.date + 'T' + b.time, durationMin: b.durationMin || null, tableId: b.tableId || null, tableIds: b.tableIds || [], notes: b.notes, tags: b.tags, setMenu: b.setMenu || null, status: b.status, autoTable: true, notifyId: m.notifyId || null };
+  // Only a NEW booking carries its source: the server sets it once and an
+  // edit must never rewrite where a booking came from. Without this line a
+  // walk-in saved as 'staff' and lost the one thing that made it a walk-in.
+  if (!b.id && b.source) payload.source = b.source;
   state.busy = true; render();
   try {
     const saved = b.id ? await put('/api/reservations/' + b.id, payload) : await post('/api/reservations', payload);
@@ -8248,7 +8208,7 @@ async function flushSaves() {
       if (g === 'colours') body.statusColours = s.statusColours;
       state.settings = await put('/api/settings', body);
       if (g === 'colours') applyStatusColours();
-      if (g === 'pos') { state.posStatus = await api('/api/pos/status'); const t = await api('/api/tables'); state.tables = t.tables; state.floorPlans = t.floorPlans; state.staffList = await api('/api/staff'); }
+      if (g === 'pos') { state.posStatus = await api('/api/pos/status'); const t = await api('/api/tables'); state.tables = t.tables; state.floorPlans = t.floorPlans; }
     } catch (e) {
       // A refused save must not leave the field showing something the store
       // does not hold: re-read, so the value snaps back to what was kept and
@@ -8272,8 +8232,6 @@ document.addEventListener('click', async (ev) => {
   if (stop && stop !== el && el.contains(stop)) return;
   try {
     switch (act) {
-      case 'open-who': { try { state.staffList = await api('/api/staff'); } catch (e) {} state.modal = { kind: 'who' }; render(); break; }
-      case 'who-pick': { const st = (state.staffList || []).find(x => x.id === id); if (st) rememberWho(st); state.modal = null; render(); break; }
       case 'to-till': openTill(null); break;
       case 'to-till-table': openTill(el.dataset.table || null); break;
       // Settings is the one place that still asks for a code — and it asks
@@ -8298,6 +8256,16 @@ document.addEventListener('click', async (ev) => {
       case 'month': { if (val === '0') state.month = localDay(new Date()).slice(0, 7); else { const [y, m] = state.month.split('-').map(Number); const d = new Date(y, m - 1 + parseInt(val), 1); state.month = localDay(d).slice(0, 7); } render(); try { await loadMonth(); } catch (e) {} render(); break; }
       case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.floorTime = null; state.service = ''; render(); await loadDay(); render(); break;
       case 'new-booking': openBooking(null); break;
+      // A walk-in is not a booking with the boxes left empty: it is always
+      // NOW, always on the trading day whatever night is on screen, and it is
+      // already seated by the time anybody types. The popup opens on the same
+      // page of rows — the only thing left to say is who, how many and where.
+      case 'new-walkin': {
+        const n = new Date();
+        openBooking(null, { status: 'seated', source: 'walk-in', date: tradingDay(),
+          time: pad2(n.getHours()) + ':' + pad2(n.getMinutes()) });
+        break;
+      }
       case 'new-at': openBooking(null, { time: el.dataset.time, tableId: el.dataset.table || null }); break;
       // The release of a drag must not ALSO open the booking it landed on
       // (the POS's own _tblDropAt guard). A tap is untouched.
@@ -8426,8 +8394,6 @@ document.addEventListener('click', async (ev) => {
       case 'set-menu-remove': state.setMenus.splice(parseInt(el.dataset.i), 1); render(); queueSave('setmenus'); break;
       case 'table-add': state.tables.push({ id: 't' + Date.now(), label: String(state.tables.length + 1), seats: 2 }); render(); queueSave('tables'); break;
       case 'table-remove': state.tables.splice(parseInt(el.dataset.i), 1); render(); queueSave('tables'); break;
-      case 'staff-add': { const st = state.st || {}; await post('/api/staff', { name: st.name, role: st.role || 'staff' }); state.st = null; state.staffList = await api('/api/staff'); toast('Added'); render(); break; }
-      case 'staff-remove': await del('/api/staff/' + id); state.staffList = await api('/api/staff'); render(); break;
     }
   } catch (e) { toast(e.message || 'Something went wrong', 3500); }
 });
@@ -8502,7 +8468,7 @@ function tlPreview(r, tableId, min) {
 document.addEventListener('pointerdown', (e) => {
   if (e.isPrimary === false) return;                                   // a pinch is never a drag
   if (e.pointerType === 'mouse' && e.button !== 0) return;
-  if (tlDrag || state.modal || !state.staff) return;
+  if (tlDrag || state.modal || !state.settings) return;
   if (state.view !== 'today' || state.todayMode !== 'timeline') return;
   const el = e.target.closest && e.target.closest('.tl-block');
   if (!el) return;
@@ -8784,7 +8750,6 @@ document.addEventListener('input', (ev) => {
   if (f === 'find.q') { state.find.q = raw; clearTimeout(_findTimer); _findTimer = setTimeout(runFind, 250); return; }
   if (f.startsWith('wl.')) { setPath(state, f, raw); return; }
   if (f.startsWith('nl.')) { setPath(state, f, raw); return; }
-  if (f.startsWith('st.')) { state.st = state.st || { name: '', role: 'staff' }; setPath(state, f, raw); return; }
   if (f.startsWith('modal.')) {
     setPath(state, f, raw);
     if (f === 'modal.dobD' || f === 'modal.dobM' || f === 'modal.dobY') { rebuildDob(); render(); return; }
@@ -8802,7 +8767,6 @@ document.addEventListener('change', (ev) => {
   const el = ev.target;
   if (el.dataset && el.dataset.act === 'pick-any') { queueSave('colours'); render(); return; }
   const f = el.dataset && el.dataset.field;
-  if (f && f.startsWith('st.') && el.tagName === 'SELECT') { state.st = state.st || { name: '', role: 'staff' }; setPath(state, f, el.value); }
 });
 document.addEventListener('keydown', (ev) => {
 
@@ -8816,7 +8780,7 @@ document.addEventListener('keydown', (ev) => {
 
 // §§ The poll — ask before fetching, never repaint under fingers
 setInterval(async () => {
-  if (!state.staff) return;
+  if (!state.settings) return;
   // Mid-drag the poll would replace state.reservations and orphan the row
   // under the finger — the drop would then write to an object that is no
   // longer in the array and the block would snap back for no visible reason.
@@ -8912,9 +8876,6 @@ function openTill(tableId) {
   const link = readDeepLink();
   if (link) clearDeepLink();
   state.pendingLink = link;
-  // Who was on last. A name only — the manager's PIN is never stored, so a
-  // reload always asks for it again before Settings will open.
-  try { const who = JSON.parse(localStorage.getItem('resv-who') || 'null'); if (who && who.name) state.staff = who; } catch (e) {}
   try { state.theme = await api('/api/theme'); } catch (e) {}
   applyTheme();
   try { state.settings = await api('/api/settings'); } catch (e) { state.online = false; }
@@ -8923,10 +8884,6 @@ function openTill(tableId) {
   // applied below, after the first load.
   state.date = tradingDay();
   render();
-  try { state.staffList = await api('/api/staff'); } catch (e) {}
-  // Nobody picked yet: take the first name on the list rather than opening on
-  // a question. It is on the deck, one tap from being right.
-  if (!state.staff && (state.staffList || []).length) rememberWho(state.staffList[0]);
   await refreshAll();
   const l = state.pendingLink; state.pendingLink = null; await applyDeepLink(l);
   // In a sandboxed frame READING navigator.serviceWorker throws outright, so

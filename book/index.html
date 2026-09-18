@@ -107,8 +107,12 @@ h1,h2,h3{margin:0;}
    body, ONE hairline down its edge. Chosen is a pale accent block with accent
    ink; unchosen has no body at all. A solid accent fill is the deck's
    language and never appears here. */
-.rail{width:104px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--steel-200);
-  overflow-y:auto;padding:var(--deck-pad) 0;display:flex;flex-direction:column;}
+/* 88, not 104. A rail tile is a square, so its WIDTH is what sets how many
+   fit down a laptop: at 104 the nine tiles of Service came to 936 and Settings
+   fell off the end of an 880 screen. 88 puts the whole app on the rail with no
+   scroll at all, and is still twice the finger law. */
+.rail{width:88px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--steel-200);
+  overflow:hidden;padding:var(--deck-pad) 0;display:flex;flex-direction:column;}
 .rail-btn{width:100%;aspect-ratio:1;background:none;border:none;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   padding:8px 4px;color:var(--charcoal-soft);font-size:var(--fs-chip);font-weight:700;
@@ -149,10 +153,15 @@ h1,h2,h3{margin:0;}
 .deck-spacer{flex:1;}
 .deck-sq{width:var(--tap);height:var(--tap);min-width:var(--tap);border-radius:var(--r-control);border:1px solid var(--deck-chip-line);background:var(--deck-chip-bg);color:var(--deck-chip-ink);display:inline-flex;align-items:center;justify-content:center;}
 .deck-sq svg,.deck-sq .sys-i{width:20px;height:20px;}
-.staff-badge{display:inline-flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 10px;
-  border:none;border-radius:var(--r-btn);background:none;font-weight:700;color:var(--deck-chip-ink);
+/* The two keys that make something: a walk-in and a booking. Both say what
+   they are on a desk and fall back to the icon alone on a phone, where the
+   bar has the date to carry as well. */
+.deck-key{display:inline-flex;align-items:center;gap:8px;height:var(--tap);min-height:var(--tap);
+  padding:0 14px;border-radius:var(--r-control);border:1px solid var(--deck-chip-line);
+  background:var(--deck-chip-bg);color:var(--deck-chip-ink);font-weight:700;font-size:var(--fs-md);
   white-space:nowrap;cursor:pointer;}
-.staff-badge:hover{background:var(--steel-200);}
+.deck-key:hover{background:var(--steel-200);}
+.deck-key svg{width:20px;height:20px;flex:0 0 20px;}
 .deck-dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none;}
 .deck-dot.off{background:var(--red);}
 .deck-dot.warn{background:var(--gold);}
@@ -160,10 +169,9 @@ h1,h2,h3{margin:0;}
    stops fitting long before a phone does. A tablet in PORTRAIT is where it
    first bites: at 820 the row overflowed and "Settings" was the half off the
    end — on a manager's tablet, the one tab they need is the one they cannot
-   see. So the squeeze comes in stages, and the name goes last because on a
-   shared front desk it matters who is signed in. */
+   see. So the squeeze comes in stages. */
 @media (max-width:1100px){ .tab-btn{min-width:0;flex:none;padding:8px 10px;} }
-@media (max-width:900px){ .staff-badge .name{display:none;} }
+@media (max-width:1000px){ .deck-key{padding:0;width:var(--tap);min-width:var(--tap);justify-content:center;} .dk-t{display:none;} }
 /* And when it still does not fit — a long count on Waitlist, a narrow phone —
    nothing is ever sliced: the row fades at the cut end so a half-shown tab
    reads as "more this way" rather than a broken word. The POS's nav law. */
@@ -800,8 +808,13 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    everything gets shorter. */
 @media (min-width:761px) and (max-height:520px){
   .topbar{min-height:48px;padding:4px 12px;}
-  .deck-sq,.deck-chip,.staff-badge{min-height:38px;height:38px;}
+  .deck-sq,.deck-chip,.deck-key{min-height:38px;height:38px;}
   .rail{width:78px;}
+  /* 393 pixels of height hold five tiles, not nine, so holding the places
+     still while the sections scroll inside 78 of them helps nobody: here the
+     whole rail scrolls as one, sections first. */
+  .rail{overflow-y:auto;}
+  .rail-secs{flex:none;overflow:visible;}
   .rail-btn{aspect-ratio:auto;min-height:50px;gap:1px;padding:4px 2px;}
   .rail-ico svg{width:20px;height:20px;}
   .rail-label{font-size:9px;line-height:1.1;}
@@ -809,10 +822,22 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .desk-col{flex:0 0 300px;width:auto;max-height:calc(100vh - 58px);overflow-y:auto;}
 }
 
-/* The rail now carries the whole app: what you are looking at above the rule,
-   the sections of it below. One hairline is the only thing between them —
-   the POS's Border law, and all the separation two groups need. */
+/* The rail carries the whole app: the SECTIONS of what you are looking at
+   above the rule, and below it the five places you can go. One hairline is
+   all the separation two groups need — the POS's Border law.
+
+   The sections are on top because the top of the rail is where the thumb
+   lands and the floor is what a host comes back to forty times a shift; the
+   places are at the foot because they are a journey, not a flick.
+
+   Nine square tiles do not fit a laptop, so ONE of the two groups has to give.
+   It is the sections: they vary (four on Service, six on the guest book) and
+   whichever you want is near the top, while the five places must be reachable
+   at all times — Settings falling off the end of a scroll is how a desk loses
+   its way back. So the sections scroll and the places never move. */
 .rail-rule{height:1px;background:var(--steel-200);margin:8px 12px;flex:none;}
+.rail-secs{flex:1 1 auto;min-height:0;overflow-y:auto;}
+.rail-modes{flex:none;}
 
 /* The top bar is the night you are working on, and the keys that belong to no
    one screen. Tapping the date opens the month. */
@@ -907,6 +932,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     border-right:none;border-top:1px solid var(--steel-300);background:var(--surface);
     z-index:var(--z-panel);overflow:visible;box-shadow:var(--lift-1);}
   .rail-secs,.rail-rule{display:none;}
+  /* The thumb bar is one row of five: the modes must be flex children of
+     the bar itself, not of a box inside it, or `flex:1` divides nothing. */
+  .rail-modes{display:contents;}
   .rail .rail-btn{flex:1;aspect-ratio:auto;min-height:64px;gap:2px;padding:6px 2px;}
   .rail .rail-ico svg{width:22px;height:22px;}
   .rail .rail-label{font-size:9.5px;letter-spacing:0;}
@@ -939,7 +967,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
-<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useStaff\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"staff\": [\n    {\n      \"id\": \"st1\",\n      \"name\": \"Alex (Manager)\",\n      \"pin\": \"1234\",\n      \"role\": \"manager\"\n    },\n    {\n      \"id\": \"st2\",\n      \"name\": \"Jamie\",\n      \"pin\": \"2222\",\n      \"role\": \"staff\"\n    },\n    {\n      \"id\": \"st3\",\n      \"name\": \"Sam\",\n      \"pin\": \"3333\",\n      \"role\": \"staff\"\n    }\n  ],\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}";window.__RESV_SEED_HASH__ = "2e63f256897b87b09c1216b9b1972ddfd67ce8ef";window.__RESV_IS_BOOK__ = true;</script>
+<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "0d109bbd89554805310a037fb3df774e3fd22c26";window.__RESV_IS_BOOK__ = true;</script>
 <script>(function () {
   'use strict';
   // preview/shim.js — the front desk, running with no server.
@@ -1348,7 +1376,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     return dayOf(d);
   }
   function call(method, url, body) {
-    return dispatchRaw(method, url, body || null, { 'X-Staff-Name': 'Alex (Manager)', 'X-Staff-Pin': '1234' })
+    return dispatchRaw(method, url, body || null, {})
       .then(function (r) { return r.json().catch(function () { return {}; }); });
   }
   function book(o) { return call('POST', '/api/reservations', o); }
@@ -1494,7 +1522,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
           durationMin: null, tableId: tableId, tableIds: [],
           status: status, source: r() < 0.28 ? 'online' : 'staff',
           tags: pick(TAGPOOL).slice(), notes: pick(NOTES), setMenu: null,
-          createdAt: made, updatedAt: made, createdBy: 'Alex (Manager)', events: [],
+          createdAt: made, updatedAt: made, createdBy: 'The desk', events: [],
           ref: r() < 0.28 ? 'B' + String(num(10000, 99999)) : '',
         });
       }
@@ -2022,7 +2050,6 @@ const getVersion = (c) => request(c, 'GET', '/api/version');
 const getSettings = (c) => request(c, 'GET', '/api/settings');
 const getTheme = (c) => request(c, 'GET', '/api/theme');
 const getFloorPlans = (c) => request(c, 'GET', '/api/floorplans');
-const getStaff = (c) => request(c, 'GET', '/api/staff');
 // The POS's set menus. Read only, always — nothing in this app ever POSTs,
 // PUTs or DELETEs a POS combo; the till owns its own menu.
 const getCombos = (c) => request(c, 'GET', '/api/combos');
@@ -2191,7 +2218,6 @@ function streamOrders(config, opts) {
 }
 // The POS answers { id, name, role } for a good PIN and 401 for a bad one.
 // force:true skips the POS's "still typing?" hold — we send whole PINs.
-const verifyPin = (c, pin) => request(c, 'POST', '/api/staff/verify-pin', { pin, force: true });
 
 // ---------- mapping ----------
 
@@ -2328,8 +2354,8 @@ function menusFromCombos(list) {
 }
 
 module.exports = {
-  request, ready, testConnection, getVersion, getSettings, getTheme, getFloorPlans, getStaff, getReservations,
-  createReservation, updateReservation, deleteReservation, verifyPin, getCombos, menusFromCombos,
+  request, ready, testConnection, getVersion, getSettings, getTheme, getFloorPlans, getReservations,
+  createReservation, updateReservation, deleteReservation, getCombos, menusFromCombos,
   streamOrders, countable, dayStamp, MAX_ORDER_ROWS, MAX_ORDER_BYTES, ORDER_DEADLINE_MS, OLD_RUN,
   posStatus, toPos, plainText, posNotes, fieldsOf, hashOf, splitNotes, orderNet, slimOrder, STAFF_NAME,
 };
@@ -2371,15 +2397,6 @@ const TAGS = ['VIP', 'Birthday', 'Anniversary', 'Allergy', 'Pram', 'Wheelchair',
 // 'booked' and 'removed' are dead. Expiry is NOT a status: an entry whose
 // date has passed is simply not live, read-time, with nothing written.
 const NOTIFY_STATUSES = ['waiting', 'told', 'booked', 'removed'];
-
-// Fallback staff — the POS's own defaults, so a venue that links the POS
-// later has been using the same PINs all along. When the POS link is on,
-// PINs are checked against the POS and this list is only the offline fallback.
-const DEFAULT_STAFF = [
-  { id: 'st1', name: 'Alex (Manager)', pin: '1234', role: 'manager' },
-  { id: 'st2', name: 'Jamie', pin: '2222', role: 'staff' },
-  { id: 'st3', name: 'Sam', pin: '3333', role: 'staff' },
-];
 
 // Fallback floor when no POS is linked: the POS's own default tables, same
 // ids, so linking later maps every booking onto the real floor unchanged.
@@ -2435,21 +2452,19 @@ const DEFAULT_SETTINGS = {
   // order is ever fetched from the till, and no money is shown anywhere.
   // `useMenus` off means the desk's set menus are the local `setMenus` list
   // below, even while the POS is linked.
-  pos: { enabled: false, baseUrl: '', pushBookings: true, pullStatus: true, useStaff: true, useFloor: true, useOrders: true, useMenus: true },
+  pos: { enabled: false, baseUrl: '', pushBookings: true, pullStatus: true, useFloor: true, useOrders: true, useMenus: true },
 };
 
 const DEFAULT_DATA = {
   settings: DEFAULT_SETTINGS,
-  staff: DEFAULT_STAFF,
   floorPlans: DEFAULT_FLOORPLANS, // replaced by the POS's when linked
   // The venue's own set menus — "Christmas menu", the eight-course tasting —
-  // as [{ id: 'sm…', name }]. The same standing `staff` has against the POS's
-  // staff list: this is the fallback the desk edits in Settings, and the POS's
-  // own combos win whenever the link is on (see `posCombos`).
+  // as [{ id: 'sm…', name }]: the fallback the desk edits in Settings, with
+  // the POS's own combos winning whenever the link is on (see `posCombos`).
   setMenus: [],
   // The POS's set menus (its combos), cached on the last moved pass, as
-  // [{ id: 'c…', name }]. Declared here — unlike the older `posStaff` and
-  // `posSettings` caches — so /api/set-menus can read it without a branch.
+  // [{ id: 'c…', name }]. Declared here — unlike the older `posSettings`
+  // cache — so /api/set-menus can read it without a branch.
   posCombos: [],
   theme: { accent: '#3692E7', mode: 'auto' },
   reservations: [],
@@ -2529,6 +2544,10 @@ function migrate(data) {
   // a hand-edited or half-written file that has the key but not an array.
   if (!Array.isArray(s.exceptions)) s.exceptions = [];
   if (!s.statusColours || typeof s.statusColours !== 'object' || Array.isArray(s.statusColours)) s.statusColours = {};
+  // The desk has no users any more — no sign-in, no PIN, nobody to pick. An
+  // older store still carries the list, and a PIN that nothing checks is only
+  // a credential waiting to leak, so it goes on the first read after update.
+  delete data.staff; delete data.posStaff; delete s.pos.useStaff;
   for (const g of data.guests) {
     if (g.dob === undefined) g.dob = '';
     if (!Array.isArray(g.tags)) g.tags = [];
@@ -4657,7 +4676,12 @@ app.get('/book', (req, res) => res.sendFile(path.join(__dirname, 'public', 'book
 
 
 // ---------- who did it ----------
-function staffFromReq(req) { return req.get('X-Staff-Name') || 'Unknown'; }
+// Every hand at this desk is the same hand. There is no sign-in, no PIN and
+// nobody to pick: the tablet lives in the venue behind the venue's own lock,
+// and a name typed by whoever walked past is a record of nothing. What the
+// history and the audit want is WHERE a change came from — the desk, the
+// online form, or the till — and that they still get.
+function staffFromReq() { return 'The desk'; }
 function logAudit(data, staffName, action) {
   if (!data.auditLog) data.auditLog = [];
   data.auditLog.unshift({ id: newId('a'), timestamp: Date.now(), staffName, action });
@@ -4689,36 +4713,6 @@ function tradingDay(data, d) {
   if (d.getHours() < h) d = new Date(d.getTime() - 24 * 3600000);
   return av.localDay(d);
 }
-
-// ---------- staff ----------
-app.get('/api/staff', (req, res) => {
-  const data = readData();
-  const list = (data.posStaff && data.posStaff.length ? data.posStaff : data.staff).map(({ id, name, role }) => ({ id, name, role }));
-  res.json(list);
-});
-
-app.post('/api/staff', async (req, res) => {
-  const data = readData();
-  const { name, pin, role } = req.body || {};
-  if (!name || !String(name).trim() || !/^\d{4,8}$/.test(String(pin || ''))) return res.status(400).json({ error: 'Name and a PIN of 4 to 8 digits are required' });
-  if (data.staff.some(s => s.pin === pin)) return res.status(400).json({ error: 'That PIN is already in use' });
-  const st = { id: newId('st'), name: String(name).trim(), pin: String(pin), role: role === 'manager' ? 'manager' : 'staff' };
-  data.staff.push(st);
-  logAudit(data, staffFromReq(req), `Added staff member: ${st.name}`);
-  writeData(data);
-  res.json({ id: st.id, name: st.name, role: st.role });
-});
-
-app.delete('/api/staff/:id', async (req, res) => {
-  const data = readData();
-  const st = data.staff.find(s => s.id === req.params.id);
-  if (!st) return res.status(404).json({ error: 'Staff member not found' });
-  if (data.staff.filter(s => s.role === 'manager').length <= 1 && st.role === 'manager') return res.status(400).json({ error: 'Keep at least one manager' });
-  data.staff = data.staff.filter(s => s.id !== st.id);
-  logAudit(data, staffFromReq(req), `Removed staff member: ${st.name}`);
-  writeData(data);
-  res.json({ ok: true });
-});
 
 // ---------- settings, theme, tables ----------
 function safeSettings(data) {
@@ -4809,7 +4803,7 @@ app.put('/api/settings', async (req, res) => {
     const p = b.pos;
     if (p.baseUrl !== undefined) s.pos.baseUrl = String(p.baseUrl || '').trim().replace(/\/+$/, '').slice(0, 120);
     if (p.enabled !== undefined) s.pos.enabled = !!p.enabled;
-    for (const k of ['pushBookings', 'pullStatus', 'useStaff', 'useFloor', 'useOrders', 'useMenus']) if (p[k] !== undefined) s.pos[k] = !!p[k];
+    for (const k of ['pushBookings', 'pullStatus', 'useFloor', 'useOrders', 'useMenus']) if (p[k] !== undefined) s.pos[k] = !!p[k];
   }
   logAudit(data, staffFromReq(req), 'Updated settings');
   writeData(data);
@@ -5836,20 +5830,18 @@ async function posPass(force) {
     }
     const moved = force || !data.posState.version || data.posState.version.store !== version.store;
     if (moved) {
-      const [floorPlans, settings, theme, staff, combos] = await Promise.all([
+      const [floorPlans, settings, theme, combos] = await Promise.all([
         cfg.useFloor !== false ? pos.getFloorPlans(cfg).catch(() => null) : null,
         pos.getSettings(cfg).catch(() => null),
         pos.getTheme(cfg).catch(() => null),
-        cfg.useStaff !== false ? pos.getStaff(cfg).catch(() => null) : null,
         cfg.useMenus !== false ? pos.getCombos(cfg).catch(() => null) : null,
       ]);
       data = readData();
       if (Array.isArray(floorPlans) && floorPlans.length) data.floorPlans = floorPlans;
       if (settings) data.posSettings = { venueName: settings.venueName || '', venueAddress: settings.venueAddress || '', seatingMinutes: settings.seatingMinutes || null, dayStartsAt: settings.dayStartsAt, coversEnabled: !!settings.coversEnabled };
       if (theme && theme.accent) data.theme = { accent: theme.accent, mode: theme.mode || 'auto' };
-      if (Array.isArray(staff)) data.posStaff = staff.map(({ id, name, role }) => ({ id, name, role }));
-      // Guarded like `staff`: a POS that 404s /api/combos, or answers oddly,
-      // leaves the last good list in place rather than wiping the picker.
+      // Guarded: a POS that 404s /api/combos, or answers oddly, leaves the
+      // last good list in place rather than wiping the picker.
       if (Array.isArray(combos)) data.posCombos = pos.menusFromCombos(combos);
       writeData(data);
     }
