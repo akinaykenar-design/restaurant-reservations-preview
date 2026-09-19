@@ -893,8 +893,15 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .fl-status{flex:none;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
   padding:8px var(--hub-edge);border-bottom:1px solid var(--steel-200);min-height:38px;}
 .fl-status .spacer{flex:1;}
-.fl-status .fl-reset{min-height:30px;width:30px;}
-.fl-status .fl-reset svg{width:16px;height:16px;}
+/* The way in and out without a gesture: a mouse has no pinch, and a host who
+   has pushed into a corner needs a way back that does not depend on getting
+   two fingers right. */
+.fl-zoom{display:flex;align-items:center;gap:4px;}
+.fl-zoom b{font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;
+  color:var(--charcoal-soft);min-width:38px;text-align:center;}
+.fl-status .chip.sq{min-height:30px;width:30px;}
+.fl-status .chip.sq svg{width:16px;height:16px;}
+.fl-status .chip.sq[disabled]{opacity:var(--dim-ghost);cursor:default;}
 .desk-main > .tl,.desk-main > .grid3,.desk-main > .flow,.desk-main > .empty{margin:var(--hub-edge);}
 .desk-main > .ts{padding:0 var(--hub-edge) var(--hub-edge);margin-top:0!important;}
 .desk-bar{margin:0;}
@@ -6573,6 +6580,7 @@ const I = {
   out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/></svg>',
   moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
   plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 12h16"/></svg>',
   shrink: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v5a1 1 0 0 1-1 1H4"/><path d="M2 2l6 6"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M22 2l-6 6"/><path d="M10 22v-5a1 1 0 0 0-1-1H4"/><path d="M2 22l6-6"/><path d="M14 22v-5a1 1 0 0 1 1-1h5"/><path d="M22 22l-6-6"/></svg>',
   book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C9.6 4.6 6.6 3.8 2 3.8v14.2c4.6 0 7.6.8 10 2.4"/><path d="M12 6.2C14.4 4.6 17.4 3.8 22 3.8v14.2c-4.6 0-7.6.8-10 2.4"/><path d="M12 6.2v14.2"/></svg>',
   refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>',
@@ -7419,7 +7427,12 @@ function renderFloor() {
   <div class="fl-status">
     ${key('seated', 'Seated')}${key('over', 'Over')}${key('due', 'Due')}${key('free', 'Free')}
     <span class="spacer"></span>
-    ${z > 1 ? `<button class="chip sq fl-reset" data-act="floor-fit" title="Fit the room to the screen" aria-label="Fit the room to the screen">${I.shrink}</button>` : ''}
+    <span class="fl-zoom">
+      <button class="chip sq" data-act="floor-out" title="Further out" aria-label="Zoom out"${z <= FLOOR_MIN ? ' disabled' : ''}>${I.minus}</button>
+      <b>${Math.round(z * 100)}%</b>
+      <button class="chip sq" data-act="floor-in" title="Closer in" aria-label="Zoom in"${z >= FLOOR_MAX ? ' disabled' : ''}>${I.plus}</button>
+      ${z > 1 ? `<button class="chip sq" data-act="floor-fit" title="Fit the room to the screen" aria-label="Fit the room to the screen">${I.shrink}</button>` : ''}
+    </span>
   </div>
   ${plans.length ? plans.map(fp => `
     ${plans.length > 1 ? `<div class="section-h">${esc(fp.name)}</div>` : ''}
@@ -8985,6 +8998,16 @@ document.addEventListener('click', async (ev) => {
         break;
       }
       case 'floor-fit': state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); break;
+      // A step either way, about the middle of what you are looking at.
+      case 'floor-in': case 'floor-out': {
+        const wrap = document.querySelector('.desk-main .fl-wrap');
+        const b = wrap ? wrap.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 };
+        const step = act === 'floor-in' ? 1.4 : 1 / 1.4;
+        flZoomAt(Math.max(FLOOR_MIN, Math.min(FLOOR_MAX, (state.floorZoom || 1) * step)),
+          b.left + b.width / 2, b.top + b.height / 2);
+        flCommit();
+        break;
+      }
       case 'new-booking': openBooking(null); break;
       // A walk-in is not a booking with the boxes left empty: it is always
       // NOW, always on the trading day whatever night is on screen, and it is
@@ -9201,7 +9224,7 @@ document.addEventListener('pointerdown', (e) => {
   // finger of the one gesture that wants two. Two fingers pinch the room; one
   // finger pushes it about once you are in. At rest a single finger is left
   // alone, so a tap still books a table.
-  if (!tlDrag && !arrDrag && !state.modal && state.settings) {
+  if (!tlDrag && !arrDrag && !state.modal && state.settings && !flTouching) {
     const fw = e.target.closest && e.target.closest('.desk-main .fl-wrap');
     if (fw && flDown(e, fw)) return;
   }
@@ -9247,7 +9270,7 @@ function flDown(e, wrap) {
   return false;
 }
 document.addEventListener('pointermove', (e) => {
-  if (!flPts.has(e.pointerId)) return;
+  if (flTouching || !flPts.has(e.pointerId)) return;
   flPts.set(e.pointerId, { x: e.clientX, y: e.clientY });
   const g = flGest; if (!g) return;
   if (g.kind === 'pinch' && flPts.size >= 2) {
@@ -9285,6 +9308,60 @@ const flUp = (e) => {
 };
 document.addEventListener('pointerup', flUp);
 document.addEventListener('pointercancel', flUp);
+
+// ---------- the same gesture, told in TOUCH ----------
+//
+// A pinch does not always arrive as two pointers. The device preview stands a
+// mouse in for a hand: in its Pinch mode it sends a TouchEvent carrying TWO
+// Touches and only ONE PointerEvent, so the pointer path above saw a single
+// finger and never pinched anything. Some older touch stacks are the same way
+// round. So the touch events are read as well, and whichever kind arrives
+// first owns the gesture until every finger is up.
+let flTouching = false;
+const flTwo = (t) => ({ d: Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY),
+                        cx: (t[0].clientX + t[1].clientX) / 2, cy: (t[0].clientY + t[1].clientY) / 2 });
+document.addEventListener('touchstart', (e) => {
+  const wrap = e.target.closest && e.target.closest('.desk-main .fl-wrap');
+  if (!wrap || state.modal) return;
+  const t = e.touches;
+  if (t.length >= 2) {
+    const sp = flTwo(t);
+    flTouching = true; flPts.clear();
+    flGest = { kind: 'pinch', d0: sp.d, z0: state.floorZoom || 1, moved: true };
+  } else if (t.length === 1 && (state.floorZoom || 1) > 1) {
+    flTouching = true; flPts.clear();
+    flGest = { kind: 'pan', x0: t[0].clientX, y0: t[0].clientY,
+      px: state.floorPanX, py: state.floorPanY, moved: false };
+  }
+}, { passive: true });
+document.addEventListener('touchmove', (e) => {
+  if (!flTouching || !flGest) return;
+  const g = flGest, t = e.touches;
+  if (g.kind === 'pinch' && t.length >= 2) {
+    const sp = flTwo(t);
+    flZoomAt(Math.max(FLOOR_MIN, Math.min(FLOOR_MAX, g.z0 * (sp.d / (g.d0 || 1)))), sp.cx, sp.cy);
+    flPaint(state.floorZoom, state.floorPanX, state.floorPanY);
+    if (e.cancelable) e.preventDefault();
+  } else if (g.kind === 'pan' && t.length === 1) {
+    const dx = t[0].clientX - g.x0, dy = t[0].clientY - g.y0;
+    if (!g.moved && Math.hypot(dx, dy) < 5) return;
+    g.moved = true;
+    const at = clampFloor(state.floorZoom, g.px + dx, g.py + dy);
+    state.floorPanX = at.x; state.floorPanY = at.y;
+    flPaint(state.floorZoom, at.x, at.y);
+    if (e.cancelable) e.preventDefault();
+  }
+}, { passive: false });
+const flTouchEnd = (e) => {
+  if (!flTouching) return;
+  if (e.touches && e.touches.length) return;      // a finger is still down
+  flTouching = false;
+  const g = flGest; flGest = null; flPts.clear();
+  if (g && g.moved) { const eat = (c) => { c.preventDefault(); c.stopImmediatePropagation(); }; document.addEventListener('click', eat, { capture: true, once: true }); setTimeout(() => document.removeEventListener('click', eat, true), 350); }
+  flCommit();
+};
+document.addEventListener('touchend', flTouchEnd);
+document.addEventListener('touchcancel', flTouchEnd);
 // A trackpad's pinch arrives as ctrl+wheel. Plain wheel is left alone so the
 // pane still scrolls under a mouse.
 document.addEventListener('wheel', (e) => {
