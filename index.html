@@ -1073,7 +1073,380 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-find .chip.sq{flex:none;min-height:34px;width:34px;}
 </style>
 <div id="app">Loading…</div>
-<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "0d109bbd89554805310a037fb3df774e3fd22c26";window.__RESV_IS_BOOK__ = false;</script>
+<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "d3f36a9d0d77add20c1bec7edc792a7027c85430";window.__RESV_ROOM__ = [
+ {
+  "id": "fp1",
+  "name": "Inside",
+  "tables": [
+   {
+    "id": "t1784116477960",
+    "label": "21",
+    "seats": 2,
+    "x": 7,
+    "y": 33.8,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1784116479124",
+    "label": "22",
+    "seats": 2,
+    "x": 12.5,
+    "y": 44.2,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1784116485821",
+    "label": "222",
+    "seats": 4,
+    "x": 21,
+    "y": 11.3,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1784116486766",
+    "label": "11",
+    "seats": 4,
+    "x": 28,
+    "y": 11.3,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1784116487291",
+    "label": "1",
+    "seats": 6,
+    "x": 7,
+    "y": 11.3,
+    "width": 8.8,
+    "height": 6.6,
+    "shape": "rect",
+    "rotation": 315,
+    "type": "table"
+   },
+   {
+    "id": "t1784116487840",
+    "label": "4",
+    "seats": 4,
+    "x": 22.5,
+    "y": 68.3,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1784116488381",
+    "label": "24",
+    "seats": 4,
+    "x": 17.5,
+    "y": 56.3,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1784116488882",
+    "label": "23",
+    "seats": 8,
+    "x": 35,
+    "y": 11.3,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786359357489",
+    "label": "13",
+    "seats": 4,
+    "x": 42,
+    "y": 11.3,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786359372691",
+    "label": "14",
+    "seats": 4,
+    "x": 49,
+    "y": 11.3,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786359374499",
+    "label": "15",
+    "seats": 4,
+    "x": 56,
+    "y": 11.3,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786359375000",
+    "label": "17",
+    "seats": 4,
+    "x": 63,
+    "y": 11.3,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786359452749",
+    "label": "41",
+    "seats": 4,
+    "x": 62.5,
+    "y": 32.1,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786359453148",
+    "label": "42",
+    "seats": 4,
+    "x": 62.5,
+    "y": 44.2,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786359453929",
+    "label": "43",
+    "seats": 4,
+    "x": 62.5,
+    "y": 56.3,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786359454484",
+    "label": "44",
+    "seats": 4,
+    "x": 62.5,
+    "y": 68.3,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786359455030",
+    "label": "45",
+    "seats": 4,
+    "x": 62.5,
+    "y": 80.4,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786437103635",
+    "label": "31",
+    "seats": 4,
+    "x": 45,
+    "y": 36.2,
+    "width": 6.8,
+    "height": 10.9,
+    "shape": "round",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786437104445",
+    "label": "32",
+    "seats": 4,
+    "x": 37.5,
+    "y": 60.3,
+    "width": 6.8,
+    "height": 10.9,
+    "shape": "round",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786443757237",
+    "label": "46",
+    "seats": 4,
+    "x": 62.5,
+    "y": 92.4,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786450498817",
+    "label": "25",
+    "seats": 2,
+    "x": 27.5,
+    "y": 80.4,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786450498853",
+    "label": "26",
+    "seats": 2,
+    "x": 33.6,
+    "y": 92.6,
+    "width": 6,
+    "height": 9.8,
+    "shape": "square",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786498348976",
+    "label": "B1",
+    "seats": 1,
+    "x": 77.5,
+    "y": 12.1,
+    "width": 4.4,
+    "height": 7.1,
+    "shape": "round",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786498350216",
+    "label": "B7",
+    "seats": 1,
+    "x": 77.5,
+    "y": 80.4,
+    "width": 4.4,
+    "height": 7.1,
+    "shape": "round",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786498350814",
+    "label": "B2",
+    "seats": 1,
+    "x": 77.5,
+    "y": 24.1,
+    "width": 4.4,
+    "height": 7.1,
+    "shape": "round",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786498352255",
+    "label": "B3",
+    "seats": 1,
+    "x": 77.5,
+    "y": 35.3,
+    "width": 4.4,
+    "height": 7.1,
+    "shape": "round",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786498353190",
+    "label": "B4",
+    "seats": 1,
+    "x": 77.5,
+    "y": 46.6,
+    "width": 4.4,
+    "height": 7.1,
+    "shape": "round",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786498354189",
+    "label": "B5",
+    "seats": 1,
+    "x": 77.5,
+    "y": 57.8,
+    "width": 4.4,
+    "height": 7.1,
+    "shape": "round",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786498354685",
+    "label": "B6",
+    "seats": 1,
+    "x": 77.5,
+    "y": 69.1,
+    "width": 4.4,
+    "height": 7.1,
+    "shape": "round",
+    "rotation": 0,
+    "type": "table"
+   },
+   {
+    "id": "t1786498355328",
+    "label": "B8",
+    "seats": 1,
+    "x": 77.5,
+    "y": 92.4,
+    "width": 4.4,
+    "height": 7.1,
+    "shape": "round",
+    "rotation": 0,
+    "type": "table"
+   }
+  ]
+ },
+ {
+  "id": "fp1783937423539",
+  "name": "Outside",
+  "tables": []
+ }
+]
+;window.__RESV_IS_BOOK__ = false;</script>
 <script>(function () {
   'use strict';
   // preview/shim.js — the front desk, running with no server.
@@ -1483,6 +1856,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   // preview gets a plausible dining room written straight into the store, the
   // same shape the POS sends: x/y are the table's CENTRE as a percentage of a
   // 900x560 canvas, width/height are percentages of each axis.
+  // THE VENUE'S OWN ROOM, from the POS's floor plans (preview/room.json,
+  // injected by the build). Without a POS to ask, this used to draw an
+  // invented eleven-table room — a fine shape and a poor demo, because the
+  // point of a floor plan is that it is YOUR floor. If the fixture is missing
+  // the eleven-table room is still here as the fallback, so the preview never
+  // opens on a grid of boxes.
   function seedRoom() {
     var t = function (id, label, seats, x, y, w, h, round) {
       return { id: id, label: label, seats: seats, x: x, y: y, width: w, height: h, shape: round ? 'circle' : 'rect', rotation: 0 };
@@ -1490,22 +1869,28 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     var d = function (id, kind, x, y, w, h) {
       return { id: id, type: 'decor', decorType: kind, x: x, y: y, width: w, height: h, rotation: 0 };
     };
-    var tables = [
-      d('w1', '', 50, 2, 95, 0.5), d('w2', '', 2.2, 50, 0.35, 95),
-      d('w3', '', 97.8, 50, 0.35, 95), d('w4', '', 50, 98, 95, 0.5),
-      d('bar', 'bar', 24, 11, 34, 6), d('pass', 'pass', 79, 10, 24, 5.5),
-      t('t1', '1', 2, 11, 30, 8, 11), t('t2', '2', 2, 11, 48, 8, 11),
-      t('t3', '3', 2, 11, 66, 8, 11), t('t4', '4', 2, 11, 84, 8, 11),
-      t('t5', '5', 4, 36, 34, 12, 15), t('t6', '6', 4, 36, 60, 12, 15),
-      t('t7', '7', 4, 57, 34, 12, 15), t('t8', '8', 4, 57, 60, 12, 15),
-      t('t9', '9', 6, 81, 36, 14, 21, true), t('t10', '10', 6, 81, 70, 14, 21, true),
-      t('t11', '11', 6, 40, 86, 20, 10),
-    ];
+    var plans = null;
+    try {
+      if (window.__RESV_ROOM__ && window.__RESV_ROOM__.length) plans = window.__RESV_ROOM__;
+    } catch (e) {}
+    if (!plans) {
+      plans = [{ id: 'fp1', name: 'Main', tables: [
+        d('w1', '', 50, 2, 95, 0.5), d('w2', '', 2.2, 50, 0.35, 95),
+        d('w3', '', 97.8, 50, 0.35, 95), d('w4', '', 50, 98, 95, 0.5),
+        d('bar', 'bar', 24, 11, 34, 6), d('pass', 'pass', 79, 10, 24, 5.5),
+        t('t1', '1', 2, 11, 30, 8, 11), t('t2', '2', 2, 11, 48, 8, 11),
+        t('t3', '3', 2, 11, 66, 8, 11), t('t4', '4', 2, 11, 84, 8, 11),
+        t('t5', '5', 4, 36, 34, 12, 15), t('t6', '6', 4, 36, 60, 12, 15),
+        t('t7', '7', 4, 57, 34, 12, 15), t('t8', '8', 4, 57, 60, 12, 15),
+        t('t9', '9', 6, 81, 36, 14, 21, true), t('t10', '10', 6, 81, 70, 14, 21, true),
+        t('t11', '11', 6, 40, 86, 20, 10),
+      ] }];
+    }
     try {
       var raw = files[DB_LIVE];
       if (!raw) return;
       var data = JSON.parse(raw);
-      data.floorPlans = [{ id: 'fp1', name: 'Main', tables: tables }];
+      data.floorPlans = JSON.parse(JSON.stringify(plans));
       files[DB_LIVE] = JSON.stringify(data, null, 2);
       touch(DB_LIVE); persist(DB_LIVE);
     } catch (e) {}
@@ -2855,7 +3240,9 @@ function slotTimes(settings, day) {
 
 // The POS's floor plans flattened to what a booking needs: id, number, seats.
 function tablesFrom(floorPlans) {
-  const many = (floorPlans || []).length > 1;
+  // More than one room WITH TABLES, not more than one plan: an empty second
+  // plan (an Outside nobody has laid out yet) must not rename every table.
+  const many = (floorPlans || []).filter(fp => (fp.tables || []).some(t => t.type !== 'decor' && !t.mergedInto)).length > 1;
   return (floorPlans || []).flatMap(fp => (fp.tables || [])
     .filter(t => t.type !== 'decor' && !t.mergedInto)
     .map(t => ({ id: t.id, label: String(t.label), seats: parseInt(t.seats) || 2, floor: fp.name, floorId: fp.id, name: (many ? fp.name + ' · ' : '') + 'Table ' + t.label })));
@@ -3395,7 +3782,10 @@ function sheetRow(ctx, r, guest) {
   // A table that has left the POS floor is dropped silently, the way
   // pruneTables() does on a save — never printed as a phantom.
   const ids = heldTables(r).filter(id => tables.some(t => t.id === id));
-  const label = (id) => { const t = tables.find(x => x.id === id); return (many ? t.floor + ' · ' : '') + 'T' + t.label; };
+  // No "T" here either. The run sheet is printed and read beside the screens,
+  // and a sheet saying T21 next to a floor saying 21 is the app calling one
+  // table two things.
+  const label = (id) => { const t = tables.find(x => x.id === id); return (many ? t.floor + ' · ' : '') + t.label; };
   const mins = minsOf(r.time);
   const durationMin = durationFor(ctx.settings || {}, r.partySize, r.durationMin);
   return {
@@ -6293,7 +6683,12 @@ function fmtDayYear(day) {
 function esc(v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function isLive(r) { return ['booked', 'confirmed', 'arrived', 'seated'].includes(r.status); }
 function tableById(id) { return state.tables.find(t => t.id === id); }
-function tableName(id) { const t = tableById(id); return t ? (state.floorPlans.length > 1 ? t.floor + ' · ' : '') + t.label : '—'; }
+// A table is named by its number alone unless the venue has more than one
+// room WITH TABLES IN IT. Counting plans rather than rooms put "Inside · 21"
+// on every row of a venue whose second plan, Outside, is empty — a prefix
+// that distinguishes nothing, on the one column that has to stay narrow.
+function roomsInUse() { return (state.floorPlans || []).filter(fp => (fp.tables || []).some(t => t.kind !== 'decor' && t.type !== 'decor')).length; }
+function tableName(id) { const t = tableById(id); return t ? (roomsInUse() > 1 ? t.floor + ' · ' : '') + t.label : '—'; }
 function durationOf(r) {
   if (r.durationMin > 0) return r.durationMin;
   const s = state.settings || {};
