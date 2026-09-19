@@ -521,8 +521,6 @@ body.book-page #app{display:block;height:auto;}
    somebody is eating. Gold and violet are the two questions only a room can
    ask: who is late, and who is running over. Tokens throughout, so both
    themes and the print block follow. */
-.fl-bar{gap:8px;}
-.fl-scrub{flex:1 1 180px;min-width:120px;accent-color:var(--orange);height:var(--tap);background:transparent;}
 .fl-key{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
 .fl-key b{color:var(--text-primary);font-family:var(--font-mono);}
 .fl-dot{width:10px;height:10px;border-radius:var(--r-pill);border:1px solid var(--steel-300);background:var(--surface);}
@@ -867,9 +865,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .desk-col{flex:0 0 var(--deskcol-w);min-width:0;max-height:calc(100vh - var(--deck-h) - var(--hub-edge) * 2);
   overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--steel-200);}
 .desk-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:0;}
-/* Inside one card the stacked parts are separated by the seam alone. The
-   scrubber is a ROW, not a card on a card; the room gets the card's padding;
-   the pacing hangs off a single line at the foot. */
+/* Inside one card the stacked parts are separated by the seam alone: a band
+   is a ROW, not a card on a card; the room gets the card's padding; the
+   pacing hangs off a single line at the foot. */
 .desk-main > .band{margin:0;border:none;border-radius:0;background:none;
   border-bottom:1px solid var(--steel-200);padding:8px var(--hub-edge);}
 .desk-main > .fl-wrap{padding:var(--hub-edge);}
@@ -6605,7 +6603,6 @@ const state = {
   service: '',
   // The moment the floor plan is showing, or null for "now". Cleared
   // whenever the day changes — a time belongs to the day it was scrubbed on.
-  floorTime: null,
   // Which of the five questions the guest book is answering, and how many
   // each of the others would hold.
   guestLens: 'all', guestCounts: null,
@@ -7324,9 +7321,10 @@ function coverFlowFor() {
 
 // The moment the floor plan is showing. Now, when the day on screen is today
 // and the service has started; otherwise the first table of the night, which
-// is the question a host asks the plan before doors.
+// is the question a host asks the plan before doors. There is no scrubber any
+// more: a room later tonight is the timeline's question, and the timeline
+// answers it with every table and every booking rather than one frozen frame.
 function floorMoment() {
-  if (state.floorTime) return state.floorTime;
   const { start, end } = serviceWindow(state.date);
   if (state.date === tradingDay()) {
     const d = new Date();
@@ -7342,16 +7340,11 @@ function renderFloor() {
   const at = floorMoment();
   const by = {};
   for (const f of floorStateAt(at)) by[f.id] = f;
-  const { start, end } = serviceWindow(state.date);
-  const step = state.settings.slotMinutes || 15;
-  const count = (st) => Object.values(by).filter(f => f.state === st).length;
 
   // A floor plan the POS has never sent has no geometry to draw. Rather than
-  // invent a room, the tables are laid out in reading order — the states, the
-  // scrubber and the tapping all still work, which is the useful half.
+  // invent a room, the tables are laid out in reading order — the states and
+  // the tapping still work, which is the useful half.
   const placed = plans.some(fp => (fp.tables || []).some(t => t.kind !== 'decor' && t.type !== 'decor' && Number.isFinite(t.x) && Number.isFinite(t.y)));
-
-  const chip = (st, label) => `<span class="fl-key"><i class="fl-dot ${st}"></i>${label} <b>${count(st)}</b></span>`;
 
   const tableEl = (t) => {
     if (t.kind === 'decor') {
@@ -7381,14 +7374,6 @@ function renderFloor() {
   };
 
   return `
-  <div class="band fl-bar">
-    <span class="title">${esc(fmtHHMM(at))}</span>
-    <button class="chip" data-act="floor-now">Now</button>
-    <input class="fl-scrub" type="range" min="${start}" max="${end}" step="${step}" value="${toMin(at)}"
-      data-field="floor-time" aria-label="Time of day">
-    <span class="spacer"></span>
-    ${chip('seated', 'Seated')}${chip('over', 'Over')}${chip('due', 'Due')}${chip('free', 'Free')}
-  </div>
   ${plans.length ? plans.map(fp => `
     ${plans.length > 1 ? `<div class="section-h">${esc(fp.name)}</div>` : ''}
     <div class="fl-wrap"><div class="fl-room${placed ? '' : ' loose'}">
@@ -8871,7 +8856,7 @@ document.addEventListener('click', async (ev) => {
       // Settings is the one place that still asks for a code — and it asks
       // once, then holds it for as long as this tab is open.
       case 'view': setView(val); break;
-      case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.floorTime = null; state.service = ''; render(); await loadDay(); render(); break;
+      case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.service = ''; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'phone-pane': state.phonePane = val; render(); break;
       case 'mode': {
@@ -8888,10 +8873,9 @@ document.addEventListener('click', async (ev) => {
         else if (val === 'sheet') { await loadDay(); render(); }
         break;
       }
-      case 'floor-now': state.floorTime = null; render(); break;
       case 'print-sheet': window.print(); break;
       case 'month': { if (val === '0') state.month = localDay(new Date()).slice(0, 7); else { const [y, m] = state.month.split('-').map(Number); const d = new Date(y, m - 1 + parseInt(val), 1); state.month = localDay(d).slice(0, 7); } render(); try { await loadMonth(); } catch (e) {} render(); break; }
-      case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.floorTime = null; state.service = ''; render(); await loadDay(); render(); break;
+      case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.service = ''; render(); await loadDay(); render(); break;
       // Point at a table in the book and the room answers. A second tap puts
       // it back, so it is a question and not a mode you can get stuck in.
       case 'pick-table': {
@@ -8981,7 +8965,7 @@ document.addEventListener('click', async (ev) => {
       // booking is not reading another.
       // Narrowing to a service moves the floor's clock into it, or the room
       // would be drawn at a time this screen no longer shows.
-      case 'service': state.service = val || ''; state.floorTime = null; render(); break;
+      case 'service': state.service = val || ''; render(); break;
       case 'desk-clear': state.deskQ = ''; render(); break;
       case 'list-group': { state.listShut = Object.assign({}, state.listShut, { [val]: !state.listShut[val] }); render(); break; }
       case 'open-more': state.modal = { kind: 'more' }; render(); break;
@@ -9394,10 +9378,9 @@ document.addEventListener('input', (ev) => {
   const f = el.dataset && el.dataset.field;
   if (!f) return;
   const raw = el.type === 'number' ? (el.value === '' ? null : parseFloat(el.value)) : el.value;
-  if (f === 'date-pick') { if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) { state.date = raw; state.floorTime = null; state.service = ''; loadDay().then(render); } return; }
+  if (f === 'date-pick') { if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) { state.date = raw; state.service = ''; loadDay().then(render); } return; }
   // The floor's time scrubber. It repaints from what is already in memory —
   // no fetch — so the room follows the finger.
-  if (f === 'floor-time') { state.floorTime = fromMin(parseInt(raw, 10) || 0); render(); return; }
   if (f === 'deskQ') { state.deskQ = raw; render(); return; }
   if (f === 'guestQ') { state.guestQ = raw; clearTimeout(_saveTimer); _saveTimer = setTimeout(async () => { await loadGuests(); render(); }, 250); return; }
   if (f === 'find.q') { state.find.q = raw; clearTimeout(_findTimer); _findTimer = setTimeout(runFind, 250); return; }

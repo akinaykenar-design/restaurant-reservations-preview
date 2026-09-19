@@ -514,8 +514,6 @@ body.book-page #app{display:block;height:auto;}
    somebody is eating. Gold and violet are the two questions only a room can
    ask: who is late, and who is running over. Tokens throughout, so both
    themes and the print block follow. */
-.fl-bar{gap:8px;}
-.fl-scrub{flex:1 1 180px;min-width:120px;accent-color:var(--orange);height:var(--tap);background:transparent;}
 .fl-key{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
 .fl-key b{color:var(--text-primary);font-family:var(--font-mono);}
 .fl-dot{width:10px;height:10px;border-radius:var(--r-pill);border:1px solid var(--steel-300);background:var(--surface);}
@@ -860,9 +858,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .desk-col{flex:0 0 var(--deskcol-w);min-width:0;max-height:calc(100vh - var(--deck-h) - var(--hub-edge) * 2);
   overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--steel-200);}
 .desk-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:0;}
-/* Inside one card the stacked parts are separated by the seam alone. The
-   scrubber is a ROW, not a card on a card; the room gets the card's padding;
-   the pacing hangs off a single line at the foot. */
+/* Inside one card the stacked parts are separated by the seam alone: a band
+   is a ROW, not a card on a card; the room gets the card's padding; the
+   pacing hangs off a single line at the foot. */
 .desk-main > .band{margin:0;border:none;border-radius:0;background:none;
   border-bottom:1px solid var(--steel-200);padding:8px var(--hub-edge);}
 .desk-main > .fl-wrap{padding:var(--hub-edge);}
