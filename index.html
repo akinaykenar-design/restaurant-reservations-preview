@@ -7423,6 +7423,13 @@ function pillDur(mins) {
 // where it carries news: a table running over, a booking gone late, a party
 // sitting, and a free table about to go (inside three quarters of an hour).
 const PILL_SOON = 45;
+// The pill writes a clock time the till's way — 12-hour, no meridiem. The
+// room is NOW, so there is no half of the day to tell apart, and "AM" is
+// three characters that stretched a pill across three neighbouring tables.
+function pillTime(hhmm) {
+  const [h, m] = String(hhmm).split(':').map(Number);
+  return ((h % 12) || 12) + ':' + String(m).padStart(2, '0');
+}
 function floorPill(f) {
   const sev = (ratio) => (ratio >= 1 ? ' over' : ratio >= 0.65 ? ' warn' : '');
   if (f.state === 'over') return `<span class="fl-cpill over"><b>${esc(pillDur(f.over))} over</b></span>`;
@@ -7431,7 +7438,7 @@ function floorPill(f) {
     // for a guest who has not arrived would have the room's colour code
     // saying two things with one hue.
     if (f.late > 5) return `<span class="fl-cpill${f.late >= 20 ? ' late' : ' warn'}"><b>${esc(pillDur(f.late))} late</b></span>`;
-    return `<span class="fl-cpill due"><b>${esc(fmtHHMM(hhmmOf(f.r.time)))} · due</b></span>`;
+    return `<span class="fl-cpill due"><b>${esc(pillTime(hhmmOf(f.r.time)))} · due</b></span>`;
   }
   if (f.state === 'seated' && f.r) {
     const sat = Math.max(0, toMin(floorMoment()) - toMin(hhmmOf(f.r.time)));
@@ -7442,7 +7449,7 @@ function floorPill(f) {
     return cls ? `<span class="fl-cpill${cls}"><b>${esc(pillDur(sat))}</b></span>` : '';
   }
   if (f.state === 'free' && f.nextAt && f.freeFor !== null && f.freeFor <= PILL_SOON) {
-    return `<span class="fl-cpill next"><b>${esc(fmtHHMM(f.nextAt))} · in ${esc(pillDur(f.freeFor))}</b></span>`;
+    return `<span class="fl-cpill next"><b>${esc(pillTime(f.nextAt))} · in ${esc(pillDur(f.freeFor))}</b></span>`;
   }
   return '';
 }
@@ -7481,12 +7488,12 @@ function renderFloor() {
     }
     const f = by[t.id] || { state: 'free', r: null };
     const r = f.r;
-    // A host reading a free table wants the one number that decides whether a
-    // walk-in fits: how long it stays free. Past an hour and a half that
-    // stops being a constraint, so it just says free.
-    const sub = r
-      ? esc(r.name) + ' · ' + r.partySize
-      : (f.freeFor === null || f.freeFor > 90) ? 'free' : 'free · ' + f.freeFor + 'm';
+    // A FREE TABLE SAYS NOTHING. It used to say "free", and on a thirty-table
+    // room that is twenty-eight tables all saying the same word — while the
+    // outline already says it, and the key above the room counts it. The one
+    // thing a free table had worth saying, how long it stays free, is the
+    // pill's job now and only appears when the answer is soon.
+    const sub = r ? esc(r.name) + ' · ' + r.partySize : '';
     const why = r
       ? `${r.name} · ${r.partySize} · ${hhmmOf(r.time)}${f.over ? ' · ' + f.over + ' min over' : ''}${f.late ? ' · ' + f.late + ' min late' : ''}`
       : `Table ${t.label} · ${t.seats} seats · free${f.nextAt ? ' until ' + f.nextAt : ''}`;
@@ -7496,7 +7503,7 @@ function renderFloor() {
       title="${esc(why)}">
       <span class="fl-in" style="${up}">
         <span class="fl-no">${esc(t.label)}</span>
-        <span class="fl-sub">${sub}</span>
+        ${sub ? `<span class="fl-sub">${sub}</span>` : ''}
       </span>
       ${uprightBadges(t, floorPill(f))}
     </button>`;
