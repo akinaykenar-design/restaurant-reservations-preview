@@ -2132,6 +2132,34 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 
   function seedOn(base) {
     var at = function (shift, hh, mm) { return shiftDay(base, shift) + 'T' + pad(hh) + ':' + pad(mm); };
+
+    // TONIGHT IS DRAGGED ONTO THE READER'S CLOCK.
+    //
+    // The floor plan shows NOW once service has started and, before doors,
+    // the night's FIRST table — which is the right answer for a desk and a
+    // dead one for a demo: at the first booking nothing is over, nothing is
+    // late, nobody has been sitting, so the room opens grey, the counts read
+    // 1 seated / 29 free, and the pill, the colours and the status line have
+    // nothing to say. Whoever opens this has come to see a service.
+    //
+    // So the seeded night keeps its SHAPE — the same nine parties, the same
+    // gaps, the same joins — and only its hands move, in whole five minutes,
+    // so that the reader's own clock lands mid-service. The drift is clamped
+    // to keep the night inside 11:00–23:00: a demo restaurant serving at
+    // dawn to prove a point about pills would say something worse about the
+    // app than an empty room does. Opened at eight in the morning the night
+    // sits at lunch and the room is properly pre-doors, which is honest.
+    var ANCHOR = 19 * 60 + 25;   // where the reader's clock lands in the night
+    var drift = (function () {
+      var d = new Date(), now = d.getHours() * 60 + d.getMinutes();
+      var lo = 11 * 60 - (17 * 60 + 45);   // first booking no earlier than 11:00
+      var hi = 23 * 60 - (20 * 60 + 15);   // last booking no later than 23:00
+      return Math.round(Math.max(lo, Math.min(hi, now - ANCHOR)) / 5) * 5;
+    })();
+    var tonight = function (hh, mm) {
+      var m = hh * 60 + mm + drift;
+      return shiftDay(base, 0) + 'T' + pad(Math.floor(m / 60)) + ':' + pad(m % 60);
+    };
     // A full Tuesday that actually fits the room. The order matters: the
     // party of eight is written FIRST and takes the two biggest tables as a
     // join, because a room this full has nowhere else to put it — seeded
@@ -2189,7 +2217,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     people.forEach(function (p) {
       chain = chain.then(function () {
         var body = {
-          name: p.name, phone: p.phone, partySize: p.party, time: at(0, p.hh, p.mm),
+          name: p.name, phone: p.phone, partySize: p.party, time: tonight(p.hh, p.mm),
           tags: p.tags || [], notes: p.notes || '', status: p.status || 'booked',
         };
         // A party of eight does not fit any one table in this room, so it
@@ -2220,7 +2248,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     // book or its counter and the guest book's no-show lens are both a zero
     // that proves nothing.
     chain = chain.then(function () {
-      return book({ name: 'Ashby', phone: '0455 118 900', partySize: 2, time: at(0, 18, 0), status: 'booked' })
+      return book({ name: 'Ashby', phone: '0455 118 900', partySize: 2, time: tonight(18, 0), status: 'booked' })
         .then(function (r) { return r && r.id ? call('PUT', '/api/reservations/' + r.id, { status: 'no-show' }) : null; });
     });
 
