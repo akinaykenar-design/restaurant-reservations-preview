@@ -3025,6 +3025,17 @@ const DEFAULT_SETTINGS = {
   maxPartySize: 12,
   seatSlack: 2,             // a table may have this many seats more than the party
   pacing: { maxCoversPer15: 0, maxBookingsPer15: 0 }, // 0 = off
+  // The floating pill under a table — the till's own card, in our terms. The
+  // POS times a sitting against one fixed cap because it has no booking to
+  // measure against; ours is a SHARE of the booking's own length, so a party
+  // of eight on a 150-minute sitting is not running long at ninety. See
+  // availability.js:tablePill(), which is where the rule and its tests live.
+  //   on             draw the pill at all (the till's floorStatusEnabled)
+  //   warnAt         % of the booking's length before a sitting speaks up
+  //   lateAfter      minutes past the time before "late" appears
+  //   veryLateAfter  minutes past the time before late goes solid
+  //   soonWithin     how far ahead a free table says it is going
+  floorPill: { on: true, warnAt: 65, lateAfter: 5, veryLateAfter: 20, soonWithin: 45 },
   // What the venue has recoloured. A key here is a CSS custom property the
   // client re-points at boot; a key ABSENT (or '') means the stylesheet's own
   // token stands. The accent is NOT in here — it comes from the POS with the
@@ -3136,6 +3147,8 @@ function migrate(data) {
   for (const k of Object.keys(DEFAULT_SETTINGS.online)) if (s.online[k] === undefined) s.online[k] = DEFAULT_SETTINGS.online[k];
   for (const k of Object.keys(DEFAULT_SETTINGS.pos)) if (s.pos[k] === undefined) s.pos[k] = DEFAULT_SETTINGS.pos[k];
   for (const k of Object.keys(DEFAULT_SETTINGS.pacing)) if (s.pacing[k] === undefined) s.pacing[k] = DEFAULT_SETTINGS.pacing[k];
+  if (!s.floorPill || typeof s.floorPill !== 'object' || Array.isArray(s.floorPill)) s.floorPill = {};
+  for (const k of Object.keys(DEFAULT_SETTINGS.floorPill)) if (s.floorPill[k] === undefined) s.floorPill[k] = DEFAULT_SETTINGS.floorPill[k];
   // The loop above already gives an older store `exceptions: []`; this catches
   // a hand-edited or half-written file that has the key but not an array.
   if (!Array.isArray(s.exceptions)) s.exceptions = [];
@@ -3436,20 +3449,101 @@ function floorAt(ctx, day, hhmm, opts) {
 
     if (!on) {
       return {
-        id: t.id, state: 'free', bookingId: null, over: 0,
+        id: t.id, state: 'free', bookingId: null, over: 0, late: 0, sat: 0, cap: 0,
         nextAt, freeFor: next ? minsOf(next.time) - at : null,
       };
     }
-    const end = minsOf(on.time) + durOf(on);
+    const start = minsOf(on.time);
+    const cap = durOf(on);
+    const end = start + cap;
     const state = on.status === 'seated' ? (at >= end ? 'over' : 'seated') : 'due';
     return {
       id: t.id, state, bookingId: on.id,
       over: state === 'over' ? at - end : 0,
       // How late they are, when the table is held by somebody who has not sat.
-      late: state === 'due' ? Math.max(0, at - minsOf(on.time)) : 0,
+      late: state === 'due' ? Math.max(0, at - start) : 0,
+      // How long they have been down, against how long they have. The pill's
+      // danger scale is a SHARE of the second, so both travel with the state.
+      sat: state === 'seated' || state === 'over' ? Math.max(0, at - start) : 0,
+      cap,
       nextAt, freeFor: null,
     };
   });
+}
+
+// §§ The floating pill — WHEN a table has news, and how loud
+//
+// The till's rule in our terms, and the reason it is here rather than in the
+// client: it is a booking rule, and booking rules are tested.
+//
+// The POS scales a sitting against a FIXED cap, because a till has no booking
+// to measure against — it only knows the table has been open an hour. The
+// desk has the booking's own length, so ours is a SHARE of that: a party of
+// eight on a 150-minute sitting is not running long at ninety minutes, and
+// the till would have said it was. The thresholds are the venue's, and the
+// defaults are the till's own reading — quiet under 0.65 of the cap, a tint
+// from 0.65, a solid colour at 1 and over, "because the alarm must not
+// whisper".
+//
+// It returns WHAT to say, never the words: 'over' and 'late' are solid,
+// 'warn' is a tint, 'due' and 'next' are the quiet accent, and null is a
+// table with nothing worth saying — which is most of them, most of the
+// night, and is the whole reason the room stays readable.
+const PILL_DEFAULTS = {
+  on: true,
+  warnAt: 65,         // % of the booking's length before a sitting speaks up
+  lateAfter: 5,       // minutes past the time before "late" appears at all
+  veryLateAfter: 20,  // minutes past the time before late goes solid
+  soonWithin: 45,     // how far ahead a free table says it is going
+};
+
+function pillSettings(settings) {
+  const s = (settings && settings.floorPill) || {};
+  const num = (v, d, lo, hi) => {
+    const n = Number(v);
+    return Number.isFinite(n) ? Math.max(lo, Math.min(hi, Math.round(n))) : d;
+  };
+  return {
+    on: s.on !== false,
+    warnAt: num(s.warnAt, PILL_DEFAULTS.warnAt, 1, 100),
+    lateAfter: num(s.lateAfter, PILL_DEFAULTS.lateAfter, 0, 120),
+    // Very late can never come BEFORE late, whatever a settings file says —
+    // otherwise the solid colour lands first and the tint never shows.
+    veryLateAfter: Math.max(
+      num(s.lateAfter, PILL_DEFAULTS.lateAfter, 0, 120),
+      num(s.veryLateAfter, PILL_DEFAULTS.veryLateAfter, 0, 240)
+    ),
+    soonWithin: num(s.soonWithin, PILL_DEFAULTS.soonWithin, 0, 240),
+  };
+}
+
+function tablePill(f, settings) {
+  if (!f) return null;
+  const p = pillSettings(settings);
+  if (!p.on) return null;
+  if (f.state === 'over') return { kind: 'over', mins: Math.max(0, f.over || 0) };
+  if (f.state === 'due') {
+    const late = Math.max(0, f.late || 0);
+    // Late escalates in its own colour, never the over-staying one: a guest
+    // who has not arrived and a table that will not leave are two different
+    // problems and must not share a hue.
+    if (late > p.veryLateAfter) return { kind: 'late', mins: late };
+    if (late > p.lateAfter) return { kind: 'warn', mins: late, late: true };
+    return { kind: 'due' };
+  }
+  if (f.state === 'seated') {
+    const cap = Number(f.cap) || 0;
+    const sat = Math.max(0, Number(f.sat) || 0);
+    // A party that has just sat is not news, and a "0m" under a table reads
+    // as something broken. The dwell appears when it starts to matter.
+    if (!cap) return null;
+    return sat / cap >= p.warnAt / 100 ? { kind: 'warn', mins: sat } : null;
+  }
+  if (f.state === 'free' && f.nextAt && f.freeFor !== null && f.freeFor !== undefined
+      && f.freeFor <= p.soonWithin) {
+    return { kind: 'next', at: f.nextAt };
+  }
+  return null;
 }
 
 // §§ Cover flow — the shape of the night
@@ -4003,7 +4097,7 @@ module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, suggestTable, suggestJoin, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
-  FLOOR_STATES, floorAt, coverFlow,
+  FLOOR_STATES, floorAt, PILL_DEFAULTS, pillSettings, tablePill, coverFlow,
   MOVABLE, canMove, snapSlot, seatsOf, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
@@ -5389,6 +5483,24 @@ app.put('/api/settings', async (req, res) => {
   if (b.maxPartySize !== undefined) s.maxPartySize = Math.max(1, Math.min(200, parseInt(b.maxPartySize) || 12));
   if (b.seatSlack !== undefined) s.seatSlack = Math.max(0, Math.min(10, parseInt(b.seatSlack) || 0));
   if (b.pacing) { s.pacing.maxCoversPer15 = Math.max(0, parseInt(b.pacing.maxCoversPer15) || 0); s.pacing.maxBookingsPer15 = Math.max(0, parseInt(b.pacing.maxBookingsPer15) || 0); }
+  // The floating pill's numbers. Clamped here the same way av.pillSettings()
+  // clamps them when it reads them, so a hand-edited store and a saved form
+  // can never give the room two different answers.
+  if (b.floorPill) {
+    // ZERO IS A REAL ANSWER HERE — "late from the first minute", "never say
+    // a table is going soon" — so the fallback is reached only when the value
+    // is not a number at all. `parseInt(v) || d` turned every 0 into the
+    // default and the field snapped back the moment it was saved.
+    const f = b.floorPill;
+    const n = (v, d, lo, hi) => { const x = parseInt(v, 10); return Number.isFinite(x) ? Math.max(lo, Math.min(hi, x)) : d; };
+    if (f.on !== undefined) s.floorPill.on = !!f.on;
+    if (f.warnAt !== undefined) s.floorPill.warnAt = n(f.warnAt, 65, 1, 100);
+    if (f.lateAfter !== undefined) s.floorPill.lateAfter = n(f.lateAfter, 5, 0, 120);
+    if (f.veryLateAfter !== undefined) s.floorPill.veryLateAfter = n(f.veryLateAfter, 20, 0, 240);
+    if (f.soonWithin !== undefined) s.floorPill.soonWithin = n(f.soonWithin, 45, 0, 240);
+    // Solid before tint would mean the tint never shows at all.
+    s.floorPill.veryLateAfter = Math.max(s.floorPill.lateAfter, s.floorPill.veryLateAfter);
+  }
   if (b.online) {
     const o = b.online;
     if (o.enabled !== undefined) s.online.enabled = !!o.enabled;
