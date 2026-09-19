@@ -572,12 +572,38 @@ body.book-page #app{display:block;height:auto;}
 /* Outside only, even on a join: the shadow law allows a ring inside or out,
    never both, and picked outranks joined because it is what was just asked. */
 .fl-table.picked.joined{box-shadow:0 0 0 var(--ring) var(--orange);}
-/* Only a turned one. Everything square keeps its label inside its own edges. */
-.fl-table.turned{overflow:visible;}
+/* Nothing clips: the pill hangs below the table and a turned table's label
+   spills past its corners. The LABEL keeps its own clip, inside .fl-in. */
+.fl-table{overflow:visible;}
 .fl-in{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;max-width:100%;overflow:hidden;}
 .fl-no{font-size:var(--fs-md);line-height:1.1;}
 .fl-sub{font-family:var(--font-body);font-size:var(--fs-chip);font-weight:700;opacity:.85;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.fl-flag{font-family:var(--font-body);font-size:var(--fs-chip);font-weight:700;opacity:.9;}
+/* §§ The floating pill — the POS's .tbl-cpill, in our tokens
+   It hangs BELOW the table, outside its box, so the box can keep the number
+   and nothing has to share thirty pixels. .fl-badges is the anchor: it is
+   counter-rotated so a pill on a turned table is still readable, and carries
+   --pill-out, how far the pill must drop to clear that turned box. */
+.fl-badges{position:absolute;inset:0;z-index:5;pointer-events:none;
+  transform-origin:50% 50%;display:block;}
+.fl-cpill{position:absolute;left:50%;top:calc(100% + var(--pill-out, 0%));
+  transform:translate(-50%, 3px);display:inline-flex;align-items:center;gap:4px;
+  white-space:nowrap;border-radius:var(--r-pill);padding:3px 8px;pointer-events:none;
+  box-shadow:var(--lift-1);background:var(--surface);
+  color:var(--text-primary);}
+.fl-cpill b{font-family:var(--font-mono);font-weight:700;font-size:var(--fs-chip);
+  line-height:1.2;letter-spacing:.2px;}
+/* A table about to go, and one whose party is due: the accent, quietly. */
+.fl-cpill.next,.fl-cpill.due{background:var(--orange-dim);color:var(--orange);}
+/* Closing in wears the tint. OVER wears a solid colour, because the alarm
+   must not whisper — the POS's rule, and its reason. */
+.fl-cpill.warn{background:color-mix(in srgb, var(--st-due) 22%, var(--surface));
+  color:color-mix(in srgb, var(--st-due) 60%, var(--text-primary));}
+.fl-cpill.late{background:var(--st-due);color:var(--charcoal);}
+.fl-cpill.over{background:var(--st-over);color:#fff;}
+/* A table showing a pill stands above its neighbours, or the pill — which
+   hangs outside the table's own box — is painted over by whichever table
+   comes next. The POS learnt this one the hard way. */
+.fl-table:has(.fl-cpill){z-index:6;}
 /* Furniture, not a key. A solid white slab reads as something you press; a
    wall and a bar are the room's edges and want the weight of a pencil line.
    A NAMED piece (bar, pass) keeps a faint wash so its label has a ground; an
@@ -7378,6 +7404,66 @@ function floorMoment() {
   return fromMin(first === undefined ? start : first);
 }
 
+// §§ The floating pill under a table — the POS's, ported
+//
+// The till hangs a pill BELOW each table rather than cramming the news inside
+// it: the box holds the number, the pill holds what is happening. Ours used to
+// squeeze "12m late" into the box beside the name, where it had about thirty
+// pixels and got them both.
+//
+// Three things are the POS's and are copied rather than reinvented:
+//   the grammar — 42m, 1h 25m;
+//   the danger scale — quiet under 0.65 of the cap, a tint from 0.65, a SOLID
+//     colour at 1 and over, because "the alarm must not whisper";
+//   and the upright anchor, below.
+function pillDur(mins) {
+  return mins < 60 ? mins + 'm' : Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm';
+}
+// A pill on every table is the chairs all over again, so it is drawn only
+// where it carries news: a table running over, a booking gone late, a party
+// sitting, and a free table about to go (inside three quarters of an hour).
+const PILL_SOON = 45;
+function floorPill(f) {
+  const sev = (ratio) => (ratio >= 1 ? ' over' : ratio >= 0.65 ? ' warn' : '');
+  if (f.state === 'over') return `<span class="fl-cpill over"><b>${esc(pillDur(f.over))} over</b></span>`;
+  if (f.state === 'due') {
+    // Late escalates within its OWN colour. Reusing the over-staying violet
+    // for a guest who has not arrived would have the room's colour code
+    // saying two things with one hue.
+    if (f.late > 5) return `<span class="fl-cpill${f.late >= 20 ? ' late' : ' warn'}"><b>${esc(pillDur(f.late))} late</b></span>`;
+    return `<span class="fl-cpill due"><b>${esc(fmtHHMM(hhmmOf(f.r.time)))} · due</b></span>`;
+  }
+  if (f.state === 'seated' && f.r) {
+    const sat = Math.max(0, toMin(floorMoment()) - toMin(hhmmOf(f.r.time)));
+    const cap = durationOf(f.r) || 90;
+    // A party that has just sat is not news, and "0m" under a table reads as
+    // something broken. The dwell appears when the sitting starts to matter.
+    const cls = sev(sat / cap);
+    return cls ? `<span class="fl-cpill${cls}"><b>${esc(pillDur(sat))}</b></span>` : '';
+  }
+  if (f.state === 'free' && f.nextAt && f.freeFor !== null && f.freeFor <= PILL_SOON) {
+    return `<span class="fl-cpill next"><b>${esc(fmtHHMM(f.nextAt))} · in ${esc(pillDur(f.freeFor))}</b></span>`;
+  }
+  return '';
+}
+// THE PILL STAYS UPRIGHT AND CLEARS A TURNED BOX — the POS's own maths, and
+// the reason it is worth copying rather than guessing: a w by h box turned by
+// r stands (w|sin| + h|cos|) tall, so it pokes out below its own box by half
+// the difference. As a percentage of the box's height — which is what a `top`
+// percentage is measured against — that is ((w/h)|sin| + |cos| - 1) / 2. The
+// widths are a share of the canvas's WIDTH and the heights a share of its
+// HEIGHT, so the ratio has to come back through the canvas's proportions
+// first. Without it the pill sits inside a turned table instead of under it.
+function uprightBadges(t, inner) {
+  if (!inner) return '';
+  const rot = (((Number(t.rotation) || 0) % 360) + 360) % 360;
+  const rad = rot * Math.PI / 180;
+  const wh = (t.height ? (Number(t.width) || 0) / Number(t.height) : 1) * (900 / 560);
+  const grow = (wh * Math.abs(Math.sin(rad)) + Math.abs(Math.cos(rad)) - 1) / 2;
+  const out = Math.max(0, Math.round(grow * 100));
+  return `<span class="fl-badges" style="${rot ? `transform:rotate(${-rot}deg);` : ''}--pill-out:${out}%;">${inner}</span>`;
+}
+
 function renderFloor() {
   const plans = (state.floorPlans || []).filter(fp => (fp.tables || []).length);
   const at = floorMoment();
@@ -7411,8 +7497,8 @@ function renderFloor() {
       <span class="fl-in" style="${up}">
         <span class="fl-no">${esc(t.label)}</span>
         <span class="fl-sub">${sub}</span>
-        ${f.over ? `<span class="fl-flag">${f.over}m over</span>` : f.late > 5 ? `<span class="fl-flag">${f.late}m late</span>` : ''}
       </span>
+      ${uprightBadges(t, floorPill(f))}
     </button>`;
   };
 
