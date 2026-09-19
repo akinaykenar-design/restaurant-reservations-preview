@@ -1,257 +1,166 @@
 <!doctype html>
-<html lang="en">
-<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Reservations on a device</title>
 <style>
-  :root{ --bar:#17191B; --bar-2:#2A2E31; --ink:#E9ECEF; --dim:#9AA3A9;
-    --pick:#3692E7; --pick-bg:#0F2233; --line:#34393D; }
-  *{box-sizing:border-box;}
-  html,body{margin:0;height:100%;}
-  body{background:var(--bar);color:var(--ink);overflow:hidden;
-    font:600 14px/1.3 -apple-system,system-ui,'Segoe UI',sans-serif;
-    display:flex;flex-direction:column;}
-
-  .stage{flex:1;min-height:0;display:grid;place-items:center;background:var(--bar);}
-  /* A scaled element still reserves its UNSCALED box, so the screen used to
-     spill over the buttons. The sizer holds the scaled size; the screen is
-     scaled from its top-left corner inside it. */
-  .fit{overflow:hidden;}
-  .screen{position:relative;overflow:hidden;background:#fff;transform-origin:top left;}
-  .screen iframe{display:block;border:0;width:100%;height:100%;}
-  .ring{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;
-    border:2px solid rgba(54,146,231,.9);background:rgba(54,146,231,.16);
-    pointer-events:none;opacity:0;z-index:4;}
-  .ring.on{opacity:1;}
-
-  .keys{flex:none;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
-    padding:14px 12px calc(14px + env(safe-area-inset-bottom,0px));
-    border-top:1px solid var(--line);background:var(--bar);}
-  button{display:inline-flex;align-items:center;justify-content:center;gap:9px;
-    min-height:52px;padding:0 20px;border-radius:12px;cursor:pointer;
-    border:1px solid var(--line);background:var(--bar-2);color:var(--ink);
-    font:600 15px/1 inherit;}
-  button svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.8;
-    stroke-linecap:round;stroke-linejoin:round;}
-  button.on{background:var(--pick-bg);border-color:var(--pick);color:var(--pick);}
+  /* A phone on the desk: the preview inside a 390×844 frame, scaled to fit
+     the window so the owner can see the phone look from a laptop. */
+  html, body { margin:0; height:100%; background:#1c1c1e; font-family:-apple-system, "Segoe UI", sans-serif; }
+  body { display:flex; align-items:center; justify-content:center; gap:20px; }
+  /* The STAGE is the frame's real size on the page — the scaled box, not the
+     full-size one. Scaling alone left the big box in the layout, so on a phone
+     the page grew wider than the screen, the browser zoomed out to fit, and the
+     frame shrank again on the next measure. */
+  .stage { flex:none; overflow:hidden; }
+  .phone { --w:390px; --h:844px; --s:1; width:calc(var(--w) + 24px); height:calc(var(--h) + 24px);
+    transform:scale(var(--s)); transform-origin:top left; background:#0a0a0a; border-radius:52px;
+    padding:12px; box-sizing:border-box; box-shadow:0 30px 60px rgba(0,0,0,.6), inset 0 0 0 2px #333; flex:none; }
+  iframe { width:var(--w); height:var(--h); border:0; border-radius:40px; background:#fff; display:block; }
+  /* The hand: what the mouse is right now. One chip lit at a time. */
+  .hand { display:flex; flex-direction:column; gap:8px; flex:none; }
+  .hand button { width:120px; height:44px; border-radius:10px; border:1px solid #444; background:#2a2a2c; color:#ddd;
+    font:700 14px/1 inherit; cursor:pointer; display:flex; align-items:center; gap:10px; padding:0 12px; }
+  .hand button svg { width:20px; height:20px; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; flex:none; }
+  .hand button.on { background:#e8f1ff; border-color:#2f7cf6; color:#1d5fd0; }
+  .hand .hint { color:#888; font-size:12px; line-height:1.4; width:120px; margin-top:4px; }
+  .hand .gap { height:12px; }
+  .hand button.pill { background:#3d434a; border-color:#3d434a; color:#fff; }
+  .hand button.pill.copy { background:#3a9d23; border-color:#3a9d23; }
+  /* The tablet: an iPad on its side. Same frame, wider. */
+  .phone.tablet { --w:1180px; --h:820px; border-radius:36px; }
+  .phone.tablet iframe { border-radius:24px; }
+  /* Narrow: the hand goes under the frame, and only the chips that still mean
+     something on a real finger stay — the Finger/Pinch/Mouse ones exist to
+     turn a laptop mouse into a hand, and a hand is already a hand. */
+  body.stack { flex-direction:column; justify-content:flex-start; gap:10px; padding:8px 0; box-sizing:border-box; }
+  body.stack .hand { flex-direction:row; flex-wrap:wrap; justify-content:center; width:100%; }
+  body.stack .hand button { width:auto; min-width:104px; justify-content:center; }
+  body.stack .hand .hint, body.stack .hand .gap, body.stack .hand [data-hand] { display:none; }
 </style>
-</head>
-<body>
-  <div class="stage" id="stage">
-    <div class="fit" id="fit">
-      <div class="screen" id="screen">
-        <iframe id="app" title="Reservations" src="index.html"></iframe>
-        <div class="ring" id="ring"></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="keys">
-    <button id="phone" data-id="phone">
-      <svg viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.4"/><path d="M10.6 5.2h2.8"/></svg>
-      Phone
-    </button>
-    <button id="tablet" data-id="tablet">
-      <svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="12" rx="2.4"/><path d="M19.2 10.6v2.8"/></svg>
-      Tablet
-    </button>
-    <button id="latest">
-      <svg viewBox="0 0 24 24"><path d="M3.5 12a8.5 8.5 0 0 1 14.4-6.1L21 8"/><path d="M21 3.5V8h-4.5"/><path d="M20.5 12a8.5 8.5 0 0 1-14.4 6.1L3 16"/><path d="M3 20.5V16h4.5"/></svg>
-      Get latest
-    </button>
-    <button id="touch">
-      <svg viewBox="0 0 24 24"><path d="M9 11V5.4a1.9 1.9 0 0 1 3.8 0V11"/><path d="M12.8 11V9.2a1.7 1.7 0 0 1 3.4 0V13"/><path d="M16.2 11.4a1.7 1.7 0 0 1 3.4 0v3.1c0 3.8-2.6 6.4-6.2 6.4-3 0-4.6-1.4-6.2-4L5 13.4a1.8 1.8 0 0 1 2.9-2.1L9 12.8"/></svg>
-      Touch
-    </button>
-    <button id="pinch">
-      <svg viewBox="0 0 24 24"><path d="M14.5 9.5 21 3"/><path d="M15.5 3H21v5.5"/><path d="M9.5 14.5 3 21"/><path d="M8.5 21H3v-5.5"/></svg>
-      Pinch
-    </button>
-  </div>
-
+<div class="stage"><div class="phone"><iframe src="index.html" allow="clipboard-write"></iframe></div></div>
+<div class="hand">
+  <button data-device="phone" class="on" aria-label="Phone"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/></svg>Phone</button>
+  <button data-device="tablet" aria-label="Tablet"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M20 11v2"/></svg>Tablet</button>
+  <div class="gap"></div>
+  <button data-hand="finger" class="on" aria-label="Finger"><svg viewBox="0 0 24 24"><path d="M9 11V4a2 2 0 0 1 4 0v7"/><path d="M13 10a2 2 0 0 1 4 0v2"/><path d="M17 12a2 2 0 0 1 4 0v4a6 6 0 0 1-6 6h-2a6 6 0 0 1-5-2.6L4.5 14a2 2 0 0 1 3.2-2.4L9 13"/></svg>Finger</button>
+  <button data-hand="pinch" aria-label="Pinch"><svg viewBox="0 0 24 24"><path d="M4 4l6 6"/><path d="M4 4v5M4 4h5"/><path d="M20 20l-6-6"/><path d="M20 20v-5M20 20h-5"/></svg>Pinch</button>
+  <button data-hand="mouse" aria-label="Mouse"><svg viewBox="0 0 24 24"><path d="M5 3l14 9-7 1-4 6z"/></svg>Mouse</button>
+  <div class="hint">Finger: drag swipes and pans, hold opens pads. Pinch: drag right zooms in, left zooms out. Mouse: the plain mouse.</div>
+  <div class="gap"></div>
+  <button class="pill" data-pv="latest">↻ Get latest</button>
+  <button class="pill copy" data-pv="copy">⎘ Download data</button>
+</div>
 <script>
-(function () {
-  'use strict';
-  // CSS pixels, which is what a layout sees. Phone upright, tablet on its side.
-  var SIZES = { phone: [393, 852], tablet: [1180, 820] };
-  var $ = function (id) { return document.getElementById(id); };
-  var m = /[?&]d=(phone|tablet)/.exec(location.search);
-  var st = {
-    id: m ? m[1] : (function () {
-      try { var s = localStorage.getItem('resv-device'); if (SIZES[s]) return s; } catch (e) {}
-      return 'phone';
-    })(),
-    touch: false,   // the frame answers a finger, not a mouse
-    pinch: false,   // and can be zoomed and pushed about, the way a phone is
-    zoom: 1, panX: 0, panY: 0
-  };
-  var base = 1;     // the scale that fits the window; zoom multiplies it
+  // Fit the phone to the window, never larger than life.
+  const size = () => document.querySelector('.phone').classList.contains('tablet') ? [1180, 820] : [390, 844];
+  // THE FRAME FILLS A PHONE (owner, Sep '26: on his own phone the till came out
+  // a toy in a black field — "this is how far I can scroll" — because the fit
+  // always kept 200px clear for the hand column beside it). Narrow, the
+  // controls drop UNDERNEATH, so the frame gets the whole width and the Tablet
+  // button does what he wants it for: the tablet look, on a phone.
+  const narrow = () => innerWidth <= 900;
+  const fit = () => { const p = document.querySelector('.phone'); const [w, h] = size();
+    document.body.classList.toggle('stack', narrow());
+    const side = narrow() ? 24 : 200, below = narrow() ? 116 : 24;
+    const s = Math.min(1, (innerHeight - below) / (h + 24), (innerWidth - side) / (w + 24));
+    p.style.setProperty('--s', s);
+    const st = p.parentElement;
+    st.style.width = ((w + 24) * s) + 'px';
+    st.style.height = ((h + 24) * s) + 'px'; };
+  // A mobile browser re-lays-out after the box changes size, which changes
+  // innerWidth, which changes the fit — so settle it rather than measure once.
+  addEventListener('resize', fit);
+  const settle = () => { fit(); requestAnimationFrame(() => { fit(); setTimeout(fit, 60); }); };
+  settle();
 
-  function draw() {
-    var s = SIZES[st.id], w = s[0], h = s[1];
-    var stage = $('stage'), el = $('screen'), fit = $('fit');
-    el.style.width = w + 'px';
-    el.style.height = h + 'px';
-    base = Math.min(stage.clientWidth / w, stage.clientHeight / h);
-    fit.style.width = Math.round(w * base) + 'px';
-    fit.style.height = Math.round(h * base) + 'px';
-    clampPan();
-    el.style.transform = 'translate(' + st.panX.toFixed(1) + 'px,' + st.panY.toFixed(1) + 'px) scale('
-      + (base * st.zoom).toFixed(4) + ')';
-    $('phone').classList.toggle('on', st.id === 'phone');
-    $('tablet').classList.toggle('on', st.id === 'tablet');
-    $('touch').classList.toggle('on', st.touch);
-    $('pinch').classList.toggle('on', st.pinch);
-    try { localStorage.setItem('resv-device', st.id); } catch (e) {}
-  }
-  // Zoomed in, a phone lets you push the picture about but not off the edge.
-  function clampPan() {
-    var s = SIZES[st.id];
-    var over = function (n) { return Math.max(0, n * base * (st.zoom - 1)); };
-    var mx = over(s[0]), my = over(s[1]);
-    st.panX = Math.min(0, Math.max(-mx, st.panX));
-    st.panY = Math.min(0, Math.max(-my, st.panY));
-  }
-  // Zoom about the point under the finger, the way a pinch does.
-  function zoomAt(k, cx, cy) {
-    var was = st.zoom;
-    st.zoom = Math.max(1, Math.min(6, st.zoom * k));
-    if (st.zoom === was) return;
-    var r = $('fit').getBoundingClientRect();
-    var x = cx - r.left, y = cy - r.top;
-    var f = st.zoom / was;
-    st.panX = x - f * (x - st.panX);
-    st.panY = y - f * (y - st.panY);
-    draw();
-  }
-
-  function frameDoc() { try { return $('app').contentDocument; } catch (e) { return null; } }
-  function frameWin() { try { return $('app').contentWindow; } catch (e) { return null; } }
-
-  // ── TOUCH. Not a picture of a finger: the frame is sent real touch events,
-  //    so anything that listens for them runs, hover is switched off because a
-  //    touchscreen has none, and text stops selecting on a drag the way it
-  //    does not on a phone. The ring is 44 across — the finger law — so you
-  //    can see what a thumb actually covers.
-  var TOUCH_CSS = '*{cursor:none!important;-webkit-user-select:none!important;user-select:none!important;}'
-    + '.chip:hover,.btn:hover,.row:hover,.bk-row:hover,.bl-main:hover,'
-    + '.rail-btn:hover,.deck-sq:hover,.deck-date:hover,.staff-badge:hover,'
-    + '.bk-row:hover,.colour-swatch:hover{background:inherit;}';
-  function applyTouch() {
-    var doc = frameDoc(); if (!doc || !doc.head) return;
-    var tag = doc.getElementById('pv-touch');
-    if (st.touch && !tag) {
-      tag = doc.createElement('style'); tag.id = 'pv-touch'; tag.textContent = TOUCH_CSS;
-      doc.head.appendChild(tag);
-    } else if (!st.touch && tag) { tag.remove(); }
-    if (!st.touch) $('ring').classList.remove('on');
-  }
-  var idSeq = 1;
-  function sendTouch(type, e, target) {
-    var win = frameWin(); if (!win || !win.Touch || !win.TouchEvent) return;
-    try {
-      var t = new win.Touch({
-        identifier: idSeq, target: target, clientX: e.clientX, clientY: e.clientY,
-        pageX: e.pageX, pageY: e.pageY, screenX: e.screenX, screenY: e.screenY,
-        radiusX: 22, radiusY: 22, rotationAngle: 0, force: 1
-      });
-      var live = type === 'touchend' || type === 'touchcancel' ? [] : [t];
-      target.dispatchEvent(new win.TouchEvent(type, {
-        touches: live, targetTouches: live, changedTouches: [t],
-        bubbles: true, cancelable: true, view: win
-      }));
-    } catch (err) {}
-  }
-
-  // ── PINCH. A trackpad pinch or the wheel zooms about the point under the
-  //    cursor; dragging pushes the picture about. A drag that never moves is
-  //    still a tap, so the app underneath keeps working while zoomed in.
-  var PAN_SLOP = 6;
-  var drag = null;
-
-  function wire() {
-    var doc = frameDoc(); if (!doc || !doc.body || doc.__wired) return;
-    doc.__wired = true;
-    var ring = $('ring');
-
-    doc.addEventListener('pointerdown', function (e) {
-      if (st.touch) {
-        ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px';
-        ring.classList.add('on');
-        sendTouch('touchstart', e, e.target);
-      }
-      if (st.pinch && st.zoom > 1) {
-        drag = { x: e.clientX, y: e.clientY, px: st.panX, py: st.panY, moved: false, id: e.pointerId };
-      }
-    }, true);
-
-    doc.addEventListener('pointermove', function (e) {
-      if (st.touch) {
-        ring.style.left = e.clientX + 'px'; ring.style.top = e.clientY + 'px';
-        ring.classList.add('on');
-        if (drag || e.buttons) sendTouch('touchmove', e, e.target);
-      }
-      if (!drag) return;
-      var dx = e.clientX - drag.x, dy = e.clientY - drag.y;
-      if (!drag.moved && Math.abs(dx) + Math.abs(dy) < PAN_SLOP) return;
-      drag.moved = true;
-      // The frame is scaled, so a pointer delta inside it is already in the
-      // frame's own pixels: multiply back up to the page's.
-      st.panX = drag.px + dx * base * st.zoom;
-      st.panY = drag.py + dy * base * st.zoom;
-      draw();
-      e.preventDefault(); e.stopPropagation();
-    }, true);
-
-    var up = function (e) {
-      if (st.touch) sendTouch('touchend', e, e.target);
-      if (drag && drag.moved) { e.preventDefault(); e.stopPropagation(); }
-      drag = null;
+  // THE MOUSE IS A HAND (owner, Sep '26). The app's swipes, holds and
+  // presses listen for touch, and its pointer handlers read pointerType; a
+  // laptop mouse sends neither. So inside the frame a mouse-down becomes a
+  // finger landing (a touch-flavoured pointerdown, then touchstart), a move
+  // is the finger sliding, a release is the finger lifting — in the order a
+  // real finger fires them — and the mouse's own events are kept out so
+  // nothing runs twice. A drag is never a tap: the click the browser fires
+  // after a drag is swallowed. Typing in a field stays a keyboard job.
+  //
+  // A real finger PANS because the browser scrolls under it; it never does
+  // that for a pretend one. So when the app lets a move through, the shim
+  // scrolls the nearest scroller by the same distance, locked to the axis
+  // the drag started on, the way the phone does.
+  //
+  // PINCH: one mouse stands in for two fingers either side of where it
+  // landed — dragging right parts them (zoom in), left brings them together.
+  let hand = 'finger';
+  const finger = (doc) => {
+    const win = doc.defaultView;
+    let down = null; // { target, x0, y0, moved, axis, lx, ly, scroller }
+    const scrollerOf = (el) => { for (let n = el; n && n !== doc.body; n = n.parentElement) { const cs = win.getComputedStyle(n); const x = /(auto|scroll)/.test(cs.overflowX) && n.scrollWidth > n.clientWidth + 1, y = /(auto|scroll)/.test(cs.overflowY) && n.scrollHeight > n.clientHeight + 1; if (x || y) return { el: n, x, y }; } return null; };
+    const touch = (id, x, y) => new win.Touch({ identifier: id, target: down.target, clientX: x, clientY: y, pageX: x + win.scrollX, pageY: y + win.scrollY, screenX: x, screenY: y, radiusX: 8, radiusY: 8, force: 1 });
+    const ptr = (type, x, y) => down.target.dispatchEvent(new win.PointerEvent(type, { bubbles: true, cancelable: true, composed: true, view: win, clientX: x, clientY: y, screenX: x, screenY: y, pointerId: 1, pointerType: 'touch', isPrimary: true, button: type === 'pointermove' ? -1 : 0, buttons: type === 'pointerup' ? 0 : 1, width: 16, height: 16, pressure: type === 'pointerup' ? 0 : 0.5 }));
+    const fire = (type, x, y) => {
+      const fingers = hand === 'pinch' ? (() => { const d = Math.max(10, 80 * (1 + (x - down.x0) / 240)); return [touch(1, down.x0 - d, down.y0), touch(2, down.x0 + d, down.y0)]; })() : [touch(1, x, y)]; // 240px of drag doubles the spread: a whole-hand pinch, not a twitch
+      ptr({ touchstart: 'pointerdown', touchmove: 'pointermove', touchend: 'pointerup' }[type], x, y);
+      const ev = new win.TouchEvent(type, { bubbles: true, cancelable: true, composed: true, view: win,
+        touches: type === 'touchend' ? [] : fingers, targetTouches: type === 'touchend' ? [] : fingers, changedTouches: fingers });
+      down.target.dispatchEvent(ev);
+      return ev;
     };
-    doc.addEventListener('pointerup', up, true);
-    doc.addEventListener('pointercancel', up, true);
-    // A pan must not land as a tap on whatever was under the finger.
-    doc.addEventListener('click', function (e) {
-      if (drag && drag.moved) { e.preventDefault(); e.stopPropagation(); }
+    const stop = (e) => { e.stopImmediatePropagation(); };
+    const mine = (e) => hand !== 'mouse' && e.pointerType === 'mouse' && e.isTrusted;
+    doc.addEventListener('pointerdown', (e) => {
+      if (!mine(e) || e.button !== 0 || !e.target || e.target.closest('input, textarea, select')) return;
+      down = { target: e.target, x0: e.clientX, y0: e.clientY, lx: e.clientX, ly: e.clientY, moved: false, axis: null, scroller: scrollerOf(e.target) };
+      fire('touchstart', e.clientX, e.clientY);
+      stop(e);
     }, true);
-    doc.addEventListener('pointerleave', function () { ring.classList.remove('on'); }, true);
+    doc.addEventListener('pointermove', (e) => {
+      if (!mine(e) || !down) return;
+      const dx = e.clientX - down.x0, dy = e.clientY - down.y0;
+      if (!down.moved && Math.hypot(dx, dy) > 8) { down.moved = true; down.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'; }
+      const ev = fire('touchmove', e.clientX, e.clientY);
+      // The browser's pan, by hand: only when the app let the move through.
+      if (hand === 'finger' && down.moved && !ev.defaultPrevented && down.scroller) {
+        const s = down.scroller;
+        if (down.axis === 'x' && s.x) s.el.scrollLeft -= e.clientX - down.lx;
+        if (down.axis === 'y' && s.y) s.el.scrollTop -= e.clientY - down.ly;
+      }
+      down.lx = e.clientX; down.ly = e.clientY;
+      stop(e);
+    }, true);
+    const lift = (e) => {
+      if (!mine(e) || !down) return;
+      fire('touchend', e.clientX, e.clientY);
+      const dragged = down.moved;
+      down = null;
+      stop(e);
+      // The browser only fires that click when the drag ended where it began;
+      // when it doesn't, the swallow must not lie in wait for the next tap.
+      if (dragged) { const eat = (c) => { c.preventDefault(); c.stopImmediatePropagation(); off(); }; const off = () => { doc.removeEventListener('click', eat, true); doc.removeEventListener('pointerdown', off, true); }; doc.addEventListener('click', eat, true); doc.addEventListener('pointerdown', off, true); setTimeout(off, 400); }
+    };
+    doc.addEventListener('pointerup', lift, true);
+    doc.addEventListener('pointercancel', lift, true);
+    doc.addEventListener('pointerleave', (e) => { if (down && e.target === doc.documentElement) lift(e); }, true);
+    // The mouse's own events stay out while a finger is down.
+    for (const type of ['mousedown', 'mousemove', 'mouseup']) doc.addEventListener(type, (e) => { if (hand !== 'mouse' && e.isTrusted && (down || type !== 'mousemove') && !(e.target && e.target.closest && e.target.closest('input, textarea, select'))) stop(e); }, true);
+    doc.__finger = true; // on the DOCUMENT: the frame's first blank page hands its window to the real one
+  };
+  const frame = document.querySelector('iframe');
+  const arm = () => { try { const d = frame.contentDocument; if (d && d.body && d.location.href !== 'about:blank' && !d.__finger) finger(d); } catch (e) {} };
+  frame.addEventListener('load', arm); arm();
+  document.querySelectorAll('.hand button[data-hand]').forEach(b => b.addEventListener('click', () => { hand = b.dataset.hand; document.querySelectorAll('.hand button[data-hand]').forEach(x => x.classList.toggle('on', x === b)); }));
+  // Phone or tablet: the frame changes size and the app inside lays itself out again.
+  document.querySelectorAll('.hand button[data-device]').forEach(b => b.addEventListener('click', () => { document.querySelector('.phone').classList.toggle('tablet', b.dataset.device === 'tablet'); document.querySelectorAll('.hand button[data-device]').forEach(x => x.classList.toggle('on', x === b)); settle(); }));
+  // The preview's two pills live out here, beside the device.
+  // The two pills, onto this preview's own API. `Get latest` is a hard
+  // reload of the frame — the built page carries its own seed, so a new build
+  // arrives with it; `Download data` hands over what the preview has done.
+  document.querySelectorAll('.hand button[data-pv]').forEach(b => b.addEventListener('click', () => {
+    const w = frame.contentWindow;
+    if (b.dataset.pv === 'copy') { try { w.__RESV__.downloadData(); } catch (e) {} return; }
+    try { w.location.reload(true); } catch (e) { frame.src = frame.src; }
+  }));
 
-    // A gesture over the screen goes into the frame and never reaches this
-    // page, so the frame hands it back.
-    doc.addEventListener('wheel', function (e) {
-      if (!st.pinch) return;
-      e.preventDefault();
-      var r = $('app').getBoundingClientRect();
-      zoomAt(Math.exp(-e.deltaY / 700), r.left + e.clientX * base * st.zoom + st.panX,
-                                        r.top + e.clientY * base * st.zoom + st.panY);
-    }, { passive: false, capture: true });
-
-    applyTouch();
+  // tablet.html points here with ?d=tablet, so open on the device asked for.
+  if (/[?&]d=tablet/.test(location.search)) {
+    document.querySelector('.hand button[data-device="tablet"]').click();
   }
-
-  document.addEventListener('click', function (ev) {
-    var b = ev.target.closest('button'); if (!b) return;
-    if (b.dataset.id) { st.id = b.dataset.id; st.zoom = 1; st.panX = st.panY = 0; draw(); return; }
-    if (b.id === 'latest') { st.zoom = 1; st.panX = st.panY = 0; frameWin().location.reload(true); draw(); return; }
-    if (b.id === 'touch') { st.touch = !st.touch; applyTouch(); draw(); return; }
-    if (b.id === 'pinch') {
-      st.pinch = !st.pinch;
-      if (!st.pinch) { st.zoom = 1; st.panX = st.panY = 0; }
-      draw(); return;
-    }
-  });
-  // The same gesture, when the cursor is beside the screen rather than on it.
-  $('stage').addEventListener('wheel', function (e) {
-    if (!st.pinch) return;
-    e.preventDefault();
-    zoomAt(Math.exp(-e.deltaY / 700), e.clientX, e.clientY);
-  }, { passive: false });
-
-  $('app').addEventListener('load', function () { wire(); applyTouch(); });
-  window.addEventListener('resize', draw);
-  draw(); wire();
-})();
 </script>
-</body>
-</html>
