@@ -54,6 +54,9 @@
   --h-control:44px; --h-primary:64px; --tap:44px; --sq-ctl:44px;
   --deck-edge:16px; --deck-gap:8px; --deck-pad:8px; --deck-h:60px;
   --hub-edge:12px; --list-gap:8px;
+  /* The rail, and the book beside the room. Tokens because the booking
+     sheet lands on the seam between them and must not hold its own copy. */
+  --rail-w:88px; --deskcol-w:340px;
   --fs-chip:10.5px; --fs-md:13.5px; --fs-lg:15px; --fs-xl:19px; --fs-num:24px;
   --num-key-w:84px; --num-key-h:74px; --num-key-r:16px; --num-key-fs:24px; --num-gap:12px;
   /* Booking status colours: the floor's own grammar. */
@@ -88,7 +91,7 @@ input,textarea{user-select:text;-webkit-user-select:text;}
 button{font-family:inherit;font-size:inherit;color:inherit;padding:0;cursor:pointer;}
 button:active{filter:brightness(.92);}
 input:not([type="checkbox"]):not([type="radio"]),textarea,select{font-family:inherit;font-size:var(--fs-md);color:var(--text-primary);background:var(--surface);border:1px solid var(--steel-300);border-radius:var(--r-control);padding:8px 12px;min-height:var(--h-control);width:100%;outline:none;}
-input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:inset 0 0 0 1px var(--orange);}
+input:focus,textarea:focus,select:focus{border-color:var(--orange);box-shadow:inset 0 0 0 var(--ring) var(--orange);}
 select{appearance:none;-webkit-appearance:none;font-weight:700;}
 input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
@@ -118,7 +121,7 @@ h1,h2,h3{margin:0;}
    fit down a laptop: at 104 the nine tiles of Service came to 936 and Settings
    fell off the end of an 880 screen. 88 puts the whole app on the rail with no
    scroll at all, and is still twice the finger law. */
-.rail{width:88px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--steel-200);
+.rail{width:var(--rail-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--steel-200);
   overflow:hidden;padding:var(--deck-pad) 0;display:flex;flex-direction:column;}
 .rail-btn{width:100%;aspect-ratio:1;background:none;border:none;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
@@ -303,7 +306,7 @@ h1,h2,h3{margin:0;}
 .tl-block.booked{background:var(--st-booked);} .tl-block.confirmed{background:var(--st-confirmed);} .tl-block.arrived{background:var(--st-arrived);}
 .tl-block.seated{background:var(--st-seated);} .tl-block.done{background:var(--st-done);}
 .tl-block.cancelled{background:var(--st-cancelled);} .tl-block.no-show{background:var(--st-noshow);}
-.tl-block.conflict{border-color:var(--red);box-shadow:inset 0 0 0 1px var(--red);}
+.tl-block.conflict{border-color:var(--red);box-shadow:inset 0 0 0 var(--ring) var(--red);}
 .tl-now{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:1;pointer-events:none;}
 .tl-slot{position:absolute;top:0;bottom:0;cursor:pointer;}
 .tl-slot:active{background:var(--orange-dim);}
@@ -564,6 +567,13 @@ body.book-page #app{display:block;height:auto;}
 /* Two tables pushed together are one booking; the ring says so without a
    second colour. */
 .fl-table.joined{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
+/* Pointed at from the book. The ring goes OUTSIDE so it reads over a seated
+   table's fill as well as over an empty one, and it is the only thing on the
+   plan drawn in the accent — a room with two accents answers nothing. */
+.fl-table.picked{box-shadow:0 0 0 var(--ring) var(--orange);z-index:3;}
+/* Outside only, even on a join: the shadow law allows a ring inside or out,
+   never both, and picked outranks joined because it is what was just asked. */
+.fl-table.picked.joined{box-shadow:0 0 0 var(--ring) var(--orange);}
 /* Only a turned one. Everything square keeps its label inside its own edges. */
 .fl-table.turned{overflow:visible;}
 .fl-in{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;max-width:100%;overflow:hidden;}
@@ -666,6 +676,11 @@ body.book-page #app{display:block;height:auto;}
    The list's circle. Colour is never the only carrier — the dot has the
    status on it for a finger and for a screen reader, and the row's own
    buttons (Confirm, Arrived, Seat) say where the booking is in words. */
+/* The hairline round the dot is NOT a ring in the shadow law's sense — it is
+   the drawing. The dot wears a colour the venue picked, so its edge has to
+   read on any hue in either theme; that is why it is ink at 14% rather than a
+   theme colour, exactly the case the border law exempts. The POS's
+   check-shadows gate cannot know our class names, so it reports this one. */
 .st-dot{display:inline-block;width:12px;height:12px;border-radius:var(--r-pill);flex:0 0 12px;
   margin-right:8px;vertical-align:-1px;background:var(--steel-500);
   box-shadow:0 0 0 1px color-mix(in srgb, var(--text-primary) 14%, transparent);}
@@ -710,12 +725,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-head.empty .bl-chev{visibility:hidden;}
 
 .bl-rows{display:flex;flex-direction:column;}
-.bl-row{border-bottom:1px solid var(--steel-200);background:var(--surface);}
+.bl-row{display:flex;align-items:center;border-bottom:1px solid var(--steel-200);background:var(--surface);}
 .bl-rows > .bl-row:last-child{border-bottom:none;}
 .bl-row.selected{background:var(--pick-wash);box-shadow:inset var(--ring) 0 0 0 var(--orange);}
 /* The row proper: five things, and the eye lands on them in the order a host
    asks for them — where it is, when, who, how many, which table. */
-.bl-main{display:flex;align-items:center;gap:10px;width:100%;min-height:54px;padding:8px 12px;
+.bl-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:54px;padding:8px 4px 8px 12px;
   background:none;border:none;text-align:left;cursor:pointer;}
 .bl-main .st-dot{width:16px;height:16px;flex:0 0 16px;margin-right:0;}
 .bl-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
@@ -730,9 +745,18 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   font-size:var(--fs-lg);color:var(--text-primary);}
 /* The table sits in a box of its own, the way the till's does — it is the one
    thing on the row a runner is sent to find. */
-.bl-table{flex:none;min-width:var(--tap);min-height:34px;padding:0 10px;display:flex;align-items:center;
+/* The table is its own key now: it asks the ROOM a question rather than
+   opening the booking, so it sits outside the row's button and answers with
+   the accent ring and wash the Row law gives anything picked. */
+.bl-tables{flex:none;display:flex;align-items:center;gap:2px;padding-right:12px;}
+.bl-plus{font-style:normal;font-family:var(--font-mono);font-weight:700;color:var(--charcoal-soft);
+  font-size:var(--fs-chip);padding:0 1px;}
+.bl-table{flex:none;min-width:38px;min-height:34px;padding:0 10px;display:flex;align-items:center;
   justify-content:center;border-radius:var(--r-btn);background:var(--steel-100);
+  border:1px solid transparent;color:var(--text-primary);
   font-family:var(--font-mono);font-weight:700;font-size:var(--fs-md);white-space:nowrap;}
+.bl-table:hover{background:var(--steel-200);}
+.bl-table.on{background:var(--pick-wash);border-color:var(--orange);color:var(--orange);}
 .bl-table.none{font-family:var(--font-body);font-size:var(--fs-chip);text-transform:uppercase;
   letter-spacing:.5px;color:var(--charcoal-soft);background:none;border:1px dashed var(--steel-300);}
 
@@ -764,6 +788,33 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
      the edges so the day behind it is visibly still there. */
   .modal-bg.full{padding:24px;}
   .modal.full{border-radius:var(--r-surface);max-width:960px;margin:0 auto;height:100%;}
+}
+
+/* §§ The booking SHEET — in from the right, over the room
+   Named bk-sheet, not sheet: `.sheet` is already the RUN sheet, the page for
+   paper, and a modal that borrowed the name quietly inherited its 900px cap
+   and sat centred with the room showing either side of it.
+   A booking is read against the night it sits in, so the book stays on screen
+   and the sheet takes the room instead of the screen. It lands exactly on the
+   seam between them — that is what --rail-w and --deskcol-w are tokens for —
+   and slides in from the right, the direction it came from.
+
+   The slide itself is run from app.js (playSheet), wound forward by the clock,
+   because a re-render destroys the element a CSS animation was riding on.
+
+   The veil over the book is barely there on purpose: the whole point is that
+   the night stays READABLE beside the booking. It is still a veil and still
+   closes on a tap, because that is what every other popup here does. */
+@media (min-width:900px){
+  .modal-bg.bk-sheet{padding:0;align-items:stretch;justify-content:flex-end;background:rgba(20,24,25,.10);}
+  .modal.bk-sheet{border-radius:var(--r-surface) 0 0 var(--r-surface);margin:0;
+    position:fixed;top:calc(var(--deck-h) + var(--hub-edge));right:0;bottom:var(--hub-edge);
+    left:calc(var(--rail-w) + var(--hub-edge) + var(--deskcol-w) + 1px);
+    width:auto;max-width:none;height:auto;}
+  /* Opened from anywhere that is not the two-column desk there is no seam to
+     land on, so it takes the pane. */
+  .modal.bk-sheet.pane-wide{left:var(--rail-w);}
+  .modal.bk-sheet{box-shadow:var(--lift-2);}
 }
 
 /* §§ The booking's rows, and the pages behind them
@@ -813,7 +864,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .desk{display:flex;gap:0;align-items:stretch;min-height:0;
   background:var(--surface);border:1px solid var(--steel-200);
   border-radius:var(--r-surface);overflow:hidden;}
-.desk-col{flex:0 0 340px;min-width:0;max-height:calc(100vh - var(--deck-h) - var(--hub-edge) * 2);
+.desk-col{flex:0 0 var(--deskcol-w);min-width:0;max-height:calc(100vh - var(--deck-h) - var(--hub-edge) * 2);
   overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--steel-200);}
 .desk-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:0;}
 /* Inside one card the stacked parts are separated by the seam alone. The
@@ -825,7 +876,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .desk-main > .tl,.desk-main > .grid3,.desk-main > .flow,.desk-main > .empty{margin:var(--hub-edge);}
 .desk-main > .ts{padding:0 var(--hub-edge) var(--hub-edge);margin-top:0!important;}
 .desk-bar{margin:0;}
-@media (max-width:1100px){ .desk-col{flex-basis:300px;} }
+@media (max-width:1100px){ :root{--deskcol-w:300px;} }
 @media (max-width:900px){
   .desk{flex-direction:column;}
   .desk-col{flex:none;width:100%;max-height:none;}
@@ -842,7 +893,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 @media (min-width:761px) and (max-height:520px){
   .topbar{min-height:48px;padding:4px 12px;}
   .deck-sq,.deck-chip{min-height:38px;height:38px;}
-  .rail{width:78px;}
+  :root{--rail-w:78px;}
   /* 393 pixels of height hold five tiles, not nine, so holding the places
      still while the sections scroll inside 78 of them helps nobody: here the
      whole rail scrolls as one, sections first. */
@@ -934,7 +985,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);}
 .pace-col{flex:0 0 68px;display:flex;flex-direction:column;gap:1px;padding:4px 8px;
   border-radius:var(--r-btn);}
-.pace-col.now{background:var(--pick-wash);box-shadow:inset 0 0 0 1px var(--orange);}
+.pace-col.now{background:var(--pick-wash);box-shadow:inset 0 0 0 var(--ring) var(--orange);}
 .pace-col.zero{opacity:var(--dim-off);}
 .pace-col.over .pace-n{color:var(--red);}
 .pace-t{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;
@@ -3543,7 +3594,9 @@ function when(t, withDay) {
 // read as something, so it reads as 'a table'.
 function tableLabeller(tables) {
   const by = new Map();
-  for (const t of (tables || [])) if (t && t.id) by.set(String(t.id), 'T' + String(t.label));
+  // No 'T'. The floor draws a bare number, the list shows a bare number, so
+  // a history line that says T7 is the app calling one table two things.
+  for (const t of (tables || [])) if (t && t.id) by.set(String(t.id), String(t.label));
   return (id) => (id ? (by.get(String(id)) || 'a table') : '');
 }
 
@@ -6250,7 +6303,7 @@ function fmtDayYear(day) {
 function esc(v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 function isLive(r) { return ['booked', 'confirmed', 'arrived', 'seated'].includes(r.status); }
 function tableById(id) { return state.tables.find(t => t.id === id); }
-function tableName(id) { const t = tableById(id); return t ? (state.floorPlans.length > 1 ? t.floor + ' · ' : '') + 'T' + t.label : '—'; }
+function tableName(id) { const t = tableById(id); return t ? (state.floorPlans.length > 1 ? t.floor + ' · ' : '') + t.label : '—'; }
 function durationOf(r) {
   if (r.durationMin > 0) return r.durationMin;
   const s = state.settings || {};
@@ -6410,7 +6463,9 @@ function deskMatch(r, q) {
   if (q.text && String(r.ref || '').toLowerCase().startsWith(q.text)) return true;
   // The table is what a host has in their hand as often as the name:
   // "who is on six?"
-  if (q.text && heldTables(r).some(id => deskFold(tableName(id)).includes(q.text))) return true;
+  // A leading "t" is forgiven: the screens dropped it, the habit has not.
+  const asTable = q.text.replace(/^t(?=\d)/, '');
+  if (q.text && heldTables(r).some(id => deskFold(tableName(id)).includes(asTable))) return true;
   if (q.digits.length >= DESK_MIN_PHONE_DIGITS && deskDigits(r.phone).includes(q.digits)) return true;
   return false;
 }
@@ -6560,6 +6615,23 @@ function render() {
   // the final one and the timeline lands short of where it was aimed.
   if (tlEl && _tlAnchored !== tlKey) { _tlAnchored = tlKey; requestAnimationFrame(() => tlOpenAt(tlEl)); }
   if (focusId) { const el = document.getElementById(focusId); if (el && el !== document.activeElement) { el.focus(); try { if (selStart != null && el.setSelectionRange) el.setSelectionRange(selStart, selStart); } catch (e) {} } }
+  playSheet();
+}
+
+const SHEET_MS = 260;
+function playSheet() {
+  const m = state.modal;
+  if (!m || !m.openedAt || typeof matchMedia !== 'function') return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const el = document.querySelector('.modal.bk-sheet');
+  if (!el) return;
+  const gone = Date.now() - m.openedAt;
+  if (gone < 0 || gone >= SHEET_MS) return;
+  try {
+    const a = el.animate([{ transform: 'translateX(102%)' }, { transform: 'none' }],
+      { duration: SHEET_MS, easing: 'cubic-bezier(.22,.61,.36,1)' });
+    a.currentTime = gone;
+  } catch (e) {}
 }
 
 // §§ Where the timeline opens
@@ -6898,7 +6970,7 @@ function renderFloor() {
       ? `${r.name} · ${r.partySize} · ${hhmmOf(r.time)}${f.over ? ' · ' + f.over + ' min over' : ''}${f.late ? ' · ' + f.late + ' min late' : ''}`
       : `Table ${t.label} · ${t.seats} seats · free${f.nextAt ? ' until ' + f.nextAt : ''}`;
     const up = uprightStyle(t);
-    return `<button class="fl-table ${f.state}${r && heldTables(r).length > 1 ? ' joined' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}"
+    return `<button class="fl-table ${f.state}${r && heldTables(r).length > 1 ? ' joined' : ''}${state.highlightTable === t.id ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}"
       data-act="${r ? 'edit-booking' : 'new-at'}" ${r ? `data-id="${esc(r.id)}"` : `data-time="${esc(at)}" data-table="${esc(t.id)}"`}
       title="${esc(why)}">
       ${seatRing(t)}
@@ -7200,7 +7272,7 @@ function renderTimeline() {
     // POS sent some, so this only bit once the desk drew its own.
     for (const t of (fp.tables || []).filter(t => t.kind !== 'decor' && t.type !== 'decor')) {
       const mine = rows.filter(r => heldTables(r).includes(t.id));
-      html += `<div class="tl-label"><span>T${esc(t.label)}</span><small>${t.seats} seats</small></div><div class="tl-lane" data-table="${esc(t.id)}" style="width:${width}px;">${slots(t.id)}${mine.map(r => block(r, t.id)).join('')}${nowLine}</div>`;
+      html += `<div class="tl-label"><span>${esc(t.label)}</span><small>${t.seats} seats</small></div><div class="tl-lane" data-table="${esc(t.id)}" style="width:${width}px;">${slots(t.id)}${mine.map(r => block(r, t.id)).join('')}${nowLine}</div>`;
     }
   }
   let times = '';
@@ -7261,15 +7333,22 @@ function renderDayList() {
     <div style="margin-top:12px;"><button class="btn" data-act="find-every-day">${I.search} Look on every day</button></div></div>`;
 
   const row = (r) => {
-    const tables = listTables(r);
-    return `<div class="bl-row${state.highlightTable && heldTables(r).includes(state.highlightTable) ? ' selected' : ''}">
+    const held = heldTables(r);
+    // One key a table, not one key for "T9 + T10": a host pointing at a join
+    // means one of the two, and the floor can only light what was pointed at.
+    const tables = held.length
+      ? held.map(id => `<button class="bl-table${state.highlightTable === id ? ' on' : ''}"
+          data-act="pick-table" data-table="${esc(id)}"
+          title="Show ${esc(tableName(id))} on the floor">${esc(tableName(id))}</button>`).join('<i class="bl-plus">+</i>')
+      : `<button class="bl-table none" data-act="edit-booking" data-id="${r.id}">assign</button>`;
+    return `<div class="bl-row${state.highlightTable && held.includes(state.highlightTable) ? ' selected' : ''}">
       <button class="bl-main" data-act="edit-booking" data-id="${r.id}">
         ${statusDot(r.status)}
         <span class="bl-who"><small>${esc(fmtHHMM(hhmmOf(r.time)))}</small><b>${esc(r.name || 'No name')}</b></span>
         <span class="bl-marks">${listMarks(r)}</span>
         <span class="bl-pax" title="${r.partySize} covers">${r.partySize}</span>
-        <span class="bl-table${tables ? '' : ' none'}">${esc(tables || 'assign')}</span>
       </button>
+      <span class="bl-tables">${tables}</span>
     </div>`;
   };
 
@@ -7555,7 +7634,7 @@ function renderNotify() {
     const ts = [o.tableId].concat(o.tableIds || []).filter(Boolean).map(tableById).filter(Boolean);
     return `<div class="band opening">
       <span class="title">${esc(fmtHHMM(o.time))}</span>
-      <span class="tag">${ts.length ? 'T' + ts.map(x => esc(x.label)).join(' + T') + ' · ' + o.seats + ' seats' : 'any table'}</span>
+      <span class="tag">${ts.length ? ts.map(x => esc(x.label)).join(' + ') + ' · ' + o.seats + ' seats' : 'any table'}</span>
       <span class="ts">${esc(fmtDay(o.date))} · ${esc(o.fromName || 'A booking')} ${esc(o.reason)}</span>
       <span class="spacer"></span>
       <span class="ts mono">${o.matches.length} to call</span>
@@ -7908,7 +7987,11 @@ function renderBookingModal() {
     ${renderBookingSpend(m)}
     ${isEdit ? `<div class="ts" style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span>Made by ${esc(b.createdBy || '—')} · ${esc(fmtStamp(b.createdAt))}${b.pos && b.pos.id ? ' · on the till' : ''}${b.cancelReason ? ' · ' + esc(b.cancelReason) : ''}</span>${b.tableId && tillUrl(b.tableId) ? `<button class="chip" data-act="to-till-table" data-table="${esc(b.tableId)}" style="min-height:32px;padding:5px 11px;">Open ${esc(tableName(b.tableId))} on the till</button>` : ''}</div>${renderBookingHistory(b)}` : ''}`;
 
-  return `<div class="modal-bg full" data-act="close-modal"><div class="modal full" data-stop="1">
+  // In from the right, over the room, with the book still on screen beside
+  // it — a booking is read against the night it sits in. Away from the desk
+  // there is no seam to land on, so it takes the pane instead.
+  const onDesk = state.view === 'today' && state.todayMode !== 'sheet';
+  return `<div class="modal-bg full bk-sheet" data-act="close-modal"><div class="modal full bk-sheet${onDesk ? '' : ' pane-wide'}" data-stop="1">
     <div class="modal-top">
       ${page ? `<button class="chip sq" data-act="bk-back" aria-label="Back to the booking">${I.left}</button>` : ''}
       <h2>${page ? esc(BK_PAGES[page]) : (isEdit ? esc(b.name || 'Booking') : (walkIn ? 'Walk-in' : 'New booking'))}
@@ -7977,7 +8060,7 @@ function renderBookingPage(page) {
         const word = on ? (b.tableId === t.id ? 'This booking' : 'Joined on') : t.free ? 'Free' : 'Taken at this time';
         return `<button class="bk-opt${on ? ' on' : ''}${!t.free && !on ? ' off' : ''}" data-act="pick-table" data-val="${t.id}">
           <span class="bk-opt-mark"><i class="fl-dot${t.free ? '' : ' seated'}"></i></span>
-          <span class="bk-opt-text"><b>${esc(t.name || ('T' + t.label))} <span class="bk-seats">${t.seats} seats</span>${m.free.suggested === t.id && !on ? '<span class="tag good">Best fit</span>' : ''}</b><span>${esc(word)}</span></span>
+          <span class="bk-opt-text"><b>${esc(t.name || String(t.label))} <span class="bk-seats">${t.seats} seats</span>${m.free.suggested === t.id && !on ? '<span class="tag good">Best fit</span>' : ''}</b><span>${esc(word)}</span></span>
           ${on ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
         </button>`;
       }).join('')}</div>`;
@@ -8091,7 +8174,7 @@ function renderSeatModal() {
     <h2>Seat ${esc(w.name)} <span class="tag">${w.partySize} pax</span></h2>
     ${m.error ? `<div class="err">${esc(m.error)}</div>` : ''}
     <label>Table</label>
-    ${m.free ? `<div class="chips">${m.free.tables.map(t => `<button class="chip${m.tableId === t.id ? ' active' : ''}${!t.free ? ' taken' : ''}${m.free.suggested === t.id ? ' best' : ''}" data-act="seat-pick" data-val="${t.id}">T${esc(t.label)} <span class="sub">${t.seats}</span></button>`).join('')}</div>` : '<div class="ts">Loading…</div>'}
+    ${m.free ? `<div class="chips">${m.free.tables.map(t => `<button class="chip${m.tableId === t.id ? ' active' : ''}${!t.free ? ' taken' : ''}${m.free.suggested === t.id ? ' best' : ''}" data-act="seat-pick" data-val="${t.id}">${esc(t.label)} <span class="sub">${t.seats}</span></button>`).join('')}</div>` : '<div class="ts">Loading…</div>'}
     <div class="ts" style="margin-top:6px;">Seating them makes a booking that is already seated, and puts it on the till's floor.</div>
     ${actionKeys({ saveAct: 'seat-confirm', saveLabel: 'Seat' })}
   </div></div>`;
@@ -8236,7 +8319,7 @@ function openBooking(r, preset, opts) {
     const step = state.settings.slotMinutes || 15;
     if (b.date === localDay(now)) b.time = fromMin(Math.ceil((now.getHours() * 60 + now.getMinutes()) / step) * step);
   }
-  state.modal = { kind: 'booking', page: '', b, slots: null, free: null, conflicts: (r && r.conflicts) || [], error: '', notifyId: (opts && opts.notifyId) || null, from: (opts && opts.from) || null, spend: null };
+  state.modal = { kind: 'booking', page: '', b, slots: null, free: null, conflicts: (r && r.conflicts) || [], error: '', notifyId: (opts && opts.notifyId) || null, from: (opts && opts.from) || null, spend: null, openedAt: Date.now() };
   render();
   loadAvailability(true);
   // What is on their table. ONLY here: the ten-second poll never asks, so a
@@ -8440,6 +8523,14 @@ document.addEventListener('click', async (ev) => {
       case 'print-sheet': window.print(); break;
       case 'month': { if (val === '0') state.month = localDay(new Date()).slice(0, 7); else { const [y, m] = state.month.split('-').map(Number); const d = new Date(y, m - 1 + parseInt(val), 1); state.month = localDay(d).slice(0, 7); } render(); try { await loadMonth(); } catch (e) {} render(); break; }
       case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.floorTime = null; state.service = ''; render(); await loadDay(); render(); break;
+      // Point at a table in the book and the room answers. A second tap puts
+      // it back, so it is a question and not a mode you can get stuck in.
+      case 'pick-table': {
+        const id = el.dataset.table;
+        state.highlightTable = state.highlightTable === id ? null : id;
+        render();
+        break;
+      }
       case 'new-booking': openBooking(null); break;
       // A walk-in is not a booking with the boxes left empty: it is always
       // NOW, always on the trading day whatever night is on screen, and it is
