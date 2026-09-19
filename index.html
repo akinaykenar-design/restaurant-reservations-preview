@@ -872,15 +872,23 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   border-bottom:1px solid var(--steel-200);padding:8px var(--hub-edge);}
 /* The room's VIEWPORT: it takes the height that is left, clips whatever the
    pinch pushes past its edges, and keeps the gesture off the page's own
-   scrolling (touch-action). */
+   scrolling (touch-action). It is a SIZE CONTAINER, so the drawing inside can
+   be measured against it — see below. */
 .desk-main > .fl-wrap{flex:1 1 auto;min-height:0;padding:var(--hub-edge);
   display:flex;align-items:center;justify-content:center;overflow:hidden;
-  touch-action:none;overscroll-behavior:contain;}
+  touch-action:none;overscroll-behavior:contain;container-type:size;}
 .fl-stage{display:flex;align-items:center;justify-content:center;
   width:100%;height:100%;transform-origin:center center;will-change:transform;}
-/* Fitted, not stretched: height first, width as the cap, so the drawing keeps
-   the POS's 900x560 whatever shape the pane is. */
-.desk-main .fl-room{height:100%;width:auto;max-width:100%;max-height:100%;min-width:0;}
+/* NEVER WARPED. The first cut said height:100% with max-width:100%, and two
+   definite sides mean the browser has nothing left to give aspect-ratio — the
+   room came out 1.31 wide-to-tall on a desk and 0.64 on a narrow tall pane,
+   against the POS's true 1.607. A room drawn to the wrong shape is a room
+   nobody recognises, which is the whole point of drawing it.
+   So ONE side is set: the width is the smaller of the pane's width and the
+   width the pane's HEIGHT allows, and aspect-ratio takes the height from
+   there. `cqh` is why the wrap is a size container. */
+.desk-main .fl-room{width:min(100%, calc(100cqh * 900 / 560));height:auto;
+  max-width:none;max-height:none;min-width:0;}
 /* The one line above the room: what it is doing, and the way back out. */
 .fl-status{flex:none;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
   padding:8px var(--hub-edge);border-bottom:1px solid var(--steel-200);min-height:38px;}
