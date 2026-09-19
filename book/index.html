@@ -55,7 +55,7 @@
   /* Booking status colours: the floor's own grammar. */
   --st-booked:#8B877F; --st-confirmed:#2F74C9; --st-arrived:#C08A00; --st-seated:#4FA51D; --st-done:#B3ADA0; --st-cancelled:#A8483A; --st-noshow:#6D4FC4;
   --st-due:#C08A00; --st-over:#6D4FC4; --src-online:#0E9E8A; --src-walkin:#C08A00; --src-pos:#918E88;
-  --plan-bg:#2A2F33; --plan-line:#F2F5F7; --plan-ink:#C9D1D6; --plan-seat:#E4EAEE; --plan-edge:#5A6268;
+  --plan-bg:#2A2F33; --plan-line:#F2F5F7; --plan-ink:#C9D1D6; --plan-edge:#5A6268;
 }
 body[data-theme="dark"]{
   --steel-100:#161512; --steel-200:#332F2B; --steel-300:#4A463F; --steel-500:#6B645A;
@@ -71,7 +71,7 @@ body[data-theme="dark"]{
   --green-dim:color-mix(in srgb, var(--green) 20%, var(--surface));
   --st-booked:#A8A399; --st-confirmed:#3692E7; --st-arrived:#E8C24D; --st-seated:#7BC72F; --st-done:#6B645A; --st-cancelled:#CF6152; --st-noshow:#8B6FE8;
   --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#E8C24D; --src-pos:#D9D5CE;
-  --plan-bg:#16191B; --plan-line:#E7ECEF; --plan-ink:#B6BFC5; --plan-seat:#D2DADF; --plan-edge:#4A5157;
+  --plan-bg:#16191B; --plan-line:#E7ECEF; --plan-ink:#B6BFC5; --plan-edge:#4A5157;
 }
 @media (max-height:560px){ :root{ --num-key-w:64px; --num-key-h:52px; --num-key-r:10px; --num-key-fs:19px; --num-gap:8px; } }
 @media (max-width:768px){ :root{ --deck-edge:12px; --hub-edge:8px; } }
@@ -947,22 +947,19 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 @media (max-height:520px){ .dd-2{display:none;} }
 
 /* §§ The plan — a drawing, not a screen
-   Chairs are the whole difference between a floor plan and a row of boxes
-   with numbers on. They sit OUTSIDE the table's box, so the table stops
-   clipping; the label keeps its own clip inside .fl-in. */
-.fl-table{overflow:visible;}
-.fl-seat{position:absolute;width:11px;height:11px;border-radius:50%;
-  background:var(--plan-seat);transform:translate(-50%,-50%);pointer-events:none;}
+   No chairs. They were drawn around every table until Sep '26 and they read
+   as clutter at thirty tables — ninety-four dots on one room — so the table
+   IS the table, the way the till draws it. With them gone nothing sits
+   outside a table's box any more, so a square one clips its own label again
+   (only a TURNED one still spills, below). */
 /* A free table is an outline. Only a table with people on it is filled — which
    is what makes a busy room legible from across it. */
 .fl-room .fl-table{background:none;border:1px solid var(--plan-line);color:var(--plan-ink);}
 .fl-room .fl-table.due{background:color-mix(in srgb, var(--st-due) 22%, transparent);border-color:var(--st-due);color:var(--plan-line);}
 .fl-room .fl-table.seated{background:var(--st-seated);border-color:var(--st-seated);color:#fff;}
 .fl-room .fl-table.over{background:var(--st-over);border-color:var(--st-over);color:#fff;}
-.fl-room .fl-table.seated .fl-seat,.fl-room .fl-table.over .fl-seat{background:var(--plan-seat);opacity:.8;}
 .fl-room.loose{background:none;border-color:var(--steel-200);}
 .fl-room.loose .fl-table{background:var(--surface);border:1px solid var(--steel-300);color:var(--charcoal-soft);}
-.fl-room.loose .fl-seat{display:none;}
 
 /* The night along the foot of the plan: covers landing in each slot, and how
    many are in the room against what the venue said it would take. */
