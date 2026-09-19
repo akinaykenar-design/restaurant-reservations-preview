@@ -879,7 +879,19 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 @media (max-width:1100px){ :root{--deskcol-w:300px;} }
 @media (max-width:900px){
   .desk{flex-direction:column;}
-  .desk-col{flex:none;width:100%;max-height:none;}
+  .desk-col{flex:none;width:100%;max-height:none;border-right:none;}
+}
+/* One at a time, and ONLY where the band that switches them lives. Stacked,
+   the floor began 935 pixels down a 727-pixel phone — behind the whole
+   night's list — so the band at the top of the pane chooses between them
+   instead. It is 760, not 900, because .secband appears at 760: between the
+   two the desk stacks but the sections are still on the RAIL, and hiding the
+   book there would leave no way back to it. Hidden in CSS, not in JS, so both
+   halves are always rendered and a tablet turned sideways is right on the
+   first frame with nothing listening for a resize. */
+@media (max-width:760px){
+  .desk.show-book .desk-main{display:none;}
+  .desk.show-room .desk-col{display:none;}
 }
 @media (min-width:761px) and (max-width:900px){
   .desk-col{max-height:38vh;overflow-y:auto;}
@@ -921,6 +933,11 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    its way back. So the sections scroll and the places never move. */
 .rail-rule{height:1px;background:var(--steel-200);margin:8px 12px;flex:none;}
 .rail-secs{flex:1 1 auto;min-height:0;overflow-y:auto;}
+/* A tablet at 820 tall leaves room for three and a half section tiles, and
+   half a tile reads as broken rather than as "more this way". The deck's rule
+   applies down the rail too: nothing is sliced, the cut end fades. */
+.rail-secs[data-cut]{mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent);
+  -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent);}
 .rail-modes{flex:none;}
 
 /* The top bar is the night you are working on, and the keys that belong to no
@@ -6218,6 +6235,10 @@ const state = {
   // combos (which makes the Settings card read-only, as the Staff card is).
   setMenus: [], setMenusFromPos: false,
   view: 'today', date: localDay(new Date()), todayMode: 'floor',
+  // Which HALF of the desk a phone is showing. The desk proper shows both at
+  // once and ignores this; a phone cannot, so it picks one. 'book' by default,
+  // because the list is the thing a host reads.
+  phonePane: 'book',
   // Which service the desk is narrowed to, '' for the whole night.
   service: '',
   // The moment the floor plan is showing, or null for "now". Cleared
@@ -6605,6 +6626,12 @@ function render() {
     if (row.scrollWidth > row.clientWidth + 1) row.setAttribute('data-cut', '1');
     else row.removeAttribute('data-cut');
   }
+  // The same rule going DOWN: the rail's sections scroll when the screen is
+  // short, and a tile cut in half reads as broken rather than as "more here".
+  for (const col of document.querySelectorAll('.rail-secs')) {
+    if (col.scrollHeight > col.clientHeight + 1) col.setAttribute('data-cut', '1');
+    else col.removeAttribute('data-cut');
+  }
   const tlEl = state.dayLoaded === state.date ? document.querySelector('.tl[data-keep="tl"]') : null;
   const tlKey = state.view + ':' + state.todayMode + ':' + state.date;
   // On the next frame, not this one: at first paint the grid has not finished
@@ -6794,9 +6821,17 @@ function renderSecBand() {
   if (!rail) return '';
   const now = state[rail.key];
   const counts = state.view === 'guests' ? (state.guestCounts || {}) : null;
-  return `<div class="band secband">${rail.items.map(([k, label, icon]) => {
+  // On the desk the book and the room stand side by side. A phone has room
+  // for one of them, and stacking put the floor 935 pixels down a 727-pixel
+  // screen — past the whole night's list — so on a phone they are chips you
+  // choose between, and Bookings is the first of them.
+  const book = state.view === 'today' && state.todayMode !== 'sheet'
+    ? `<button class="chip${state.phonePane === 'book' ? ' active' : ''}" data-act="phone-pane" data-val="book">Bookings <span class="sub">${state.reservations.filter(inPickedService).length}</span></button>`
+    : '';
+  return `<div class="band secband">${book}${rail.items.map(([k, label, icon]) => {
     const n = counts ? counts[k] : null;
-    return `<button class="chip${now === k ? ' active' : ''}" data-act="mode" data-val="${k}">${esc(label)}${n == null ? '' : ` <span class="sub">${n}</span>`}</button>`;
+    const on = now === k && (!book || state.phonePane === 'room');
+    return `<button class="chip${on ? ' active' : ''}" data-act="mode" data-val="${k}">${esc(label)}${n == null ? '' : ` <span class="sub">${n}</span>`}</button>`;
   }).join('')}</div>`;
 }
 
@@ -7184,7 +7219,10 @@ function renderToday() {
       <span class="spacer"></span>
       <button class="chip" data-act="print-sheet" ${state.sheet && state.sheet.date === state.date ? '' : 'disabled'}>Print</button>
     </div>${notice}${renderRunSheet()}`;
-  return `${notice}<div class="desk">
+  // Both halves are always RENDERED — the phone hides one in CSS rather than
+  // in JS, so nothing has to listen for a resize and a tablet turned sideways
+  // is right on the first frame.
+  return `${notice}<div class="desk show-${esc(state.phonePane)}">
     <div class="desk-col" data-keep="desk-col">${renderDayList()}</div>
     <div class="desk-main">${side}</div>
   </div>`;
@@ -8473,10 +8511,13 @@ document.addEventListener('click', async (ev) => {
       case 'view': setView(val); break;
       case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.floorTime = null; state.service = ''; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
+      case 'phone-pane': state.phonePane = val; render(); break;
       case 'mode': {
         const rail = RAILS[state.view];
         if (!rail) break;
         state[rail.key] = val;
+        // Asking for the floor on a phone is asking to look at the room.
+        if (state.view === 'today') state.phonePane = 'room';
         render();
         // Today redraws from what is already in memory; the guest book has to
         // ask the server, because a lens reads the whole book and the browser

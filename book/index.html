@@ -872,7 +872,19 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 @media (max-width:1100px){ :root{--deskcol-w:300px;} }
 @media (max-width:900px){
   .desk{flex-direction:column;}
-  .desk-col{flex:none;width:100%;max-height:none;}
+  .desk-col{flex:none;width:100%;max-height:none;border-right:none;}
+}
+/* One at a time, and ONLY where the band that switches them lives. Stacked,
+   the floor began 935 pixels down a 727-pixel phone — behind the whole
+   night's list — so the band at the top of the pane chooses between them
+   instead. It is 760, not 900, because .secband appears at 760: between the
+   two the desk stacks but the sections are still on the RAIL, and hiding the
+   book there would leave no way back to it. Hidden in CSS, not in JS, so both
+   halves are always rendered and a tablet turned sideways is right on the
+   first frame with nothing listening for a resize. */
+@media (max-width:760px){
+  .desk.show-book .desk-main{display:none;}
+  .desk.show-room .desk-col{display:none;}
 }
 @media (min-width:761px) and (max-width:900px){
   .desk-col{max-height:38vh;overflow-y:auto;}
@@ -914,6 +926,11 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    its way back. So the sections scroll and the places never move. */
 .rail-rule{height:1px;background:var(--steel-200);margin:8px 12px;flex:none;}
 .rail-secs{flex:1 1 auto;min-height:0;overflow-y:auto;}
+/* A tablet at 820 tall leaves room for three and a half section tiles, and
+   half a tile reads as broken rather than as "more this way". The deck's rule
+   applies down the rail too: nothing is sliced, the cut end fades. */
+.rail-secs[data-cut]{mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent);
+  -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent);}
 .rail-modes{flex:none;}
 
 /* The top bar is the night you are working on, and the keys that belong to no
