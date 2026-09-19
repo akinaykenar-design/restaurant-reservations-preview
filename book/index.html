@@ -852,18 +852,34 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    Two columns inside the pane. The LIST is always there, because it is the
    thing a host reads; the rail decides what sits beside it. They stack on
    anything narrow, list first, for the same reason. */
-.desk{display:flex;gap:0;align-items:stretch;min-height:0;
+.desk{display:flex;gap:0;align-items:stretch;min-height:0;height:100%;
   background:var(--surface);border:1px solid var(--steel-200);
   border-radius:var(--r-surface);overflow:hidden;}
 .desk-col{flex:0 0 var(--deskcol-w);min-width:0;max-height:calc(100vh - var(--deck-h) - var(--hub-edge) * 2);
   overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--steel-200);}
-.desk-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:0;}
+.desk-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:0;}
 /* Inside one card the stacked parts are separated by the seam alone: a band
    is a ROW, not a card on a card; the room gets the card's padding; the
    pacing hangs off a single line at the foot. */
 .desk-main > .band{margin:0;border:none;border-radius:0;background:none;
   border-bottom:1px solid var(--steel-200);padding:8px var(--hub-edge);}
-.desk-main > .fl-wrap{padding:var(--hub-edge);}
+/* The room's VIEWPORT: it takes the height that is left, clips whatever the
+   pinch pushes past its edges, and keeps the gesture off the page's own
+   scrolling (touch-action). */
+.desk-main > .fl-wrap{flex:1 1 auto;min-height:0;padding:var(--hub-edge);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  touch-action:none;overscroll-behavior:contain;}
+.fl-stage{display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;transform-origin:center center;will-change:transform;}
+/* Fitted, not stretched: height first, width as the cap, so the drawing keeps
+   the POS's 900x560 whatever shape the pane is. */
+.desk-main .fl-room{height:100%;width:auto;max-width:100%;max-height:100%;min-width:0;}
+/* The one line above the room: what it is doing, and the way back out. */
+.fl-status{flex:none;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:8px var(--hub-edge);border-bottom:1px solid var(--steel-200);min-height:38px;}
+.fl-status .spacer{flex:1;}
+.fl-status .fl-reset{min-height:30px;width:30px;}
+.fl-status .fl-reset svg{width:16px;height:16px;}
 .desk-main > .tl,.desk-main > .grid3,.desk-main > .flow,.desk-main > .empty{margin:var(--hub-edge);}
 .desk-main > .ts{padding:0 var(--hub-edge) var(--hub-edge);margin-top:0!important;}
 .desk-bar{margin:0;}
@@ -883,6 +899,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 @media (max-width:760px){
   .desk.show-book .desk-main{display:none;}
   .desk.show-room .desk-col{display:none;}
+  /* A thirty-table room fitted to a 400-wide pane is a stamp. On a phone it
+     keeps a floor it will not go under, in its own sideways scroller, and
+     the pinch is what gets you closer still. */
+  .desk-main > .fl-wrap{overflow:auto;align-items:flex-start;}
+  .desk-main .fl-room{height:auto;width:100%;min-width:560px;max-width:none;}
+  .fl-stage{width:auto;height:auto;}
 }
 @media (min-width:761px) and (max-width:900px){
   .desk-col{max-height:38vh;overflow-y:auto;}

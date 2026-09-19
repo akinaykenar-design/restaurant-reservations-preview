@@ -859,18 +859,34 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    Two columns inside the pane. The LIST is always there, because it is the
    thing a host reads; the rail decides what sits beside it. They stack on
    anything narrow, list first, for the same reason. */
-.desk{display:flex;gap:0;align-items:stretch;min-height:0;
+.desk{display:flex;gap:0;align-items:stretch;min-height:0;height:100%;
   background:var(--surface);border:1px solid var(--steel-200);
   border-radius:var(--r-surface);overflow:hidden;}
 .desk-col{flex:0 0 var(--deskcol-w);min-width:0;max-height:calc(100vh - var(--deck-h) - var(--hub-edge) * 2);
   overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--steel-200);}
-.desk-main{flex:1;min-width:0;display:flex;flex-direction:column;gap:0;}
+.desk-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:0;}
 /* Inside one card the stacked parts are separated by the seam alone: a band
    is a ROW, not a card on a card; the room gets the card's padding; the
    pacing hangs off a single line at the foot. */
 .desk-main > .band{margin:0;border:none;border-radius:0;background:none;
   border-bottom:1px solid var(--steel-200);padding:8px var(--hub-edge);}
-.desk-main > .fl-wrap{padding:var(--hub-edge);}
+/* The room's VIEWPORT: it takes the height that is left, clips whatever the
+   pinch pushes past its edges, and keeps the gesture off the page's own
+   scrolling (touch-action). */
+.desk-main > .fl-wrap{flex:1 1 auto;min-height:0;padding:var(--hub-edge);
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  touch-action:none;overscroll-behavior:contain;}
+.fl-stage{display:flex;align-items:center;justify-content:center;
+  width:100%;height:100%;transform-origin:center center;will-change:transform;}
+/* Fitted, not stretched: height first, width as the cap, so the drawing keeps
+   the POS's 900x560 whatever shape the pane is. */
+.desk-main .fl-room{height:100%;width:auto;max-width:100%;max-height:100%;min-width:0;}
+/* The one line above the room: what it is doing, and the way back out. */
+.fl-status{flex:none;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:8px var(--hub-edge);border-bottom:1px solid var(--steel-200);min-height:38px;}
+.fl-status .spacer{flex:1;}
+.fl-status .fl-reset{min-height:30px;width:30px;}
+.fl-status .fl-reset svg{width:16px;height:16px;}
 .desk-main > .tl,.desk-main > .grid3,.desk-main > .flow,.desk-main > .empty{margin:var(--hub-edge);}
 .desk-main > .ts{padding:0 var(--hub-edge) var(--hub-edge);margin-top:0!important;}
 .desk-bar{margin:0;}
@@ -890,6 +906,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 @media (max-width:760px){
   .desk.show-book .desk-main{display:none;}
   .desk.show-room .desk-col{display:none;}
+  /* A thirty-table room fitted to a 400-wide pane is a stamp. On a phone it
+     keeps a floor it will not go under, in its own sideways scroller, and
+     the pinch is what gets you closer still. */
+  .desk-main > .fl-wrap{overflow:auto;align-items:flex-start;}
+  .desk-main .fl-room{height:auto;width:100%;min-width:560px;max-width:none;}
+  .fl-stage{width:auto;height:auto;}
 }
 @media (min-width:761px) and (max-width:900px){
   .desk-col{max-height:38vh;overflow-y:auto;}
@@ -6543,6 +6565,7 @@ const I = {
   out: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H5v16h5M14 8l4 4-4 4M18 12H9"/></svg>',
   moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg>',
   plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+  shrink: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v5a1 1 0 0 1-1 1H4"/><path d="M2 2l6 6"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M22 2l-6 6"/><path d="M10 22v-5a1 1 0 0 0-1-1H4"/><path d="M2 22l6-6"/><path d="M14 22v-5a1 1 0 0 1 1-1h5"/><path d="M22 22l-6-6"/></svg>',
   book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C9.6 4.6 6.6 3.8 2 3.8v14.2c4.6 0 7.6.8 10 2.4"/><path d="M12 6.2C14.4 4.6 17.4 3.8 22 3.8v14.2c-4.6 0-7.6.8-10 2.4"/><path d="M12 6.2v14.2"/></svg>',
   refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>',
   till: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 13h4M7 16h4M15 13h2"/></svg>',
@@ -6595,6 +6618,10 @@ const state = {
   // combos (which makes the Settings card read-only, as the Staff card is).
   setMenus: [], setMenusFromPos: false,
   view: 'today', date: localDay(new Date()), todayMode: 'floor',
+  // How far into the room you have pushed. 1 is the whole room on the screen;
+  // the pan is in pixels of the SCALED stage, clamped so the room can never be
+  // shoved off the edge and lost.
+  floorZoom: 1, floorPanX: 0, floorPanY: 0,
   // Which HALF of the desk a phone is showing. The desk proper shows both at
   // once and ignores this; a phone cannot, so it picks one. 'book' by default,
   // because the list is the thing a host reads.
@@ -7373,14 +7400,79 @@ function renderFloor() {
     </button>`;
   };
 
+  // What the room is doing, in one line. The bar this replaced also carried a
+  // clock (the top bar has one), a Now key (the floor is always now) and a
+  // slider through the night (the timeline's question, answered properly).
+  const count = (st) => Object.values(by).filter(f => f.state === st).length;
+  const key = (st, label) => `<span class="fl-key"><i class="fl-dot ${st}"></i>${label} <b>${count(st)}</b></span>`;
+  const z = state.floorZoom || 1;
+
   return `
+  <div class="fl-status">
+    ${key('seated', 'Seated')}${key('over', 'Over')}${key('due', 'Due')}${key('free', 'Free')}
+    <span class="spacer"></span>
+    ${z > 1 ? `<button class="chip sq fl-reset" data-act="floor-fit" title="Fit the room to the screen" aria-label="Fit the room to the screen">${I.shrink}</button>` : ''}
+  </div>
   ${plans.length ? plans.map(fp => `
     ${plans.length > 1 ? `<div class="section-h">${esc(fp.name)}</div>` : ''}
-    <div class="fl-wrap"><div class="fl-room${placed ? '' : ' loose'}">
+    <div class="fl-wrap" data-keep="floor"><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}">
       ${(fp.tables || []).map(tableEl).join('')}
-    </div></div>`).join('')
+    </div></div></div>`).join('')
     : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>'}
   ${placed ? renderPace() : ''}`;
+}
+
+// §§ Pushing into the room
+//
+// A thirty-table floor on a tablet draws each table about forty pixels wide,
+// and a name in forty pixels is not a name. So the room takes a pinch: two
+// fingers, or a trackpad's pinch (which arrives as ctrl+wheel), and a drag to
+// push it about once you are in.
+//
+// The transform is hand-applied while the fingers are down and only written
+// to state when they lift — the timeline drag's law, for the same reason: a
+// render mid-gesture destroys the element under the finger.
+const FLOOR_MIN = 1, FLOOR_MAX = 5;
+function stageStyle() {
+  const z = state.floorZoom || 1;
+  if (z === 1 && !state.floorPanX && !state.floorPanY) return '';
+  return `transform:translate(${state.floorPanX}px,${state.floorPanY}px) scale(${z});`;
+}
+// The room may be pushed about, never pushed away: at any zoom the pan is
+// held to the slack the scaling actually created, so an edge can always be
+// brought back.
+function clampFloor(z, x, y) {
+  const wrap = document.querySelector('.desk-main .fl-wrap');
+  const room = wrap && wrap.querySelector('.fl-room');
+  if (!wrap || !room) return { x: 0, y: 0 };
+  const w = room.clientWidth * z, h = room.clientHeight * z;
+  const slackX = Math.max(0, (w - wrap.clientWidth) / 2) + 8;
+  const slackY = Math.max(0, (h - wrap.clientHeight) / 2) + 8;
+  return { x: Math.max(-slackX, Math.min(slackX, x)), y: Math.max(-slackY, Math.min(slackY, y)) };
+}
+let flGest = null;
+function flStage() { return document.querySelector('.desk-main .fl-wrap .fl-stage'); }
+function flPaint(z, x, y) {
+  const el = flStage();
+  if (el) el.style.transform = `translate(${x}px,${y}px) scale(${z})`;
+}
+// Zoom about a POINT, so the table under the fingers stays under the fingers.
+function flZoomAt(z1, cx, cy) {
+  const wrap = document.querySelector('.desk-main .fl-wrap');
+  if (!wrap) return;
+  const b = wrap.getBoundingClientRect();
+  const z0 = state.floorZoom || 1;
+  const k = z1 / z0;
+  // the pointer's offset from the wrap's centre, which is the transform origin
+  const px = cx - (b.left + b.width / 2), py = cy - (b.top + b.height / 2);
+  const at = clampFloor(z1, px - (px - state.floorPanX) * k, py - (py - state.floorPanY) * k);
+  state.floorZoom = z1; state.floorPanX = at.x; state.floorPanY = at.y;
+}
+function flCommit() {
+  const at = clampFloor(state.floorZoom, state.floorPanX, state.floorPanY);
+  state.floorPanX = at.x; state.floorPanY = at.y;
+  if (state.floorZoom <= FLOOR_MIN + 0.01) { state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; }
+  render();
 }
 
 // §§ Arranging the room
@@ -8856,7 +8948,7 @@ document.addEventListener('click', async (ev) => {
       // Settings is the one place that still asks for a code — and it asks
       // once, then holds it for as long as this tab is open.
       case 'view': setView(val); break;
-      case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.service = ''; render(); await loadDay(); render(); break;
+      case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.service = ''; state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'phone-pane': state.phonePane = val; render(); break;
       case 'mode': {
@@ -8884,6 +8976,7 @@ document.addEventListener('click', async (ev) => {
         render();
         break;
       }
+      case 'floor-fit': state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); break;
       case 'new-booking': openBooking(null); break;
       // A walk-in is not a booking with the boxes left empty: it is always
       // NOW, always on the trading day whatever night is on screen, and it is
@@ -9095,6 +9188,15 @@ function tlPreview(r, tableId, min) {
 }
 
 document.addEventListener('pointerdown', (e) => {
+  // THE ROOM FIRST, and before the isPrimary guard below: that guard is there
+  // because a pinch is never a timeline DRAG, and it was swallowing the second
+  // finger of the one gesture that wants two. Two fingers pinch the room; one
+  // finger pushes it about once you are in. At rest a single finger is left
+  // alone, so a tap still books a table.
+  if (!tlDrag && !arrDrag && !state.modal && state.settings) {
+    const fw = e.target.closest && e.target.closest('.desk-main .fl-wrap');
+    if (fw && flDown(e, fw)) return;
+  }
   if (e.isPrimary === false) return;                                   // a pinch is never a drag
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   if (tlDrag || arrDrag || state.modal || !state.settings) return;
@@ -9114,6 +9216,80 @@ document.addEventListener('pointerdown', (e) => {
 document.addEventListener('pointermove', moveArrange);
 document.addEventListener('pointerup', endArrange);
 document.addEventListener('pointercancel', endArrange);
+
+// ---------- the room's pinch and push ----------
+const flPts = new Map();
+function flSpan() {
+  const p = [...flPts.values()];
+  return { d: Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y),
+           cx: (p[0].x + p[1].x) / 2, cy: (p[0].y + p[1].y) / 2 };
+}
+function flDown(e, wrap) {
+  flPts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  if (flPts.size === 2) {
+    const s0 = flSpan();
+    flGest = { kind: 'pinch', d0: s0.d, z0: state.floorZoom || 1, moved: true };
+    return true;
+  }
+  if (flPts.size === 1 && (state.floorZoom || 1) > 1) {
+    flGest = { kind: 'pan', x0: e.clientX, y0: e.clientY,
+      px: state.floorPanX, py: state.floorPanY, moved: false, wrap };
+    return true;                       // a push, not a tap — until it moves
+  }
+  return false;
+}
+document.addEventListener('pointermove', (e) => {
+  if (!flPts.has(e.pointerId)) return;
+  flPts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  const g = flGest; if (!g) return;
+  if (g.kind === 'pinch' && flPts.size >= 2) {
+    const sp = flSpan();
+    if (!sp.d0 && !g.d0) return;
+    const z = Math.max(FLOOR_MIN, Math.min(FLOOR_MAX, g.z0 * (sp.d / (g.d0 || 1))));
+    flZoomAt(z, sp.cx, sp.cy);
+    flPaint(state.floorZoom, state.floorPanX, state.floorPanY);
+    e.preventDefault();
+  } else if (g.kind === 'pan') {
+    const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+    if (!g.moved && Math.hypot(dx, dy) < 5) return;
+    g.moved = true;
+    const at = clampFloor(state.floorZoom, g.px + dx, g.py + dy);
+    state.floorPanX = at.x; state.floorPanY = at.y;
+    flPaint(state.floorZoom, at.x, at.y);
+    e.preventDefault();
+  }
+}, { passive: false });
+const flUp = (e) => {
+  if (!flPts.has(e.pointerId)) return;
+  flPts.delete(e.pointerId);
+  const g = flGest;
+  if (!g) return;
+  if (flPts.size === 0) {
+    flGest = null;
+    // A push is never a tap: the click the browser fires after a drag would
+    // otherwise book the table the finger happened to finish on.
+    if (g.moved) { const eat = (c) => { c.preventDefault(); c.stopImmediatePropagation(); }; document.addEventListener('click', eat, { capture: true, once: true }); setTimeout(() => document.removeEventListener('click', eat, true), 350); }
+    flCommit();
+  } else if (g.kind === 'pinch') {
+    flGest = null;                     // one finger left: stop, do not lurch
+    flCommit();
+  }
+};
+document.addEventListener('pointerup', flUp);
+document.addEventListener('pointercancel', flUp);
+// A trackpad's pinch arrives as ctrl+wheel. Plain wheel is left alone so the
+// pane still scrolls under a mouse.
+document.addEventListener('wheel', (e) => {
+  const wrap = e.target.closest && e.target.closest('.desk-main .fl-wrap');
+  if (!wrap || !e.ctrlKey) return;
+  e.preventDefault();
+  const z = Math.max(FLOOR_MIN, Math.min(FLOOR_MAX, (state.floorZoom || 1) * Math.exp(-e.deltaY / 220)));
+  flZoomAt(z, e.clientX, e.clientY);
+  flPaint(state.floorZoom, state.floorPanX, state.floorPanY);
+  clearTimeout(flWheelEnd);
+  flWheelEnd = setTimeout(flCommit, 140);
+}, { passive: false });
+let flWheelEnd = null;
 
 // A block the floor owns, or a joined booking's shadow on a second lane:
 // nothing lifts, but a hold says why rather than feeling broken. The drop
