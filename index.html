@@ -1165,6 +1165,41 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-find input:focus{border:none;box-shadow:none;}
 .bl-find input::-webkit-search-cancel-button{display:none;}
 .bl-find .chip.sq{flex:none;min-height:34px;width:34px;}
+
+/* THE LENS — a row of chips at the end of the status line, which is what the
+   Chip law says a set of selectors is. It rides behind the same switch that
+   draws the pill: with no pill there is nothing to ask. NOT wrapped in
+   .band, whatever the name suggests: .band carries its own ground and its
+   own hairline, and the status line already sits inside the desk's one card
+   — a box in a box is how a screen gets busy without anybody adding
+   anything. The chips keep the deck's sizing rather than the room's, because
+   they are a control on the app and not part of the drawing. */
+.fl-lens{display:flex;align-items:center;gap:4px;flex:none;}
+/* The app's own chip height, not a smaller one invented for this row: the
+   zoom keys sit right beside them and a row of two heights reads as a
+   mistake. Only the padding tightens, so four words fit the line. */
+.fl-lens .chip{padding:6px 10px;font-size:var(--fs-chip);}
+.fl-lens .chip.on{border-color:var(--orange);background:var(--orange-dim);color:var(--orange);}
+/* An allergy is the one thing on the room a host must not read past. */
+.fl-cpill.hot{background:var(--red);color:#fff;}
+/* A phone, and a phone turned sideways, fold the four into one: a third row
+   of bar is 40 pixels the room does not have, and sideways it is the whole
+   argument for that shape. The fold is a CSS swap, not a narrower render —
+   a render that had to know the width would be wrong the moment the phone
+   turned, and nothing re-renders on a rotation. */
+.fl-lens-cycle{display:none;}
+@media (max-width:760px){
+  .fl-lens .chip:not(.fl-lens-cycle){display:none;}
+  .fl-lens-cycle{display:inline-flex;}
+}
+/* A PHONE TURNED SIDEWAYS IS NOT OFFERED THE LENS AT ALL. There the two
+   columns sit side by side, so the room gets about 424 of the 852 — the
+   counts already fill that line, and one more chip wrapped it to a second
+   row: measured, 47 pixels of bar became 99 on a screen 393 tall. That is
+   a quarter of the height to ask a question, on the one shape whose whole
+   argument is that it has no height to spare. The room there is a glance
+   beside the book; asking it things is a desk and tablet job. */
+@media (max-height:520px) and (min-width:761px){ .fl-lens{display:none;} }
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "d3f36a9d0d77add20c1bec7edc792a7027c85430";window.__RESV_ROOM__ = [
@@ -3456,10 +3491,16 @@ function floorAt(ctx, day, hhmm, opts) {
     if (!on) {
       return {
         id: t.id, state: 'free', bookingId: null, over: 0, late: 0, sat: 0, cap: 0,
+        // An allergy is a thing you PREPARE FOR, so it belongs to the table
+        // from the moment the night is set, not from the moment they sit.
+        allergy: allergyWordOf(next),
         nextAt, freeFor: next ? minsOf(next.time) - at : null,
       };
     }
     const start = minsOf(on.time);
+    // Whoever is ON the table now, or whoever is coming to it next: the
+    // kitchen needs to know before the plate is made, not after.
+    const allergy = allergyWordOf(on) || allergyWordOf(next);
     const cap = durOf(on);
     const end = start + cap;
     const state = on.status === 'seated' ? (at >= end ? 'over' : 'seated') : 'due';
@@ -3471,7 +3512,7 @@ function floorAt(ctx, day, hhmm, opts) {
       // How long they have been down, against how long they have. The pill's
       // danger scale is a SHARE of the second, so both travel with the state.
       sat: state === 'seated' || state === 'over' ? Math.max(0, at - start) : 0,
-      cap,
+      cap, allergy,
       nextAt, freeFor: null,
     };
   });
@@ -3523,10 +3564,51 @@ function pillSettings(settings) {
   };
 }
 
-function tablePill(f, settings) {
+// A pill has room for ONE WORD, not a paragraph: the chef reads the run
+// sheet, the host reads the room. So the allergy lens shows what it IS —
+// the first thing in the note that names a food, or just "allergy" when the
+// booking is tagged and says no more.
+function allergyWordOf(r) {
+  const a = allergyOf(r, null);
+  if (!a) return '';
+  const hit = String(a.notes || '').match(ALLERGY_RE);
+  return hit ? hit[0].toLowerCase() : 'allergy';
+}
+
+// The lenses. 'status' is ours and is what the room says when nobody has
+// asked it anything: the one thing per table that matters most, chosen by
+// priority. The other three are the till's idea — ask the whole room one
+// question and have every table answer it. The POS's other lenses (course,
+// attention, spend) are the till's own business: they need open orders, and
+// a lens that can only ever say nothing is worse than no lens.
+const PILL_LENSES = ['status', 'sitting', 'booked', 'allergy'];
+
+function tablePill(f, settings, lens) {
   if (!f) return null;
   const p = pillSettings(settings);
   if (!p.on) return null;
+  const view = PILL_LENSES.indexOf(lens) >= 0 ? lens : 'status';
+
+  if (view === 'allergy') return f.allergy ? { kind: 'allergy', text: f.allergy } : null;
+
+  if (view === 'sitting') {
+    // Asked on purpose, so every sitting answers — even the one that has
+    // just sat, which the status lens rightly keeps quiet about. The scale
+    // only decides how loudly. This is the till's own sitting lens, and its
+    // number is the DWELL even once a table is over, never the overstay.
+    if (f.state !== 'seated' && f.state !== 'over') return null;
+    const cap = Number(f.cap) || 0;
+    const sat = Math.max(0, Number(f.sat) || 0);
+    const ratio = cap ? sat / cap : 0;
+    return { kind: ratio >= 1 ? 'over' : ratio >= p.warnAt / 100 ? 'warn' : 'quiet', mins: sat, dwell: true };
+  }
+
+  if (view === 'booked') {
+    // Every table with somebody coming says when, however far off — that is
+    // the question, and "soon" is not part of it.
+    return f.nextAt ? { kind: 'next', at: f.nextAt } : null;
+  }
+
   if (f.state === 'over') return { kind: 'over', mins: Math.max(0, f.over || 0) };
   if (f.state === 'due') {
     const late = Math.max(0, f.late || 0);
@@ -4103,7 +4185,7 @@ module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, suggestTable, suggestJoin, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
-  FLOOR_STATES, floorAt, PILL_DEFAULTS, pillSettings, tablePill, coverFlow,
+  FLOOR_STATES, floorAt, PILL_DEFAULTS, PILL_LENSES, pillSettings, allergyWordOf, tablePill, coverFlow,
   MOVABLE, canMove, snapSlot, seatsOf, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
@@ -6837,6 +6919,9 @@ const state = {
   // the pan is in pixels of the SCALED stage, clamped so the room can never be
   // shoved off the edge and lost.
   floorZoom: 1, floorPanX: 0, floorPanY: 0,
+  // Which question the room is being asked. Not saved and not in the store:
+  // it is where you are looking, not how the venue is set up.
+  floorLens: 'status',
   // Which HALF of the desk a phone is showing. The desk proper shows both at
   // once and ignores this; a phone cannot, so it picks one. 'book' by default,
   // because the list is the thing a host reads.
@@ -7518,11 +7603,11 @@ function floorStateAt(hhmm) {
     }) || null;
     const next = held.find(r => toMin(hhmmOf(r.time)) > at) || null;
     const nextAt = next ? hhmmOf(next.time) : null;
-    if (!on) return { id: t.id, state: 'free', r: null, over: 0, late: 0, nextAt, freeFor: next ? toMin(hhmmOf(next.time)) - at : null };
+    if (!on) return { id: t.id, state: 'free', r: null, next, over: 0, late: 0, nextAt, freeFor: next ? toMin(hhmmOf(next.time)) - at : null };
     const end = toMin(hhmmOf(on.time)) + durationOf(on);
     const st = on.status === 'seated' ? (at >= end ? 'over' : 'seated') : 'due';
     return {
-      id: t.id, state: st, r: on,
+      id: t.id, state: st, r: on, next,
       over: st === 'over' ? at - end : 0,
       late: st === 'due' ? Math.max(0, at - toMin(hhmmOf(on.time))) : 0,
       nextAt, freeFor: null,
@@ -7625,9 +7710,54 @@ function pillTime(hhmm) {
   const [h, m] = String(hhmm).split(':').map(Number);
   return ((h % 12) || 12) + ':' + String(m).padStart(2, '0');
 }
+// The browser's copy of availability.js:PILL_LENSES / allergyWordOf. Same
+// obligation: change them in step.
+const PILL_LENSES = [
+  ['status', 'Status'], ['sitting', 'Sitting'], ['booked', 'Booked'], ['allergy', 'Allergy'],
+];
+const ALLERGY_RE = /\b(?:allerg\w*|coeliac|celiac|gluten|intoleran\w*|anaphyla\w*|epi-?pen|nuts?|peanuts?|shellfish|seafood|crustacean|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b/i;
+function allergyWordOf(r) {
+  if (!r) return '';
+  const tagged = (r.tags || []).some(t => String(t).toLowerCase() === 'allergy');
+  const notes = String(r.notes || '').trim();
+  if (!tagged && !ALLERGY_RE.test(notes)) return '';
+  const hit = notes && (tagged || ALLERGY_RE.test(notes)) ? notes.match(ALLERGY_RE) : null;
+  return hit ? hit[0].toLowerCase() : 'allergy';
+}
+function floorLens() {
+  const l = state.floorLens;
+  return PILL_LENSES.some(x => x[0] === l) ? l : 'status';
+}
+
 function floorPill(f) {
   const p = pillSettings();
   if (!p.on) return '';
+  const view = floorLens();
+
+  if (view === 'allergy') {
+    // Whoever is on the table now, or whoever is coming to it next. An
+    // allergy is a thing you prepare for, so it belongs to the table from
+    // the moment the night is set, not from the moment they sit down.
+    const w = allergyWordOf(f.r) || allergyWordOf(f.next);
+    return w ? `<span class="fl-cpill hot"><b>! ${esc(w)}</b></span>` : '';
+  }
+  if (view === 'sitting') {
+    // Asked on purpose, so every sitting answers — even one that has just sat,
+    // which the status lens rightly keeps quiet about. The number is the
+    // DWELL even once a table is over, which is the till's own reading.
+    if ((f.state !== 'seated' && f.state !== 'over') || !f.r) return '';
+    const sat = Math.max(0, toMin(floorMoment()) - toMin(hhmmOf(f.r.time)));
+    const cap = durationOf(f.r) || 90;
+    const ratio = cap ? sat / cap : 0;
+    const cls = ratio >= 1 ? ' over' : ratio >= p.warnAt / 100 ? ' warn' : '';
+    return `<span class="fl-cpill${cls}"><b>${esc(pillDur(sat))}</b></span>`;
+  }
+  if (view === 'booked') {
+    // Every table with somebody coming says when, however far off — that is
+    // the question, and "soon" is not part of it.
+    return f.nextAt ? `<span class="fl-cpill next"><b>${esc(pillTime(f.nextAt))}</b></span>` : '';
+  }
+
   if (f.state === 'over') return `<span class="fl-cpill over"><b>${esc(pillDur(f.over))} over</b></span>`;
   if (f.state === 'due') {
     // Late escalates within its OWN colour. Reusing the over-staying violet
@@ -7719,11 +7849,33 @@ function renderFloor() {
   const count = (st) => Object.values(by).filter(f => f.state === st).length;
   const key = (st, label) => `<span class="fl-key"><i class="fl-dot ${st}"></i>${label} <b>${count(st)}</b></span>`;
   const z = state.floorZoom || 1;
+  // THE LENS: ask the whole room one question. The till hangs this off the
+  // right of its floor band, behind the same switch that draws the pill at
+  // all — switch the pill off and there is nothing to ask, so the chips go
+  // with it. It is a band of chips, because every selector here is a chip.
+  // It is NOT saved: which question you are asking is where you are looking,
+  // and a desk that came back tomorrow still asking about allergies would be
+  // a desk lied to. The till does the same (its floorStatusView resets).
+  const pillOn = pillSettings().on;
+  const lens = floorLens();
 
   return `
   <div class="fl-status">
     ${key('seated', 'Seated')}${key('over', 'Over')}${key('due', 'Due')}${key('free', 'Free')}
     <span class="spacer"></span>
+    ${pillOn ? `<span class="fl-lens">${
+      /* Folded to ONE on a phone and on a phone turned sideways, where a
+         third row of bar is 40 pixels the room does not have — the same
+         fold the top bar's keys take. It names where you ARE and moves on
+         one each tap; which is why the fold is done here, with the next
+         lens baked into the key, and shown or hidden in CSS: a render that
+         had to know the width would be wrong the moment the phone turned. */
+      `<button class="chip on fl-lens-cycle" data-act="floor-lens" data-val="${
+        PILL_LENSES[(PILL_LENSES.findIndex(x => x[0] === lens) + 1) % PILL_LENSES.length][0]
+      }" title="Ask the room something else">${esc((PILL_LENSES.find(x => x[0] === lens) || PILL_LENSES[0])[1])}</button>`
+      + PILL_LENSES.map(([v, l]) =>
+      `<button class="chip${lens === v ? ' on' : ''}" data-act="floor-lens" data-val="${v}"${lens === v ? ' aria-current="true"' : ''}>${esc(l)}</button>`).join('')
+    }</span>` : ''}
     <span class="fl-zoom">
       <button class="chip sq" data-act="floor-out" title="Further out" aria-label="Zoom out"${z <= FLOOR_MIN ? ' disabled' : ''}>${I.minus}</button>
       <b>${Math.round(z * 100)}%</b>
@@ -9314,6 +9466,7 @@ document.addEventListener('click', async (ev) => {
         break;
       }
       case 'floor-fit': state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); break;
+      case 'floor-lens': state.floorLens = val; render(); break;
       // A step either way, about the middle of what you are looking at.
       case 'floor-in': case 'floor-out': {
         const wrap = document.querySelector('.desk-main .fl-wrap');
