@@ -156,7 +156,10 @@
   document.querySelectorAll('.hand button[data-pv]').forEach(b => b.addEventListener('click', () => {
     const w = frame.contentWindow;
     if (b.dataset.pv === 'copy') { try { w.__RESV__.downloadData(); } catch (e) {} return; }
-    try { w.location.reload(true); } catch (e) { frame.src = frame.src; }
+    // Throw this copy of the data away and come back on the build that is up.
+    // A bare reload would keep it, and then the key would do nothing at all on
+    // the days the build has not moved.
+    try { w.__RESV__.resetData(); } catch (e) { try { w.location.reload(); } catch (e2) { frame.src = frame.src; } }
   }));
 
   // tablet.html points here with ?d=tablet, so open on the device asked for.

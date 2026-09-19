@@ -1099,7 +1099,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 
   var LS_KEY = 'resv-preview-store-v1';
   var SEED_KEY = LS_KEY + '-seedhash';
-  var DIRTY_KEY = LS_KEY + '-dirty';
   var DB = 'data/store.json';            // the seed slot
   var DB_LIVE = 'data/store.local.json'; // what the server actually writes
 
@@ -1117,16 +1116,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 
   function liveStore() { return files[DB_LIVE] || files[DB]; }
 
-  var conflict = false;   // a new deploy's data against edits already here
   try {
     var freshSeed = localStorage.getItem(SEED_KEY) !== window.__RESV_SEED_HASH__;
-    var dirty = localStorage.getItem(DIRTY_KEY) === '1';
     var saved = localStorage.getItem(LS_KEY);
-    if (saved) {
-      if (!freshSeed) { JSON.parse(saved); files[DB] = saved; }
-      else if (dirty) { JSON.parse(saved); files[DB] = saved; conflict = true; }
-      // A fresh seed with no edits of your own re-seeds silently.
-    }
+    // Only a build this copy has already seen keeps its data. A new one
+    // re-seeds, so a reload after a deploy shows the deploy.
+    if (saved && !freshSeed) { JSON.parse(saved); files[DB] = saved; }
   } catch (e) {}
   var needDemo = false;
   if (!files[DB]) {
@@ -1135,19 +1130,14 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     try {
       localStorage.setItem(LS_KEY, files[DB]);
       localStorage.setItem(SEED_KEY, window.__RESV_SEED_HASH__);
-      localStorage.removeItem(DIRTY_KEY);
     } catch (e) {}
   }
   touch(DB);
-
-  var booted = false;
-  setTimeout(function () { booted = true; }, 1500);
 
   function persist(p) {
     if (p !== DB && p !== DB_LIVE) return;
     try {
       localStorage.setItem(LS_KEY, liveStore());
-      if (booted) localStorage.setItem(DIRTY_KEY, '1');
     } catch (e) {}
   }
 
@@ -1448,7 +1438,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     dispatch: dispatch,
     bookUrl: bookUrl,
     resetData: function () {
-      try { localStorage.removeItem(LS_KEY); localStorage.removeItem(SEED_KEY); localStorage.removeItem(DIRTY_KEY); } catch (e) {}
+      try { localStorage.removeItem(LS_KEY); localStorage.removeItem(SEED_KEY); } catch (e) {}
       location.reload();
     },
     downloadData: function () {
@@ -1816,9 +1806,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     chain = chain.then(function () { return call('POST', '/api/waitlist', { name: 'Two at the bar', phone: '', partySize: 2, quotedMin: 20 }); });
     chain = chain.then(function () { return call('POST', '/api/waitlist', { name: 'Hollis', phone: '0400 118 993', partySize: 3, quotedMin: 35, notes: 'happy to sit outside' }); });
 
-    return chain.then(function () {
-      try { localStorage.removeItem(DIRTY_KEY); } catch (e) {}
-    }).catch(function (e) { console.warn('preview demo data:', e); });
+    return chain.catch(function (e) { console.warn('preview demo data:', e); });
   }
 
   // ---------- the "this is a preview" bar ----------
@@ -1841,6 +1829,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 
   function banner() {
     if (document.getElementById('pv-bar')) return;
+    if (window.self !== window.top) return;
     var st = document.createElement('style');
     st.textContent = BAR_CSS;
     document.head.appendChild(st);
@@ -1871,24 +1860,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     on('#pv-hide', function () { bar.remove(); });
   }
 
-  function conflictBar() {
-    var bar = document.createElement('div');
-    bar.setAttribute('style', 'position:fixed;left:0;right:0;top:0;z-index:10000;padding:10px 12px;background:#C08A00;color:#fff;font:600 12px/1.4 system-ui,sans-serif;display:flex;gap:10px;align-items:center;');
-    bar.innerHTML = '<span style="flex:1;">This preview has been updated, and you have changes of your own here.</span>'
-      + '<button id="pv-keep" style="all:unset;cursor:pointer;padding:4px 10px;border:1px solid rgba(255,255,255,.5);border-radius:8px;">Keep mine</button>'
-      + '<button id="pv-new" style="all:unset;cursor:pointer;padding:4px 10px;border:1px solid rgba(255,255,255,.5);border-radius:8px;">Start fresh</button>';
-    document.body.appendChild(bar);
-    bar.querySelector('#pv-new').onclick = function () { window.__RESV__.resetData(); };
-    bar.querySelector('#pv-keep').onclick = function () {
-      try { localStorage.setItem(SEED_KEY, window.__RESV_SEED_HASH__); } catch (e) {}
-      bar.remove();
-    };
-  }
-
-  window.addEventListener('load', function () {
-    banner();
-    if (conflict) conflictBar();
-  });
+  window.addEventListener('load', banner);
 })();
 </script>
 <script>
