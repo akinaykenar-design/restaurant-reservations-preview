@@ -164,15 +164,6 @@ h1,h2,h3{margin:0;}
 .deck-sq.ghost{border-color:transparent;background:none;color:var(--text-secondary);}
 .deck-sq.ghost:hover{background:var(--steel-200);color:var(--text-primary);}
 .deck-sq svg,.deck-sq .sys-i{width:20px;height:20px;}
-/* The two keys that make something: a walk-in and a booking. Both say what
-   they are on a desk and fall back to the icon alone on a phone, where the
-   bar has the date to carry as well. */
-.deck-key{display:inline-flex;align-items:center;gap:8px;height:var(--tap);min-height:var(--tap);
-  padding:0 14px;border-radius:var(--r-control);border:1px solid var(--deck-chip-line);
-  background:var(--deck-chip-bg);color:var(--deck-chip-ink);font-weight:700;font-size:var(--fs-md);
-  white-space:nowrap;cursor:pointer;}
-.deck-key:hover{background:var(--steel-200);}
-.deck-key svg{width:20px;height:20px;flex:0 0 20px;}
 .deck-dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none;}
 .deck-dot.off{background:var(--red);}
 .deck-dot.warn{background:var(--gold);}
@@ -182,7 +173,6 @@ h1,h2,h3{margin:0;}
    end — on a manager's tablet, the one tab they need is the one they cannot
    see. So the squeeze comes in stages. */
 @media (max-width:1100px){ .tab-btn{min-width:0;flex:none;padding:8px 10px;} }
-@media (max-width:1000px){ .deck-key{padding:0;width:var(--tap);min-width:var(--tap);justify-content:center;} .dk-t{display:none;} }
 /* And when it still does not fit — a long count on Waitlist, a narrow phone —
    nothing is ever sliced: the row fades at the cut end so a half-shown tab
    reads as "more this way" rather than a broken word. The POS's nav law. */
@@ -851,7 +841,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    everything gets shorter. */
 @media (min-width:761px) and (max-height:520px){
   .topbar{min-height:48px;padding:4px 12px;}
-  .deck-sq,.deck-chip,.deck-key{min-height:38px;height:38px;}
+  .deck-sq,.deck-chip{min-height:38px;height:38px;}
   .rail{width:78px;}
   /* 393 pixels of height hold five tiles, not nine, so holding the places
      still while the sections scroll inside 78 of them helps nobody: here the
@@ -6163,7 +6153,7 @@ const I = {
   stJoined: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.6 14.4a4.6 4.6 0 0 0 6.5 0l2.6-2.6a4.6 4.6 0 0 0-6.5-6.5l-1.5 1.5"/><path d="M14.4 9.6a4.6 4.6 0 0 0-6.5 0l-2.6 2.6a4.6 4.6 0 0 0 6.5 6.5l1.5-1.5"/></svg>',
   srcStaff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 2.8h3.1l1.6 4.6-2.1 1.6a12.4 12.4 0 0 0 6.2 6.2l1.6-2.1 4.6 1.6v3.1a2.6 2.6 0 0 1-2.8 2.6A17 17 0 0 1 3.6 5.6a2.6 2.6 0 0 1 2.6-2.8z"/></svg>',
   srcOnline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg>',
-  srcWalkIn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.4 21V4.2L14 2.6V21"/><path d="M2.6 21h18.8"/><path d="M14 6.4h3.8V21"/><circle cx="11.2" cy="12" r="1"/></svg>',
+  srcWalkIn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.9" cy="4.4" r="2.4"/><path d="M13.5 6.8L11.6 13"/><path d="M12.9 9.2L16.6 11.6"/><path d="M11.6 13L15 16L14.6 22"/><path d="M11.6 13L8.8 16.8L7.4 21.6"/></svg>',
 };
 
 // §§ State
@@ -6720,8 +6710,8 @@ function renderDeck() {
     </div>
     <div class="deck-spacer"></div>
     ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
-    <button class="deck-key" data-act="new-walkin" title="Somebody is at the door \u2014 seat them now">${I.srcWalkIn}<span class="dk-t">Walk-in</span></button>
-    <button class="deck-key" data-act="new-booking" title="Take a booking">${I.plus}<span class="dk-t">Booking</span></button>
+    <button class="deck-sq" data-act="new-walkin" aria-label="Seat a walk-in" title="Somebody is at the door \u2014 seat them now">${I.srcWalkIn}</button>
+    <button class="deck-sq" data-act="new-booking" aria-label="New booking" title="Take a booking">${I.plus}</button>
     <button class="deck-sq ghost" data-act="open-more" aria-label="${esc(title)}" title="${esc(title)}"><span class="deck-dot ${dot}"></span></button>
   </div>`;
 }
