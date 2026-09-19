@@ -536,12 +536,32 @@ body.book-page #app{display:block;height:auto;}
 .fl-wrap{overflow-x:auto;}
 /* NO frame. The drawing has walls; a border around them is a second frame
    around the same room, and two frames is what a busy screen looks like. */
+/* THE DRAWING IS UNIFORM. Everything inside the room is placed as a share of
+   900x560, so the geometry shrinks with the pane — but type is in pixels and
+   did not, and --fs-chip is the smallest rung there is, so there was nothing
+   to step down to. At a 696-wide room the tables were 0.77 of their drawn
+   size under pills still at 1.0, and a neighbour's news lay across the next
+   table's: "25m late" ate the last digit of "7:25". A clock time with a digit
+   missing is worse than no pill at all.
+   So the room is its own size container and every length in the drawing is
+   written as its share of the room's width — the px it is at the native 900,
+   over 9. The whole picture is then one uniform scale of the same drawing at
+   any pane size, which makes an overlap impossible by construction: none at
+   900, none anywhere. Small type is the pinch's job, and the pinch can do it
+   — a transform magnifies letters. Ratio it cannot touch, which is why this
+   had to be fixed here and not there. */
 .fl-room{position:relative;aspect-ratio:900/560;width:100%;min-width:560px;background:var(--plan-bg);
-  border-radius:var(--r-control);overflow:hidden;}
+  border-radius:var(--r-control);overflow:hidden;container-type:inline-size;}
 /* No geometry from the POS: a plain wrapped row, which keeps the states, the
    scrubber and the tapping — the useful half — without inventing a room. */
 .fl-room.loose{aspect-ratio:auto;min-width:0;display:flex;flex-wrap:wrap;gap:8px;padding:8px;}
-.fl-room.loose .fl-table{position:static;width:96px;height:64px;}
+/* The loose fallback is a row of boxes, not a drawing: there is no 900 for a
+   length to be a share of, so it keeps the tokens and the fixed pixels. */
+.fl-room.loose .fl-table{position:static;width:96px;height:64px;gap:2px;padding:2px;}
+.fl-room.loose .fl-in{gap:2px;}
+.fl-room.loose .fl-no{font-size:var(--fs-md);}
+.fl-room.loose .fl-sub,.fl-room.loose .fl-cpill b{font-size:var(--fs-chip);}
+.fl-room.loose .fl-cpill{transform:translate(-50%, 3px);gap:4px;padding:3px 8px;}
 .fl-room.loose .fl-decor{display:none;}
 /* Arranging it. The room is the room — the only differences are that a table
    says it can be picked up, and that the drawing is a little shorter, because
@@ -556,9 +576,9 @@ body.book-page #app{display:block;height:auto;}
 .room-list{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;}
 @media (max-width:900px){ .room-edit{grid-template-columns:1fr;} .room-list{max-height:none;} }
 
-.fl-table{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;overflow:hidden;
+.fl-table{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2222cqw;overflow:hidden;
   border:1px solid var(--steel-300);border-radius:var(--r-btn);background:var(--surface);color:var(--charcoal-soft);
-  font-family:var(--font-mono);font-weight:700;cursor:pointer;padding:2px;text-align:center;}
+  font-family:var(--font-mono);font-weight:700;cursor:pointer;padding:.2222cqw;text-align:center;}
 .fl-table.seated{background:var(--st-seated);border-color:var(--st-seated);color:#fff;}
 .fl-table.over{background:var(--st-over);border-color:var(--st-over);color:#fff;}
 .fl-table.due{background:color-mix(in srgb, var(--st-due) 16%, var(--surface));border-color:var(--st-due);color:var(--text-primary);}
@@ -575,9 +595,10 @@ body.book-page #app{display:block;height:auto;}
 /* Nothing clips: the pill hangs below the table and a turned table's label
    spills past its corners. The LABEL keeps its own clip, inside .fl-in. */
 .fl-table{overflow:visible;}
-.fl-in{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;max-width:100%;overflow:hidden;}
-.fl-no{font-size:var(--fs-md);line-height:1.1;}
-.fl-sub{font-family:var(--font-body);font-size:var(--fs-chip);font-weight:700;opacity:.85;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fl-in{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2222cqw;max-width:100%;overflow:hidden;}
+/* --fs-md 13.5 and --fs-chip 10.5 at the native 900, as a share of it. */
+.fl-no{font-size:1.5cqw;line-height:1.1;}
+.fl-sub{font-family:var(--font-body);font-size:1.1667cqw;font-weight:700;opacity:.85;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 /* §§ The floating pill — the POS's .tbl-cpill, in our tokens
    It hangs BELOW the table, outside its box, so the box can keep the number
    and nothing has to share thirty pixels. .fl-badges is the anchor: it is
@@ -586,11 +607,11 @@ body.book-page #app{display:block;height:auto;}
 .fl-badges{position:absolute;inset:0;z-index:5;pointer-events:none;
   transform-origin:50% 50%;display:block;}
 .fl-cpill{position:absolute;left:50%;top:calc(100% + var(--pill-out, 0%));
-  transform:translate(-50%, 3px);display:inline-flex;align-items:center;gap:4px;
-  white-space:nowrap;border-radius:var(--r-pill);padding:3px 8px;pointer-events:none;
+  transform:translate(-50%, .3333cqw);display:inline-flex;align-items:center;gap:.4444cqw;
+  white-space:nowrap;border-radius:var(--r-pill);padding:.3333cqw .8889cqw;pointer-events:none;
   box-shadow:var(--lift-1);background:var(--surface);
   color:var(--text-primary);}
-.fl-cpill b{font-family:var(--font-mono);font-weight:700;font-size:var(--fs-chip);
+.fl-cpill b{font-family:var(--font-mono);font-weight:700;font-size:1.1667cqw;
   line-height:1.2;letter-spacing:.2px;}
 /* A table about to go, and one whose party is due: the accent, quietly. */
 .fl-cpill.next,.fl-cpill.due{background:var(--orange-dim);color:var(--orange);}
@@ -610,7 +631,7 @@ body.book-page #app{display:block;height:auto;}
    unnamed one — a wall — is the line itself. */
 .fl-decor{position:absolute;background:none;border:1px solid var(--plan-ink);border-radius:2px;
   display:flex;align-items:center;justify-content:center;overflow:hidden;opacity:.55;
-  font-size:var(--fs-chip);font-weight:700;color:var(--plan-ink);text-transform:uppercase;
+  font-size:1.1667cqw;font-weight:700;color:var(--plan-ink);text-transform:uppercase;
   letter-spacing:.6px;pointer-events:none;}
 .fl-decor.wall{background:var(--plan-ink);border:none;border-radius:1px;opacity:.5;}
 
@@ -901,7 +922,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    scrolling (touch-action). It is a SIZE CONTAINER, so the drawing inside can
    be measured against it — see below. */
 .desk-main > .fl-wrap{flex:1 1 auto;min-height:0;padding:var(--hub-edge);
-  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  display:flex;align-items:safe center;justify-content:safe center;overflow:hidden;
   touch-action:none;overscroll-behavior:contain;container-type:size;}
 .fl-stage{display:flex;align-items:center;justify-content:center;
   width:100%;height:100%;transform-origin:center center;will-change:transform;}
@@ -947,11 +968,23 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 @media (max-width:760px){
   .desk.show-book .desk-main{display:none;}
   .desk.show-room .desk-col{display:none;}
-  /* A thirty-table room fitted to a 400-wide pane is a stamp. On a phone it
-     keeps a floor it will not go under, in its own sideways scroller, and
-     the pinch is what gets you closer still. */
-  .desk-main > .fl-wrap{overflow:auto;align-items:flex-start;}
-  .desk-main .fl-room{height:auto;width:100%;min-width:560px;max-width:none;}
+  /* A thirty-table room fitted to a 400-wide pane is a stamp. On a phone the
+     drawing is NOT shrunk — it is drawn at the size it was drawn for, 900 by
+     560, in its own sideways scroller, and the pinch gets you closer still.
+     560 was the floor until Sep '26 and it was half a rule: the geometry
+     shrank with the room but the pill did not, because type is in pixels and
+     has no rung below --fs-chip to step down to. At 560 the tables came out
+     34 wide under pills of 74 and neighbours' news lay across each other
+     (measured: two collisions on the venue's own room). At 900 every table,
+     every label and every pill sits at the proportion the till drew them,
+     and the height — 560 against a 558 pane — still lands whole, so only the
+     width is ever swiped.
+     JUSTIFY-CONTENT MUST BE SAFE. A flex child wider than its box, centred,
+     overflows BOTH ways and the left overflow cannot be scrolled to: tables
+     1, 21, 22 and 24 were off the left edge of a phone with no way to reach
+     them. `safe` falls back to flex-start the moment it would overflow. */
+  .desk-main > .fl-wrap{overflow:auto;align-items:safe flex-start;justify-content:safe flex-start;}
+  .desk-main .fl-room{height:auto;width:900px;min-width:900px;max-width:none;}
   .fl-stage{width:auto;height:auto;}
 }
 @media (min-width:761px) and (max-width:900px){
