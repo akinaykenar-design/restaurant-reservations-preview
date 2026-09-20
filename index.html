@@ -147,25 +147,19 @@ h1,h2,h3{margin:0;}
    the tile is chosen rather than being a second colour. */
 .rail-n{font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;opacity:.65;}
 
-/* The phone wears the tablet's rail (the POS's nav law): same colours, same
-   selection, and only the SHAPE changes — a row of rectangles instead of a
-   column of squares. It snaps to the left edge and scrolls, so a half-shown
-   tile reads as "more this way" rather than a broken word. */
-@media (max-width:768px){
-  .main{flex-direction:column;}
-  .rail{width:auto;flex-direction:row;overflow-x:auto;overflow-y:hidden;
-    border-right:none;border-bottom:1px solid var(--steel-200);
-    padding:var(--deck-pad) var(--hub-edge);gap:var(--deck-gap);scrollbar-width:none;
-    /* Nothing is ever sliced (the POS's Fade law): the row fades at a cut
-       end, over the one depth, and only where there IS more that way —
-       which markRailEnds() marks with data-more. A rail lying on its side
-       is a ROW, so the band runs along it. */
-    --rail-axis:90deg;}
-  .rail::-webkit-scrollbar{display:none;}
-  .rail-btn{width:auto;aspect-ratio:auto;flex:0 0 auto;flex-direction:row;gap:8px;
-    min-height:var(--tap);padding:8px 12px;border-radius:var(--r-btn);white-space:nowrap;}
-  .rail-ico svg{width:20px;height:20px;}
-}
+/* A rail lying on its side is a ROW, so its band runs along it. */
+.rail{--rail-axis:90deg;}
+@media (min-width:761px){ .rail{--rail-axis:180deg;} }
+.rail::-webkit-scrollbar{display:none;}
+/* THE 768 BLOCK IS GONE (Sep '26). It put the rail across the TOP as a row
+   of pills and predates the thumb bar at the foot, which keys on 760 — so
+   two things were wrong at once and neither was visible from a desk. Below
+   760 its `flex-direction:row` on a tile survived the thumb bar's own rules
+   (they never set a direction), and every key down there wore its glyph
+   BESIDE its word instead of above it. And between 761 and 768 — eight
+   pixels wide, but that is the phone-sideways shape, which starts at 761 —
+   the rail jumped to the top of the screen, which is the one place that
+   shape has no room for it. */
 
 /* §§ The deck (Deck law: 8 pad, 8 gap, edge 16/12, 60 tall, 44 tappable) */
 .topbar{display:flex;align-items:center;gap:var(--deck-gap);padding:var(--deck-pad) var(--deck-edge);min-height:var(--deck-h);background:var(--surface);border-bottom:1px solid var(--steel-200);flex-shrink:0;}
@@ -1031,7 +1025,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
      still while the sections scroll inside 78 of them helps nobody: here the
      whole rail scrolls as one, sections first. */
   .rail{overflow-y:auto;}
-  .rail-secs{flex:none;overflow:visible;}
+  .rail-scroll{flex:none;overflow:visible;}
   .rail-btn{aspect-ratio:auto;min-height:50px;gap:1px;padding:4px 2px;}
   .rail-ico svg{width:20px;height:20px;}
   .rail-label{font-size:var(--fs-chip);line-height:1.1;}
@@ -1045,15 +1039,23 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 
    The sections are on top because the top of the rail is where the thumb
    lands and the floor is what a host comes back to forty times a shift; the
-   places are at the foot because they are a journey, not a flick.
+   places follow, because they are a journey, not a flick.
 
-   Nine square tiles do not fit a laptop, so ONE of the two groups has to give.
-   It is the sections: they vary (four on Service, six on the guest book) and
-   whichever you want is near the top, while the five places must be reachable
-   at all times — Settings falling off the end of a scroll is how a desk loses
-   its way back. So the sections scroll and the places never move. */
-.rail-rule{height:1px;background:var(--steel-200);margin:8px 12px;flex:none;}
-.rail-secs{flex:1 1 auto;min-height:0;overflow-y:auto;}
+   IT IS ONE RAIL. The sections sat above a hairline and the places below it,
+   each group its own box, and it read as two rails stuck together — which is
+   what it was. One column now, scrolling as one, with no rule across it.
+
+   Nine square tiles still do not fit a laptop, so something has to give, and
+   what does NOT is SETTINGS: it is pinned at the foot, outside the scroll,
+   because it is the way back and a way back that can scroll out of reach is
+   not one. Everything else travels. */
+/* NO GAP between the tiles: a rail tile is a square with no body until it is
+   chosen, so the air around it is its own padding and a gap on top of that
+   is a second space. Adding one cost 56 pixels and pushed a laptop at 900
+   into scrolling by sixteen — a fade over nothing but the whitespace under
+   the last label. */
+.rail-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;}
+.rail-foot{flex:none;}
 /* A tablet at 820 tall leaves room for three and a half section tiles, and
    half a tile reads as broken rather than as "more this way". The deck's rule
    applies down the rail too: nothing is sliced, the cut end fades. */
@@ -1065,9 +1067,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    whose glyph is centred — which reads as empty ground rather than as more
    this way, whatever depth the fade is. Snapped, the rail always comes to
    rest on a whole tile and the fade sits at a real edge. */
-.rail-secs{scroll-snap-type:y mandatory;}
-.rail-secs > *{scroll-snap-align:start;}
-.rail-modes{flex:none;}
+.rail-scroll{scroll-snap-type:y mandatory;}
+.rail-scroll .rail-btn{scroll-snap-align:start;}
+.rail-secs,.rail-modes{display:contents;}
 
 /* The top bar is the night you are working on, and the keys that belong to no
    one screen. Tapping the date opens the month. */
@@ -1168,10 +1170,15 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     flex-direction:row;padding:0;padding-bottom:env(safe-area-inset-bottom, 0px);
     border-right:none;border-top:1px solid var(--steel-300);background:var(--surface);
     z-index:var(--z-panel);overflow:visible;box-shadow:var(--lift-1);}
-  .rail-secs,.rail-rule{display:none;}
-  /* The thumb bar is one row of five: the modes must be flex children of
-     the bar itself, not of a box inside it, or `flex:1` divides nothing. */
-  .rail-modes{display:contents;}
+  /* A PHONE TAKES THE TWO GROUPS APART AGAIN: the sections become the band
+     of chips at the top of the pane, and the places become the thumb bar.
+     They are still separate elements for exactly this reason — on a desk
+     they only LOOK like one column. */
+  .rail-secs{display:none;}
+  /* The thumb bar is one row of five: the places must be flex children of
+     the bar itself, not of a box inside it, or `flex:1` divides nothing —
+     and Settings rejoins them, because down here nothing scrolls away. */
+  .rail-scroll,.rail-modes,.rail-foot{display:contents;}
   .rail .rail-btn{flex:1;aspect-ratio:auto;min-height:64px;gap:2px;padding:6px 2px;}
   .rail .rail-ico svg{width:22px;height:22px;}
   .rail .rail-label{font-size:var(--fs-chip);letter-spacing:0;}
@@ -7260,7 +7267,7 @@ function sinceLabel(ts) {
 // --fade-foot move it in past a bar pinned over an end; nothing of ours pins
 // a bar INSIDE a scroller, so they are declared in the stylesheet where they
 // are needed rather than measured here.
-const RAIL_ENDS = '.tabs, .rail, .rail-secs, .secband, .room-list, .audit, .desk-main > .fl-wrap';
+const RAIL_ENDS = '.tabs, .rail, .rail-scroll, .secband, .room-list, .audit, .desk-main > .fl-wrap';
 function markRailEnds(one) {
   if (!one) document.querySelectorAll('[data-more]').forEach(r => { if (!r.matches(RAIL_ENDS)) delete r.dataset.more; });
   (one ? [one] : [...document.querySelectorAll(RAIL_ENDS)]).forEach(r => {
@@ -7512,21 +7519,31 @@ function railTile(key, label, icon, n, on, act) {
 // forty times a shift. Waitlist, Guests and Settings are places you visit;
 // Floor, Timeline and Flow are the thing you are doing. Visits go under the
 // rule.
+// ONE RAIL, not two. The sections used to sit above a hairline and the places
+// below it, each group its own box, and it read as two rails stuck together —
+// which is what it was. It is one column now, and the only thing that does not
+// travel with it is SETTINGS, pinned at the foot: it is the way back, and a
+// way back that can scroll out of reach is not one.
+//
+// The two groups are still separate ELEMENTS, because a phone takes them
+// apart again — the sections become the band of chips at the top of the pane
+// and the places become the thumb bar. They just no longer look like it.
 function renderRail() {
-  const modes = modeItems().map(([k, label, icon, n]) =>
-    railTile(k, label, icon, n || null, state.view === k, 'view')).join('');
+  const items = modeItems();
+  const place = (k, label, icon, n) => railTile(k, label, icon, n || null, state.view === k, 'view');
+  const modes = items.filter(([k]) => k !== 'settings').map(x => place(...x)).join('');
+  const foot = items.filter(([k]) => k === 'settings').map(x => place(...x)).join('');
   const rail = RAILS[state.view];
-  let parts = '';
+  let secs = '';
   if (rail) {
     const now = state[rail.key];
     // Only the guest book carries counts. `null` is not `undefined`, and the
     // difference printed the word "null" under every tile on Today.
     const counts = state.view === 'guests' ? (state.guestCounts || {}) : null;
-    parts = `<div class="rail-secs">${rail.items.map(([k, label, icon]) =>
-      railTile(k, label, icon, counts ? counts[k] : null, now === k, 'mode')).join('')}</div>`
-      + '<div class="rail-rule"></div>';
+    secs = `<div class="rail-secs">${rail.items.map(([k, label, icon]) =>
+      railTile(k, label, icon, counts ? counts[k] : null, now === k, 'mode')).join('')}</div>`;
   }
-  return `<nav class="rail" aria-label="Sections">${parts}<div class="rail-modes">${modes}</div></nav>`;
+  return `<nav class="rail" aria-label="Sections"><div class="rail-scroll">${secs}<div class="rail-modes">${modes}</div></div><div class="rail-foot">${foot}</div></nav>`;
 }
 
 // "Lunch 11:30–2:30 · Dinner 5:00–9:30" — the windows this day actually
