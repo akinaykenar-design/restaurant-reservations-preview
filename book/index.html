@@ -1060,6 +1060,10 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    whose glyph is centred — which reads as empty ground rather than as more
    this way, whatever depth the fade is. Snapped, the rail always comes to
    rest on a whole tile and the fade sits at a real edge. */
+/* The place you are in, while its own sections are above it. Hidden rather
+   than unrendered, because a phone's thumb bar still needs all five — see
+   renderRail(). */
+@media (min-width:761px){ .rail-btn.rail-here{display:none;} }
 .rail-scroll{scroll-snap-type:y mandatory;}
 .rail-scroll .rail-btn{scroll-snap-align:start;}
 .rail-secs,.rail-modes{display:contents;}

@@ -1067,6 +1067,10 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    whose glyph is centred — which reads as empty ground rather than as more
    this way, whatever depth the fade is. Snapped, the rail always comes to
    rest on a whole tile and the fade sits at a real edge. */
+/* The place you are in, while its own sections are above it. Hidden rather
+   than unrendered, because a phone's thumb bar still needs all five — see
+   renderRail(). */
+@media (min-width:761px){ .rail-btn.rail-here{display:none;} }
 .rail-scroll{scroll-snap-type:y mandatory;}
 .rail-scroll .rail-btn{scroll-snap-align:start;}
 .rail-secs,.rail-modes{display:contents;}
@@ -6918,7 +6922,13 @@ const I = {
   timeline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4.5" width="13" height="4" rx="2"/><rect x="7" y="10" width="15" height="4" rx="2"/><rect x="4" y="15.5" width="10" height="4" rx="2"/></svg>',
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5h20M2 12h20M2 17.5h20"/></svg>',
   flow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20.5h20"/><rect x="3.5" y="13" width="4.5" height="7.5" rx="1"/><rect x="9.75" y="6" width="4.5" height="14.5" rx="1"/><rect x="16" y="9.5" width="4.5" height="11" rx="1"/></svg>',
-  sheet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 7.5h8M8 12h8M8 16.5h5"/></svg>',
+  // THE RUN SHEET IS A PAGE FOR PAPER, and now that the rail is one column it
+  // sits directly above Waitlist — whose clipboard was the same rounded
+  // rectangle with the same three lines and a 6-pixel tab on top. Two shapes
+  // that differ by a tab are not two shapes at 20 pixels. This one is a sheet
+  // with its corner TURNED DOWN: the notch breaks the silhouette itself, which
+  // is what reads at a glance, and a turned corner is what paper does.
+  sheet: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H7a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/><path d="M8.5 12.5h7M8.5 16.5h4"/></svg>',
   people: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8" r="4"/><path d="M2 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M16.5 4.6a4 4 0 0 1 0 6.8"/><path d="M18.5 14.4c2.1 1 3.5 3.1 3.5 5.6"/></svg>',
   repeat: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12a10 10 0 0 1 17-7.1"/><path d="M22 12a10 10 0 0 1-17 7.1"/><path d="M19 2v3.5h-3.5"/><path d="M5 22v-3.5h3.5"/></svg>',
   star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3 6.4 6.9.9-5 5 1.2 7L12 18l-6.1 3.3 1.2-7-5-5 6.9-.9z"/></svg>',
@@ -7507,8 +7517,8 @@ function modeItems() {
     ['settings', 'Settings', 'settings', null],
   ];
 }
-function railTile(key, label, icon, n, on, act) {
-  return `<button class="rail-btn${on ? ' active' : ''}" data-act="${act}" data-val="${key}"
+function railTile(key, label, icon, n, on, act, extra) {
+  return `<button class="rail-btn${on ? ' active' : ''}${extra || ''}" data-act="${act}" data-val="${key}"
     aria-current="${on ? 'page' : 'false'}">
     <span class="rail-ico">${I[icon]}</span><span class="rail-label">${esc(label)}</span>
     ${n == null ? '' : `<span class="rail-n" data-zero="${n ? '0' : '1'}">${n}</span>`}
@@ -7528,9 +7538,30 @@ function railTile(key, label, icon, n, on, act) {
 // The two groups are still separate ELEMENTS, because a phone takes them
 // apart again — the sections become the band of chips at the top of the pane
 // and the places become the thumb bar. They just no longer look like it.
+// THE RAIL NEVER SAYS WHERE YOU ARE TWICE. Once the hairline went, the place
+// you are in sat directly under its OWN sections and lit up beside one of
+// them: on Service both "Floor" and "Service" were blue, on the run sheet
+// both "Run sheet" and "Service". Two lit tiles in one column read as being
+// in two places, and they made a section and a place look like peers — which
+// is what "is Run sheet the same as Service?" is asking.
+//
+// They are not peers. Service IS Floor + Timeline + Flow + Run sheet: the
+// place is the sum of its own sections, so while you are in it its tile
+// carries nothing the four above it are not already saying, and one of them
+// is already lit. It is marked here and HIDDEN IN CSS rather than dropped
+// from the markup, because a phone still needs all five places in its thumb
+// bar — and a render that had to know the width would be wrong the moment
+// the phone turned.
+//
+// Only when the place HAS sections: on Waitlist, Notify and Settings there
+// is nothing above to carry the highlight, so their own tile keeps it.
 function renderRail() {
   const items = modeItems();
-  const place = (k, label, icon, n) => railTile(k, label, icon, n || null, state.view === k, 'view');
+  const rail0 = RAILS[state.view];
+  const place = (k, label, icon, n) => {
+    const here = state.view === k;
+    return railTile(k, label, icon, n || null, here, 'view', here && rail0 ? ' rail-here' : '');
+  };
   const modes = items.filter(([k]) => k !== 'settings').map(x => place(...x)).join('');
   const foot = items.filter(([k]) => k === 'settings').map(x => place(...x)).join('');
   const rail = RAILS[state.view];
