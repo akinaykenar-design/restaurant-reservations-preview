@@ -47,7 +47,17 @@
   --text-primary:#38352F; --text-secondary:#8B877F;
   --lift-1:0 6px 18px rgba(20,24,25,.10);
   --lift-2:0 10px 25px rgba(20,24,25,.12), 0 30px 60px rgba(20,24,25,.22);
-  --ring:2px; --dim-off:.55; --dim-ghost:.35;
+  /* The ONE dim every scrim wears, and ink on it. */
+  --scrim:rgba(20,24,25,0.55); --on-scrim:#fff;
+  /* ONE DIM (POS DESIGN.md § Dim law, Sep '26). It used to be two — .55 for
+     "switched off" and .35 for "cannot be pressed" — and the till asked why a
+     job needs its own number when the STRIKE already says which one it is.
+     It does not. Everything faded reads --dim; a chip a PERSON switched off
+     is struck through as well, and that is the whole difference. */
+  --ring:1px; --dim:.45;
+  /* A cut end fades over a HINT, not a control: it rode 44 in the till until
+     Sep '26 and a finger-deep band rubbed out the very key it pointed at. */
+  --rail-fade:12px;
   --t-state:.12s; --t-move:.28s;
   --z-panel:45; --z-popup:80; --z-menu:120; --z-toast:200; --z-lock:400;
   --r-btn:8px; --r-control:10px; --r-surface:16px; --r-pill:999px;
@@ -58,7 +68,7 @@
      sheet lands on the seam between them and must not hold its own copy. */
   --rail-w:88px; --deskcol-w:340px;
   --fs-chip:10.5px; --fs-md:13.5px; --fs-lg:15px; --fs-xl:19px; --fs-num:24px;
-  --num-key-w:84px; --num-key-h:74px; --num-key-r:16px; --num-key-fs:24px; --num-gap:12px;
+  --num-key-w:84px; --num-key-h:74px; --num-key-r:16px; --num-key-fs:var(--fs-num); --num-gap:12px;
   /* Booking status colours: the floor's own grammar. */
   --st-booked:#8B877F; --st-confirmed:#2F74C9; --st-arrived:#C08A00; --st-seated:#4FA51D; --st-done:#B3ADA0; --st-cancelled:#A8483A; --st-noshow:#6D4FC4;
   --st-due:#C08A00; --st-over:#6D4FC4; --src-online:#0E9E8A; --src-walkin:#C08A00; --src-pos:#918E88;
@@ -80,7 +90,7 @@ body[data-theme="dark"]{
   --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#E8C24D; --src-pos:#D9D5CE;
   --plan-bg:#16191B; --plan-line:#E7ECEF; --plan-ink:#B6BFC5; --plan-edge:#4A5157;
 }
-@media (max-height:560px){ :root{ --num-key-w:64px; --num-key-h:52px; --num-key-r:10px; --num-key-fs:19px; --num-gap:8px; } }
+@media (max-height:560px){ :root{ --num-key-w:64px; --num-key-h:52px; --num-key-r:10px; --num-key-fs:var(--fs-xl); --num-gap:8px; } }
 @media (max-width:768px){ :root{ --deck-edge:12px; --hub-edge:8px; } }
 
 /* §§ Base */
@@ -146,9 +156,11 @@ h1,h2,h3{margin:0;}
   .rail{width:auto;flex-direction:row;overflow-x:auto;overflow-y:hidden;
     border-right:none;border-bottom:1px solid var(--steel-200);
     padding:var(--deck-pad) var(--hub-edge);gap:var(--deck-gap);scrollbar-width:none;
-    /* Nothing is ever sliced (the POS's nav law): the row snaps to the left
-       edge and fades at the cut end — but only when there IS a cut end, which
-       render() marks with data-cut. */}
+    /* Nothing is ever sliced (the POS's Fade law): the row fades at a cut
+       end, over the one depth, and only where there IS more that way —
+       which markRailEnds() marks with data-more. A rail lying on its side
+       is a ROW, so the band runs along it. */
+    --rail-axis:90deg;}
   .rail::-webkit-scrollbar{display:none;}
   .rail-btn{width:auto;aspect-ratio:auto;flex:0 0 auto;flex-direction:row;gap:8px;
     min-height:var(--tap);padding:8px 12px;border-radius:var(--r-btn);white-space:nowrap;}
@@ -181,9 +193,18 @@ h1,h2,h3{margin:0;}
    reads as "more this way" rather than a broken word. The POS's nav law. */
 .tabs{scrollbar-width:none;}
 .tabs::-webkit-scrollbar{display:none;}
-.tabs[data-cut="1"],.rail[data-cut="1"]{
-  mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);
-  -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 24px),transparent);}
+/* THREE RULES, ONE DEPTH, AND THEY ONLY DRAW WHERE THERE IS MORE THAT WAY.
+   The list of scrollers lives in app.js (RAIL_ENDS) and nowhere else; an
+   element wears the band the moment markRailEnds() marks data-more on it.
+   --rail-axis is the way the scroller runs, 90deg along a row and 180deg
+   down a column; --fade-top and --fade-foot move the band in past a bar
+   pinned over that end, so the bar's keys never fade. */
+[data-more="end"]{-webkit-mask-image:linear-gradient(var(--rail-axis,180deg),#000 calc(100% - var(--fade-foot,0px) - var(--rail-fade)),transparent calc(100% - var(--fade-foot,0px)),#000 calc(100% - var(--fade-foot,0px)));mask-image:linear-gradient(var(--rail-axis,180deg),#000 calc(100% - var(--fade-foot,0px) - var(--rail-fade)),transparent calc(100% - var(--fade-foot,0px)),#000 calc(100% - var(--fade-foot,0px)));}
+[data-more="start"]{-webkit-mask-image:linear-gradient(var(--rail-axis,180deg),#000 var(--fade-top,0px),transparent var(--fade-top,0px),#000 calc(var(--fade-top,0px) + var(--rail-fade)));mask-image:linear-gradient(var(--rail-axis,180deg),#000 var(--fade-top,0px),transparent var(--fade-top,0px),#000 calc(var(--fade-top,0px) + var(--rail-fade)));}
+[data-more="start end"]{-webkit-mask-image:linear-gradient(var(--rail-axis,180deg),#000 var(--fade-top,0px),transparent var(--fade-top,0px),#000 calc(var(--fade-top,0px) + var(--rail-fade)),#000 calc(100% - var(--fade-foot,0px) - var(--rail-fade)),transparent calc(100% - var(--fade-foot,0px)),#000 calc(100% - var(--fade-foot,0px)));mask-image:linear-gradient(var(--rail-axis,180deg),#000 var(--fade-top,0px),transparent var(--fade-top,0px),#000 calc(var(--fade-top,0px) + var(--rail-fade)),#000 calc(100% - var(--fade-foot,0px) - var(--rail-fade)),transparent calc(100% - var(--fade-foot,0px)),#000 calc(100% - var(--fade-foot,0px)));}
+/* A ROW WEARS A ROW'S AXIS. A row given a column's fade shades its top and
+   bottom and slices its ends anyway. */
+.tabs,.secband,.desk-main > .fl-wrap{--rail-axis:90deg;}
 
 /* §§ Login — the POS's number pad, the same five tokens */
 /* The keypad the front door used to wear. There is no front door now — the
@@ -196,10 +217,10 @@ h1,h2,h3{margin:0;}
 .pin-pad{display:grid;grid-template-columns:repeat(3,var(--num-key-w));gap:var(--num-gap);}
 .pin-pad button{height:var(--num-key-h);border-radius:var(--num-key-r);border:1px solid var(--steel-300);background:var(--surface);color:var(--text-primary);font-size:var(--num-key-fs);font-weight:600;}
 .pin-pad button svg{width:26px;height:26px;display:block;margin:0 auto;}
-.pin-pad button[disabled]{opacity:var(--dim-ghost);}
+.pin-pad button[disabled]{opacity:var(--dim);}
 .pin-pad button.util{font-size:var(--fs-xl);color:var(--charcoal-soft);}
 .pin-pad button[data-act="pin-enter"]{grid-column:3;background:var(--green);border-color:var(--green);color:#fff;}
-.login-error{color:var(--red);font-weight:700;margin-top:14px;min-height:20px;text-align:center;}
+.login-error{color:var(--red);font-weight:700;margin-top:12px;min-height:20px;text-align:center;}
 
 /* §§ Bands and chips (Chip law: every selector is a chip; a row of chips is a band) */
 .band{display:flex;align-items:center;gap:6px;padding:8px 10px;background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);flex-wrap:wrap;margin-bottom:var(--hub-edge);}
@@ -212,18 +233,18 @@ h1,h2,h3{margin:0;}
    somebody noticed; a law with three exceptions is not a law. */
 .chip.sq{width:var(--sq-ctl);min-height:var(--sq-ctl);padding:0;}
 .chip.sq svg{width:18px;height:18px;}
-.chip[disabled]{opacity:var(--dim-ghost);cursor:default;}
+.chip[disabled]{opacity:var(--dim);cursor:default;}
 .chip.go{background:var(--green);border-color:var(--green);color:#fff;}
 .chip.warn{border-color:var(--gold);color:var(--gold);}
 .band .title{font-weight:800;font-size:var(--fs-lg);padding:0 6px;}
 .chips{display:flex;flex-wrap:wrap;gap:6px;}
 .chips .chip{min-height:var(--tap);}
 .chip .sub{font-family:var(--font-mono);font-size:var(--fs-chip);opacity:.8;}
-.chip.taken{opacity:var(--dim-off);text-decoration:line-through;}
+.chip.taken{opacity:var(--dim);text-decoration:line-through;}
 /* A chip for something that is there but not on offer: a slot that has gone,
    a date the venue has closed. Global, so the desk's slots and the guests'
    date chips strike through the same way. */
-.chip.off{opacity:var(--dim-off);text-decoration:line-through;}
+.chip.off{opacity:var(--dim);text-decoration:line-through;}
 .chip.best{border-color:var(--green);color:var(--green);}
 .chip.best.active{background:var(--green);border-color:var(--green);color:#fff;}
 
@@ -258,7 +279,7 @@ h1,h2,h3{margin:0;}
 .row .actions{display:flex;gap:6px;flex:none;}
 .row .actions .chip{min-height:38px;padding:7px 10px;}
 /* A row whose only action is one icon key gives it the whole finger (44). */
-.row.dim{opacity:var(--dim-off);}
+.row.dim{opacity:var(--dim);}
 .section-h{font-weight:800;font-size:var(--fs-lg);margin:16px 0 8px;display:flex;align-items:center;gap:8px;}
 .section-h:first-child{margin-top:0;}
 .section-h .count{font-family:var(--font-mono);font-size:var(--fs-chip);color:var(--charcoal-soft);font-weight:700;}
@@ -316,7 +337,7 @@ h1,h2,h3{margin:0;}
    grammar (accent ring + wash); gold is the popup's warning, red its warnbox. */
 .tl-block.movable{cursor:grab;}
 .tl-block.extra{opacity:.7;}                     /* a joined booking's other lanes */
-.tl-drag-src{opacity:var(--dim-ghost);cursor:grabbing;}
+.tl-drag-src{opacity:var(--dim);cursor:grabbing;}
 .tl-drag-ghost{position:fixed!important;z-index:var(--z-menu);pointer-events:none;margin:0;opacity:.95;box-shadow:var(--lift-2);will-change:translate;}
 .tl-drop{position:absolute;top:5px;height:34px;border-radius:var(--r-btn);border:1px solid var(--orange);box-shadow:inset 0 0 0 var(--ring) var(--orange);background:var(--pick-wash);pointer-events:none;}
 .tl-drop.warn{border-color:var(--gold);box-shadow:inset 0 0 0 var(--ring) var(--gold);background:color-mix(in srgb, var(--gold) 12%, var(--surface));}
@@ -333,7 +354,7 @@ h1,h2,h3{margin:0;}
 .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
 .cal .dow{text-align:center;font-size:var(--fs-chip);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--charcoal-soft);padding:4px 0;}
 .cal .day{aspect-ratio:1;background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;min-height:56px;}
-.cal .day.out{opacity:var(--dim-ghost);}
+.cal .day.out{opacity:var(--dim);}
 /* A day tile keeps its ONE hairline in --steel-200 and says the rest with a
    ring, so a day that is several things at once is never two colours of edge
    at the same time. Declared in order of what the desk has to act on, least
@@ -379,7 +400,7 @@ label.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;font-si
 .btn.add{background:var(--green);border-color:var(--green);color:#fff;}
 .btn.danger{background:var(--red-btn);border-color:var(--red-btn);color:#fff;}
 .btn.primary{background:var(--orange);border-color:var(--orange);color:#fff;}
-.btn[disabled]{opacity:var(--dim-ghost);}
+.btn[disabled]{opacity:var(--dim);}
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:var(--fs-md);}
 .kv b{font-weight:700;}
 .qr{width:200px;height:200px;border-radius:var(--r-control);background:#fff;padding:8px;}
@@ -398,7 +419,7 @@ label.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;font-si
 .stepper input{width:64px;text-align:center;font-family:var(--font-mono);font-weight:700;}
 
 /* §§ Popup (Popup law: a FORM is 520 wide, corner 16, padding 24, keys 76x64) */
-.modal-bg{position:fixed;inset:0;background:rgba(20,24,25,.55);display:flex;align-items:center;justify-content:center;z-index:var(--z-popup);padding:20px;}
+.modal-bg{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;z-index:var(--z-popup);padding:20px;}
 .modal{background:var(--surface);border-radius:var(--r-surface);width:100%;max-width:520px;padding:24px;box-shadow:var(--lift-2);max-height:calc(100vh - 40px);overflow-y:auto;}
 .modal.wide{max-width:720px;}
 .modal h2{font-size:var(--fs-xl);font-weight:700;letter-spacing:-.2px;margin:0 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
@@ -439,6 +460,12 @@ label.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;font-si
 .find-list{display:flex;flex-direction:column;gap:var(--list-gap);max-height:46vh;overflow-y:auto;padding:2px;margin-top:8px;}
 
 /* §§ Toast */
+/* The dot says HOW IT WENT: green for something that happened, red for
+   something that did not. The till's own, verbatim — it was always green
+   there too, which is how "Could not print the sample." came to arrive in
+   the success colour. */
+.toast .dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none;}
+.toast .dot.bad{background:var(--red-btn);}
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--charcoal);color:#fff;padding:12px 20px;border-radius:var(--r-pill);font-weight:600;font-size:var(--fs-md);z-index:var(--z-toast);display:flex;align-items:center;gap:8px;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:var(--lift-1);}
 body[data-theme="dark"] .toast{background:#EDE6D6;color:#26231F;}
 
@@ -629,8 +656,8 @@ body.book-page #app{display:block;height:auto;}
    wall and a bar are the room's edges and want the weight of a pencil line.
    A NAMED piece (bar, pass) keeps a faint wash so its label has a ground; an
    unnamed one — a wall — is the line itself. */
-.fl-decor{position:absolute;background:none;border:1px solid var(--plan-ink);border-radius:2px;
-  display:flex;align-items:center;justify-content:center;overflow:hidden;opacity:.55;
+.fl-decor{position:absolute;opacity:.55;background:none;border:1px solid var(--plan-ink);border-radius:2px;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
   font-size:1.1667cqw;font-weight:700;color:var(--plan-ink);text-transform:uppercase;
   letter-spacing:.6px;pointer-events:none;}
 .fl-decor.wall{background:var(--plan-ink);border:none;border-radius:1px;opacity:.5;}
@@ -643,7 +670,7 @@ body.book-page #app{display:block;height:auto;}
 .flow-keys{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;}
 .flow-sw{width:12px;height:12px;border-radius:2px;background:var(--orange);}
 .flow-sw.room{background:color-mix(in srgb, var(--orange) 22%, var(--surface));border:1px solid var(--steel-300);}
-.flow-sw.cap{background:transparent;border-top:2px dashed var(--red);height:0;border-radius:0;}
+.flow-sw.cap{background:transparent;border-top:1px dashed var(--red);height:0;border-radius:0;}
 .flow-plot{position:relative;display:flex;align-items:flex-end;gap:2px;height:180px;
   border-bottom:1px solid var(--steel-300);border-left:1px solid var(--steel-200);}
 .flow-col{position:relative;flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;min-width:4px;}
@@ -652,11 +679,11 @@ body.book-page #app{display:block;height:auto;}
    to look like a gap or the afternoon reads as full. */
 /* One hairline (Border law): the gap is made by the SPACE, not by a fatter
    line — a heavier border is the one thing a border is never allowed to be. */
-.flow-col.brk{border-left:1px solid var(--steel-500);margin-left:14px;}
+.flow-col.brk{border-left:1px solid var(--steel-500);margin-left:12px;}
 .flow-room{position:absolute;left:0;right:0;bottom:0;background:color-mix(in srgb, var(--orange) 18%, var(--surface));border-radius:2px 2px 0 0;}
 .flow-bar{position:relative;width:70%;background:var(--orange);border-radius:2px 2px 0 0;min-height:1px;}
 .flow-col.over .flow-bar{background:var(--red);}
-.flow-cap{position:absolute;left:0;right:0;border-top:2px dashed var(--red);pointer-events:none;}
+.flow-cap{position:absolute;left:0;right:0;border-top:1px dashed var(--red);pointer-events:none;}
 .flow-axis{display:flex;gap:2px;margin-top:4px;}
 .flow-axis span{flex:1;min-width:4px;font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;}
 /* A phone has room for about six of these, not eleven. */
@@ -680,7 +707,7 @@ body.book-page #app{display:block;height:auto;}
     --orange:#000; --green:#000; --red:#000; --gold:#000; --teal:#000; --violet:#000;
     --st-booked:#000; --st-confirmed:#000; --st-arrived:#000; --st-seated:#000;
     --st-done:#000; --st-cancelled:#000; --st-noshow:#000;
-    --lift-1:none; --lift-2:none; --dim-off:1; --dim-ghost:1;
+    --lift-1:none; --lift-2:none; --dim:1;
   }
   @page{margin:12mm;}
   /* The app shell is fixed-height with an internal scroller; without these
@@ -726,9 +753,9 @@ body.book-page #app{display:block;height:auto;}
    read on any hue in either theme; that is why it is ink at 14% rather than a
    theme colour, exactly the case the border law exempts. The POS's
    check-shadows gate cannot know our class names, so it reports this one. */
-.st-dot{display:inline-block;width:12px;height:12px;border-radius:var(--r-pill);flex:0 0 12px;
-  margin-right:8px;vertical-align:-1px;background:var(--steel-500);
-  box-shadow:0 0 0 1px color-mix(in srgb, var(--text-primary) 14%, transparent);}
+.st-dot{box-shadow:0 0 0 1px color-mix(in srgb, var(--text-primary) 14%, transparent);
+  display:inline-block;width:12px;height:12px;border-radius:var(--r-pill);flex:0 0 12px;
+  margin-right:8px;vertical-align:-1px;background:var(--steel-500);}
 .st-dot.booked{background:var(--st-booked);} .st-dot.confirmed{background:var(--st-confirmed);}
 .st-dot.arrived{background:var(--st-arrived);} .st-dot.seated{background:var(--st-seated);}
 .st-dot.done{background:var(--st-done);} .st-dot.cancelled{background:var(--st-cancelled);}
@@ -758,7 +785,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   padding:0 12px;background:var(--steel-100);border:none;border-bottom:1px solid var(--steel-200);
   text-align:left;cursor:pointer;}
 .bl-head.total{background:none;cursor:default;}
-.bl-head.empty{opacity:var(--dim-off);}
+.bl-head.empty{opacity:var(--dim);}
 .bl-h-name{flex:1;min-width:0;font-size:var(--fs-chip);font-weight:700;letter-spacing:.8px;
   text-transform:uppercase;color:var(--charcoal-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .bl-head.total .bl-h-name{color:var(--text-primary);}
@@ -794,8 +821,8 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    opening the booking, so it sits outside the row's button and answers with
    the accent ring and wash the Row law gives anything picked. */
 .bl-tables{flex:none;display:flex;align-items:center;gap:2px;padding-right:12px;}
-.bl-plus{font-style:normal;font-family:var(--font-mono);font-weight:700;color:var(--charcoal-soft);
-  font-size:var(--fs-chip);padding:0 1px;}
+.bl-plus{padding:0 1px;font-style:normal;font-family:var(--font-mono);font-weight:700;
+  color:var(--charcoal-soft);font-size:var(--fs-chip);}
 .bl-table{flex:none;min-width:38px;min-height:34px;padding:0 10px;display:flex;align-items:center;
   justify-content:center;border-radius:var(--r-btn);background:var(--steel-100);
   border:1px solid transparent;color:var(--text-primary);
@@ -885,7 +912,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   padding:12px;background:var(--surface);border:1px solid var(--steel-300);
   border-radius:var(--r-control);text-align:left;cursor:pointer;}
 .bk-opt.on{border-color:var(--orange);box-shadow:inset 0 0 0 var(--ring) var(--orange);background:var(--pick-wash);}
-.bk-opt.off{opacity:var(--dim-off);}
+.bk-opt.off{opacity:var(--dim);}
 .bk-opt-mark{flex:0 0 24px;display:flex;align-items:center;justify-content:center;padding-top:4px;}
 .bk-opt-mark:empty{flex:0 0 0;}
 .bk-opt-mark .st-dot{margin-right:0;width:14px;height:14px;flex:0 0 14px;}
@@ -937,7 +964,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .desk-main .fl-room{width:min(100%, calc(100cqh * 900 / 560));height:auto;
   max-width:none;max-height:none;min-width:0;}
 /* The one line above the room: what it is doing, and the way back out. */
-.fl-status{flex:none;display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+.fl-status{flex:none;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
   padding:8px var(--hub-edge);border-bottom:1px solid var(--steel-200);min-height:38px;}
 .fl-status .spacer{flex:1;}
 /* The way in and out without a gesture: a mouse has no pinch, and a host who
@@ -948,7 +975,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   color:var(--charcoal-soft);min-width:38px;text-align:center;}
 .fl-status .chip.sq{min-height:30px;width:30px;}
 .fl-status .chip.sq svg{width:16px;height:16px;}
-.fl-status .chip.sq[disabled]{opacity:var(--dim-ghost);cursor:default;}
+.fl-status .chip.sq[disabled]{opacity:var(--dim);cursor:default;}
 .desk-main > .tl,.desk-main > .grid3,.desk-main > .flow,.desk-main > .empty{margin:var(--hub-edge);}
 .desk-main > .ts{padding:0 var(--hub-edge) var(--hub-edge);margin-top:0!important;}
 .desk-bar{margin:0;}
@@ -1007,7 +1034,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .rail-secs{flex:none;overflow:visible;}
   .rail-btn{aspect-ratio:auto;min-height:50px;gap:1px;padding:4px 2px;}
   .rail-ico svg{width:20px;height:20px;}
-  .rail-label{font-size:9px;line-height:1.1;}
+  .rail-label{font-size:var(--fs-chip);line-height:1.1;}
   .desk{flex-direction:row;}
   .desk-col{flex:0 0 300px;width:auto;max-height:calc(100vh - 58px);overflow-y:auto;}
 }
@@ -1030,18 +1057,26 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 /* A tablet at 820 tall leaves room for three and a half section tiles, and
    half a tile reads as broken rather than as "more this way". The deck's rule
    applies down the rail too: nothing is sliced, the cut end fades. */
-.rail-secs[data-cut]{mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent);
-  -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 22px),transparent);}
+/* The rail's sections scroll down, so they take the default axis and the
+   one depth — the 22 they used to draw was a second fade of their own.
+   AND THEY SNAP, the till's own answer (.catrail does the same): 111 pixels
+   of room for four 87-pixel tiles means an unsnapped scroll always rests
+   mid-tile, and the 24-pixel sliver left over is the blank top of a square
+   whose glyph is centred — which reads as empty ground rather than as more
+   this way, whatever depth the fade is. Snapped, the rail always comes to
+   rest on a whole tile and the fade sits at a real edge. */
+.rail-secs{scroll-snap-type:y mandatory;}
+.rail-secs > *{scroll-snap-align:start;}
 .rail-modes{flex:none;}
 
 /* The top bar is the night you are working on, and the keys that belong to no
    one screen. Tapping the date opens the month. */
-.deck-chip{height:var(--tap);min-width:76px;padding:0 14px;border-radius:var(--r-btn);
+.deck-chip{height:var(--tap);min-width:76px;padding:0 12px;border-radius:var(--r-btn);
   background:var(--deck-chip-bg);color:var(--deck-chip-ink);font-weight:700;font-size:var(--fs-md);}
 .deck-chip.active{background:var(--deck-chip-on-bg);color:var(--deck-chip-on-ink);}
 .topbar{position:relative;}
 .deck-date{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
-  min-height:var(--tap);padding:2px 14px;border:none;border-radius:var(--r-btn);background:none;
+  min-height:var(--tap);padding:2px 12px;border:none;border-radius:var(--r-btn);background:none;
   color:var(--text-primary);cursor:pointer;
   position:absolute;left:50%;transform:translateX(-50%);max-width:46%;}
 .dd-1{display:flex;align-items:center;gap:8px;font-weight:700;font-size:var(--fs-lg);
@@ -1086,15 +1121,16 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    held apart by space, the line under the room does the separating, and an
    empty slot fades until something lands in it. */
 .pace{display:flex;overflow-x:auto;border-top:1px solid var(--steel-200);
-  padding:8px 6px 10px;
-  /* Nothing is ever sliced (the deck's rule): the strip fades at the cut end
-     rather than ending on half a number. */
-  mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);
-  -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 28px),transparent);}
+  padding:8px 8px 12px;
+  /* Nothing is ever sliced (the Fade law): the strip fades at a cut end,
+     over the ONE depth, and only where there is more that way. It drew its
+     own 28 here — a third fade at a third depth — until Sep '26. It is a
+     ROW, so the band runs along it. */
+  --rail-axis:90deg;}
 .pace-col{flex:0 0 68px;display:flex;flex-direction:column;gap:1px;padding:4px 8px;
   border-radius:var(--r-btn);}
 .pace-col.now{background:var(--pick-wash);box-shadow:inset 0 0 0 var(--ring) var(--orange);}
-.pace-col.zero{opacity:var(--dim-off);}
+.pace-col.zero{opacity:var(--dim);}
 .pace-col.over .pace-n{color:var(--red);}
 .pace-t{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;
   letter-spacing:.3px;}
@@ -1138,11 +1174,11 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .rail-modes{display:contents;}
   .rail .rail-btn{flex:1;aspect-ratio:auto;min-height:64px;gap:2px;padding:6px 2px;}
   .rail .rail-ico svg{width:22px;height:22px;}
-  .rail .rail-label{font-size:9.5px;letter-spacing:0;}
+  .rail .rail-label{font-size:var(--fs-chip);letter-spacing:0;}
   /* A count on a thumb bar is a badge, not a line of type under the label. */
-  .rail .rail-n{position:absolute;top:6px;right:50%;margin-right:-22px;
+  .rail .rail-n{position:absolute;top:6px;right:50%;margin-right:-24px;
     min-width:16px;height:16px;padding:0 4px;border-radius:var(--r-pill);
-    background:var(--red);color:#fff;font-size:9.5px;line-height:16px;text-align:center;opacity:1;}
+    background:var(--red);color:#fff;font-size:var(--fs-chip);line-height:16px;text-align:center;opacity:1;}
   .rail-btn{position:relative;}
   .rail .rail-btn.active{background:none;color:var(--orange);}
   .rail .rail-btn.active .rail-ico{background:var(--orange-dim);border-radius:var(--r-pill);padding:2px 12px;}
@@ -6918,6 +6954,7 @@ const state = {
   // How far into the room you have pushed. 1 is the whole room on the screen;
   // the pan is in pixels of the SCALED stage, clamped so the room can never be
   // shoved off the edge and lost.
+  toast: '', toastFailed: '',
   floorZoom: 1, floorPanX: 0, floorPanY: 0,
   // Which question the room is being asked. Not saved and not in the store:
   // it is where you are looking, not how the venue is set up.
@@ -7196,7 +7233,52 @@ function sinceLabel(ts) {
   const d = Math.round(m / 1440);
   return d + (d === 1 ? ' day' : ' days');
 }
+// A TOAST SAYS HOW IT WENT (the POS's DESIGN.md § Toast law, Sep '26). The
+// dot was always green, so "Could not reach the server" arrived wearing the
+// success colour — on the one message a host reads while standing at a desk
+// that has just not done the thing.
+//
+// A failure MARKS ITSELF WHERE IT IS RAISED. Nothing reads the words at paint
+// time: a word rule would be right until the first failure written in
+// different words, and a rule that lies is how drift gets back in. The mark
+// belongs to that ONE message by name, so a later toast set the ordinary way
+// can never inherit it and nothing has to be cleared.
+// §§ A CUT END FADES, HONESTLY, ONE DEPTH (the POS's DESIGN.md § Fade law)
+//
+// Ours used to slice a row at 24 and a column at 22 — two depths of its own,
+// where the law says one, `--rail-fade` — and it faded the far end whether or
+// not anything was still that way, so a rail scrolled to its bottom went on
+// promising more. A fade that lies about more is worse than none.
+//
+// ONE MECHANISM: this marks data-more with "start", "end" or both on the
+// scrollers in ONE list, and three [data-more] rules draw the band. The
+// stylesheet carries no list of its own and no second fade — joining is one
+// entry here, and a hand-drawn gradient at a cut end is a bug.
+//
+// The band runs the way the scroller runs (--rail-axis, set in the
+// stylesheet: 90deg along a row, 180deg down a column). --fade-top and
+// --fade-foot move it in past a bar pinned over an end; nothing of ours pins
+// a bar INSIDE a scroller, so they are declared in the stylesheet where they
+// are needed rather than measured here.
+const RAIL_ENDS = '.tabs, .rail, .rail-secs, .secband, .room-list, .audit, .desk-main > .fl-wrap';
+function markRailEnds(one) {
+  if (!one) document.querySelectorAll('[data-more]').forEach(r => { if (!r.matches(RAIL_ENDS)) delete r.dataset.more; });
+  (one ? [one] : [...document.querySelectorAll(RAIL_ENDS)]).forEach(r => {
+    const horiz = r.scrollWidth > r.clientWidth + 1;
+    const pos = horiz ? r.scrollLeft : r.scrollTop;
+    const seen = horiz ? r.clientWidth : r.clientHeight;
+    const full = horiz ? r.scrollWidth : r.scrollHeight;
+    const more = [pos > 1 ? 'start' : '', pos + seen < full - 1 ? 'end' : ''].filter(Boolean).join(' ');
+    if ((r.dataset.more || '') !== more) r.dataset.more = more;
+  });
+}
+document.addEventListener('scroll', (e) => { const t = e.target; if (t && t.matches && t.matches(RAIL_ENDS)) markRailEnds(t); }, { passive: true, capture: true });
+window.addEventListener('resize', () => markRailEnds());
+
+function toastFail(msg) { state.toastFailed = msg; return msg; }
 function toast(msg, ms) { state.toast = msg; render(); clearTimeout(_toastTimer); _toastTimer = setTimeout(() => { state.toast = ''; render(); }, ms || 2600); }
+// A refusal is a failure: the action did not happen, so the dot says so.
+function toastBad(msg, ms) { toast(toastFail(msg), ms); }
 function typingInField() { const el = document.activeElement; return !!el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !['checkbox', 'radio', 'date'].includes(el.type))); }
 
 // §§ API — one wrapper, offline flag on failure
@@ -7305,24 +7387,12 @@ function render() {
   const app = document.getElementById('app');
   const focus = document.activeElement, focusId = focus && focus.id, selStart = focus && focus.selectionStart;
   const scrolls = {}; document.querySelectorAll('[data-keep]').forEach(el => { scrolls[el.dataset.keep] = [el.scrollTop, el.scrollLeft]; });
-  app.innerHTML = `<div class="shell">${renderDeck()}<div class="main">${renderRail()}<div class="pane" data-keep="pane">${renderSecBand()}${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.toast ? `<div class="toast">${esc(state.toast)}</div>` : ''}</div>`;
+  app.innerHTML = `<div class="shell">${renderDeck()}<div class="main">${renderRail()}<div class="pane" data-keep="pane">${renderSecBand()}${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.toast ? `<div class="toast"><i class="dot${state.toastFailed === state.toast ? ' bad' : ''}"></i>${esc(state.toast)}</div>` : ''}</div>`;
   document.querySelectorAll('[data-keep]').forEach(el => { const s = scrolls[el.dataset.keep]; if (s) { el.scrollTop = s[0]; el.scrollLeft = s[1]; } });
   // A day drawn for the first time opens where the work is; after that the
   // line above has already put the desk's own scroll back and this does
   // nothing. Runs after the restore, so it wins on the day that changed.
-  // Fade a scrolling row ONLY where something is actually cut off. An
-  // always-on mask dims the last tab even when it fits, and a dimmed tab
-  // reads as disabled rather than as "more this way".
-  for (const row of document.querySelectorAll('.tabs, .rail')) {
-    if (row.scrollWidth > row.clientWidth + 1) row.setAttribute('data-cut', '1');
-    else row.removeAttribute('data-cut');
-  }
-  // The same rule going DOWN: the rail's sections scroll when the screen is
-  // short, and a tile cut in half reads as broken rather than as "more here".
-  for (const col of document.querySelectorAll('.rail-secs')) {
-    if (col.scrollHeight > col.clientHeight + 1) col.setAttribute('data-cut', '1');
-    else col.removeAttribute('data-cut');
-  }
+  markRailEnds();
   const tlEl = state.dayLoaded === state.date ? document.querySelector('.tl[data-keep="tl"]') : null;
   const tlKey = state.view + ':' + state.todayMode + ':' + state.date;
   // On the next frame, not this one: at first paint the grid has not finished
@@ -8015,7 +8085,7 @@ async function endArrange() {
     state.tables = r.tables;
     const t = await api('/api/tables');
     state.tables = t.tables; state.floorPlans = t.floorPlans;
-  } catch (e) { toast(e.message); }
+  } catch (e) { toastBad(e.message); }
   render();
 }
 
@@ -9370,7 +9440,7 @@ async function removeException(id) {
   const next = (((state.settings || {}).exceptions) || []).filter(x => x.id !== id);
   state.modal = null; state.busy = true; render();
   try { state.settings = await put('/api/settings', { exceptions: next }); await loadView(); toast('Removed'); }
-  catch (e) { toast(e.message); }
+  catch (e) { toastBad(e.message); }
   state.busy = false; render();
 }
 async function setStatus(id, status) {
@@ -9378,7 +9448,7 @@ async function setStatus(id, status) {
     const r = await put('/api/reservations/' + id, { status });
     await loadView();
     toast(`${r.name}: ${statusLabel(status)}`);
-  } catch (e) { toast(e.message); }
+  } catch (e) { toastBad(e.message); }
 }
 
 // §§ Settings save — instant, per field, like the POS
@@ -9413,7 +9483,7 @@ async function flushSaves() {
       // A refused save must not leave the field showing something the store
       // does not hold: re-read, so the value snaps back to what was kept and
       // the toast is the only news.
-      toast(e.message);
+      toastBad(e.message);
       try { state.settings = await api('/api/settings'); applyStatusColours(); } catch (e2) {}
     }
   }
@@ -9597,13 +9667,13 @@ document.addEventListener('click', async (ev) => {
       case 'set-toggle': { const on = el.dataset.on !== '1'; setPath(state.settings, val, on); render(); queueSave(val.split('.')[0]); break; }
       case 'set-num': state.settings[el.dataset.key] = parseInt(val); render(); queueSave('services'); break;
       case 'theme-mode': state.theme = await put('/api/theme', { mode: val }); applyTheme(); render(); break;
-      case 'pos-test': { const url = state.settings.pos.baseUrl; toast('Testing…'); try { const r = await post('/api/pos/test', { baseUrl: url }); toast(`Connected to ${r.venueName || 'the POS'}`); } catch (e) { toast(e.message, 4000); } break; }
-      case 'pos-sync': { toast('Syncing…'); try { const r = await post('/api/pos/sync'); toast(`Synced: ${r.pushed} sent, ${r.imported} imported, ${r.patched} updated`); await loadView(); render(); } catch (e) { toast(e.message, 4000); } break; }
+      case 'pos-test': { const url = state.settings.pos.baseUrl; toast('Testing…'); try { const r = await post('/api/pos/test', { baseUrl: url }); toast(`Connected to ${r.venueName || 'the POS'}`); } catch (e) { toastBad(e.message, 4000); } break; }
+      case 'pos-sync': { toast('Syncing…'); try { const r = await post('/api/pos/sync'); toast(`Synced: ${r.pushed} sent, ${r.imported} imported, ${r.patched} updated`); await loadView(); render(); } catch (e) { toastBad(e.message, 4000); } break; }
       case 'svc-day': { const sv = state.settings.services[parseInt(el.dataset.i)]; const d = parseInt(val); const i = sv.days.indexOf(d); if (i >= 0) sv.days.splice(i, 1); else sv.days.push(d); render(); queueSave('services'); break; }
       case 'svc-add': state.settings.services.push({ id: 'sv' + Date.now(), name: 'Service', days: [0, 1, 2, 3, 4, 5, 6], start: '17:00', end: '21:30' }); render(); queueSave('services'); break;
       case 'svc-remove': state.settings.services.splice(parseInt(el.dataset.i), 1); render(); queueSave('services'); break;
       case 'exc-add': { const ex = { id: 'ex' + Date.now().toString(36), date: state.date, closed: true, note: '', services: [] }; state.modal = { kind: 'exception', ex, isNew: true, error: '' }; render(); break; }
-      case 'exc-edit': { const x = (((state.settings || {}).exceptions) || []).find(e => e.id === id); if (!x) { toast('That date is no longer there'); break; } state.modal = { kind: 'exception', ex: JSON.parse(JSON.stringify(x)), isNew: false, error: '' }; render(); break; }
+      case 'exc-edit': { const x = (((state.settings || {}).exceptions) || []).find(e => e.id === id); if (!x) { toastBad('That date is no longer there'); break; } state.modal = { kind: 'exception', ex: JSON.parse(JSON.stringify(x)), isNew: false, error: '' }; render(); break; }
       // Switching to Special hours starts from the weekday's normal windows, so
       // "NYE, one sitting" is a narrowing of dinner rather than a blank form.
       case 'exc-mode': { const ex = state.modal.ex; ex.closed = val === 'closed'; if (!ex.closed && !(ex.services || []).length) { const w = weeklyServicesOn(ex.date); ex.services = w.length ? w.map((x, i) => ({ id: 'sv' + Date.now().toString(36) + i, name: x.name, start: x.start, end: x.end })) : [{ id: 'sv' + Date.now().toString(36), name: 'Sitting', start: '17:00', end: '21:30' }]; } render(); break; }
@@ -9617,7 +9687,7 @@ document.addEventListener('click', async (ev) => {
       case 'table-add': state.tables.push({ id: 't' + Date.now(), label: String(state.tables.length + 1), seats: 2 }); render(); queueSave('tables'); break;
       case 'table-remove': state.tables.splice(parseInt(el.dataset.i), 1); render(); queueSave('tables'); break;
     }
-  } catch (e) { toast(e.message || 'Something went wrong', 3500); }
+  } catch (e) { toastBad(e.message || 'Something went wrong', 3500); }
 });
 
 // §§ Timeline drag — picking a booking up and putting it down
@@ -10091,7 +10161,7 @@ async function moveBooking(r, hhmm, tableId) {
     const row = state.reservations.find(x => x.id === id);
     if (row) Object.assign(row, was);
     render();
-    toast(e.message, 3500);
+    toastBad(e.message, 3500);
   }
 }
 
@@ -10216,7 +10286,7 @@ async function applyDeepLink(d) {
         r = (state.reservations || []).find(x => x.id === r.id) || r;
       } catch (e) {}
     }
-    if (r) openBooking(r); else toast('That booking is no longer here.');
+    if (r) openBooking(r); else toastBad('That booking is no longer here.');
   }
   render();
 }
