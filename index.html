@@ -146,7 +146,16 @@ h1,h2,h3{margin:0;}
    fit down a laptop: at 104 the nine tiles of Service came to 936 and Settings
    fell off the end of an 880 screen. 88 puts the whole app on the rail with no
    scroll at all, and is still twice the finger law. */
-.rail{width:var(--rail-w);flex-shrink:0;background:var(--surface);border-right:1px solid var(--steel-200);
+/* THE THREE COLUMNS ARE THREE GROUNDS. The rail, the book and the room all
+   sat on --surface with a --steel-200 hairline between them, which is what
+   the till does — but the till's rail stands beside ONE panel, and this one
+   stands beside TWO. Three columns of the same paper separated by a line you
+   have to look for is one slab with scratches on it. Three grounds now, one
+   step apart down the ladder: the rail on --steel-200, the book on the paper
+   (--surface), the room on the till's own --steel-100. And the ROOM'S GROUND
+   IS THE WHOLE COLUMN, not a rounded box floating in it. The seams step up to
+   --steel-300 so the line is a line. */
+.rail{width:var(--rail-w);flex-shrink:0;background:var(--steel-200);border-right:1px solid var(--steel-300);
   overflow:hidden;padding:var(--deck-pad) 0;display:flex;flex-direction:column;}
 .rail-btn{width:100%;aspect-ratio:1;background:none;border:none;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
@@ -595,6 +604,7 @@ body.book-page #app{display:block;height:auto;}
 .fl-room{position:relative;aspect-ratio:900/560;width:100%;min-width:560px;
   background:var(--floor-bg, var(--steel-100));border:1px solid var(--steel-200);
   border-radius:var(--r-control);overflow:hidden;container-type:inline-size;}
+.desk-main .fl-room{border:none;border-radius:0;}
 /* No geometry from the POS: a plain wrapped row, which keeps the states, the
    scrubber and the tapping — the useful half — without inventing a room. */
 .fl-room.loose{aspect-ratio:auto;min-width:0;display:flex;flex-wrap:wrap;gap:8px;padding:8px;}
@@ -960,7 +970,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .desk{display:flex;gap:0;align-items:stretch;min-height:0;height:100%;
   background:var(--surface);overflow:hidden;}
 .desk-col{flex:0 0 var(--deskcol-w);min-width:0;max-height:calc(100vh - var(--deck-h));
-  overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--steel-200);}
+  overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--steel-300);}
 .desk-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:0;}
 /* Inside one card the stacked parts are separated by the seam alone: a band
    is a ROW, not a card on a card; the room gets the card's padding; the
@@ -973,7 +983,16 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    be measured against it — see below. */
 /* No padding here either: the status line above and the pacing below are the
    room's own edges, and the room carries its own walls. */
+/* THE FLOOR IS THE WHOLE COLUMN. The room keeps its own shape — it is never
+   warped — so when the column is wider than the room's ratio wants, there is
+   slack above and below it. That slack used to be the PANE showing through:
+   a second empty area under the status line, the room floating in it as a
+   rounded box. The ground moves to the WRAP, so the slack is floor too and
+   the room has no edges of its own to draw. Settings → The room keeps its
+   box, because there you are dragging tables INTO the empty parts and need
+   to see where they end. */
 .desk-main > .fl-wrap{flex:1 1 auto;min-height:0;padding:0;
+  background:var(--floor-bg, var(--steel-100));
   display:flex;align-items:safe center;justify-content:safe center;overflow:hidden;
   touch-action:none;overscroll-behavior:contain;container-type:size;}
 .fl-stage{display:flex;align-items:center;justify-content:center;
@@ -1117,10 +1136,15 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   background:var(--deck-chip-bg);color:var(--deck-chip-ink);font-weight:700;font-size:var(--fs-md);}
 .deck-chip.active{background:var(--deck-chip-on-bg);color:var(--deck-chip-on-ink);}
 .topbar{position:relative;}
+/* ONE GROUP, CENTRED. It was the DATE that was absolutely centred, with the
+   arrows and Today sitting at the far left of the bar — the two halves of one
+   control at opposite ends of it. The whole night travels together now and
+   the group is what is centred; the date inside it is just its middle. */
+.deck-mid{position:absolute;left:50%;transform:translateX(-50%);max-width:66%;
+  display:flex;align-items:center;gap:var(--deck-gap);}
 .deck-date{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
   min-height:var(--tap);padding:2px 12px;border:none;border-radius:var(--r-btn);background:none;
-  color:var(--text-primary);cursor:pointer;
-  position:absolute;left:50%;transform:translateX(-50%);max-width:46%;}
+  color:var(--text-primary);cursor:pointer;min-width:0;}
 .dd-1{display:flex;align-items:center;gap:8px;font-weight:700;font-size:var(--fs-lg);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .deck-date{gap:2px;}
@@ -1190,7 +1214,13 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    Service's four sections are tiles on the desk's rail, so a band repeating
    them would be the app saying where you are twice. A phone has no room for
    sections on a thumb bar, so down there the band carries them all. */
-.secband{display:flex;gap:6px;overflow-x:auto;margin:0 0 var(--hub-edge);}
+/* NOWRAP. .band sets flex-wrap:wrap and the sections band never said
+   otherwise, so on a phone Run sheet dropped to a second row and the band
+   grew a line instead of scrolling — and because a wrapped band never
+   overflows, markRailEnds() saw nothing to mark and the Fade law quietly did
+   not apply to it. One line: it scrolls sideways and the cut end fades, like
+   every other scroller in the app. */
+.secband{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;margin:0 0 var(--hub-edge);}
 .secband .chip{flex:0 0 auto;}
 @media (min-width:761px){ .secband:not([data-rail="guests"]){display:none;} }
 .d-short{display:none;}
@@ -1201,7 +1231,8 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .d-short{display:inline;}
   /* A phone's bar is three keys and the date; absolute centring would sit it
      under them, so here it just takes the room that is left. */
-  .deck-date{position:static;transform:none;flex:1;min-width:0;max-width:none;align-items:flex-start;}
+  .deck-mid{position:static;transform:none;flex:1;min-width:0;max-width:none;}
+  .deck-date{flex:1;min-width:0;align-items:flex-start;}
   .dd-2{display:none;}
   .deck-spacer{display:none;}
   .deck-date span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -7104,16 +7135,23 @@ function renderDeck() {
   const dot = !state.online ? 'off' : linked ? (state.posStatus && state.posStatus.connected === false ? 'warn' : '') : 'warn';
   const title = !state.online ? 'Offline' : linked ? 'POS linked' : 'No POS link';
   const isToday = state.date === tradingDay();
+  // THE NIGHT IS ONE GROUP, AND IT SITS IN THE MIDDLE. The arrows and Today
+  // were pinned to the far left while the date they move was centred three
+  // inches away — two halves of one control at opposite ends of the bar. They
+  // are one thing now: step back, Today, the night, step on, together and
+  // centred, with the keys that MAKE something out on the right.
   return `
   <div class="topbar">
-    <button class="deck-sq ghost wide-only" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
-    <button class="deck-chip wide-only${isToday ? ' active' : ''}" data-act="day" data-val="0">Today</button>
-    <button class="deck-sq ghost wide-only" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
-    <div class="deck-date">
-      <button class="dd-1" data-act="open-cal" title="Open the month">
-        ${I.cal}<span class="d-long">${esc(fmtDay(state.date, true))}</span><span class="d-short">${esc(fmtDay(state.date))}</span>
-      </button>
-      ${renderServiceBand()}
+    <div class="deck-mid">
+      <button class="deck-sq ghost wide-only" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
+      <button class="deck-chip wide-only${isToday ? ' active' : ''}" data-act="day" data-val="0">Today</button>
+      <div class="deck-date">
+        <button class="dd-1" data-act="open-cal" title="Open the month">
+          ${I.cal}<span class="d-long">${esc(fmtDay(state.date, true))}</span><span class="d-short">${esc(fmtDay(state.date))}</span>
+        </button>
+        ${renderServiceBand()}
+      </div>
+      <button class="deck-sq ghost wide-only" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
     </div>
     <div class="deck-spacer"></div>
     ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
@@ -7344,7 +7382,7 @@ function renderFloor() {
   </div>
   ${plans.length ? plans.map(fp => `
     ${plans.length > 1 ? `<div class="section-h">${esc(fp.name)}</div>` : ''}
-    <div class="fl-wrap" data-keep="floor"><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${floorGround(fp)}${placed ? roomStyle(fp) : ''}">
+    <div class="fl-wrap" data-keep="floor" style="${floorGround(fp)}"><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
       ${(() => { const hug = placed ? floorHug(fp) : null; return (fp.tables || []).map(t => hug ? hugObject(t, hug) : t).map(tableEl).join(''); })()}
     </div></div></div>`).join('')
     : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>'}
