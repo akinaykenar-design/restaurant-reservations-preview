@@ -560,7 +560,6 @@ body.book-page #app{display:block;height:auto;}
    ask: who is late, and who is running over. Tokens throughout, so both
    themes and the print block follow. */
 .fl-key{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
-.fl-key b{color:var(--text-primary);font-family:var(--font-mono);}
 .fl-dot{width:10px;height:10px;border-radius:var(--r-pill);border:1px solid var(--steel-300);background:var(--surface);}
 .fl-dot.seated{background:var(--st-seated);border-color:var(--st-seated);}
 .fl-dot.over{background:var(--st-over);border-color:var(--st-over);}
@@ -1000,15 +999,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    there. `cqh` is why the wrap is a size container. */
 .desk-main .fl-room{width:min(100%, calc(100cqh * var(--fl-arw, 1.6071)));height:auto;
   max-width:none;max-height:none;min-width:0;}
-/* The one line above the room: what it is doing, and the way back out. */
-.fl-status{flex:none;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-  padding:8px var(--hub-edge);border-bottom:1px solid var(--steel-200);min-height:38px;}
-.fl-status .spacer{flex:1;}
-/* The way in and out without a gesture: a mouse has no pinch, and a host who
-   has pushed into a corner needs a way back that does not depend on getting
-   two fingers right. */
-
-.fl-status .chip.sq[disabled]{opacity:var(--dim);cursor:default;}
 .desk-main > .tl,.desk-main > .grid3,.desk-main > .flow,.desk-main > .empty{margin:var(--hub-edge);}
 .desk-main > .ts{padding:0 var(--hub-edge) var(--hub-edge);margin-top:0!important;}
 .desk-bar{margin:0;}
@@ -1147,7 +1137,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   text-overflow:ellipsis;min-width:0;border-radius:var(--r-pill);}
 .pill-now{opacity:.7;}
 .pill-now.on{opacity:1;color:var(--orange);}
-.pill-now svg{width:18px;height:18px;}
+/* The mark keeps its own 130x100 shape — squared into an icon box its legs
+   would splay and it would stop being the mark. */
+.pill-now svg{width:20px;height:auto;}
 .pill-svc{opacity:.85;}
 .pill-svc.shut{color:var(--red);opacity:1;}
 /* The hairline between segments — the Border law's one line, standing up. */

@@ -567,7 +567,6 @@ body.book-page #app{display:block;height:auto;}
    ask: who is late, and who is running over. Tokens throughout, so both
    themes and the print block follow. */
 .fl-key{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
-.fl-key b{color:var(--text-primary);font-family:var(--font-mono);}
 .fl-dot{width:10px;height:10px;border-radius:var(--r-pill);border:1px solid var(--steel-300);background:var(--surface);}
 .fl-dot.seated{background:var(--st-seated);border-color:var(--st-seated);}
 .fl-dot.over{background:var(--st-over);border-color:var(--st-over);}
@@ -1007,15 +1006,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    there. `cqh` is why the wrap is a size container. */
 .desk-main .fl-room{width:min(100%, calc(100cqh * var(--fl-arw, 1.6071)));height:auto;
   max-width:none;max-height:none;min-width:0;}
-/* The one line above the room: what it is doing, and the way back out. */
-.fl-status{flex:none;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
-  padding:8px var(--hub-edge);border-bottom:1px solid var(--steel-200);min-height:38px;}
-.fl-status .spacer{flex:1;}
-/* The way in and out without a gesture: a mouse has no pinch, and a host who
-   has pushed into a corner needs a way back that does not depend on getting
-   two fingers right. */
-
-.fl-status .chip.sq[disabled]{opacity:var(--dim);cursor:default;}
 .desk-main > .tl,.desk-main > .grid3,.desk-main > .flow,.desk-main > .empty{margin:var(--hub-edge);}
 .desk-main > .ts{padding:0 var(--hub-edge) var(--hub-edge);margin-top:0!important;}
 .desk-bar{margin:0;}
@@ -1154,7 +1144,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   text-overflow:ellipsis;min-width:0;border-radius:var(--r-pill);}
 .pill-now{opacity:.7;}
 .pill-now.on{opacity:1;color:var(--orange);}
-.pill-now svg{width:18px;height:18px;}
+/* The mark keeps its own 130x100 shape — squared into an icon box its legs
+   would splay and it would stop being the mark. */
+.pill-now svg{width:20px;height:auto;}
 .pill-svc{opacity:.85;}
 .pill-svc.shut{color:var(--red);opacity:1;}
 /* The hairline between segments — the Border law's one line, standing up. */
@@ -6439,7 +6431,7 @@ const I = {
   book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.2C9.6 4.6 6.6 3.8 2 3.8v14.2c4.6 0 7.6.8 10 2.4"/><path d="M12 6.2C14.4 4.6 17.4 3.8 22 3.8v14.2c-4.6 0-7.6.8-10 2.4"/><path d="M12 6.2v14.2"/></svg>',
   refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"/></svg>',
   till: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M7 13h4M7 16h4M15 13h2"/></svg>',
-  now: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h20l-10 13z"/></svg>',
+  now: '<svg viewBox="0 0 130 100" fill="currentColor" aria-hidden="true"><rect x="0" y="0" width="130" height="17"/><rect x="0" y="26" width="130" height="19"/><rect x="0" y="45" width="25" height="55"/><rect x="52.5" y="45" width="25" height="55"/><rect x="105" y="45" width="25" height="55"/></svg>',
   cal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>',
   // Drawn to the POS's icon law (DESIGN.md): a 24 box, stroke 2, round caps,
   // the glyph reaching 20 units on its long axis so every one carries the
@@ -7370,15 +7362,12 @@ function renderFloor() {
     </button>`;
   };
 
-  // What the room is doing, in one line. The bar this replaced also carried a
-  // clock (the top bar has one), a Now key (the floor is always now) and a
-  // slider through the night (the timeline's question, answered properly).
-  const count = (st) => Object.values(by).filter(f => f.state === st).length;
-  const key = (st, label) => `<span class="fl-key"><i class="fl-dot ${st}"></i>${label} <b>${count(st)}</b></span>`;
+  // NOTHING ABOVE THE ROOM. There was a line here counting seated, over, due
+  // and free, a dot beside each — which is a LEGEND, and the top bar's own law
+  // says no screen carries one, because the colours are learnt in a shift. It
+  // cost 38 pixels off the top of every floor to say four numbers the room is
+  // already saying, thirty tables at a time.
   return `
-  <div class="fl-status">
-    ${key('seated', 'Seated')}${key('over', 'Over')}${key('due', 'Due')}${key('free', 'Free')}
-  </div>
   ${plans.length ? plans.map(fp => `
     ${plans.length > 1 ? `<div class="section-h">${esc(fp.name)}</div>` : ''}
     <div class="fl-wrap" data-keep="floor" style="${floorGround(fp)}"><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
