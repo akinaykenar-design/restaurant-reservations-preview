@@ -832,12 +832,12 @@ body.book-page #app{display:block;height:auto;}
    reads at arm's length exactly as it did — only now every unit of the bar
    names itself. The x axis is the times, under the baseline; the covers for
    the slot sit on the line between. */
-.flowgrid{display:flex;align-items:stretch;gap:4px;overflow-x:auto;padding-bottom:4px;
+.flowgrid{display:flex;align-items:stretch;gap:8px;overflow-x:auto;padding-bottom:4px;
   min-height:220px;--rail-axis:90deg;}
 /* justify-content:flex-end puts the whole group on the floor of the column,
    so the stack grows UP off the baseline instead of hanging down from the
    top — which is the difference between a bar chart and a list. */
-.fg-col{flex:0 0 68px;display:flex;flex-direction:column;justify-content:flex-end;gap:4px;min-width:0;}
+.fg-col{flex:0 0 72px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;min-width:0;}
 /* The hour, and the gap between two services, are the only lines — the Border
    law's one hairline, standing up. A column with nothing in it fades rather
    than shouting a nought down the whole strip. */
@@ -851,28 +851,25 @@ body.book-page #app{display:block;height:auto;}
 .fg-time{font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;}
 /* column-reverse: the FIRST booking of the slot sits on the baseline and the
    rest pile on top of it, the way a bar is built. */
-.fg-stack{display:flex;flex-direction:column-reverse;gap:4px;align-items:stretch;}
-/* A BOX THAT LOOKS LIKE A TABLE: the floor's corner, the floor's colours, and
-   the number on the floor's cream chip so no state can make it unreadable.
-   A booking nobody has sat is drawn LIGHT — the wash alone; once somebody is
-   down it goes SOLID, so a glance down a column says how much of the slot has
-   actually landed. */
-.fg-tbl{display:flex;align-items:center;justify-content:space-between;gap:4px;
-  min-height:var(--tap);padding:4px 8px;border-radius:var(--r-btn);
+.fg-stack{display:flex;flex-direction:column-reverse;gap:8px;align-items:center;}
+/* A SQUARE THAT LOOKS LIKE A TABLE: the floor's corner, the floor's colours,
+   and THE COVERS — nothing else. It carried the table number on a cream chip
+   as well, and at the size one unit of a bar is drawn that is two numbers
+   fighting over forty pixels, when the question this chart answers is how
+   many people land WHEN. The table is still on the hover, and the floor and
+   the book both say it at the size a table number wants. A booking nobody has
+   sat is drawn LIGHT; once somebody is down it goes SOLID, so a glance down a
+   column says how much of the slot has actually landed. */
+.fg-tbl{display:flex;align-items:center;justify-content:center;
+  width:var(--tap);height:var(--tap);flex:none;border-radius:var(--r-btn);
   border:1px solid transparent;background:var(--table-plain);color:var(--text-primary);
-  font-weight:700;font-size:var(--fs-md);text-align:left;width:100%;cursor:pointer;}
+  font-family:var(--font-mono);font-weight:700;font-size:var(--fs-lg);cursor:pointer;}
 .fg-tbl.booked{background:color-mix(in srgb, var(--st-booked) 30%, var(--surface));}
 .fg-tbl.confirmed{background:color-mix(in srgb, var(--st-confirmed) 30%, var(--surface));}
 .fg-tbl.part-arrived,.fg-tbl.arrived{background:color-mix(in srgb, var(--st-arrived) 30%, var(--surface));}
 .fg-tbl.part-seated,.fg-tbl.seated{background:var(--st-seated);color:var(--on-scrim);}
 .fg-tbl.check{background:var(--st-check);color:var(--on-scrim);}
 .fg-tbl.paid{background:var(--st-paid);color:var(--on-scrim);}
-/* WHO CHOSE THE TABLE SHOWS IN THE WEIGHT, the same law the book obeys: what
-   the app worked out for itself is faint, what a person placed is solid. */
-.fg-tbl.auto .fg-no{font-weight:400;opacity:var(--dim);}
-.fg-no{font-family:var(--font-mono);background:var(--tbl-num-bg);color:var(--tbl-num-ink);
-  border-radius:var(--r-btn);padding:2px 6px;min-width:28px;text-align:center;}
-.fg-pax{font-family:var(--font-mono);font-size:var(--fs-lg);}
 /* The covers walking in during this slot, against the venue's cap when it set
    one. The strip of numbers the pacing band always was, kept. */
 /* margin-top:auto, not flex:1 on the tables above it. A column with nothing
@@ -890,7 +887,7 @@ body.book-page #app{display:block;height:auto;}
 /* A phone has room for about six of these, not eleven. */
 /* A phone swipes the strip sideways at its own width rather than squeezing
    forty slots into three hundred pixels. The columns keep their size. */
-@media (max-width:640px){ .fg-col{flex:0 0 64px;} }
+@media (max-width:640px){ .fg-col{flex:0 0 64px;gap:4px;} .fg-stack{gap:4px;} }
 .stat.over{border-color:var(--red);}
 .stat.over b{color:var(--red);}
 
@@ -7084,10 +7081,6 @@ function tableById(id) { return state.tables.find(t => t.id === id); }
 // that distinguishes nothing, on the one column that has to stay narrow.
 function roomsInUse() { return (state.floorPlans || []).filter(fp => (fp.tables || []).some(t => t.kind !== 'decor' && t.type !== 'decor')).length; }
 function tableName(id) { const t = tableById(id); return t ? (roomsInUse() > 1 ? t.floor + ' · ' : '') + t.label : '—'; }
-// The bare number, with no room in front of it — for the places that draw a
-// table as a BOX rather than write it into a sentence. The floor has always
-// drawn a bare 5 (a table number is a number); this is that, reusable.
-function tableLabel(id) { const t = tableById(id); return t ? String(t.label) : '—'; }
 function durationOf(r) {
   if (r.durationMin > 0) return r.durationMin;
   const s = state.settings || {};
@@ -8297,18 +8290,18 @@ function renderFlow() {
   const peak = cf.busiest ? cf.busiest.inRoom : 0;
   const full = cf.seats ? Math.round((peak / cf.seats) * 100) : 0;
 
-  // ONE BOX PER BOOKING, drawn as the table it is on. The number rides the
-  // cream chip the floor uses, for the same reason: it must read whatever
-  // colour the state paints behind it.
+  // ONE SQUARE PER BOOKING, and the only thing written on it is THE COVERS.
+  // It carried the table number on a cream chip too, and at the size a unit
+  // of a bar is drawn that is two numbers fighting in forty pixels — while
+  // the question this chart answers is how many people land when, not which
+  // table they land on. The table is still on the hover, and the floor and
+  // the book both say it at the size a table number wants.
   const box = (r) => {
     const ids = tablesFor(r);
-    const label = ids.length ? ids.map(tableLabel).join('+') : '—';
-    const sat = isSat(r);
-    return `<button class="fg-tbl ${esc(r.status)}${sat ? ' sat' : ''}${isAutoTable(r) ? ' auto' : ''}"
+    return `<button class="fg-tbl ${esc(r.status)}${isSat(r) ? ' sat' : ''}"
       data-act="edit-booking" data-id="${esc(r.id)}"
       title="${esc(r.name)} · ${r.partySize} · ${esc(fmtHHMM(hhmmOf(r.time)))}${ids.length ? ' · ' + ids.map(tableName).join(' + ') : ' · no table'}">
-      <span class="fg-no">${esc(label)}</span>
-      <span class="fg-pax">${r.partySize || 0}</span>
+      ${r.partySize || 0}
     </button>`;
   };
 
