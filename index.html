@@ -1065,7 +1065,8 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    everything gets shorter. */
 @media (min-width:761px) and (max-height:520px){
   .topbar{min-height:48px;padding:4px 12px;}
-  .deck-sq,.deck-chip{min-height:38px;height:38px;}
+  .deck-sq{min-height:38px;height:38px;}
+  .deck-pill{height:38px;}
   :root{--rail-w:78px;}
   /* 393 pixels of height hold seven 50-tall tiles and the rail has eight, so
      one of them has to travel. It is not SETTINGS: the foot stays pinned and
@@ -1132,38 +1133,31 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 
 /* The top bar is the night you are working on, and the keys that belong to no
    one screen. Tapping the date opens the month. */
-.deck-chip{height:var(--tap);min-width:76px;padding:0 12px;border-radius:var(--r-btn);
-  background:var(--deck-chip-bg);color:var(--deck-chip-ink);font-weight:700;font-size:var(--fs-md);}
-.deck-chip.active{background:var(--deck-chip-on-bg);color:var(--deck-chip-on-ink);}
 .topbar{position:relative;}
-/* ONE GROUP, CENTRED. It was the DATE that was absolutely centred, with the
-   arrows and Today sitting at the far left of the bar — the two halves of one
-   control at opposite ends of it. The whole night travels together now and
-   the group is what is centred; the date inside it is just its middle. */
+/* ONE PILL, CENTRED. It was a row of loose keys — the arrows and Today at the
+   far left, the date centred three inches away with the services stacked
+   under it in a second line — three separate things saying one thing: which
+   night, and which part of it. One pill now, three segments with a hairline
+   between, and the GROUP is what is centred. */
 .deck-mid{position:absolute;left:50%;transform:translateX(-50%);max-width:66%;
-  display:flex;align-items:center;gap:var(--deck-gap);}
-.deck-date{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
-  min-height:var(--tap);padding:2px 12px;border:none;border-radius:var(--r-btn);background:none;
-  color:var(--text-primary);cursor:pointer;min-width:0;}
-.dd-1{display:flex;align-items:center;gap:8px;font-weight:700;font-size:var(--fs-lg);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
-.deck-date{gap:2px;}
-.dd-1{border:none;background:none;color:inherit;cursor:pointer;padding:2px 6px;border-radius:var(--r-btn);}
-.dd-1:hover{background:var(--steel-200);}
-.dd-2{display:flex;align-items:center;gap:4px;font-size:var(--fs-chip);font-weight:700;
-  letter-spacing:.3px;color:var(--charcoal-soft);white-space:nowrap;max-width:100%;}
-.dd-2.shut{color:var(--red);}
-/* The services, as a switch. Small, because it is a narrowing and not a mode —
-   a chip's worth of weight, not a deck tile's. */
-.svc-b{padding:3px 8px;border-radius:var(--r-pill);border:1px solid transparent;
-  background:none;color:var(--charcoal-soft);font:inherit;cursor:pointer;white-space:nowrap;}
-.svc-b i{font-style:normal;font-family:var(--font-mono);font-weight:500;opacity:.75;}
-.svc-b:hover{background:var(--steel-200);}
-.svc-b.on{background:var(--orange-dim);border-color:transparent;color:var(--orange);}
-.deck-date svg{width:20px;height:20px;flex:0 0 20px;opacity:.75;}
-@media (max-width:700px){ .deck-chip{min-width:0;padding:0 10px;} }
-/* A short bar has no room for a second line under the date. */
-@media (max-height:520px){ .dd-2{display:none;} }
+  display:flex;align-items:center;gap:var(--deck-gap);min-width:0;}
+.deck-pill{display:flex;align-items:center;min-width:0;height:var(--tap);
+  padding:0 4px;border-radius:var(--r-pill);background:var(--steel-100);
+  color:var(--text-primary);}
+/* An arrow is a ghost: it MOVES you, it does not MAKE anything. */
+.pill-arw{width:32px;height:32px;min-width:32px;display:inline-flex;align-items:center;
+  justify-content:center;border:none;background:none;color:inherit;border-radius:var(--r-pill);opacity:.7;}
+.pill-arw:hover{opacity:1;background:var(--scrim);color:var(--on-scrim);}
+.pill-arw svg{width:16px;height:16px;}
+.pill-lbl{display:inline-flex;align-items:center;height:32px;padding:0 8px;border:none;background:none;color:inherit;
+  font-weight:700;font-size:var(--fs-md);white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;min-width:0;border-radius:var(--r-pill);}
+.pill-today{opacity:.7;}
+.pill-today.on{opacity:1;}
+.pill-svc{opacity:.85;}
+.pill-svc.shut{color:var(--red);opacity:1;}
+/* The hairline between segments — the Border law's one line, standing up. */
+.pill-sep{width:1px;height:20px;margin:0 4px;background:currentColor;opacity:.25;flex:none;}
 
 /* §§ The plan — the room the till draws
    No chairs. They were drawn around every table until Sep '26 and they read
@@ -1232,10 +1226,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   /* A phone's bar is three keys and the date; absolute centring would sit it
      under them, so here it just takes the room that is left. */
   .deck-mid{position:static;transform:none;flex:1;min-width:0;max-width:none;}
-  .deck-date{flex:1;min-width:0;align-items:flex-start;}
-  .dd-2{display:none;}
+  .deck-pill{flex:1;min-width:0;background:none;padding:0;height:auto;}
+  .deck-pill .pill-lbl{padding:0;font-size:var(--fs-lg);}
   .deck-spacer{display:none;}
-  .deck-date span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .topbar{gap:4px;}
 
   /* The rail lies down at the FOOT, over the content, with the home bar's
@@ -7109,53 +7102,47 @@ function renderRail() {
   return `<nav class="rail" aria-label="Sections"><div class="rail-scroll">${secs}<div class="rail-modes">${modes}</div></div><div class="rail-foot">${foot}</div></nav>`;
 }
 
-// "Lunch 11:30–2:30 · Dinner 5:00–9:30" — the windows this day actually
-// takes bookings in, exceptions and all, which is the question a host is
-// asked on the phone before any other. servicesOnDay() already answers it for
-// the slot picker; this only chooses the words.
-function renderServiceBand(day) {
-  day = day || state.date;
-  const ex = exceptionOn(day);
-  const svcs = servicesInOrderOn(day);
-  if (!svcs.length) return `<span class="dd-2 shut">${esc(ex && ex.note ? 'Closed \u2014 ' + ex.note : 'Closed')}</span>`;
-  // One service is not a choice, so it is stated rather than offered.
-  if (svcs.length === 1) {
-    return `<span class="dd-2">${esc(svcs[0].name)} ${esc(fmtHHMM(svcs[0].start))}\u2013${esc(fmtHHMM(svcs[0].end))}</span>`;
-  }
-  const on = pickedService();
-  return `<span class="dd-2 svc">
-    <button class="svc-b${on ? '' : ' on'}" data-act="service" data-val="">All night</button>
-    ${svcs.map(sv => `<button class="svc-b${on && on.id === sv.id ? ' on' : ''}" data-act="service" data-val="${esc(sv.id)}"
-      title="${esc(fmtHHMM(sv.start))}\u2013${esc(fmtHHMM(sv.end))}">${esc(sv.name)} <i>${esc(fmtHHMM(sv.start))}</i></button>`).join('')}
-  </span>`;
-}
+// THE NIGHT IS ONE PILL, IN THE MIDDLE OF THE BAR. It was a row of loose
+// keys: the day arrows and Today pinned to the far left, the date centred
+// three inches away with the services stacked under it in a second line.
+// Three separate things saying one thing — which night, and which part of it.
+//
+// One pill now, three segments with a hairline between: Today, the day
+// between its arrows, the service between its arrows. A stepper rather than a
+// band of chips, because a service is a place ON the night and you walk along
+// it; and it is the same shape as the day beside it, so one control teaches
+// the other. A day with ONE service has nothing to step through, so it states
+// the name and drops its arrows.
 function renderDeck() {
   const ps = state.settings && state.settings.pos;
   const linked = ps && ps.enabled && ps.baseUrl;
   const dot = !state.online ? 'off' : linked ? (state.posStatus && state.posStatus.connected === false ? 'warn' : '') : 'warn';
   const title = !state.online ? 'Offline' : linked ? 'POS linked' : 'No POS link';
   const isToday = state.date === tradingDay();
-  // THE NIGHT IS ONE GROUP, AND IT SITS IN THE MIDDLE. The arrows and Today
-  // were pinned to the far left while the date they move was centred three
-  // inches away — two halves of one control at opposite ends of the bar. They
-  // are one thing now: step back, Today, the night, step on, together and
-  // centred, with the keys that MAKE something out on the right.
+  const svcs = servicesInOrderOn(state.date);
+  const on = pickedService();
+  const svcLabel = !svcs.length ? 'Closed' : on ? on.name : 'All night';
+  const step = svcs.length > 1;
   return `
   <div class="topbar">
     <div class="deck-mid">
-      <button class="deck-sq ghost wide-only" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
-      <button class="deck-chip wide-only${isToday ? ' active' : ''}" data-act="day" data-val="0">Today</button>
-      <div class="deck-date">
-        <button class="dd-1" data-act="open-cal" title="Open the month">
-          ${I.cal}<span class="d-long">${esc(fmtDay(state.date, true))}</span><span class="d-short">${esc(fmtDay(state.date))}</span>
+      <div class="deck-pill">
+        <button class="pill-lbl pill-today wide-only${isToday ? ' on' : ''}" data-act="day" data-val="0">Today</button>
+        <i class="pill-sep wide-only"></i>
+        <button class="pill-arw wide-only" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
+        <button class="pill-lbl" data-act="open-cal" title="Open the month">
+          <span class="d-long">${esc(fmtDay(state.date, true))}</span><span class="d-short">${esc(fmtDay(state.date))}</span>
         </button>
-        ${renderServiceBand()}
+        <button class="pill-arw wide-only" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
+        <i class="pill-sep wide-only"></i>
+        ${step ? `<button class="pill-arw wide-only" data-act="svc-step" data-val="-1" aria-label="The service before">${I.left}</button>` : ''}
+        <span class="pill-lbl pill-svc wide-only${svcs.length ? '' : ' shut'}">${esc(svcLabel)}</span>
+        ${step ? `<button class="pill-arw wide-only" data-act="svc-step" data-val="1" aria-label="The service after">${I.right}</button>` : ''}
       </div>
-      <button class="deck-sq ghost wide-only" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
     </div>
     <div class="deck-spacer"></div>
     ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
-    <button class="deck-sq" data-act="new-walkin" aria-label="Seat a walk-in" title="Somebody is at the door \u2014 seat them now">${I.srcWalkIn}</button>
+    <button class="deck-sq" data-act="new-walkin" aria-label="Seat a walk-in" title="Somebody is at the door — seat them now">${I.srcWalkIn}</button>
     <button class="deck-sq" data-act="new-booking" aria-label="New booking" title="Take a booking">${I.book}</button>
     <button class="deck-sq ghost" data-act="open-more" aria-label="${esc(title)}" title="${esc(title)}"><span class="deck-dot ${dot}"></span></button>
   </div>`;
@@ -9145,6 +9132,17 @@ document.addEventListener('click', async (ev) => {
       // Narrowing to a service moves the floor's clock into it, or the room
       // would be drawn at a time this screen no longer shows.
       case 'service': state.service = val || ''; render(); break;
+      // The services are a STEPPER now, the same shape as the day beside it.
+      // '' is All night and it is the first stop, not a separate key; the walk
+      // stops at both ends rather than wrapping, so holding the arrow cannot
+      // put you back where you started without you noticing.
+      case 'svc-step': {
+        const stops = [''].concat(servicesInOrderOn(state.date).map(s => s.id));
+        const at = Math.max(0, stops.indexOf(state.service || ''));
+        state.service = stops[Math.min(stops.length - 1, Math.max(0, at + parseInt(val, 10)))];
+        render();
+        break;
+      }
       case 'desk-clear': state.deskQ = ''; render(); break;
       case 'list-group': { state.listShut = Object.assign({}, state.listShut, { [val]: !state.listShut[val] }); render(); break; }
       case 'open-more': state.modal = { kind: 'more' }; render(); break;
