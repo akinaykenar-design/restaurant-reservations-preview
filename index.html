@@ -1100,6 +1100,14 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   background:var(--surface);overflow:hidden;}
 .desk-col{flex:0 0 var(--deskcol-w);min-width:0;max-height:calc(100vh - var(--deck-h));
   overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--steel-300);}
+/* THE BOOK STANDS BESIDE THE ROOM, AND ONLY THE ROOM. The timeline draws
+   every booking of the night as a block and the flow counts the same ones up,
+   so a list beside either is the night printed twice in a column that costs
+   the other 340 pixels. The floor is the one view that does not carry the
+   bookings itself — it carries TABLES — so it is the one that needs the book.
+   Hidden in CSS and not in JS, so a PHONE still renders both halves and keeps
+   Bookings as the first chip on its band from every section. */
+@media (min-width:761px){ .desk:not(.mode-floor) > .desk-col{display:none;} }
 .desk-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:0;}
 /* Inside one card the stacked parts are separated by the seam alone: a band
    is a ROW, not a card on a card; the room gets the card's padding; the
@@ -8202,10 +8210,20 @@ function renderToday() {
     : ex && !ex.closed
       ? `<div class="notice special"><b>Special hours${ex.note ? ' — ' + esc(ex.note) : ''}.</b> ${svcs.map(x => esc(x.name) + ' ' + esc(x.start) + '–' + esc(x.end)).join(' · ')}</div>`
       : '';
-  // The desk is two columns, the way a host stands: the book in one hand and
-  // the room in front of them. The LIST is always there — it is the thing you
-  // read — and the rail decides what sits beside it. The run sheet is the one
-  // exception: it is a page for paper, so it takes the whole pane.
+  // THE BOOK STANDS BESIDE THE ROOM, AND ONLY THE ROOM. The desk used to be
+  // two columns whatever the rail pointed at, on the idea that a host holds
+  // the book in one hand and looks at the room with the other. That is true
+  // of the ROOM and of nothing else: the timeline already draws every booking
+  // of the night as a block you can read and drag, and the flow is a chart of
+  // the same bookings counted up — so a list beside either is the same night
+  // printed twice, in a column that costs the other 340 pixels. The floor is
+  // the one view that does NOT carry the bookings itself: it carries TABLES,
+  // and which booking is on one is exactly what the book beside it answers.
+  //
+  // A PHONE IS UNCHANGED. Both halves are still rendered at every width and
+  // the hiding is a CSS rule, so down there Bookings stays the first chip on
+  // the band and the choice between the book and the room still works from
+  // the timeline, the flow and everywhere else.
   const whole = state.todayMode === 'sheet';
   const side = state.todayMode === 'floor' ? renderFloor()
     : state.todayMode === 'flow' ? renderFlow()
@@ -8217,7 +8235,7 @@ function renderToday() {
   // Both halves are always RENDERED — the phone hides one in CSS rather than
   // in JS, so nothing has to listen for a resize and a tablet turned sideways
   // is right on the first frame.
-  return `${notice}<div class="desk show-${esc(state.phonePane)}">
+  return `${notice}<div class="desk mode-${esc(state.todayMode)} show-${esc(state.phonePane)}">
     <div class="desk-col" data-keep="desk-col">${renderDayList()}</div>
     <div class="desk-main">${side}</div>
   </div>`;
@@ -9000,7 +9018,10 @@ function renderBookingModal() {
   // In from the right, over the room, with the book still on screen beside
   // it — a booking is read against the night it sits in. Away from the desk
   // there is no seam to land on, so it takes the pane instead.
-  const onDesk = state.view === 'today' && state.todayMode !== 'sheet';
+  // The sheet lands on the SEAM between the book and the room, so it only has
+  // one to land on where that seam exists — which is the floor, now that
+  // everything else takes the pane. Anywhere else it takes the pane too.
+  const onDesk = state.view === 'today' && state.todayMode === 'floor';
   return `<div class="modal-bg full bk-sheet" data-act="close-modal"><div class="modal full bk-sheet${onDesk ? '' : ' pane-wide'}" data-stop="1">
     <div class="modal-top">
       ${page ? `<button class="chip sq" data-act="bk-back" aria-label="Back to the booking">${I.left}</button>` : ''}

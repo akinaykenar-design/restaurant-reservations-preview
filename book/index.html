@@ -1093,6 +1093,14 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   background:var(--surface);overflow:hidden;}
 .desk-col{flex:0 0 var(--deskcol-w);min-width:0;max-height:calc(100vh - var(--deck-h));
   overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--steel-300);}
+/* THE BOOK STANDS BESIDE THE ROOM, AND ONLY THE ROOM. The timeline draws
+   every booking of the night as a block and the flow counts the same ones up,
+   so a list beside either is the night printed twice in a column that costs
+   the other 340 pixels. The floor is the one view that does not carry the
+   bookings itself — it carries TABLES — so it is the one that needs the book.
+   Hidden in CSS and not in JS, so a PHONE still renders both halves and keeps
+   Bookings as the first chip on its band from every section. */
+@media (min-width:761px){ .desk:not(.mode-floor) > .desk-col{display:none;} }
 .desk-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:0;}
 /* Inside one card the stacked parts are separated by the seam alone: a band
    is a ROW, not a card on a card; the room gets the card's padding; the
