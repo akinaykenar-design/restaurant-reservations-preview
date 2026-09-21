@@ -43,6 +43,12 @@
   --red:#A8483A; --red-btn:#D2604F; --gold:#C08A00; --teal:#0E9E8A; --violet:#6D4FC4;
   --deck-chip-bg:#E0DBCE; --deck-chip-line:#3A4149; --deck-chip-ink:#3A3833;
   --deck-chip-on-bg:#2E343B; --deck-chip-on-ink:#ffffff;
+  /* CHROME: the ground of the bar across the top and the rail down the left.
+     One token because they are one thing — the frame around the work — and a
+     frame drawn in two colours is two frames. Light already had the rail on
+     this exact value; the BAR is what moves onto it, off the paper it shared
+     with the book. */
+  --chrome:#E2DED7;
   --surface:#FFFFFF;
   --text-primary:#38352F; --text-secondary:#8B877F;
   --lift-1:0 6px 18px rgba(20,24,25,.10);
@@ -77,6 +83,12 @@
      WALK-IN is teal — the online source's colour, because both mean "this
      did not come from the desk". */
   --st-late:#A8483A; --st-walkin:#0E9E8A;
+  /* THE END OF THE SITTING, which the floor could not say at all. CHECK is a
+     magenta nothing else on the drawing wears, so a bill on a table reads
+     from across the room; PAID is a cool slate that steps DOWN towards the
+     bare paper a free table is, because that is where the table is going.
+     Neither is an alarm — the room is telling you which one turns next. */
+  --st-check:#B0407A; --st-paid:#6E7F93;
   /* THE FLOOR IS THE TILL'S FLOOR. A table with no finish and no colour of its
      own; the till lifts it off the near-black ground in dark mode rather than
      leaving a dark-on-dark ghost. */
@@ -94,21 +106,45 @@
   /* How hard a booking tints the top it sits on. The till's own default. */
   --tbl-wash:.78;
 }
+/* §§ DARK IS A LADDER WITH RUNGS YOU CAN SEE.
+   The dark theme had the same four rungs the light one does, but crowded into
+   eight points of value: the rail at #332F2B against the book at #2B2824 is a
+   step of THREE, and the top bar was the book's own colour with a hairline
+   between them that was six points off both. Four regions, one mud. Every law
+   about three grounds and one hairline was in the stylesheet and none of it
+   was on the screen.
+   So the rungs are pulled apart — and, more than that, the CHROME is made of
+   a different material rather than a lighter shade of the same one. Value
+   alone could not fix this: four browns six points apart is still four
+   browns, and "too much blending of shades" is exactly what a host sees. The
+   frame is COOL and the work is WARM, so the eye separates them by hue
+   before it ever measures brightness:
+     --steel-100  #121110  the floor, and the page behind everything
+     --surface    #211E1A  the paper: the book, the rows, the popups — warm
+     --chrome     #2B2D31  the bar and the rail — one frame, and COOL
+     --steel-200  #33302B  every hairline ON the paper
+     --steel-300  #4A443C  the seams between grounds, so a line is a line
+   Light keeps its own arrangement: there the paper is white and the chrome
+   is the warm grey the rail already wore, which is contrast enough. */
 body[data-theme="dark"]{
-  --steel-100:#161512; --steel-200:#332F2B; --steel-300:#4A463F; --steel-500:#6B645A;
-  --surface:#2B2824;
-  --charcoal:#2B2926; --charcoal-soft:#D9D5CE;
+  --steel-100:#121110; --steel-200:#33302B; --steel-300:#4A443C; --steel-500:#6B645A;
+  --surface:#211E1A;
+  --chrome:#34373D;
+  --charcoal:#211E1A; --charcoal-soft:#D9D5CE;
   --text-primary:#EAE8E4; --text-secondary:#D9D5CE;
   --lift-1:0 6px 18px rgba(0,0,0,.40);
   --lift-2:0 10px 25px rgba(0,0,0,.45), 0 30px 60px rgba(0,0,0,.55);
   --orange:#3692E7; --gold:#E8C24D; --green:#7BC72F; --red:#CF6152; --teal:#19C3AB; --violet:#8B6FE8;
-  --deck-chip-bg:#2C2925; --deck-chip-line:#3A3733; --deck-chip-ink:#CFC9BE;
+  /* A key on the chrome has to be LIGHTER than the chrome, or it is a hole.
+     These sat below the old bar and now sit above the new one. */
+  --deck-chip-bg:#43474F; --deck-chip-line:#545963; --deck-chip-ink:#CFC9BE;
   --deck-chip-on-bg:#EDE6D6; --deck-chip-on-ink:#26231F;
   --orange-dim:color-mix(in srgb, var(--orange) 27%, var(--surface));
   --green-dim:color-mix(in srgb, var(--green) 20%, var(--surface));
   --st-booked:#A8A399; --st-confirmed:#3692E7; --st-arrived:#E8C24D; --st-seated:#7BC72F; --st-done:#6B645A; --st-cancelled:#CF6152; --st-noshow:#8B6FE8;
   --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#E8C24D; --src-pos:#D9D5CE;
   --st-late:#CF6152; --st-walkin:#19C3AB;
+  --st-check:#D96AA3; --st-paid:#9AB0C4;
   --table-plain:#35322D;
 }
 @media (max-height:560px){ :root{ --num-key-w:64px; --num-key-h:52px; --num-key-r:10px; --num-key-fs:var(--fs-xl); --num-gap:8px; } }
@@ -157,11 +193,12 @@ h1,h2,h3{margin:0;}
    the till does — but the till's rail stands beside ONE panel, and this one
    stands beside TWO. Three columns of the same paper separated by a line you
    have to look for is one slab with scratches on it. Three grounds now, one
-   step apart down the ladder: the rail on --steel-200, the book on the paper
-   (--surface), the room on the till's own --steel-100. And the ROOM'S GROUND
+   step apart down the ladder: the rail on --chrome (the bar's ground too —
+   they are one frame), the book on the paper (--surface), the room on the
+   till's own --steel-100. And the ROOM'S GROUND
    IS THE WHOLE COLUMN, not a rounded box floating in it. The seams step up to
    --steel-300 so the line is a line. */
-.rail{width:var(--rail-w);flex-shrink:0;background:var(--steel-200);border-right:1px solid var(--steel-300);
+.rail{width:var(--rail-w);flex-shrink:0;background:var(--chrome);border-right:1px solid var(--steel-300);
   overflow:hidden;padding:0;display:flex;flex-direction:column;}
 /* NO AIR AT THE TOP. The rail carried 8 of its own padding above the first
    tile, so the tile you are IN stopped 8 pixels short of the top bar and the
@@ -198,7 +235,13 @@ h1,h2,h3{margin:0;}
    shape has no room for it. */
 
 /* §§ The deck (Deck law: 8 pad, 8 gap, edge 16/12, 60 tall, 44 tappable) */
-.topbar{display:flex;align-items:center;gap:var(--deck-gap);padding:var(--deck-pad) var(--deck-edge);min-height:var(--deck-h);background:var(--surface);border-bottom:1px solid var(--steel-200);flex-shrink:0;}
+/* THE BAR IS CHROME, NOT PAPER. It used to be drawn on --surface, which is
+   also the book's ground — so in dark the two met at a hairline six points
+   off both of them and the night you are working on floated in the middle of
+   the list. It carries --deck-bg now: the paper in light, where that has
+   always read, and the rail's own tone in dark, where the bar and the rail
+   together are one frame around the work. */
+.topbar{display:flex;align-items:center;gap:var(--deck-gap);padding:var(--deck-pad) var(--deck-edge);min-height:var(--deck-h);background:var(--chrome);border-bottom:1px solid var(--steel-300);flex-shrink:0;}
 .tabs{display:flex;gap:var(--deck-gap);overflow-x:auto;min-width:0;}
 .tab-btn{background:var(--deck-chip-bg);border:1px solid var(--deck-chip-line);color:var(--deck-chip-ink);font-weight:600;font-size:var(--fs-md);padding:8px 12px;border-radius:var(--r-control);min-height:var(--tap);min-width:84px;text-align:center;white-space:nowrap;}
 .tab-btn.active{background:var(--deck-chip-on-bg);border-color:var(--deck-chip-on-bg);color:var(--deck-chip-on-ink);}
@@ -320,6 +363,11 @@ h1,h2,h3{margin:0;}
 .status-chip svg{width:13px;height:13px;flex:0 0 13px;}
 .status-chip.booked{background:var(--st-booked);} .status-chip.confirmed{background:var(--st-confirmed);} .status-chip.arrived{background:var(--st-arrived);}
 .status-chip.seated{background:var(--st-seated);} .status-chip.done{background:var(--st-done);} .status-chip.cancelled{background:var(--st-cancelled);} .status-chip.no-show{background:var(--st-noshow);}
+/* A PART WEARS ITS WHOLE S COLOUR. Half a party through the door is not a new
+   thing on the floor, it is less of the same thing, and the chip already
+   carries the word. The DOT is where the halving is drawn, below. */
+.status-chip.part-arrived{background:var(--st-arrived);} .status-chip.part-seated{background:var(--st-seated);}
+.status-chip.check{background:var(--st-check);} .status-chip.paid{background:var(--st-paid);}
 .status-chip.online{background:var(--src-online);} .status-chip.walk-in{background:var(--src-walkin);} .status-chip.pos{background:var(--src-pos);}
 .tag{font-size:var(--fs-chip);font-weight:700;padding:3px 7px;border-radius:var(--r-pill);border:1px solid var(--steel-300);color:var(--charcoal-soft);white-space:nowrap;}
 .tag.hot{border-color:var(--red);color:var(--red);}
@@ -356,6 +404,8 @@ h1,h2,h3{margin:0;}
 .tl-block small{font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;opacity:.9;}
 .tl-block.booked{background:var(--st-booked);} .tl-block.confirmed{background:var(--st-confirmed);} .tl-block.arrived{background:var(--st-arrived);}
 .tl-block.seated{background:var(--st-seated);} .tl-block.done{background:var(--st-done);}
+.tl-block.part-arrived{background:var(--st-arrived);} .tl-block.part-seated{background:var(--st-seated);}
+.tl-block.check{background:var(--st-check);} .tl-block.paid{background:var(--st-paid);}
 .tl-block.cancelled{background:var(--st-cancelled);} .tl-block.no-show{background:var(--st-noshow);}
 .tl-block.conflict{border-color:var(--red);box-shadow:inset 0 0 0 var(--ring) var(--red);}
 .tl-now{position:absolute;top:0;bottom:0;width:2px;background:var(--red);z-index:1;pointer-events:none;}
@@ -578,7 +628,10 @@ body.book-page #app{display:block;height:auto;}
    somebody is eating. Gold and violet are the two questions only a room can
    ask: who is late, and who is running over. Tokens throughout, so both
    themes and the print block follow. */
-.fl-key{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+/* `.fl-key` went with the last legend on the app (the flow's, Sep '26). The
+   DOT stays: it is not a legend there, it is the free-or-taken mark beside a
+   table in the booking sheet's own list, where it is the answer and not a
+   note about the answer. */
 .fl-dot{width:10px;height:10px;border-radius:var(--r-pill);border:1px solid var(--steel-300);background:var(--surface);}
 .fl-dot.seated{background:var(--st-seated);border-color:var(--st-seated);}
 .fl-dot.over{background:var(--st-over);border-color:var(--st-over);}
@@ -657,6 +710,18 @@ body.book-page #app{display:block;height:auto;}
 .fl-wash.late{background:var(--st-late);}
 .fl-wash.arrived{background:var(--st-confirmed);}
 .fl-wash.walkin{background:var(--st-walkin);}
+.fl-wash.check{background:var(--st-check);}
+.fl-wash.paid{background:var(--st-paid);}
+/* THE TILL S MARKS, top corner of the table. A fact about the GUEST, not a
+   status: the table s colour still says what the table is doing, and these
+   say what the waiter already knows about the people on it. Sized as a share
+   of the room like everything else in the drawing. */
+.fl-marks{position:absolute;top:.3333cqw;right:.3333cqw;z-index:2;display:flex;gap:.2222cqw;pointer-events:none;}
+.fl-mk{display:inline-flex;align-items:center;justify-content:center;font-style:normal;
+  min-width:1.5cqw;height:1.5cqw;padding:0 .2222cqw;border-radius:var(--r-pill);
+  font-size:1.1667cqw;font-weight:800;line-height:1;box-shadow:var(--lift-1);}
+.fl-mk.al{background:var(--st-late);color:var(--on-scrim);}
+.fl-mk.vip{background:var(--st-due);color:var(--tbl-num-ink);}
 /* A table the APP chose, in the BOOK: the same number, drawn light. Nothing
    else changes — it is a real table and it is really held, it just has
    nobody's name on the choice yet. The FLOOR draws it like any other: a room
@@ -712,10 +777,6 @@ body.book-page #app{display:block;height:auto;}
    behind them is how many are SITTING at that moment. The second is what a
    kitchen feels and what a pacing cap alone never shows. */
 .flow{background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);padding:12px;margin-top:var(--hub-edge);}
-.flow-keys{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:12px;}
-.flow-sw{width:12px;height:12px;border-radius:2px;background:var(--orange);}
-.flow-sw.room{background:color-mix(in srgb, var(--orange) 22%, var(--surface));border:1px solid var(--steel-300);}
-.flow-sw.cap{background:transparent;border-top:1px dashed var(--red);height:0;border-radius:0;}
 .flow-plot{position:relative;display:flex;align-items:flex-end;gap:2px;height:180px;
   border-bottom:1px solid var(--steel-300);border-left:1px solid var(--steel-200);}
 .flow-col{position:relative;flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;min-width:4px;}
@@ -752,6 +813,7 @@ body.book-page #app{display:block;height:auto;}
     --orange:#000; --green:#000; --red:#000; --gold:#000; --teal:#000; --violet:#000;
     --st-booked:#000; --st-confirmed:#000; --st-arrived:#000; --st-seated:#000;
     --st-done:#000; --st-cancelled:#000; --st-noshow:#000;
+    --st-check:#000; --st-paid:#000;
     --lift-1:none; --lift-2:none; --dim:1;
   }
   @page{margin:12mm;}
@@ -805,6 +867,13 @@ body.book-page #app{display:block;height:auto;}
 .st-dot.arrived{background:var(--st-arrived);} .st-dot.seated{background:var(--st-seated);}
 .st-dot.done{background:var(--st-done);} .st-dot.cancelled{background:var(--st-cancelled);}
 .st-dot.no-show{background:var(--st-noshow);}
+.st-dot.check{background:var(--st-check);} .st-dot.paid{background:var(--st-paid);}
+/* HALF THE DOT FOR HALF THE PARTY. The same colour as the whole, with half of
+   it not filled in — one glyph, no new hue, and it says the one thing the
+   word beside it says. The ring the dot already wears keeps the empty half a
+   circle rather than a bite out of nothing. */
+.st-dot.part-arrived{background:linear-gradient(90deg,var(--st-arrived) 50%,var(--steel-500) 50%);}
+.st-dot.part-seated{background:linear-gradient(90deg,var(--st-seated) 50%,var(--steel-500) 50%);}
 
 /* The swatch is the POS's: one size, one corner, everywhere a colour is
    picked — 44 square, so it answers the finger law on its own. */
@@ -2579,9 +2648,14 @@ function streamOrders(config, opts) {
 
 // ---------- mapping ----------
 
-// Our statuses fold onto the five the POS floor knows.
+// Our eleven statuses fold onto the five the POS floor knows. Everything
+// before somebody sits down is `booked` to the till; everything from the
+// first chair to the moment they walk out is `seated`. The till has no
+// vocabulary for half a party or for a bill on the table, and inventing one
+// for it would be a second source for a floor it already owns.
 function posStatus(status) {
-  if (status === 'confirmed' || status === 'arrived') return 'booked';
+  if (status === 'confirmed' || status === 'arrived' || status === 'part-arrived') return 'booked';
+  if (status === 'part-seated' || status === 'check' || status === 'paid') return 'seated';
   return status;
 }
 
@@ -2742,12 +2816,37 @@ const DATA_DIR = path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'store.local.json');
 const SEED_FILE = path.join(DATA_DIR, 'store.json');
 
-// Statuses a booking moves through. The first five are the POS's own (its
-// floor knows booked / seated / done / cancelled / no-show); confirmed and
-// arrived are ours and fold down to `booked` when mirrored to the POS.
-const STATUSES = ['booked', 'confirmed', 'arrived', 'seated', 'done', 'cancelled', 'no-show'];
-// A booking that still holds its table.
-const LIVE_STATUSES = ['booked', 'confirmed', 'arrived', 'seated'];
+// Statuses a booking moves through, in the order a night actually goes. Five
+// of them are the POS's own (its floor knows booked / seated / done /
+// cancelled / no-show); the other six are ours and fold down to one of those
+// when mirrored to the POS (see posStatus in pos.js).
+//
+// PARTLY IS NOT A DIFFERENT PLACE, IT IS A DIFFERENT AMOUNT. Two of a six
+// through the door is still "they are here"; four of a six sat down is still
+// "somebody is on that table". So `part-arrived` and `part-seated` wear the
+// same colour as the thing they are part of and fold to the same POS status —
+// what they change is the WORD, which is the one thing a host needs, because
+// a table that is half down is a table you cannot yet run the order on.
+//
+// CHECK AND PAID ARE THE END OF THE SITTING, NOT THE END OF THE BOOKING. The
+// party is still in the chair; what has changed is that the table has started
+// to turn. That is the question a host asks the room forty times a night —
+// "which of these is nearly free" — and until now the floor had no answer to
+// it between `seated` and an empty table.
+const STATUSES = [
+  'booked', 'confirmed',
+  'part-arrived', 'arrived',
+  'part-seated', 'seated',
+  'check', 'paid',
+  'done', 'cancelled', 'no-show',
+];
+// A booking that still holds its table. Paid and still sitting is still
+// sitting: the table is theirs until somebody marks them LEFT.
+const LIVE_STATUSES = ['booked', 'confirmed', 'part-arrived', 'arrived', 'part-seated', 'seated', 'check', 'paid'];
+// A booking with somebody down at the table. The sitting has begun, so the
+// table is held past its turn time, the till's orders on it are this
+// booking's, and the online cancel is closed.
+const SAT_STATUSES = ['part-seated', 'seated', 'check', 'paid'];
 const SOURCES = ['staff', 'online', 'walk-in', 'pos'];
 const TAGS = ['VIP', 'Birthday', 'Anniversary', 'Allergy', 'Pram', 'Wheelchair', 'Window', 'Quiet', 'High chair', 'Large group'];
 // Where a notify entry can be. 'waiting' and 'told' are both live (told = we
@@ -3033,11 +3132,12 @@ function cleanColours(input) {
 // surface, and joined is the accent ring, which follows the POS.
 const COLOUR_KEYS = {
   booked: '--st-booked', confirmed: '--st-confirmed', arrived: '--st-arrived',
-  seated: '--st-seated', done: '--st-done', cancelled: '--st-cancelled', 'no-show': '--st-noshow',
+  seated: '--st-seated', check: '--st-check', paid: '--st-paid',
+  done: '--st-done', cancelled: '--st-cancelled', 'no-show': '--st-noshow',
   due: '--st-due', over: '--st-over',
   online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
 };
-module.exports = { readData, writeData, dataVersion, newId, migrate, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
+module.exports = { readData, writeData, dataVersion, newId, migrate, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./db'] = module;
@@ -3069,8 +3169,19 @@ function weekdayOf(day) { const [y, m, d] = day.split('-').map(Number); return n
 function addDays(day, n) { const [y, m, d] = day.split('-').map(Number); return localDay(new Date(y, m - 1, d + n)); }
 function timeMs(time) { return new Date(time).getTime(); }
 
-const LIVE = ['booked', 'confirmed', 'arrived', 'seated'];
+const LIVE = ['booked', 'confirmed', 'part-arrived', 'arrived', 'part-seated', 'seated', 'check', 'paid'];
 function isLive(r) { return LIVE.includes(r.status); }
+// SOMEBODY IS DOWN AT THE TABLE. The sitting has begun — so the table is held
+// past its turn time, the till's tickets on it are this booking's, and the
+// online cancel is shut. Paid is still sitting: the table is theirs until
+// somebody marks them LEFT.
+const SAT = ['part-seated', 'seated', 'check', 'paid'];
+function isSat(r) { return SAT.includes(r && r.status); }
+// IN THE ROOM, NOT AT THE TABLE. Two of a six through the door is still
+// somebody a host can walk over to, which is the whole reason `arrived` was
+// split out of `due` in the first place.
+const HERE = ['part-arrived', 'arrived'];
+function isHere(r) { return HERE.includes(r && r.status); }
 
 // How long a party of this size holds its table.
 function durationFor(settings, party, override) {
@@ -3191,6 +3302,56 @@ function suggestTable(ctx, day, hhmm, party, opts) {
 // Pure, and it knows nothing about how a floor is drawn: the geometry comes
 // from the POS and stays in the client. `hhmm` is the moment being asked
 // about, which is usually now but is a scrubber on the screen.
+// §§ The till's own marks on a table
+//
+// A waiter who takes an allergy AT THE TABLE types it into the till, and the
+// desk is the one answering the phone about it an hour later. Same for a VIP
+// marked on the floor. Both come across on the floor-plan call that was
+// already being made — no new call, no new pass, and live within one pass of
+// somebody typing them.
+//
+// WHERE THE TILL KEEPS THEM MOVED. They used to be `allergies` and `vipType`
+// on the table; the till folded both into one `notes` list, each entry
+// carrying the id of a note CATEGORY — `allergy`, `vip`, and whatever else
+// the venue has made ("Special Occasion", "Instructions"). The old fields are
+// cleared on its next load and never read again, so reading them alone got
+// nothing. Both shapes are read here: the notes list first, the old fields as
+// a fallback for a till that has not migrated yet.
+//
+//   { seat: 2, categoryId: 'allergy', text: 'Gluten', note: 'severe' }
+//
+// The shapes are the till's, so they are read HERE rather than in a route, and
+// every shape it could send folds to the same answer: a clean list of names,
+// or an empty one. A till that sends a bare string, a null, or a row with no
+// text on it must not throw — a desk that throws on the floor plan draws no
+// room at all.
+function tableNotesIn(t, categoryId) {
+  const list = t && t.notes;
+  return (Array.isArray(list) ? list : []).filter(n => n && typeof n === 'object' && n.categoryId === categoryId)
+    .map(n => {
+      const name = String(n.text || '').trim();
+      if (!name) return null;
+      const note = String(n.note || '').trim();
+      return note ? name + ' — ' + note : name;
+    }).filter(Boolean);
+}
+function tableAllergies(t) {
+  const now = tableNotesIn(t, 'allergy');
+  if (now.length) return now;
+  // A till that has not folded them yet still keeps its own older shape.
+  const old = t && t.allergies;
+  return (Array.isArray(old) ? old : []).map(a => {
+    const name = String((a && typeof a === 'object' ? a.allergy : a) || '').trim();
+    if (!name) return null;
+    const note = String((a && typeof a === 'object' && a.notes) || '').trim();
+    return note ? name + ' — ' + note : name;
+  }).filter(Boolean);
+}
+function tableVip(t) {
+  const now = tableNotesIn(t, 'vip');
+  return now.length ? now.join(' · ') : String((t && t.vipType) || '').trim();
+}
+
 // §§ Who sits where, when nobody has said
 //
 // A booking with no table is not a booking without a table — it is one the
@@ -3230,23 +3391,38 @@ function autoAssign(ctx, day) {
 // §§ What a table is doing
 //
 // Four states became seven, because four of them answered "is somebody on
-// it" and none of them answered "does somebody need to DO something".
+// it" and none of them answered "does somebody need to DO something". Seven
+// became NINE, because none of them answered the other question a host asks
+// the room all night: WHICH OF THESE IS NEARLY FREE.
 //
 //   free     nothing holds it, and the till does not say otherwise
 //   walkin   the BOOK says free and the TILL says covers are on it — somebody
 //            the desk never booked. The one thing the desk cannot know by
 //            itself, and the reason the till's covers come across.
 //   due      held by a booking that has not arrived, still inside its grace
-//   late     held by a booking that has not arrived, past its grace
-//   arrived  the party is in the room and not at the table yet
+//   late     held by a booking that has not arrived, past its grace     ← act
+//   arrived  the party is in the room and not at the table yet          ← act
 //   seated   sat down, inside its sitting
-//   over     sat down, past its sitting
+//   over     sat down, past its sitting                                 ← act
+//   check    the bill is on the table — the sitting is closing
+//   paid     paid and still in the chair — the next party can be promised it
 //
-// Three of those need a person — late, arrived, over — and that is the whole
-// point of splitting them out. `due` used to carry all of late, arrived and
-// not-here-yet under one colour, which is three different jobs painted the
-// same.
-const FLOOR_STATES = ['free', 'walkin', 'due', 'late', 'arrived', 'seated', 'over'];
+// Three of those need a person — late, arrived, over. The last two need
+// nobody: they are the table TELLING you, and that is the point. Between
+// `seated` and an empty table the floor used to say nothing at all, so a host
+// wanting to know which table turns next had to walk the room and look at the
+// bills. The room says it now.
+//
+// CHECK AND PAID OUTRANK `over`. Over is an alarm — they are past their time
+// and the next booking is at risk — and a bill on the table is the ANSWER to
+// that alarm. A paid table running twenty minutes long is not a problem, it
+// is a table clearing; painting it the same violet as one that has not
+// started to leave is the floor crying wolf.
+//
+// PARTLY SEATED IS SEATED, on the drawing. A room is what is in it, and half
+// a party at a table is somebody at that table. The WORD is what differs, and
+// the word is in the book, where there is room for one.
+const FLOOR_STATES = ['free', 'walkin', 'due', 'late', 'arrived', 'seated', 'over', 'check', 'paid'];
 // A booking is not LATE the second the clock passes it — somebody thirty
 // seconds from the door is not a problem, and a floor that goes red on every
 // booking every night teaches a host to ignore red. Ten minutes, stated once.
@@ -3269,7 +3445,7 @@ function floorAt(ctx, day, hhmm, opts) {
     const on = held.find(r => {
       const s = minsOf(r.time);
       const end = s + durOf(r);
-      return s <= at && (at < end || (r.status === 'seated' && at >= end));
+      return s <= at && (at < end || (isSat(r) && at >= end));
     }) || null;
     const next = held.find(r => minsOf(r.time) > at) || null;
     const nextAt = next ? hhmmOf(next.time) : null;
@@ -3289,19 +3465,26 @@ function floorAt(ctx, day, hhmm, opts) {
     const cap = durOf(on);
     const end = start + cap;
     const waiting = Math.max(0, at - start);
-    const state = on.status === 'seated' ? (at >= end ? 'over' : 'seated')
-      : on.status === 'arrived' ? 'arrived'
-      : waiting >= LATE_AFTER ? 'late' : 'due';
+    // The sitting's own end states come FIRST, before the clock is consulted:
+    // a bill on the table answers the over-time alarm rather than joining it.
+    const state = on.status === 'paid' ? 'paid'
+      : on.status === 'check' ? 'check'
+      : isSat(on) ? (at >= end ? 'over' : 'seated')
+        : isHere(on) ? 'arrived'
+          : waiting >= LATE_AFTER ? 'late' : 'due';
     return {
       id: t.id, state, bookingId: on.id, covers,
-      over: state === 'over' ? at - end : 0,
+      // Still counted for a check-dropped or paid table that has run long: the
+      // state no longer shouts about it, but the number is what the timeline
+      // and the run sheet put in words.
+      over: (state === 'over' || ((state === 'check' || state === 'paid') && at > end)) ? at - end : 0,
       // How late they are, when the table is held by somebody who has not sat.
       // Counted for 'arrived' too: a party standing in the room past its time
       // is still a table not turning.
       late: (state === 'due' || state === 'late' || state === 'arrived') ? waiting : 0,
       // How long they have been down, against how long they have. The pill's
       // danger scale is a SHARE of the second, so both travel with the state.
-      sat: state === 'seated' || state === 'over' ? Math.max(0, at - start) : 0,
+      sat: ['seated', 'over', 'check', 'paid'].includes(state) ? Math.max(0, at - start) : 0,
       cap,
       nextAt, freeFor: null,
     };
@@ -3859,7 +4042,8 @@ module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, suggestTable, suggestJoin, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
-  FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, coverFlow,
+  FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, coverFlow,
+  isSat, isHere, SAT, HERE,
   MOVABLE, canMove, snapSlot, seatsOf, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
@@ -4401,8 +4585,10 @@ const GRACE_AFTER_MS = GRACE_AFTER_MIN * 60000;
 
 // Only a sitting that actually happened can have money on it. A booking that
 // was never seated — booked, confirmed, arrived, cancelled, no-show — gets
-// nothing, however many tickets were rung on that table that night.
-const SPENT_STATUSES = ['seated', 'done'];
+// nothing, however many tickets were rung on that table that night. Half a
+// party down IS a sitting, and so is one with the bill on the table or paid:
+// that is precisely when the money exists.
+const SPENT_STATUSES = av.SAT.concat(['done']);
 
 function round2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
 
@@ -4426,7 +4612,7 @@ function bookingWindow(settings, r, now) {
   let end = (Number.isFinite(r.doneAt) && r.doneAt > start)
     ? r.doneAt
     : start + av.durationFor(settings || {}, r.partySize || 1, r.durationMin) * 60000;
-  if (r.status === 'seated' && Number.isFinite(now) && now > end) end = now;
+  if (av.isSat(r) && Number.isFinite(now) && now > end) end = now;
   return { start, end };
 }
 
@@ -4717,7 +4903,17 @@ const pos = require('./pos');
 const db = require('./db');
 const history = require('./history');
 
+// The statuses the POS floor can say for itself. What comes back in this list
+// is the till telling us something we could not know.
 const FLOOR_ONLY = ['seated', 'done', 'no-show', 'cancelled'];
+// The same thing said in OUR vocabulary: every local status that only the
+// floor puts a booking into. It is wider than FLOOR_ONLY because the desk
+// splits the sitting into four (part-seated, seated, check, paid) and the
+// till has one word for all of them — so a `booked` coming back from the POS
+// has to be able to undo any of them, not just the one they share a name
+// with. Reading FLOOR_ONLY here left a check-dropped or paid booking stuck
+// after somebody un-seated the table on the till.
+const FLOOR_LOCAL = db.SAT_STATUSES.concat(['done', 'no-show', 'cancelled']);
 
 // The POS writes "Marked as <status>" to its audit log whenever a PUT carries
 // a status, changed or not — so an update only carries one that changed.
@@ -4760,7 +4956,7 @@ function reconcile(local, remote, opts) {
       // a full round-trip happened) — otherwise clear the link and re-push.
       if (link.hash) {
         const patch = { pos: null };
-        if (['booked', 'confirmed', 'arrived', 'seated'].includes(r.status)) {
+        if (db.LIVE_STATUSES.includes(r.status)) {
           patch.status = 'cancelled'; patch.cancelledAt = now; patch.cancelReason = 'Removed on the POS';
           patch.events = history.append(r.events, history.changeEvents(r, Object.assign({}, r, patch), { by: 'POS', at: now }, evOpts));
         }
@@ -4802,10 +4998,13 @@ function reconcile(local, remote, opts) {
       }
       // Status: the floor knows seated/done/no-show/cancelled; 'booked' from the
       // POS never demotes a confirmed/arrived booking (the POS can't say those).
+      // Compared through posStatus, so the till saying `seated` never flattens
+      // a part-seated, check-dropped or paid booking back to plain seated —
+      // those all ARE seated to the till, and the finer word is the desk's.
       const rs = remoteFields.status;
       if (rs !== pos.posStatus(r.status)) {
         if (FLOOR_ONLY.includes(rs)) { patch.status = rs; if (rs === 'seated' && !r.seatedAt) patch.seatedAt = now; if (rs === 'done' && !r.doneAt) patch.doneAt = now; }
-        else if (rs === 'booked' && FLOOR_ONLY.includes(r.status) && !localChanged) patch.status = 'booked';
+        else if (rs === 'booked' && FLOOR_LOCAL.includes(r.status) && !localChanged) patch.status = 'booked';
       }
       merged = Object.assign({}, r, patch);
       // The point of the whole thing: this diff is exactly what the till
@@ -5166,9 +5365,11 @@ function tablesOf(data) { return av.tablesFrom(data.floorPlans); }
 // plus what the till says is on them. tablesFrom() stays lean because the
 // arithmetic has no use for covers — only the drawing does.
 function floorTablesOf(data) {
-  const covers = {};
-  (data.floorPlans || []).forEach(fp => (fp.tables || []).forEach(t => { covers[t.id] = Math.max(0, Number(t.covers) || 0); }));
-  return av.tablesFrom(data.floorPlans).map(t => Object.assign({}, t, { covers: covers[t.id] || 0 }));
+  const live = {};
+  (data.floorPlans || []).forEach(fp => (fp.tables || []).forEach(t => {
+    live[t.id] = { covers: Math.max(0, Number(t.covers) || 0), allergies: av.tableAllergies(t), vip: av.tableVip(t) };
+  }));
+  return av.tablesFrom(data.floorPlans).map(t => Object.assign({}, t, live[t.id] || { covers: 0, allergies: [], vip: '' }));
 }
 function ctxOf(data) { return { settings: effectiveSettings(data), tables: tablesOf(data), reservations: data.reservations }; }
 // What history.js needs to name a table in a line. No logic, just the floor.
@@ -5312,6 +5513,11 @@ app.get('/api/tables', (req, res) => {
     // right now. A table the desk never booked is a walk-in on the floor,
     // and without this the desk draws it free and offers it to the phone.
     covers: Math.max(0, Number(t.covers) || 0),
+    // THE TILL'S OWN MARKS. A waiter taking an allergy at the table types it
+    // into the till, not into the book — and the desk is the one answering
+    // the phone about it an hour later. Same for a VIP marked on the floor.
+    // Both ride the floor-plan call that was already being made.
+    allergies: av.tableAllergies(t), vip: av.tableVip(t),
   });
   res.json({
     tables: floorTablesOf(data),
@@ -5476,7 +5682,9 @@ function recountGuest(data, guestId) {
   const g = data.guests.find(x => x.id === guestId);
   if (!g) return;
   const mine = data.reservations.filter(r => r.guestId === guestId);
-  g.visits = mine.filter(r => r.status === 'seated' || r.status === 'done').length;
+  // A visit is a sitting that happened: any of the four ways a booking can
+  // be at the table, plus the ones already gone.
+  g.visits = mine.filter(r => av.isSat(r) || r.status === 'done').length;
   g.noShows = mine.filter(r => r.status === 'no-show').length;
   g.cancellations = mine.filter(r => r.status === 'cancelled').length;
 }
@@ -5585,7 +5793,7 @@ app.post('/api/reservations', (req, res) => {
   r.tags = r.tags || []; r.tableIds = r.tableIds || []; r.notes = r.notes || ''; r.phone = r.phone || ''; r.email = r.email || '';
   if (r.setMenu === undefined) r.setMenu = null;
   if (r.durationMin === undefined) r.durationMin = null;
-  if (r.status === 'seated') r.seatedAt = Date.now();
+  if (av.isSat(r)) r.seatedAt = Date.now();
   pruneTables(data, r);
   // Nobody picked a table: hand it the best free one now (the POS floor
   // wants a table to hang its RES chip on).
@@ -5621,10 +5829,15 @@ app.put('/api/reservations/:id', (req, res) => {
   pruneTables(data, next);
   const statusChanged = next.status !== cur.status;
   if (statusChanged) {
-    if (next.status === 'seated') next.seatedAt = Date.now();
+    // The FIRST time somebody is down is the seating, so the stamp is only
+    // written once — walking on to check-dropped or paid must not move it, or
+    // every sitting length and every spend window shortens as the night ends.
+    if (av.isSat(next) && !next.seatedAt) next.seatedAt = Date.now();
+    if (av.isHere(next) && !next.arrivedAt) next.arrivedAt = Date.now();
+    if (next.status === 'check') next.checkAt = Date.now();
+    if (next.status === 'paid') next.paidAt = Date.now();
     if (next.status === 'done') next.doneAt = Date.now();
     if (next.status === 'cancelled') { next.cancelledAt = Date.now(); next.cancelReason = String((req.body && req.body.cancelReason) || '').slice(0, 120); }
-    if (next.status === 'arrived') next.arrivedAt = Date.now();
     if (next.status === 'confirmed') next.confirmedAt = Date.now();
     // A table that was being held and now is not: somebody on the notify list
     // may want exactly this slot.
@@ -6267,7 +6480,7 @@ app.post('/api/public/booking/:ref/cancel', (req, res) => {
   const data = readData();
   const r = data.reservations.find(x => x.ref && x.ref === String(req.params.ref).toUpperCase());
   if (!r) return res.status(404).json({ error: 'No booking with that reference' });
-  if (!av.isLive(r) || r.status === 'seated') return res.status(400).json({ error: 'That booking can no longer be cancelled online' });
+  if (!av.isLive(r) || av.isSat(r)) return res.status(400).json({ error: 'That booking can no longer be cancelled online' });
   const before = Object.assign({}, r);
   const now = Date.now();
   r.status = 'cancelled'; r.cancelledAt = now; r.cancelReason = 'Cancelled by the guest online'; r.updatedAt = now;
@@ -6317,12 +6530,12 @@ app.get('/api/today', (req, res) => {
   const count = (st) => floor.filter(f => f.state === st).length;
   res.json({
     date: day, bookings: live.length, covers: live.reduce((n, r) => n + r.partySize, 0),
-    seated: rows.filter(r => r.status === 'seated').length,
+    seated: rows.filter(r => av.isSat(r)).length,
     done: rows.filter(r => r.status === 'done').length,
     waiting: (data.waitlist || []).filter(w => w.status !== 'left').length,
     noShows: rows.filter(r => r.status === 'no-show').length,
     notify: waitingList.length, openings,
-    room: { tables: floor.length, free: count('free'), seated: count('seated'), over: count('over'), due: count('due') },
+    room: { tables: floor.length, free: count('free'), seated: count('seated'), over: count('over'), due: count('due'), check: count('check'), paid: count('paid') },
   });
 });
 
@@ -6589,6 +6802,17 @@ const I = {
   stDue: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="10.4" width="18.4" height="8.4" rx="2.2"/><path d="M12 2.2v5.6M9.2 5l2.8 2.8L14.8 5"/></svg>',
   stOver: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="13.6" r="7.8"/><path d="M12 9.6v4.2l3 2"/><path d="M9.2 2.4h5.6"/></svg>',
   stJoined: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.6 14.4a4.6 4.6 0 0 0 6.5 0l2.6-2.6a4.6 4.6 0 0 0-6.5-6.5l-1.5 1.5"/><path d="M14.4 9.6a4.6 4.6 0 0 0-6.5 0l-2.6 2.6a4.6 4.6 0 0 0 6.5 6.5l1.5-1.5"/></svg>',
+  // PART OF THEM. The whole's own glyph with HALF ITS OUTLINE DASHED — not a
+  // second shape, because it is not a second thing. The pin's right side and
+  // the second of the two figures are what break, so the silhouette still
+  // reads as arrived and as seated at a glance, with a piece of it missing.
+  stPartArrived: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5C12 21.5 5 15.6 5 10.5a7 7 0 0 1 7-7"/><path d="M12 3.5a7 7 0 0 1 7 7c0 5.1-7 11-7 11" stroke-dasharray="3 3"/><circle cx="12" cy="10.2" r="2.6"/></svg>',
+  stPartSeated: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8" r="4"/><path d="M2 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M16.5 4.6a4 4 0 0 1 0 6.8" stroke-dasharray="3 3"/><path d="M18.5 14.4c2.1 1 3.5 3.1 3.5 5.6" stroke-dasharray="3 3"/></svg>',
+  // THE BILL, and then THE MONEY. A till receipt with its torn foot, and a
+  // note with a tick on it. The torn edge is what carries the receipt at 20px
+  // — a plain rectangle with two lines in it is every other glyph in the app.
+  stCheck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.4h14.4v19.2l-2.4-1.6-2.4 1.6-2.4-1.6-2.4 1.6-2.4-1.6L4.8 21.6z"/><path d="M8.4 8h7.2M8.4 12.4h7.2"/></svg>',
+  stPaid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6.4" width="20" height="11.2" rx="2"/><path d="M8 12.2l2.6 2.6 5.4-5.4"/></svg>',
   srcStaff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 2.8h3.1l1.6 4.6-2.1 1.6a12.4 12.4 0 0 0 6.2 6.2l1.6-2.1 4.6 1.6v3.1a2.6 2.6 0 0 1-2.8 2.6A17 17 0 0 1 3.6 5.6a2.6 2.6 0 0 1 2.6-2.8z"/></svg>',
   srcOnline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg>',
   srcWalkIn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22V3.2C5 2.5 5.5 2 6.2 2h11.6c.7 0 1.2.5 1.2 1.2V22"/><path d="M3 22h18"/><circle cx="15.2" cy="12.4" r="1"/></svg>',
@@ -6693,7 +6917,13 @@ function fmtDayYear(day) {
   return fmtDay(day) + (day.slice(0, 4) !== String(new Date().getFullYear()) ? ' ' + day.slice(0, 4) : '');
 }
 function esc(v) { return String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
-function isLive(r) { return ['booked', 'confirmed', 'arrived', 'seated'].includes(r.status); }
+function isLive(r) { return ['booked', 'confirmed', 'part-arrived', 'arrived', 'part-seated', 'seated', 'check', 'paid'].includes(r.status); }
+// The browser's copies of availability.js:isSat / isHere. Somebody is DOWN at
+// the table (the sitting has begun, so the table is held past its turn time);
+// somebody is IN THE ROOM but not at it yet. Paid is still sitting: the table
+// is theirs until a person marks them LEFT.
+function isSat(r) { return ['part-seated', 'seated', 'check', 'paid'].includes(r && r.status); }
+function isHere(r) { return ['part-arrived', 'arrived'].includes(r && r.status); }
 function tableById(id) { return state.tables.find(t => t.id === id); }
 // A table is named by its number alone unless the venue has more than one
 // room WITH TABLES IN IT. Counting plans rather than rooms put "Inside · 21"
@@ -6777,29 +7007,46 @@ function inPickedService(r) {
 function setMenuName(r) { return String(((r && r.setMenu) || {}).name || '').trim(); }
 // The browser's copy of availability.js:canMove — beside the other mirrors
 // above, and the ONE place the timeline decides which blocks can be picked up.
-// seated/done/no-show belong to the POS floor, so they stay put here.
-function canMoveBooking(r) { return ['booked', 'confirmed', 'arrived'].includes(r.status); }
+// Anything SAT belongs to the POS floor, so it stays put here — and once even
+// half a party is down, dragging the booking to another hour is not a move,
+// it is a lie about where those people are.
+function canMoveBooking(r) { return ['booked', 'confirmed', 'part-arrived', 'arrived'].includes(r.status); }
 // One sentence for "somebody else has this table", said by the booking popup
 // and by the drag's hint alike.
 function conflictLine(list) { return 'Shares a table with ' + list.map(c => c.name + ' at ' + hhmmOf(c.time)).join(', ') + '.'; }
-function statusLabel(s) { return { booked: 'Booked', confirmed: 'Confirmed', arrived: 'Arrived', seated: 'Seated', done: 'Done', cancelled: 'Cancelled', 'no-show': 'No-show' }[s] || s; }
+function statusLabel(s) { const row = STATUS_KEY.find(k => k[0] === s); return row ? row[1] : s; }
 // §§ The colour code. ONE table, read by the chips, the timeline, the floor
 // and the key popup alike — so a colour can never mean two things, and adding
 // a status is one row here rather than a hunt through the markup.
+// ELEVEN ROWS, IN THE ORDER A NIGHT GOES. Two of them say PART — because
+// half a party through the door and half a party in the chair are the two
+// moments a host is asked about most and had no word for; and two of them are
+// the END OF THE SITTING rather than the end of the booking, which is the
+// question the room could never answer: which of these turns next.
+//
+// A PART wears its whole's colour, because on the floor it IS its whole — the
+// word is what differs, and the word is in the book, where there is room for
+// one. It also means no new hue to learn for a thing that is not a new thing.
 const STATUS_KEY = [
-  ['booked',    'Booked',    'stBooked',    'In the book. Nobody has spoken to them since.'],
-  ['confirmed', 'Confirmed', 'stConfirmed', 'They have said yes since booking — a reply, a call back, a text.'],
-  ['arrived',   'Arrived',   'stArrived',   'In the room, not yet at the table.'],
-  ['seated',    'Seated',    'people',      'At the table. The table is theirs until they are done.'],
-  ['done',      'Done',      'stDone',      'Finished and gone. The table is free again.'],
-  ['cancelled', 'Cancelled', 'stCancelled', 'Called off. The table went back.'],
-  ['no-show',   'No-show',   'noshow',      'Never came, never called. It stays on their card.'],
+  ['booked',       'Booked',        'stBooked',      'In the book. Nobody has spoken to them since.'],
+  ['confirmed',    'Confirmed',     'stConfirmed',   'They have said yes since booking — a reply, a call back, a text.'],
+  ['part-arrived', 'Some arrived',  'stPartArrived', 'Part of the party is in the room. The rest are still coming.'],
+  ['arrived',      'Arrived',       'stArrived',     'All of them are in the room, not yet at the table.'],
+  ['part-seated',  'Some seated',   'stPartSeated',  'Part of the party is down. The table is theirs, but do not run the order yet.'],
+  ['seated',       'Seated',        'people',        'All of them are at the table. It is theirs until they leave.'],
+  ['check',        'Check dropped', 'stCheck',       'The bill is on the table. The sitting is closing.'],
+  ['paid',         'Paid',          'stPaid',        'Paid and still in the chair. You can promise this table to the next party.'],
+  ['done',         'Left',          'stDone',        'Up and gone. The table is free again.'],
+  ['cancelled',    'Cancelled',     'stCancelled',   'Called off. The table went back.'],
+  ['no-show',      'No-show',       'noshow',        'Never came, never called. It stays on their card.'],
 ];
 const FLOOR_KEY = [
   ['free',   'Free',   'stFree',   'Nobody on it now. Tap it to book a walk-in.'],
   ['due',    'Due',    'stDue',    'Someone is booked on it within the half hour.'],
   ['seated', 'Seated', 'people',   'A party is on it right now.'],
   ['over',   'Over',   'stOver',   'Still on it past the turn time. The next booking is at risk.'],
+  ['check',  'Check dropped', 'stCheck', 'The bill is on the table. It is closing.'],
+  ['paid',   'Paid',   'stPaid',   'Paid and still sitting. The next party can be promised it.'],
   ['joined', 'Joined', 'stJoined', 'Two or more tables pushed together for one party.'],
 ];
 const SOURCE_KEY = [
@@ -6814,13 +7061,15 @@ const SOURCE_KEY = [
 // to offer. Mirrors COLOUR_KEYS in db.js; the route refuses anything else.
 const COLOUR_SLOTS = [
   ['The booking', [['booked', 'Booked'], ['confirmed', 'Confirmed'], ['arrived', 'Arrived'],
-    ['seated', 'Seated'], ['done', 'Done'], ['cancelled', 'Cancelled'], ['no-show', 'No-show']]],
+    ['seated', 'Seated'], ['check', 'Check dropped'], ['paid', 'Paid'],
+    ['done', 'Left'], ['cancelled', 'Cancelled'], ['no-show', 'No-show']]],
   ['The table', [['due', 'Due'], ['over', 'Over']]],
   ['Where it came from', [['online', 'Online'], ['walk-in', 'Walk-in'], ['pos', 'From the till']]],
 ];
 const COLOUR_VARS = {
   booked: '--st-booked', confirmed: '--st-confirmed', arrived: '--st-arrived',
-  seated: '--st-seated', done: '--st-done', cancelled: '--st-cancelled', 'no-show': '--st-noshow',
+  seated: '--st-seated', check: '--st-check', paid: '--st-paid',
+  done: '--st-done', cancelled: '--st-cancelled', 'no-show': '--st-noshow',
   due: '--st-due', over: '--st-over',
   online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
 };
@@ -7392,7 +7641,7 @@ function floorStateAt(hhmm) {
       const a = toMin(hhmmOf(r.time)), end = a + durationOf(r);
       // A seated table keeps its table past its time — that IS `over`. A
       // booking nobody sat gives it back, which is how a no-show frees up.
-      return a <= at && (at < end || (r.status === 'seated' && at >= end));
+      return a <= at && (at < end || (isSat(r) && at >= end));
     }) || null;
     const next = held.find(r => toMin(hhmmOf(r.time)) > at) || null;
     const nextAt = next ? hhmmOf(next.time) : null;
@@ -7402,12 +7651,16 @@ function floorStateAt(hhmm) {
     const start = toMin(hhmmOf(on.time));
     const end = start + durationOf(on);
     const waiting = Math.max(0, at - start);
-    const st = on.status === 'seated' ? (at >= end ? 'over' : 'seated')
-      : on.status === 'arrived' ? 'arrived'
-      : waiting >= DESK_LATE_AFTER ? 'late' : 'due';
+    // The sitting's own end states come FIRST, before the clock is consulted:
+    // a bill on the table ANSWERS the over-time alarm rather than joining it.
+    const st = on.status === 'paid' ? 'paid'
+      : on.status === 'check' ? 'check'
+      : isSat(on) ? (at >= end ? 'over' : 'seated')
+        : isHere(on) ? 'arrived'
+          : waiting >= DESK_LATE_AFTER ? 'late' : 'due';
     return {
       id: t.id, state: st, r: on, next, covers,
-      over: st === 'over' ? at - end : 0,
+      over: (st === 'over' || ((st === 'check' || st === 'paid') && at > end)) ? at - end : 0,
       late: (st === 'due' || st === 'late' || st === 'arrived') ? waiting : 0,
       nextAt, freeFor: null,
     };
@@ -7492,6 +7745,14 @@ function renderFloor() {
         ? `Table ${t.label} · ${f.covers} on it at the till, no booking`
         : `Table ${t.label} · ${t.seats} seats · free${f.nextAt ? ' until ' + f.nextAt : ''}`
     const up = uprightStyle(t);
+    // WHAT THE TILL TOOK AT THE TABLE. An allergy a waiter typed into the
+    // till, and a VIP marked on the floor — neither is in the book, and the
+    // desk is the one answering the phone about them. Two marks, top corner,
+    // the till's own place for them: "!" for an allergy, a star for a VIP.
+    // They are FACTS ABOUT THE GUEST, not a status — the table's colour is
+    // still the only thing saying what the table is doing.
+    const marks = ((t.allergies || []).length ? `<i class="fl-mk al" title="${esc((t.allergies || []).join(' · '))}">!</i>` : '')
+      + (t.vip ? `<i class="fl-mk vip" title="${esc(t.vip)}">★</i>` : '');
     // WHAT IT IS, THEN WHAT IT IS DOING. The skin is the table top the venue
     // laid; the wash is a translucent tint OVER it, so a burgundy cloth is
     // still burgundy cloth while somebody is sitting at it. A free table wears
@@ -7500,6 +7761,7 @@ function renderFloor() {
       data-act="${r ? 'edit-booking' : 'new-at'}" ${r ? `data-id="${esc(r.id)}"` : `data-time="${esc(at)}" data-table="${esc(t.id)}"`}
       title="${esc(why)}">
       ${f.state === 'free' ? '' : `<span class="fl-wash ${f.state}"></span>`}
+      ${marks ? `<span class="fl-marks">${marks}</span>` : ''}
       <span class="fl-in" style="${up}">
         <span class="fl-no">${esc(t.label)}</span>
         ${sub ? `<span class="fl-sub">${sub}</span>` : ''}
@@ -7821,11 +8083,12 @@ function renderFlow() {
     <div class="stat${cf.slots.some(s => s.over) ? ' over' : ''}"><b>${cf.heaviest ? cf.heaviest.covers : 0}</b><span>Heaviest arrival · ${cf.heaviest ? esc(fmtHHMM(cf.heaviest.time)) : '—'}</span></div>
   </div>
   <div class="flow">
-    <div class="flow-keys">
-      <span class="fl-key"><i class="flow-sw arrive"></i>Arriving</span>
-      <span class="fl-key"><i class="flow-sw room"></i>In the room</span>
-      ${cf.capCovers ? `<span class="fl-key"><i class="flow-sw cap"></i>Pacing cap · ${cf.capCovers}</span>` : ''}
-    </div>
+    <!-- NO LEGEND. Three chips saying which bar is which, under a chart with
+         two bars in it — read once on the first shift and then charging the
+         plot its top 36 pixels every night after. The top bar's own law
+         already says no screen carries one, and this was the last. Every
+         column still says it in words when you point at it, and the numbers
+         above the plot say the same thing again without a swatch. -->
     <div class="flow-plot" role="img" aria-label="Covers arriving and covers in the room, by time">
       ${cf.capCovers ? `<div class="flow-cap" style="bottom:${pct(cf.capCovers)}%;"></div>` : ''}
       ${cf.slots.map((s, i) => `
@@ -7850,10 +8113,13 @@ function renderToday() {
   const isToday = state.date === localDay(new Date());
   const live = state.reservations.filter(isLive);
   const covers = live.reduce((n, r) => n + r.partySize, 0);
-  const seated = state.reservations.filter(r => r.status === 'seated').length;
+  // SAT is sat, however far through the sitting: a party with the bill on the
+  // table is still a party in the room, and a count that dropped them the
+  // moment the check went down would tell a host the room had emptied.
+  const seated = state.reservations.filter(isSat).length;
   const now = Date.now();
-  const due = live.filter(r => r.status !== 'seated' && Math.abs(new Date(r.time).getTime() - now) < 20 * 60000).length;
-  const overdue = live.filter(r => r.status !== 'seated' && r.status !== 'arrived' && now - new Date(r.time).getTime() > (state.settings.noShowAfterMinutes || 30) * 60000).length;
+  const due = live.filter(r => !isSat(r) && Math.abs(new Date(r.time).getTime() - now) < 20 * 60000).length;
+  const overdue = live.filter(r => !isSat(r) && !isHere(r) && now - new Date(r.time).getTime() > (state.settings.noShowAfterMinutes || 30) * 60000).length;
   const svcs = servicesOnDay(state.date), ex = exceptionOn(state.date);
   // A day off the weekly pattern says so once, above the numbers. The stats,
   // the timeline and the list below are unchanged, so a booking on a day that
@@ -7953,10 +8219,16 @@ function renderTimeline() {
 // on the booking's own full-cover page, rather than shouted at a host who is
 // looking for one name. That was the whole complaint about the old list: it
 // printed the notes of nine bookings at once, so none of them read.
+// The groups are WORK, not statuses — which is why eleven statuses still make
+// six headings. A part-arrived party stands in the same group as an arrived
+// one because the job is the same (find them a table); a check-dropped or
+// paid one stands with the seated because it is still in the chair. What the
+// finer word buys you is the ROW, which says it, and the floor, which paints
+// it.
 const LIST_GROUPS = [
-  ['arrived',   'Arrived',   ['arrived']],
+  ['arrived',   'Arrived',   ['part-arrived', 'arrived']],
   ['upcoming',  'Upcoming',  ['booked', 'confirmed']],
-  ['seated',    'Seated',    ['seated']],
+  ['seated',    'Seated',    ['part-seated', 'seated', 'check', 'paid']],
   ['done',      'Left',      ['done']],
   ['no-show',   'No-show',   ['no-show']],
   ['cancelled', 'Cancelled', ['cancelled']],
@@ -8989,7 +9261,7 @@ function openBooking(r, preset, opts) {
   // What is on their table. ONLY here: the ten-second poll never asks, so a
   // popup left open on the pass costs the till one read, not one every ten
   // seconds. A booking that never sat has no money on it by definition.
-  if (b.id && ['seated', 'done'].includes(b.status)) loadSpend();
+  if (b.id && (isSat(b) || b.status === 'done')) loadSpend();
 }
 // The till's side of the popup. Same identity guard as loadAvailability(): a
 // slow answer must never land on a popup that has since been closed or
