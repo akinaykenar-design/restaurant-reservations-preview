@@ -1131,7 +1131,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    between, and the GROUP is what is centred. */
 .deck-mid{position:absolute;left:50%;transform:translateX(-50%);max-width:66%;
   display:flex;align-items:center;gap:var(--deck-gap);min-width:0;}
-.deck-pill{display:flex;align-items:center;min-width:0;height:var(--tap);
+.deck-pill{display:flex;align-items:center;gap:4px;min-width:0;height:var(--tap);
   padding:0 4px;border-radius:var(--r-pill);background:var(--steel-100);
   color:var(--text-primary);}
 /* An arrow is a ghost: it MOVES you, it does not MAKE anything. */
@@ -1139,9 +1139,18 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   justify-content:center;border:none;background:none;color:inherit;border-radius:var(--r-pill);opacity:.7;}
 .pill-arw:hover{opacity:1;background:var(--scrim);color:var(--on-scrim);}
 .pill-arw svg{width:16px;height:16px;}
-.pill-lbl{display:inline-flex;align-items:center;height:32px;padding:0 8px;border:none;background:none;color:inherit;
+/* THE PILL IS A FIXED SHAPE. Every label in it is a different length — "Mon,
+   Sep 21" against "Wed, Sep 28", "Lunch" against "Dinner" — so stepping the
+   day or the sitting re-measured the pill and slid the whole bar sideways
+   under the finger that was pressing it. Each label holds a width wide enough
+   for the longest thing it can say, centred in it, and anything longer
+   ellipses rather than growing. The arrows and the mark are already squares. */
+.pill-lbl{display:inline-flex;align-items:center;justify-content:center;height:32px;
+  padding:0 8px;border:none;background:none;color:inherit;
   font-weight:700;font-size:var(--fs-md);white-space:nowrap;overflow:hidden;
-  text-overflow:ellipsis;min-width:0;border-radius:var(--r-pill);}
+  text-overflow:ellipsis;border-radius:var(--r-pill);}
+.pill-lbl[data-act="open-cal"]{width:112px;}
+.pill-svc{width:92px;}
 .pill-now{opacity:.7;}
 .pill-now.on{opacity:1;color:var(--orange);}
 /* The mark keeps its own 130x100 shape — squared into an icon box its legs
@@ -1150,7 +1159,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .pill-svc{opacity:.85;}
 .pill-svc.shut{color:var(--red);opacity:1;}
 /* The hairline between segments — the Border law's one line, standing up. */
-.pill-sep{width:1px;height:20px;margin:0 4px;background:currentColor;opacity:.25;flex:none;}
+.pill-sep{width:1px;height:20px;background:currentColor;opacity:.25;flex:none;}
 
 /* §§ The plan — the room the till draws
    No chairs. They were drawn around every table until Sep '26 and they read
@@ -1210,12 +1219,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .secband{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;margin:0 0 var(--hub-edge);}
 .secband .chip{flex:0 0 auto;}
 @media (min-width:761px){ .secband:not([data-rail="guests"]){display:none;} }
-.d-short{display:none;}
 @media (max-width:760px){
   .wide-only{display:none!important;}
   .phone-only{display:inline-flex;}
-  .d-long{display:none;}
-  .d-short{display:inline;}
   /* A phone's bar is three keys and the date; absolute centring would sit it
      under them, so here it just takes the room that is left. */
   .deck-mid{position:static;transform:none;flex:1;min-width:0;max-width:none;}
@@ -6612,14 +6618,21 @@ function serviceOfBooking(r) {
 // The service the desk is narrowed to, or null for the whole night. A service
 // the day does not have is not a service: a Sunday with no lunch drops back to
 // the whole day rather than showing an empty room.
-// The service the clock is in, on a given day — '' if the venue is between
-// sittings or shut. The one place that reads the wall clock against the
-// day's services, so Now and anything after it agree.
-function serviceNow(day) {
+// THE SITTING TO LAND ON. "All night" used to be the stepper's first stop and
+// the desk's resting state, and it is not a service — nobody set it up, it
+// cannot be named, and it made the walk one longer than the venue's own list.
+// The desk is always ON a sitting now: the one the clock is in, else the next
+// one still to come today, else the last one of the day. A day with no
+// services has none to land on, and says Closed.
+function defaultService(day) {
+  const svcs = servicesInOrderOn(day);
+  if (!svcs.length) return '';
+  if (day !== tradingDay()) return svcs[0].id;
   const d = new Date();
   const at = d.getHours() * 60 + d.getMinutes();
-  const sv = servicesInOrderOn(day).find(s => toMin(s.start) <= at && at < toMin(s.end));
-  return sv ? sv.id : '';
+  return (svcs.find(s => toMin(s.start) <= at && at < toMin(s.end))
+    || svcs.find(s => toMin(s.start) > at)
+    || svcs[svcs.length - 1]).id;
 }
 function pickedService() {
   if (!state.service) return null;
@@ -7124,8 +7137,8 @@ function renderDeck() {
   const svcs = servicesInOrderOn(state.date);
   const on = pickedService();
   // Lit when you are already there: tonight, on whatever is running.
-  const isNow = state.date === tradingDay() && (state.service || '') === (serviceNow(tradingDay()) || '');
-  const svcLabel = !svcs.length ? 'Closed' : on ? on.name : 'All night';
+  const isNow = state.date === tradingDay() && (state.service || '') === defaultService(tradingDay());
+  const svcLabel = !svcs.length ? 'Closed' : (on || svcs[0]).name;
   const step = svcs.length > 1;
   return `
   <div class="topbar">
@@ -7133,7 +7146,7 @@ function renderDeck() {
       <div class="deck-pill">
         <button class="pill-arw wide-only" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
         <button class="pill-lbl" data-act="open-cal" title="Open the month">
-          <span class="d-long">${esc(fmtDay(state.date, true))}</span><span class="d-short">${esc(fmtDay(state.date))}</span>
+          ${esc(fmtDay(state.date))}
         </button>
         <button class="pill-arw wide-only" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
         <i class="pill-sep wide-only"></i>
@@ -9017,7 +9030,7 @@ document.addEventListener('click', async (ev) => {
       // Settings is the one place that still asks for a code — and it asks
       // once, then holds it for as long as this tab is open.
       case 'view': setView(val); break;
-      case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.service = ''; state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
+      case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'phone-pane': state.phonePane = val; render(); break;
       case 'mode': {
@@ -9042,7 +9055,7 @@ document.addEventListener('click', async (ev) => {
       }
       case 'print-sheet': window.print(); break;
       case 'month': { if (val === '0') state.month = localDay(new Date()).slice(0, 7); else { const [y, m] = state.month.split('-').map(Number); const d = new Date(y, m - 1 + parseInt(val), 1); state.month = localDay(d).slice(0, 7); } render(); try { await loadMonth(); } catch (e) {} render(); break; }
-      case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.service = ''; render(); await loadDay(); render(); break;
+      case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.service = defaultService(val); render(); await loadDay(); render(); break;
       // Point at a table in the book and the room answers. A second tap puts
       // it back, so it is a question and not a mode you can get stuck in.
       case 'pick-table': {
@@ -9133,16 +9146,16 @@ document.addEventListener('click', async (ev) => {
       // Narrowing to a service moves the floor's clock into it, or the room
       // would be drawn at a time this screen no longer shows.
       case 'service': state.service = val || ''; render(); break;
-      // The services are a STEPPER now, the same shape as the day beside it.
-      // '' is All night and it is the first stop, not a separate key; the walk
-      // stops at both ends rather than wrapping, so holding the arrow cannot
-      // put you back where you started without you noticing.
+      // The services are a STEPPER, the same shape as the day beside it. The
+      // stops are the venue's OWN sittings and nothing else; the walk stops at
+      // both ends rather than wrapping, so holding the arrow cannot put you
+      // back where you started without you noticing.
       // Back to the top of the night: tonight, and the sitting the clock is
       // in. Both, because a host who has walked forward and narrowed down
       // wants the whole way back, not half of it.
       case 'now': {
         state.date = tradingDay();
-        state.service = serviceNow(state.date);
+        state.service = defaultService(state.date);
         state.highlightTable = null; state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0;
         render();
         await loadDay();
@@ -9150,7 +9163,8 @@ document.addEventListener('click', async (ev) => {
         break;
       }
       case 'svc-step': {
-        const stops = [''].concat(servicesInOrderOn(state.date).map(s => s.id));
+        const stops = servicesInOrderOn(state.date).map(s => s.id);
+        if (!stops.length) break;
         const at = Math.max(0, stops.indexOf(state.service || ''));
         state.service = stops[Math.min(stops.length - 1, Math.max(0, at + parseInt(val, 10)))];
         render();
@@ -9705,7 +9719,7 @@ document.addEventListener('input', (ev) => {
   const f = el.dataset && el.dataset.field;
   if (!f) return;
   const raw = el.type === 'number' ? (el.value === '' ? null : parseFloat(el.value)) : el.value;
-  if (f === 'date-pick') { if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) { state.date = raw; state.service = ''; loadDay().then(render); } return; }
+  if (f === 'date-pick') { if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) { state.date = raw; state.service = defaultService(raw); loadDay().then(render); } return; }
   // The floor's time scrubber. It repaints from what is already in memory —
   // no fetch — so the room follows the finger.
   if (f === 'deskQ') { state.deskQ = raw; render(); return; }

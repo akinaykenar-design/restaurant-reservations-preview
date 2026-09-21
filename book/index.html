@@ -1124,7 +1124,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    between, and the GROUP is what is centred. */
 .deck-mid{position:absolute;left:50%;transform:translateX(-50%);max-width:66%;
   display:flex;align-items:center;gap:var(--deck-gap);min-width:0;}
-.deck-pill{display:flex;align-items:center;min-width:0;height:var(--tap);
+.deck-pill{display:flex;align-items:center;gap:4px;min-width:0;height:var(--tap);
   padding:0 4px;border-radius:var(--r-pill);background:var(--steel-100);
   color:var(--text-primary);}
 /* An arrow is a ghost: it MOVES you, it does not MAKE anything. */
@@ -1132,9 +1132,18 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   justify-content:center;border:none;background:none;color:inherit;border-radius:var(--r-pill);opacity:.7;}
 .pill-arw:hover{opacity:1;background:var(--scrim);color:var(--on-scrim);}
 .pill-arw svg{width:16px;height:16px;}
-.pill-lbl{display:inline-flex;align-items:center;height:32px;padding:0 8px;border:none;background:none;color:inherit;
+/* THE PILL IS A FIXED SHAPE. Every label in it is a different length — "Mon,
+   Sep 21" against "Wed, Sep 28", "Lunch" against "Dinner" — so stepping the
+   day or the sitting re-measured the pill and slid the whole bar sideways
+   under the finger that was pressing it. Each label holds a width wide enough
+   for the longest thing it can say, centred in it, and anything longer
+   ellipses rather than growing. The arrows and the mark are already squares. */
+.pill-lbl{display:inline-flex;align-items:center;justify-content:center;height:32px;
+  padding:0 8px;border:none;background:none;color:inherit;
   font-weight:700;font-size:var(--fs-md);white-space:nowrap;overflow:hidden;
-  text-overflow:ellipsis;min-width:0;border-radius:var(--r-pill);}
+  text-overflow:ellipsis;border-radius:var(--r-pill);}
+.pill-lbl[data-act="open-cal"]{width:112px;}
+.pill-svc{width:92px;}
 .pill-now{opacity:.7;}
 .pill-now.on{opacity:1;color:var(--orange);}
 /* The mark keeps its own 130x100 shape — squared into an icon box its legs
@@ -1143,7 +1152,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .pill-svc{opacity:.85;}
 .pill-svc.shut{color:var(--red);opacity:1;}
 /* The hairline between segments — the Border law's one line, standing up. */
-.pill-sep{width:1px;height:20px;margin:0 4px;background:currentColor;opacity:.25;flex:none;}
+.pill-sep{width:1px;height:20px;background:currentColor;opacity:.25;flex:none;}
 
 /* §§ The plan — the room the till draws
    No chairs. They were drawn around every table until Sep '26 and they read
@@ -1203,12 +1212,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .secband{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;margin:0 0 var(--hub-edge);}
 .secband .chip{flex:0 0 auto;}
 @media (min-width:761px){ .secband:not([data-rail="guests"]){display:none;} }
-.d-short{display:none;}
 @media (max-width:760px){
   .wide-only{display:none!important;}
   .phone-only{display:inline-flex;}
-  .d-long{display:none;}
-  .d-short{display:inline;}
   /* A phone's bar is three keys and the date; absolute centring would sit it
      under them, so here it just takes the room that is left. */
   .deck-mid{position:static;transform:none;flex:1;min-width:0;max-width:none;}
