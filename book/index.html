@@ -42,6 +42,15 @@
      this exact value; the BAR is what moves onto it, off the paper it shared
      with the book. */
   --chrome:#E2DED7;
+  /* THE BAR IS NOT THE RAIL ANY MORE. They were one token while the bar ran
+     across the top of the rail and the two read as one frame. The rail goes
+     ALL THE WAY UP now, so they no longer touch along an edge — they touch at
+     a corner, side by side, and two things standing beside each other want
+     two grounds. In dark the bar drops almost onto the pill it carries
+     (#16171A against #121110): the pill is the night you are working on, and
+     a control sunk into a strip four points off it reads as part of that
+     strip rather than a hole cut through it. Light keeps the one value. */
+  --deck-bg:#E2DED7;
   /* The night-you-are-on pill. It was drawn on --steel-100, which is the
      ROOM's ground, so the pill and the floor were the same decision and
      neither could move without the other. Same value in both themes as it
@@ -127,7 +136,7 @@
 body[data-theme="dark"]{
   --steel-100:#121110; --steel-200:#33302B; --steel-300:#4A443C; --steel-500:#6B645A;
   --surface:#211E1A;
-  --chrome:#34373D; --deck-pill-bg:#121110;
+  --chrome:#34373D; --deck-bg:#16171A; --deck-pill-bg:#121110;
   --charcoal:#211E1A; --charcoal-soft:#D9D5CE;
   --text-primary:#EAE8E4; --text-secondary:#D9D5CE;
   --lift-1:0 6px 18px rgba(0,0,0,.40);
@@ -169,12 +178,20 @@ h1,h2,h3{margin:0;}
 
 /* §§ Shell — deck on top, pane below, the phone stacks the same way */
 #app{height:100%;display:flex;flex-direction:column;}
-.shell{height:100%;display:flex;flex-direction:column;min-height:0;}
+/* THE RAIL GOES ALL THE WAY UP. The bar used to run the full width with the
+   rail hung underneath it, so the rail began 60 pixels down and the top-left
+   corner of the app belonged to the bar — a strip of chrome above the column
+   that carries the whole app. The rail is the FIRST thing now and it owns the
+   left edge from the window's top to its bottom; the bar is a strip inside
+   what is left, so it says which night you are on over the work it applies
+   to, and nothing else. */
+.shell{height:100%;display:flex;min-height:0;}
 /* Deck across the top, then the rail and the pane side by side. The rail is
    a SIBLING of the scroller, not a passenger in it, so the sections stay put
    while the day scrolls under them — which is the whole reason the POS's
    order panel puts its categories in a column rather than a band. */
-.main{flex:1;min-height:0;display:flex;}
+/* Everything that is not the rail: the bar, then the pane under it. */
+.main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;}
 .pane{flex:1;min-height:0;overflow-y:auto;padding:var(--hub-edge);}
 
 /* §§ Rail — the sections of the panel you are in (the POS's category rail)
@@ -239,7 +256,7 @@ h1,h2,h3{margin:0;}
    the list. It carries --deck-bg now: the paper in light, where that has
    always read, and the rail's own tone in dark, where the bar and the rail
    together are one frame around the work. */
-.topbar{display:flex;align-items:center;gap:var(--deck-gap);padding:var(--deck-pad) var(--deck-edge);min-height:var(--deck-h);background:var(--chrome);border-bottom:1px solid var(--steel-300);flex-shrink:0;}
+.topbar{display:flex;align-items:center;gap:var(--deck-gap);padding:var(--deck-pad) var(--deck-edge);min-height:var(--deck-h);background:var(--deck-bg);border-bottom:1px solid var(--steel-300);flex-shrink:0;}
 .tabs{display:flex;gap:var(--deck-gap);overflow-x:auto;min-width:0;}
 .tab-btn{background:var(--deck-chip-bg);border:1px solid var(--deck-chip-line);color:var(--deck-chip-ink);font-weight:600;font-size:var(--fs-md);padding:8px 12px;border-radius:var(--r-control);min-height:var(--tap);min-width:84px;text-align:center;white-space:nowrap;}
 .tab-btn.active{background:var(--deck-chip-on-bg);border-color:var(--deck-chip-on-bg);color:var(--deck-chip-on-ink);}
@@ -1144,6 +1161,15 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .topbar{min-height:48px;padding:4px 12px;}
   .deck-sq{min-height:38px;height:38px;}
   .deck-pill{height:38px;}
+  /* THE SERVICE GOES SIDEWAYS TOO. The bar lost the rail's 78 pixels when the
+     rail went all the way up, so 852 across leaves 774 of bar — and a 406
+     pill centred in 774 ends at 668 with the first key starting at 640. It
+     ran 28 pixels underneath it. The service is what goes, the way it goes on
+     a phone and for the same reason: a narrowing is not what you reach for
+     first, and the date, its arrows and Now are the whole of getting about. */
+  .deck-pill .pill-svc,
+  .deck-pill [data-act="svc-step"],
+  .deck-pill .pill-sep:nth-of-type(2){display:none;}
   :root{--rail-w:78px;}
   /* 393 pixels of height hold seven 50-tall tiles and the rail has eight, so
      one of them has to travel. It is not SETTINGS: the foot stays pinned and
