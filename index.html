@@ -6909,7 +6909,12 @@ const I = {
   // the glyph reaching 20 units on its long axis so every one carries the
   // same weight in a rail tile. No fills — state comes from the chip around
   // the icon, never from the icon.
-  floor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.67 2l-6.67 2.22v17.78l6.67 -2.22 6.67 2.22 6.67 -2.22V2l-6.67 2.22z"/><path d="M8.67 2v17.78"/><path d="M15.33 4.22v17.78"/></svg>',
+  // The till's own folded map, at 1.5 rather than the grid's 2. It is the one
+  // glyph here that is a closed outline with two full-height folds inside it,
+  // so a 2 stroke puts three heavy uprights down a 20-pixel square and the
+  // map reads as a block. Everything else in the rail is line work with air
+  // in it and keeps the 2.
+  floor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.67 2l-6.67 2.22v17.78l6.67 -2.22 6.67 2.22 6.67 -2.22V2l-6.67 2.22z"/><path d="M8.67 2v17.78"/><path d="M15.33 4.22v17.78"/></svg>',
   // Three staggered bars: a lane per table, a block per booking. The old one
   // set them at 4.5/10/15.5, and a 4-tall bar with a 2 stroke reaches a unit
   // past its box each way — so bar one ended at 9.5 and bar two began at 9.0
