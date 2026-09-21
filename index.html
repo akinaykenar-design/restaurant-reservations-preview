@@ -72,6 +72,11 @@
   /* Booking status colours: the floor's own grammar. */
   --st-booked:#8B877F; --st-confirmed:#2F74C9; --st-arrived:#C08A00; --st-seated:#4FA51D; --st-done:#B3ADA0; --st-cancelled:#A8483A; --st-noshow:#6D4FC4;
   --st-due:#C08A00; --st-over:#6D4FC4; --src-online:#0E9E8A; --src-walkin:#C08A00; --src-pos:#918E88;
+  /* The two states the floor gained. LATE is the app's red, which is spent
+     nowhere else on the drawing, so it can only mean "go and look". A
+     WALK-IN is teal — the online source's colour, because both mean "this
+     did not come from the desk". */
+  --st-late:#A8483A; --st-walkin:#0E9E8A;
   /* THE FLOOR IS THE TILL'S FLOOR. A table with no finish and no colour of its
      own; the till lifts it off the near-black ground in dark mode rather than
      leaving a dark-on-dark ghost. */
@@ -103,6 +108,7 @@ body[data-theme="dark"]{
   --green-dim:color-mix(in srgb, var(--green) 20%, var(--surface));
   --st-booked:#A8A399; --st-confirmed:#3692E7; --st-arrived:#E8C24D; --st-seated:#7BC72F; --st-done:#6B645A; --st-cancelled:#CF6152; --st-noshow:#8B6FE8;
   --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#E8C24D; --src-pos:#D9D5CE;
+  --st-late:#CF6152; --st-walkin:#19C3AB;
   --table-plain:#35322D;
 }
 @media (max-height:560px){ :root{ --num-key-w:64px; --num-key-h:52px; --num-key-r:10px; --num-key-fs:var(--fs-xl); --num-gap:8px; } }
@@ -642,6 +648,9 @@ body.book-page #app{display:block;height:auto;}
 .fl-wash.seated{background:var(--st-seated);}
 .fl-wash.over{background:var(--st-over);}
 .fl-wash.due{background:var(--st-due);}
+.fl-wash.late{background:var(--st-late);}
+.fl-wash.arrived{background:var(--st-confirmed);}
+.fl-wash.walkin{background:var(--st-walkin);}
 /* Two tables pushed together are one booking; the ring says so without a
    second colour. */
 .fl-table.joined{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
@@ -3171,7 +3180,32 @@ function suggestTable(ctx, day, hhmm, party, opts) {
 // Pure, and it knows nothing about how a floor is drawn: the geometry comes
 // from the POS and stays in the client. `hhmm` is the moment being asked
 // about, which is usually now but is a scrubber on the screen.
-const FLOOR_STATES = ['free', 'due', 'seated', 'over'];
+// §§ What a table is doing
+//
+// Four states became seven, because four of them answered "is somebody on
+// it" and none of them answered "does somebody need to DO something".
+//
+//   free     nothing holds it, and the till does not say otherwise
+//   walkin   the BOOK says free and the TILL says covers are on it — somebody
+//            the desk never booked. The one thing the desk cannot know by
+//            itself, and the reason the till's covers come across.
+//   due      held by a booking that has not arrived, still inside its grace
+//   late     held by a booking that has not arrived, past its grace
+//   arrived  the party is in the room and not at the table yet
+//   seated   sat down, inside its sitting
+//   over     sat down, past its sitting
+//
+// Three of those need a person — late, arrived, over — and that is the whole
+// point of splitting them out. `due` used to carry all of late, arrived and
+// not-here-yet under one colour, which is three different jobs painted the
+// same.
+const FLOOR_STATES = ['free', 'walkin', 'due', 'late', 'arrived', 'seated', 'over'];
+// A booking is not LATE the second the clock passes it — somebody thirty
+// seconds from the door is not a problem, and a floor that goes red on every
+// booking every night teaches a host to ignore red. Ten minutes, stated once.
+// (The venue's own noShowAfterMinutes, default 30, is a different question:
+// when to give the table away.)
+const LATE_AFTER = 10;
 
 function floorAt(ctx, day, hhmm, opts) {
   opts = opts || {};
@@ -3193,21 +3227,31 @@ function floorAt(ctx, day, hhmm, opts) {
     const next = held.find(r => minsOf(r.time) > at) || null;
     const nextAt = next ? hhmmOf(next.time) : null;
 
+    // THE TILL KNOWS THINGS THE BOOK DOES NOT. Covers come across with the
+    // floor plan: somebody sat down at the till without a booking, and the
+    // desk would otherwise draw that table free and offer it to the phone.
+    const covers = Math.max(0, Number(t.covers) || 0);
     if (!on) {
       return {
-        id: t.id, state: 'free', bookingId: null, over: 0, late: 0, sat: 0, cap: 0,
+        id: t.id, state: covers > 0 ? 'walkin' : 'free', bookingId: null,
+        covers, over: 0, late: 0, sat: 0, cap: 0,
         nextAt, freeFor: next ? minsOf(next.time) - at : null,
       };
     }
     const start = minsOf(on.time);
     const cap = durOf(on);
     const end = start + cap;
-    const state = on.status === 'seated' ? (at >= end ? 'over' : 'seated') : 'due';
+    const waiting = Math.max(0, at - start);
+    const state = on.status === 'seated' ? (at >= end ? 'over' : 'seated')
+      : on.status === 'arrived' ? 'arrived'
+      : waiting >= LATE_AFTER ? 'late' : 'due';
     return {
-      id: t.id, state, bookingId: on.id,
+      id: t.id, state, bookingId: on.id, covers,
       over: state === 'over' ? at - end : 0,
       // How late they are, when the table is held by somebody who has not sat.
-      late: state === 'due' ? Math.max(0, at - start) : 0,
+      // Counted for 'arrived' too: a party standing in the room past its time
+      // is still a table not turning.
+      late: (state === 'due' || state === 'late' || state === 'arrived') ? waiting : 0,
       // How long they have been down, against how long they have. The pill's
       // danger scale is a SHARE of the second, so both travel with the state.
       sat: state === 'seated' || state === 'over' ? Math.max(0, at - start) : 0,
@@ -3768,7 +3812,7 @@ module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, suggestTable, suggestJoin, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
-  FLOOR_STATES, floorAt, coverFlow,
+  FLOOR_STATES, LATE_AFTER, floorAt, coverFlow,
   MOVABLE, canMove, snapSlot, seatsOf, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
@@ -5071,6 +5115,14 @@ function effectiveSettings(data) {
   return s;
 }
 function tablesOf(data) { return av.tablesFrom(data.floorPlans); }
+// The floor's own view of the tables: the booking arithmetic's four fields
+// plus what the till says is on them. tablesFrom() stays lean because the
+// arithmetic has no use for covers — only the drawing does.
+function floorTablesOf(data) {
+  const covers = {};
+  (data.floorPlans || []).forEach(fp => (fp.tables || []).forEach(t => { covers[t.id] = Math.max(0, Number(t.covers) || 0); }));
+  return av.tablesFrom(data.floorPlans).map(t => Object.assign({}, t, { covers: covers[t.id] || 0 }));
+}
 function ctxOf(data) { return { settings: effectiveSettings(data), tables: tablesOf(data), reservations: data.reservations }; }
 // What history.js needs to name a table in a line. No logic, just the floor.
 function evOpts(data) { return { tableLabel: history.tableLabeller(tablesOf(data)) }; }
@@ -5209,9 +5261,13 @@ app.get('/api/tables', (req, res) => {
     // over it. Leaving it off drew a different room from the one the floor
     // staff look at all night.
     finish: t.finish || null, color: t.color || null,
+    // WHAT THE TILL KNOWS AND THE BOOK DOES NOT: how many are sitting there
+    // right now. A table the desk never booked is a walk-in on the floor,
+    // and without this the desk draws it free and offers it to the phone.
+    covers: Math.max(0, Number(t.covers) || 0),
   });
   res.json({
-    tables: tablesOf(data),
+    tables: floorTablesOf(data),
     floorPlans: data.floorPlans.map(fp => ({ id: fp.id, name: fp.name, bgColor: fp.bgColor || null, tables: (fp.tables || []).filter(t => !t.mergedInto).map(shape) })),
     fromPos: !!(data.posState && data.posState.connected),
   });
@@ -6443,7 +6499,7 @@ const I = {
   // the glyph reaching 20 units on its long axis so every one carries the
   // same weight in a rail tile. No fills — state comes from the chip around
   // the icon, never from the icon.
-  floor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="18" rx="2.5"/><circle cx="7.5" cy="9" r="2.5"/><rect x="13" y="6.5" width="6" height="5" rx="1.5"/><rect x="5.5" y="15" width="13" height="3.5" rx="1.5"/></svg>',
+  floor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.67 2l-6.67 2.22v17.78l6.67 -2.22 6.67 2.22 6.67 -2.22V2l-6.67 2.22z"/><path d="M8.67 2v17.78"/><path d="M15.33 4.22v17.78"/></svg>',
   timeline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4.5" width="13" height="4" rx="2"/><rect x="7" y="10" width="15" height="4" rx="2"/><rect x="4" y="15.5" width="10" height="4" rx="2"/></svg>',
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5h20M2 12h20M2 17.5h20"/></svg>',
   flow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20.5h20"/><rect x="3.5" y="13" width="4.5" height="7.5" rx="1"/><rect x="9.75" y="6" width="4.5" height="14.5" rx="1"/><rect x="16" y="9.5" width="4.5" height="11" rx="1"/></svg>',
@@ -7259,8 +7315,10 @@ function flowLine(flow) {
 // finger is still moving on it. A round trip a frame is not that. Same rule
 // as tlHolders() above: one client-side truth, mirroring one tested one.
 
-// Four states and no more. seated · over · due · free — see availability.js
-// for why that is the whole vocabulary a floor plan needs.
+// SEVEN STATES — free · walkin · due · late · arrived · seated · over. See
+// availability.js for why, and for LATE_AFTER; test/availability.test.js
+// holds this copy to that one, minute for minute.
+const DESK_LATE_AFTER = 10;
 function floorStateAt(hhmm) {
   const at = toMin(hhmm);
   const mine = state.reservations.filter(isLive);
@@ -7274,13 +7332,19 @@ function floorStateAt(hhmm) {
     }) || null;
     const next = held.find(r => toMin(hhmmOf(r.time)) > at) || null;
     const nextAt = next ? hhmmOf(next.time) : null;
-    if (!on) return { id: t.id, state: 'free', r: null, next, over: 0, late: 0, nextAt, freeFor: next ? toMin(hhmmOf(next.time)) - at : null };
-    const end = toMin(hhmmOf(on.time)) + durationOf(on);
-    const st = on.status === 'seated' ? (at >= end ? 'over' : 'seated') : 'due';
+    // What the TILL says is on it, which the book cannot know.
+    const covers = Math.max(0, Number(t.covers) || 0);
+    if (!on) return { id: t.id, state: covers > 0 ? 'walkin' : 'free', r: null, next, covers, over: 0, late: 0, nextAt, freeFor: next ? toMin(hhmmOf(next.time)) - at : null };
+    const start = toMin(hhmmOf(on.time));
+    const end = start + durationOf(on);
+    const waiting = Math.max(0, at - start);
+    const st = on.status === 'seated' ? (at >= end ? 'over' : 'seated')
+      : on.status === 'arrived' ? 'arrived'
+      : waiting >= DESK_LATE_AFTER ? 'late' : 'due';
     return {
-      id: t.id, state: st, r: on, next,
+      id: t.id, state: st, r: on, next, covers,
       over: st === 'over' ? at - end : 0,
-      late: st === 'due' ? Math.max(0, at - toMin(hhmmOf(on.time))) : 0,
+      late: (st === 'due' || st === 'late' || st === 'arrived') ? waiting : 0,
       nextAt, freeFor: null,
     };
   });
@@ -7355,10 +7419,14 @@ function renderFloor() {
     // outline already says it, and the key above the room counts it. The one
     // thing a free table had worth saying, how long it stays free, is the
     // pill's job now and only appears when the answer is soon.
-    const sub = r ? esc(r.name) + ' · ' + r.partySize : '';
+    // A walk-in has no name to write — the till only knows how many sat down.
+    const sub = r ? esc(r.name) + ' · ' + r.partySize
+      : f.state === 'walkin' ? 'Walk-in · ' + f.covers : '';
     const why = r
-      ? `${r.name} · ${r.partySize} · ${hhmmOf(r.time)}${f.over ? ' · ' + f.over + ' min over' : ''}${f.late ? ' · ' + f.late + ' min late' : ''}`
-      : `Table ${t.label} · ${t.seats} seats · free${f.nextAt ? ' until ' + f.nextAt : ''}`;
+      ? `${r.name} · ${r.partySize} · ${hhmmOf(r.time)}${f.over ? ' · ' + f.over + ' min over' : ''}${f.late ? ' · ' + f.late + ' min ' + (f.state === 'arrived' ? 'waiting' : 'late') : ''}`
+      : f.state === 'walkin'
+        ? `Table ${t.label} · ${f.covers} on it at the till, no booking`
+        : `Table ${t.label} · ${t.seats} seats · free${f.nextAt ? ' until ' + f.nextAt : ''}`
     const up = uprightStyle(t);
     // WHAT IT IS, THEN WHAT IT IS DOING. The skin is the table top the venue
     // laid; the wash is a translucent tint OVER it, so a burgundy cloth is
