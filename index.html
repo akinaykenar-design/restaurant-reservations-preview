@@ -6839,9 +6839,18 @@ const I = {
   // same weight in a rail tile. No fills — state comes from the chip around
   // the icon, never from the icon.
   floor: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.67 2l-6.67 2.22v17.78l6.67 -2.22 6.67 2.22 6.67 -2.22V2l-6.67 2.22z"/><path d="M8.67 2v17.78"/><path d="M15.33 4.22v17.78"/></svg>',
-  timeline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4.5" width="13" height="4" rx="2"/><rect x="7" y="10" width="15" height="4" rx="2"/><rect x="4" y="15.5" width="10" height="4" rx="2"/></svg>',
+  // Three staggered bars: a lane per table, a block per booking. The old one
+  // set them at 4.5/10/15.5, and a 4-tall bar with a 2 stroke reaches a unit
+  // past its box each way — so bar one ended at 9.5 and bar two began at 9.0
+  // and they OVERLAPPED. It also stopped 16.9 tall against the law's 20. This
+  // spreads to 2.5/10/17.5, which is 20.9 tall with a clean 1.5 between.
+  timeline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="13" height="4" rx="1.2"/><rect x="7" y="10" width="15" height="4" rx="1.2"/><rect x="4" y="17.5" width="10" height="4" rx="1.2"/></svg>',
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5h20M2 12h20M2 17.5h20"/></svg>',
-  flow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20.5h20"/><rect x="3.5" y="13" width="4.5" height="7.5" rx="1"/><rect x="9.75" y="6" width="4.5" height="14.5" rx="1"/><rect x="16" y="9.5" width="4.5" height="11" rx="1"/></svg>',
+  // Columns of SQUARES, not solid bars: the flow counts covers table by table,
+  // and a square is one of them. It was three filled-looking bars on a
+  // baseline, which is every chart glyph ever drawn and said nothing about
+  // what this chart is made of.
+  flow: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.55" y="16" width="4.5" height="4.5" rx="1"/><rect x="9.75" y="16" width="4.5" height="4.5" rx="1"/><rect x="9.75" y="8.8" width="4.5" height="4.5" rx="1"/><rect x="9.75" y="1.6" width="4.5" height="4.5" rx="1"/><rect x="16.95" y="16" width="4.5" height="4.5" rx="1"/><rect x="16.95" y="8.8" width="4.5" height="4.5" rx="1"/></svg>',
   // THE RUN SHEET IS A PAGE FOR PAPER, and now that the rail is one column it
   // sits directly above Waitlist — whose clipboard was the same rounded
   // rectangle with the same three lines and a 6-pixel tab on top. Two shapes
