@@ -7798,9 +7798,18 @@ function renderFloor() {
     // outline already says it, and the key above the room counts it. The one
     // thing a free table had worth saying, how long it stays free, is the
     // pill's job now and only appears when the answer is soon.
-    // A walk-in has no name to write — the till only knows how many sat down.
-    const sub = r ? esc(r.name) + ' · ' + r.partySize
-      : f.state === 'walkin' ? 'Walk-in · ' + f.covers : '';
+    // AND A BOOKED TABLE SAYS NOTHING EITHER. It used to write the guest's
+    // name and the covers under the number, and on a full room that is thirty
+    // names competing with the drawing they are printed on — at the size a
+    // table is drawn, a name is four letters and an ellipsis anyway. The
+    // NUMBER is what a host reads across a room and the COLOUR is what it is
+    // doing; who they are is one tap away, in the book beside it, where there
+    // is room to spell it. The hover still says the whole thing.
+    //
+    // A WALK-IN STILL SPEAKS, because it is the one thing the book cannot
+    // account for: covers on a table the desk never booked. Without the line
+    // it is a coloured table with no explanation anywhere on the screen.
+    const sub = !r && f.state === 'walkin' ? 'Walk-in · ' + f.covers : '';
     const why = r
       ? `${r.name} · ${r.partySize} · ${hhmmOf(r.time)}${f.over ? ' · ' + f.over + ' min over' : ''}${f.late ? ' · ' + f.late + ' min ' + (f.state === 'arrived' ? 'waiting' : 'late') : ''}`
       : f.state === 'walkin'
