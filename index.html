@@ -819,23 +819,64 @@ body.book-page #app{display:block;height:auto;}
    behind them is how many are SITTING at that moment. The second is what a
    kitchen feels and what a pacing cap alone never shows. */
 .flow{background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);padding:12px;margin-top:var(--hub-edge);}
-.flow-plot{position:relative;display:flex;align-items:flex-end;gap:2px;height:180px;
-  border-bottom:1px solid var(--steel-300);border-left:1px solid var(--steel-200);}
-.flow-col{position:relative;flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;min-width:4px;}
-.flow-col.hour{border-left:1px solid var(--steel-200);}
-/* The hours between lunch and dinner are not on this plot at all; the gap has
-   to look like a gap or the afternoon reads as full. */
-/* One hairline (Border law): the gap is made by the SPACE, not by a fatter
-   line — a heavier border is the one thing a border is never allowed to be. */
-.flow-col.brk{border-left:1px solid var(--steel-500);margin-left:12px;}
-.flow-room{position:absolute;left:0;right:0;bottom:0;background:color-mix(in srgb, var(--orange) 18%, var(--surface));border-radius:2px 2px 0 0;}
-.flow-bar{position:relative;width:70%;background:var(--orange);border-radius:2px 2px 0 0;min-height:1px;}
-.flow-col.over .flow-bar{background:var(--red);}
-.flow-cap{position:absolute;left:0;right:0;border-top:1px dashed var(--red);pointer-events:none;}
-.flow-axis{display:flex;gap:2px;margin-top:4px;}
-.flow-axis span{flex:1;min-width:4px;font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;}
+/* §§ FLOW — the night as boxes, slot by slot.
+   It was two series of bars. The second, covers IN THE ROOM, was a forecast
+   dressed as a measurement, and a column of pixels answers "how many"
+   without ever answering the question a host asks at the pass: WHICH TABLES.
+   So the tables stand in the slot they arrive in, one box each, wearing the
+   colour of whatever their booking is doing — the same colour it wears on
+   the floor, the timeline and the list. Under each column is the one number
+   the pacing caps are written against. */
+.flowgrid{display:flex;align-items:stretch;gap:4px;overflow-x:auto;padding-bottom:4px;--rail-axis:90deg;}
+.fg-col{flex:0 0 68px;display:flex;flex-direction:column;gap:4px;min-width:0;}
+/* The hour, and the gap between two services, are the only lines — the Border
+   law's one hairline, standing up. A column with nothing in it fades rather
+   than shouting a nought down the whole strip. */
+.fg-col.hour{border-left:1px solid var(--steel-200);padding-left:4px;}
+.fg-col.brk{border-left:1px solid var(--steel-500);margin-left:12px;padding-left:8px;}
+/* `quiet`, not `empty`: .empty is the app's own "nothing here" block and it
+   carries 48px of padding, which pushed a slot with no bookings half a
+   column down and put the strip of totals on two different lines. A class
+   name that already means something else is not a free name. */
+.fg-col.quiet{opacity:var(--dim);}
+.fg-time{font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;}
+.fg-tables{display:flex;flex-direction:column;gap:4px;align-items:stretch;}
+/* A BOX THAT LOOKS LIKE A TABLE: the floor's corner, the floor's colours, and
+   the number on the floor's cream chip so no state can make it unreadable.
+   A booking nobody has sat is drawn LIGHT — the wash alone; once somebody is
+   down it goes SOLID, so a glance down a column says how much of the slot has
+   actually landed. */
+.fg-tbl{display:flex;align-items:center;justify-content:space-between;gap:4px;
+  min-height:var(--tap);padding:4px 8px;border-radius:var(--r-btn);
+  border:1px solid transparent;background:var(--table-plain);color:var(--text-primary);
+  font-weight:700;font-size:var(--fs-md);text-align:left;width:100%;cursor:pointer;}
+.fg-tbl.booked{background:color-mix(in srgb, var(--st-booked) 30%, var(--surface));}
+.fg-tbl.confirmed{background:color-mix(in srgb, var(--st-confirmed) 30%, var(--surface));}
+.fg-tbl.part-arrived,.fg-tbl.arrived{background:color-mix(in srgb, var(--st-arrived) 30%, var(--surface));}
+.fg-tbl.part-seated,.fg-tbl.seated{background:var(--st-seated);color:var(--on-scrim);}
+.fg-tbl.check{background:var(--st-check);color:var(--on-scrim);}
+.fg-tbl.paid{background:var(--st-paid);color:var(--on-scrim);}
+/* WHO CHOSE THE TABLE SHOWS IN THE WEIGHT, the same law the book obeys: what
+   the app worked out for itself is faint, what a person placed is solid. */
+.fg-tbl.auto .fg-no{font-weight:400;opacity:var(--dim);}
+.fg-no{font-family:var(--font-mono);background:var(--tbl-num-bg);color:var(--tbl-num-ink);
+  border-radius:var(--r-btn);padding:2px 6px;min-width:28px;text-align:center;}
+.fg-pax{font-family:var(--font-mono);font-size:var(--fs-lg);}
+/* The covers walking in during this slot, against the venue's cap when it set
+   one. The strip of numbers the pacing band always was, kept. */
+/* margin-top:auto, not flex:1 on the tables above it. A column with nothing
+   in it left its tables box at zero height and the total rode up under the
+   time, so the strip of numbers — the one thing that has to be readable
+   ACROSS the columns — sat on two different lines. The auto margin puts the
+   total on the floor of the column whatever is or is not above it. */
+.fg-total{margin-top:auto;font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;
+  color:var(--charcoal-soft);border-top:1px solid var(--steel-200);padding-top:4px;white-space:nowrap;}
+.fg-total b{font-size:var(--fs-lg);color:var(--text-primary);}
+.fg-col.over .fg-total b{color:var(--red);}
 /* A phone has room for about six of these, not eleven. */
-@media (max-width:640px){ .flow-axis span.on:not(.keep){visibility:hidden;} }
+/* A phone swipes the strip sideways at its own width rather than squeezing
+   forty slots into three hundred pixels. The columns keep their size. */
+@media (max-width:640px){ .fg-col{flex:0 0 64px;} }
 .stat.over{border-color:var(--red);}
 .stat.over b{color:var(--red);}
 
@@ -7029,6 +7070,10 @@ function tableById(id) { return state.tables.find(t => t.id === id); }
 // that distinguishes nothing, on the one column that has to stay narrow.
 function roomsInUse() { return (state.floorPlans || []).filter(fp => (fp.tables || []).some(t => t.kind !== 'decor' && t.type !== 'decor')).length; }
 function tableName(id) { const t = tableById(id); return t ? (roomsInUse() > 1 ? t.floor + ' · ' : '') + t.label : '—'; }
+// The bare number, with no room in front of it — for the places that draw a
+// table as a BOX rather than write it into a sentence. The floor has always
+// drawn a bare 5 (a table number is a number); this is that, reusable.
+function tableLabel(id) { const t = tableById(id); return t ? String(t.label) : '—'; }
 function durationOf(r) {
   if (r.durationMin > 0) return r.durationMin;
   const s = state.settings || {};
@@ -7287,7 +7332,7 @@ function sinceLabel(ts) {
 // --fade-foot move it in past a bar pinned over an end; nothing of ours pins
 // a bar INSIDE a scroller, so they are declared in the stylesheet where they
 // are needed rather than measured here.
-const RAIL_ENDS = '.tabs, .rail, .rail-scroll, .secband, .room-list, .audit, .desk-main > .fl-wrap';
+const RAIL_ENDS = '.tabs, .rail, .rail-scroll, .secband, .room-list, .audit, .desk-main > .fl-wrap, .flowgrid';
 function markRailEnds(one) {
   if (!one) document.querySelectorAll('[data-more]').forEach(r => { if (!r.matches(RAIL_ENDS)) delete r.dataset.more; });
   (one ? [one] : [...document.querySelectorAll(RAIL_ENDS)]).forEach(r => {
@@ -8191,19 +8236,61 @@ function uprightStyle(t) {
   return rot ? `transform:rotate(${-rot}deg);` : '';
 }
 
+// §§ Flow — the night as boxes, slot by slot
+//
+// It was a bar chart of two series: covers arriving, and covers in the room.
+// The second was a FORECAST dressed as a measurement — it assumed everybody
+// sits their full sitting and nobody leaves early — and a column of pixels
+// answers "how many" without ever answering the question a host actually
+// asks at the pass, which is WHICH TABLES.
+//
+// So it is the tables themselves now, one box each, standing in the slot they
+// arrive in: the table's number, the covers on it, and the colour of whatever
+// the booking is doing — the same colour it wears on the floor, the timeline
+// and the list. A BOOKING NOBODY HAS SAT IS DRAWN LIGHT; once somebody is
+// down it goes SOLID, so a glance down a column says how much of that slot
+// has actually landed. Under each column is the one number the pacing caps
+// are written against: the covers walking in during that slot.
+//
+// ARRIVING, not in-room. This is what the desk CONTROLS — six tables at 7:30
+// is a wall of orders whatever else is true — and it is the one of the two
+// the book can state rather than guess.
 function renderFlow() {
   const cf = coverFlowFor();
   if (!cf.slots.length) return '<div class="empty">Nothing is served on this day, so there is no flow to draw.</div>';
-  const top = Math.max(cf.capCovers || 0, ...cf.slots.map(s => Math.max(s.covers, s.inRoom)), 1);
-  const pct = (v) => (v / top) * 100;
-  const hour = (s) => s.mins % 60 === 0;
+  const step = cf.step;
+  // Every live booking of the picked service, filed under the slot it lands
+  // in — the same bucketing coverFlowFor() counts with, so the number under a
+  // column and the boxes in it can never disagree.
+  const rows = state.reservations.filter(isLive).filter(inPickedService);
+  const bySlot = {};
+  for (const r of rows) {
+    const t = Math.floor(toMin(hhmmOf(r.time)) / step) * step;
+    (bySlot[t] || (bySlot[t] = [])).push(r);
+  }
+  for (const t in bySlot) bySlot[t].sort((a, b) => (b.partySize || 0) - (a.partySize || 0) || String(a.name).localeCompare(String(b.name)));
   // Lunch ends and dinner starts hours later. Drawn as one unbroken row the
   // gap disappears and 2pm sits against 5pm as though the afternoon were
   // full — so the first slot after a jump wears the break.
-  const step = cf.step;
   const breaks = cf.slots.map((s, i) => i > 0 && s.mins - cf.slots[i - 1].mins > step);
+  const hour = (s) => s.mins % 60 === 0;
   const peak = cf.busiest ? cf.busiest.inRoom : 0;
   const full = cf.seats ? Math.round((peak / cf.seats) * 100) : 0;
+
+  // ONE BOX PER BOOKING, drawn as the table it is on. The number rides the
+  // cream chip the floor uses, for the same reason: it must read whatever
+  // colour the state paints behind it.
+  const box = (r) => {
+    const ids = tablesFor(r);
+    const label = ids.length ? ids.map(tableLabel).join('+') : '—';
+    const sat = isSat(r);
+    return `<button class="fg-tbl ${esc(r.status)}${sat ? ' sat' : ''}${isAutoTable(r) ? ' auto' : ''}"
+      data-act="edit-booking" data-id="${esc(r.id)}"
+      title="${esc(r.name)} · ${r.partySize} · ${esc(fmtHHMM(hhmmOf(r.time)))}${ids.length ? ' · ' + ids.map(tableName).join(' + ') : ' · no table'}">
+      <span class="fg-no">${esc(label)}</span>
+      <span class="fg-pax">${r.partySize || 0}</span>
+    </button>`;
+  };
 
   return `
   <div class="grid3">
@@ -8212,29 +8299,16 @@ function renderFlow() {
     <div class="stat${cf.slots.some(s => s.over) ? ' over' : ''}"><b>${cf.heaviest ? cf.heaviest.covers : 0}</b><span>Heaviest arrival · ${cf.heaviest ? esc(fmtHHMM(cf.heaviest.time)) : '—'}</span></div>
   </div>
   <div class="flow">
-    <!-- NO LEGEND. Three chips saying which bar is which, under a chart with
-         two bars in it — read once on the first shift and then charging the
-         plot its top 36 pixels every night after. The top bar's own law
-         already says no screen carries one, and this was the last. Every
-         column still says it in words when you point at it, and the numbers
-         above the plot say the same thing again without a swatch. -->
-    <div class="flow-plot" role="img" aria-label="Covers arriving and covers in the room, by time">
-      ${cf.capCovers ? `<div class="flow-cap" style="bottom:${pct(cf.capCovers)}%;"></div>` : ''}
-      ${cf.slots.map((s, i) => `
-        <div class="flow-col${s.over ? ' over' : ''}${hour(s) ? ' hour' : ''}${breaks[i] ? ' brk' : ''}" title="${esc(fmtHHMM(s.time))} · ${s.covers} arriving · ${s.inRoom} in the room">
-          <span class="flow-room" style="height:${pct(s.inRoom)}%;"></span>
-          <span class="flow-bar" style="height:${pct(s.covers)}%;"></span>
-        </div>`).join('')}
+    <div class="flowgrid" data-keep="flowgrid" role="img" aria-label="The tables arriving in each slot, and the covers with them">
+      ${cf.slots.map((s, i) => {
+    const mine = bySlot[s.mins] || [];
+    return `<div class="fg-col${s.over ? ' over' : ''}${hour(s) ? ' hour' : ''}${breaks[i] ? ' brk' : ''}${mine.length ? '' : ' quiet'}">
+        <div class="fg-time">${esc(fmtHHMM(s.time))}</div>
+        <div class="fg-tables">${mine.map(box).join('')}</div>
+        <div class="fg-total"><b>${s.covers}</b>${cf.capCovers ? `<small>/${cf.capCovers}</small>` : ''}</div>
+      </div>`;
+  }).join('')}
     </div>
-    <div class="flow-axis">${cf.slots.map((s, i) => {
-      const on = hour(s) || breaks[i];
-      // Every hour has room on a desk screen and nowhere near it on a phone,
-      // where forty-odd slots share three hundred pixels. The two-hourly ones
-      // and the service starts are marked so the narrow layout can keep those
-      // and drop the rest, rather than printing them over each other.
-      const keep = breaks[i] || s.mins % 120 === 0;
-      return `<span class="${on ? 'on' : ''}${keep ? ' keep' : ''}">${on ? esc(fmtHHMM(s.time)) : ''}</span>`;
-    }).join('')}</div>
   </div>`;
 }
 

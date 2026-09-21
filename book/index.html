@@ -812,23 +812,64 @@ body.book-page #app{display:block;height:auto;}
    behind them is how many are SITTING at that moment. The second is what a
    kitchen feels and what a pacing cap alone never shows. */
 .flow{background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);padding:12px;margin-top:var(--hub-edge);}
-.flow-plot{position:relative;display:flex;align-items:flex-end;gap:2px;height:180px;
-  border-bottom:1px solid var(--steel-300);border-left:1px solid var(--steel-200);}
-.flow-col{position:relative;flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center;min-width:4px;}
-.flow-col.hour{border-left:1px solid var(--steel-200);}
-/* The hours between lunch and dinner are not on this plot at all; the gap has
-   to look like a gap or the afternoon reads as full. */
-/* One hairline (Border law): the gap is made by the SPACE, not by a fatter
-   line — a heavier border is the one thing a border is never allowed to be. */
-.flow-col.brk{border-left:1px solid var(--steel-500);margin-left:12px;}
-.flow-room{position:absolute;left:0;right:0;bottom:0;background:color-mix(in srgb, var(--orange) 18%, var(--surface));border-radius:2px 2px 0 0;}
-.flow-bar{position:relative;width:70%;background:var(--orange);border-radius:2px 2px 0 0;min-height:1px;}
-.flow-col.over .flow-bar{background:var(--red);}
-.flow-cap{position:absolute;left:0;right:0;border-top:1px dashed var(--red);pointer-events:none;}
-.flow-axis{display:flex;gap:2px;margin-top:4px;}
-.flow-axis span{flex:1;min-width:4px;font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;}
+/* §§ FLOW — the night as boxes, slot by slot.
+   It was two series of bars. The second, covers IN THE ROOM, was a forecast
+   dressed as a measurement, and a column of pixels answers "how many"
+   without ever answering the question a host asks at the pass: WHICH TABLES.
+   So the tables stand in the slot they arrive in, one box each, wearing the
+   colour of whatever their booking is doing — the same colour it wears on
+   the floor, the timeline and the list. Under each column is the one number
+   the pacing caps are written against. */
+.flowgrid{display:flex;align-items:stretch;gap:4px;overflow-x:auto;padding-bottom:4px;--rail-axis:90deg;}
+.fg-col{flex:0 0 68px;display:flex;flex-direction:column;gap:4px;min-width:0;}
+/* The hour, and the gap between two services, are the only lines — the Border
+   law's one hairline, standing up. A column with nothing in it fades rather
+   than shouting a nought down the whole strip. */
+.fg-col.hour{border-left:1px solid var(--steel-200);padding-left:4px;}
+.fg-col.brk{border-left:1px solid var(--steel-500);margin-left:12px;padding-left:8px;}
+/* `quiet`, not `empty`: .empty is the app's own "nothing here" block and it
+   carries 48px of padding, which pushed a slot with no bookings half a
+   column down and put the strip of totals on two different lines. A class
+   name that already means something else is not a free name. */
+.fg-col.quiet{opacity:var(--dim);}
+.fg-time{font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;}
+.fg-tables{display:flex;flex-direction:column;gap:4px;align-items:stretch;}
+/* A BOX THAT LOOKS LIKE A TABLE: the floor's corner, the floor's colours, and
+   the number on the floor's cream chip so no state can make it unreadable.
+   A booking nobody has sat is drawn LIGHT — the wash alone; once somebody is
+   down it goes SOLID, so a glance down a column says how much of the slot has
+   actually landed. */
+.fg-tbl{display:flex;align-items:center;justify-content:space-between;gap:4px;
+  min-height:var(--tap);padding:4px 8px;border-radius:var(--r-btn);
+  border:1px solid transparent;background:var(--table-plain);color:var(--text-primary);
+  font-weight:700;font-size:var(--fs-md);text-align:left;width:100%;cursor:pointer;}
+.fg-tbl.booked{background:color-mix(in srgb, var(--st-booked) 30%, var(--surface));}
+.fg-tbl.confirmed{background:color-mix(in srgb, var(--st-confirmed) 30%, var(--surface));}
+.fg-tbl.part-arrived,.fg-tbl.arrived{background:color-mix(in srgb, var(--st-arrived) 30%, var(--surface));}
+.fg-tbl.part-seated,.fg-tbl.seated{background:var(--st-seated);color:var(--on-scrim);}
+.fg-tbl.check{background:var(--st-check);color:var(--on-scrim);}
+.fg-tbl.paid{background:var(--st-paid);color:var(--on-scrim);}
+/* WHO CHOSE THE TABLE SHOWS IN THE WEIGHT, the same law the book obeys: what
+   the app worked out for itself is faint, what a person placed is solid. */
+.fg-tbl.auto .fg-no{font-weight:400;opacity:var(--dim);}
+.fg-no{font-family:var(--font-mono);background:var(--tbl-num-bg);color:var(--tbl-num-ink);
+  border-radius:var(--r-btn);padding:2px 6px;min-width:28px;text-align:center;}
+.fg-pax{font-family:var(--font-mono);font-size:var(--fs-lg);}
+/* The covers walking in during this slot, against the venue's cap when it set
+   one. The strip of numbers the pacing band always was, kept. */
+/* margin-top:auto, not flex:1 on the tables above it. A column with nothing
+   in it left its tables box at zero height and the total rode up under the
+   time, so the strip of numbers — the one thing that has to be readable
+   ACROSS the columns — sat on two different lines. The auto margin puts the
+   total on the floor of the column whatever is or is not above it. */
+.fg-total{margin-top:auto;font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;
+  color:var(--charcoal-soft);border-top:1px solid var(--steel-200);padding-top:4px;white-space:nowrap;}
+.fg-total b{font-size:var(--fs-lg);color:var(--text-primary);}
+.fg-col.over .fg-total b{color:var(--red);}
 /* A phone has room for about six of these, not eleven. */
-@media (max-width:640px){ .flow-axis span.on:not(.keep){visibility:hidden;} }
+/* A phone swipes the strip sideways at its own width rather than squeezing
+   forty slots into three hundred pixels. The columns keep their size. */
+@media (max-width:640px){ .fg-col{flex:0 0 64px;} }
 .stat.over{border-color:var(--red);}
 .stat.over b{color:var(--red);}
 
