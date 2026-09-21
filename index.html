@@ -3700,14 +3700,27 @@ function conflictsFor(ctx, r) {
 // key to think at, so the rules that allow it live here, pure and tested, and
 // both the route and the drag's own landing preview read them from one place.
 
-// The statuses that move. `seated`, `done` and `no-show` are the floor's own
-// (POS-LINK.md, "the floor wins"): a seated party is moved on the till, with
-// the POS's transfer drag, so dragging one here would fight it.
-const MOVABLE = ['booked', 'confirmed', 'arrived'];
+// WHAT MOVES, AND HOW FAR. Every LIVE booking moves to another table — a
+// party gets shifted mid-service and the desk is where that is recorded; the
+// till's own transfer drag does the same job from the other side and the two
+// agree through the pass, because a table is a field and not a gesture.
+//
+// THE HOUR IS DIFFERENT. For a booking nobody has sat it is a plan, and a
+// plan can be changed. For a SAT one it is something that already happened:
+// moving a seated party to 4pm is not a move, it is a lie about where those
+// people are, and it would shift when the floor calls them over, when the run
+// sheet says they are due out, and which of the till's tickets are theirs.
+// So a sat booking moves SIDEWAYS ONLY and its time is pinned — refused here
+// rather than merely discouraged in the drag, because the route is what any
+// client can reach.
+//
+// A booking that is OVER does not move at all. It is a record.
+const MOVABLE = ['booked', 'confirmed', 'part-arrived', 'arrived', 'part-seated', 'seated', 'check', 'paid'];
+const TIME_PINNED = ['part-seated', 'seated', 'check', 'paid'];
 function canMove(r) { return !!r && MOVABLE.includes(r.status); }
+function timePinned(r) { return !!r && TIME_PINNED.includes(r.status); }
 const MOVE_BLOCKED = {
-  seated: 'A seated party is moved on the till',
-  done: 'That booking is finished',
+  done: 'That booking has left',
   cancelled: 'That booking is cancelled',
   'no-show': 'That booking is a no-show',
 };
@@ -3758,7 +3771,10 @@ function moveCheck(ctx, r, target) {
   const next = movedTables(r, target.tableId);
   out.tableId = next.tableId;
   out.tableIds = next.tableIds;
-  out.time = joinTime(target.day || dayOf(r.time), target.time);
+  // A sat booking keeps its hour whatever the caller asked for: the drag
+  // already holds the ghost in its own column, and this is the same rule said
+  // where nothing can get past it.
+  out.time = timePinned(r) ? (r.time || '') : joinTime(target.day || dayOf(r.time), target.time);
   out.changed = out.time !== r.time || (next.tableId || null) !== (r.tableId || null);
   // Seats only — never fits(), whose upper half (seats <= party + slack) is a
   // SUGGESTION rule. Refusing to put a 2-top on a free 6-top would be wrong.
@@ -4116,7 +4132,7 @@ module.exports = {
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, suggestTable, suggestJoin, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, coverFlow,
-  isSat, isHere, SAT, HERE,
+  isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED,
   MOVABLE, canMove, snapSlot, seatsOf, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
@@ -7089,10 +7105,15 @@ function inPickedService(r) {
 function setMenuName(r) { return String(((r && r.setMenu) || {}).name || '').trim(); }
 // The browser's copy of availability.js:canMove — beside the other mirrors
 // above, and the ONE place the timeline decides which blocks can be picked up.
-// Anything SAT belongs to the POS floor, so it stays put here — and once even
-// half a party is down, dragging the booking to another hour is not a move,
-// it is a lie about where those people are.
-function canMoveBooking(r) { return ['booked', 'confirmed', 'part-arrived', 'arrived'].includes(r.status); }
+// WHAT CAN BE DRAGGED, AND HOW FAR. A booking nobody has sat moves in both
+// directions: to another table and to another hour. A SAT one moves SIDEWAYS
+// ONLY — to another table — because the hour is not a plan any more, it is
+// something that already happened. Moving a seated party to 4pm is not a
+// move, it is a lie about where those people are, and it would shift when
+// the floor calls them over and when the run sheet says they are due out.
+// A booking that is over — left, cancelled, no-show — is a record, and a
+// record does not move at all.
+function canMoveBooking(r) { return isLive(r); }
 // One sentence for "somebody else has this table", said by the booking popup
 // and by the drag's hint alike.
 function conflictLine(list) { return 'Shares a table with ' + list.map(c => c.name + ' at ' + hhmmOf(c.time)).join(', ') + '.'; }
@@ -9973,14 +9994,15 @@ document.addEventListener('wheel', (e) => {
 }, { passive: false });
 let flWheelEnd = null;
 
-// A block the floor owns, or a joined booking's shadow on a second lane:
-// nothing lifts, but a hold says why rather than feeling broken. The drop
+// A booking that is OVER — left, cancelled, no-show — or a joined booking's
+// shadow on a second lane: nothing lifts, but a hold says why rather than
+// feeling broken. The drop
 // guard is set too, so the same hold does not also open the popup — a TAP
 // still opens it, which is the gesture that meant to.
 function tlRefuse(e) {
   const t = setTimeout(() => {
     _tlDropAt = Date.now();
-    toast('Seated and finished bookings stay put');
+    toast('A booking that is over stays put');
     stand();
   }, TL_LIFT_MS);
   const mv = (ev) => { if (Math.abs(ev.clientX - e.clientX) > TL_SLOP || Math.abs(ev.clientY - e.clientY) > TL_SLOP) stand(); };
@@ -10092,7 +10114,12 @@ function paintTlDrag(row) {
   if (!g || !g.lifted || !g.ghost) return;
   const r = row || state.reservations.find(x => x.id === g.id);
   if (!r) { cancelTlDrag(); return; }
-  const dx = g.dex - g.x0, dy = g.dey - g.y0;
+  // A SAT BOOKING SLIDES UP AND DOWN AND NOWHERE ELSE. The hour is already
+  // spent, so the ghost is held in its own time column and only the LANE can
+  // change — the constraint is shown rather than explained, and there is no
+  // way to express a move the desk would then refuse.
+  const pinned = isSat(r);
+  const dx = pinned ? 0 : g.dex - g.x0, dy = g.dey - g.y0;
   g.ghost.style.translate = dx + 'px ' + dy + 'px';
   // The floor never fits on a phone, so the edges pull the timeline along.
   const box = g.geom.tl.getBoundingClientRect();
@@ -10112,7 +10139,8 @@ function paintTlDrag(row) {
   // day, so the last landing is the day's last slot — never 25:45, which
   // fromMin() would wrap back round to 01:45.
   const hi = Math.min(g.geom.end - durationOf(r), 24 * 60 - g.geom.step);
-  const min = tlSnap(g.geom.start + (gl - laneRect.left) / PX_PER_MIN, g.geom.step, g.geom.start, hi);
+  const min = pinned ? toMin(hhmmOf(r.time))
+    : tlSnap(g.geom.start + (gl - laneRect.left) / PX_PER_MIN, g.geom.step, g.geom.start, hi);
   const tableId = lane.dataset.table || null;
   const pv = tlPreview(r, tableId, min);
   if (g.lastLane !== lane) g.lastLane.classList.remove('over');
@@ -10125,9 +10153,12 @@ function paintTlDrag(row) {
     node.classList.toggle('bad', !pv.ok);
   }
   if (g.mark.parentElement !== lane) lane.insertBefore(g.mark, lane.firstChild);
+  // A pinned booking's hour cannot change, so the hint does not offer it —
+  // it says the one thing this drag decides.
   g.hint.textContent = !pv.ok ? pv.reason
     : pv.conflicts.length ? conflictLine(pv.conflicts)
-      : `${fmtHHMM(hhmm)} · ${tableId ? tableName(tableId) : 'No table'}`;
+      : pinned ? (tableId ? tableName(tableId) : 'No table')
+        : `${fmtHHMM(hhmm)} · ${tableId ? tableName(tableId) : 'No table'}`;
   const small = g.ghost.querySelector('small');
   if (small) small.textContent = hhmm;
 }
