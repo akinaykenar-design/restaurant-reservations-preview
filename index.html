@@ -7798,18 +7798,20 @@ function renderFloor() {
     // outline already says it, and the key above the room counts it. The one
     // thing a free table had worth saying, how long it stays free, is the
     // pill's job now and only appears when the answer is soon.
-    // AND A BOOKED TABLE SAYS NOTHING EITHER. It used to write the guest's
-    // name and the covers under the number, and on a full room that is thirty
-    // names competing with the drawing they are printed on — at the size a
-    // table is drawn, a name is four letters and an ellipsis anyway. The
-    // NUMBER is what a host reads across a room and the COLOUR is what it is
-    // doing; who they are is one tap away, in the book beside it, where there
-    // is room to spell it. The hover still says the whole thing.
+    // NOTHING ON A TABLE BUT ITS NUMBER. The chip used to write the guest's
+    // name and the covers under it, and on a full room that is thirty names
+    // competing with the drawing they are printed on — at the size a table is
+    // actually drawn, a name is four letters and an ellipsis anyway. The
+    // NUMBER is what a host reads across a room and the COLOUR is what the
+    // table is doing. Everything else is one tap away, in the book standing
+    // beside it, where there is room to spell it out; the hover says the
+    // whole thing without costing the drawing a line.
     //
-    // A WALK-IN STILL SPEAKS, because it is the one thing the book cannot
-    // account for: covers on a table the desk never booked. Without the line
-    // it is a coloured table with no explanation anywhere on the screen.
-    const sub = !r && f.state === 'walkin' ? 'Walk-in · ' + f.covers : '';
+    // The walk-in's own line went with the rest. Its TEAL is what says the
+    // till put somebody there and the book never did — the same colour the
+    // online source wears, because both mean "this did not come from the
+    // desk" — and a colour learnt in a shift does not need a caption under
+    // every table wearing it.
     const why = r
       ? `${r.name} · ${r.partySize} · ${hhmmOf(r.time)}${f.over ? ' · ' + f.over + ' min over' : ''}${f.late ? ' · ' + f.late + ' min ' + (f.state === 'arrived' ? 'waiting' : 'late') : ''}`
       : f.state === 'walkin'
@@ -7835,7 +7837,7 @@ function renderFloor() {
       ${marks ? `<span class="fl-marks">${marks}</span>` : ''}
       <span class="fl-in" style="${up}">
         <span class="fl-no">${esc(t.label)}</span>
-        ${sub ? `<span class="fl-sub">${sub}</span>` : ''}
+
       </span>
     </button>`;
   };
