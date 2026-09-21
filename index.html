@@ -72,7 +72,22 @@
   /* Booking status colours: the floor's own grammar. */
   --st-booked:#8B877F; --st-confirmed:#2F74C9; --st-arrived:#C08A00; --st-seated:#4FA51D; --st-done:#B3ADA0; --st-cancelled:#A8483A; --st-noshow:#6D4FC4;
   --st-due:#C08A00; --st-over:#6D4FC4; --src-online:#0E9E8A; --src-walkin:#C08A00; --src-pos:#918E88;
-  --plan-bg:#2A2F33; --plan-line:#F2F5F7; --plan-ink:#C9D1D6; --plan-edge:#5A6268;
+  /* THE FLOOR IS THE TILL'S FLOOR. A table with no finish and no colour of its
+     own; the till lifts it off the near-black ground in dark mode rather than
+     leaving a dark-on-dark ghost. */
+  --table-plain:var(--surface);
+  /* A picked table's band. The same hairline + --ring as everything else,
+     drawn as ONE band because it covers the table's own edge. */
+  --tbl-sel-ring:calc(var(--ring) + 1px);
+  /* POP + CREAM, the owner's pick on the till: the wash runs strong and EVERY
+     table's number rides a cream chip — empty or seated alike — so no status
+     colour and no hand-painted table can make a number unreadable, and
+     nothing about the number changes when a table fills or clears. It is the
+     one thing on the floor that is the SAME in both themes, because it is
+     paper laid on the table, not part of the page. */
+  --tbl-num-bg:#F5F1E8; --tbl-num-ink:#33352F;
+  /* How hard a booking tints the top it sits on. The till's own default. */
+  --tbl-wash:.78;
 }
 body[data-theme="dark"]{
   --steel-100:#161512; --steel-200:#332F2B; --steel-300:#4A463F; --steel-500:#6B645A;
@@ -88,7 +103,7 @@ body[data-theme="dark"]{
   --green-dim:color-mix(in srgb, var(--green) 20%, var(--surface));
   --st-booked:#A8A399; --st-confirmed:#3692E7; --st-arrived:#E8C24D; --st-seated:#7BC72F; --st-done:#6B645A; --st-cancelled:#CF6152; --st-noshow:#8B6FE8;
   --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#E8C24D; --src-pos:#D9D5CE;
-  --plan-bg:#16191B; --plan-line:#E7ECEF; --plan-ink:#B6BFC5; --plan-edge:#4A5157;
+  --table-plain:#35322D;
 }
 @media (max-height:560px){ :root{ --num-key-w:64px; --num-key-h:52px; --num-key-r:10px; --num-key-fs:var(--fs-xl); --num-gap:8px; } }
 @media (max-width:768px){ :root{ --deck-edge:12px; --hub-edge:8px; } }
@@ -571,7 +586,14 @@ body.book-page #app{display:block;height:auto;}
    900, none anywhere. Small type is the pinch's job, and the pinch can do it
    — a transform magnifies letters. Ratio it cannot touch, which is why this
    had to be fixed here and not there. */
-.fl-room{position:relative;aspect-ratio:900/560;width:100%;min-width:560px;background:var(--plan-bg);
+/* THE ROOM IS THE TILL'S ROOM, and it FOLLOWS THE THEME. It was a dark slab
+   in both, on the argument that a room is drawn the same way on paper
+   whichever way up the page is. The till does not do that: its floor is the
+   page's own ground — cream in light, near-black in dark — and the tables are
+   what carry the colour. Two apps drawing one floor two ways is the drift
+   this repo exists to avoid, so the slab is gone. */
+.fl-room{position:relative;aspect-ratio:900/560;width:100%;min-width:560px;
+  background:var(--floor-bg, var(--steel-100));border:1px solid var(--steel-200);
   border-radius:var(--r-control);overflow:hidden;container-type:inline-size;}
 /* No geometry from the POS: a plain wrapped row, which keeps the states, the
    scrubber and the tapping — the useful half — without inventing a room. */
@@ -590,44 +612,71 @@ body.book-page #app{display:block;height:auto;}
 .fl-wrap.arrange{margin:8px 0 12px;}
 .fl-wrap.arrange .fl-room{min-width:420px;}
 .fl-table.arr{cursor:grab;touch-action:none;}
-.fl-table.arr:hover{border-color:var(--plan-ink);}
+.fl-table.arr:hover{border-color:var(--orange);}
 .fl-table.arr.lifting{cursor:grabbing;z-index:2;box-shadow:var(--lift-2);opacity:.92;}
 .room-edit{display:grid;grid-template-columns:minmax(0,2fr) minmax(220px,1fr);gap:var(--hub-edge);align-items:start;}
 .room-list{display:flex;flex-direction:column;gap:8px;max-height:60vh;overflow-y:auto;}
 @media (max-width:900px){ .room-edit{grid-template-columns:1fr;} .room-list{max-height:none;} }
 
+/* The till's own marker: one hairline, the corner the geometry asks for, and
+   the TOP the venue laid — the background and ink are written inline by
+   skinStyle(), because a finish belongs to the table, not to a class. */
 .fl-table{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2222cqw;overflow:hidden;
-  border:1px solid var(--steel-300);border-radius:var(--r-btn);background:var(--surface);color:var(--charcoal-soft);
-  font-family:var(--font-mono);font-weight:700;cursor:pointer;padding:.2222cqw;text-align:center;}
-.fl-table.seated{background:var(--st-seated);border-color:var(--st-seated);color:#fff;}
-.fl-table.over{background:var(--st-over);border-color:var(--st-over);color:#fff;}
-.fl-table.due{background:color-mix(in srgb, var(--st-due) 16%, var(--surface));border-color:var(--st-due);color:var(--text-primary);}
+  border:1px solid var(--steel-200);background:var(--table-plain);color:var(--text-primary);
+  font-family:var(--font-mono);font-weight:700;cursor:pointer;padding:.2222cqw;text-align:center;
+  isolation:isolate;}
+/* WHAT THE TABLE IS DOING, over what it is MADE OF. A translucent tint under
+   the number and above the top, so a burgundy cloth is still burgundy cloth
+   with somebody sitting at it — a solid fill hid the room. A free table has
+   no wash element at all: at rest, a table is just a table. */
+.fl-wash{position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;opacity:var(--tbl-wash);}
+.fl-wash.seated{background:var(--st-seated);}
+.fl-wash.over{background:var(--st-over);}
+.fl-wash.due{background:var(--st-due);}
 /* Two tables pushed together are one booking; the ring says so without a
    second colour. */
 .fl-table.joined{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
+/* The band is drawn ON TOP of the wash. The wash is a child covering the whole
+   table, so an inset shadow on the marker itself is painted over by it and
+   only the 1px edge survives — a two-toned rim, the till's own lesson. One
+   solid band, -1px so it covers the table's own edge too. */
+.fl-table.picked::after{content:'';position:absolute;inset:-1px;z-index:4;pointer-events:none;
+  border-radius:inherit;box-shadow:inset 0 0 0 var(--tbl-sel-ring) var(--orange);}
 /* Pointed at from the book. The ring goes OUTSIDE so it reads over a seated
    table's fill as well as over an empty one, and it is the only thing on the
    plan drawn in the accent — a room with two accents answers nothing. */
-.fl-table.picked{box-shadow:0 0 0 var(--ring) var(--orange);z-index:3;}
+
 /* Outside only, even on a join: the shadow law allows a ring inside or out,
    never both, and picked outranks joined because it is what was just asked. */
-.fl-table.picked.joined{box-shadow:0 0 0 var(--ring) var(--orange);}
+.fl-table.picked.joined{box-shadow:none;}
 /* Nothing clips: the pill hangs below the table and a turned table's label
    spills past its corners. The LABEL keeps its own clip, inside .fl-in. */
 .fl-table{overflow:visible;}
-.fl-in{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2222cqw;max-width:100%;overflow:hidden;}
+/* EVERYTHING THAT MUST BE READ RIDES THE CREAM CHIP. The till puts only the
+   number on one, because a number is all it writes on a table; this floor
+   writes the name and the covers too, and they have to survive the same three
+   things the number does — a dark finish, a colour the venue painted by hand,
+   and a status wash at .78 over both. One chip carries the lot: number over
+   name, in the till's own cream, the same in either theme because it is paper
+   laid on the table rather than part of the page. */
+.fl-in{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.1111cqw;
+  background:var(--tbl-num-bg);color:var(--tbl-num-ink);padding:.2222cqw .6667cqw;
+  border-radius:var(--r-control);box-shadow:var(--lift-1);position:relative;z-index:1;}
 /* --fs-md 13.5 and --fs-chip 10.5 at the native 900, as a share of it. */
-.fl-no{font-size:1.5cqw;line-height:1.1;}
-.fl-sub{font-family:var(--font-body);font-size:1.1667cqw;font-weight:700;opacity:.85;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* The till's cream chip. It is NOT the dark-mode law's business: the chip is
+   paper on the table, the same in both themes, which is the only way a number
+   stays readable over a finish, a hand-painted colour and a status wash. */
+.fl-no{font-size:1.5cqw;line-height:1.1;font-weight:800;}
+.fl-sub{font-family:var(--font-body);font-size:1.1667cqw;font-weight:700;opacity:.75;max-width:10cqw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 /* Furniture, not a key. A solid white slab reads as something you press; a
    wall and a bar are the room's edges and want the weight of a pencil line.
    A NAMED piece (bar, pass) keeps a faint wash so its label has a ground; an
    unnamed one — a wall — is the line itself. */
-.fl-decor{position:absolute;opacity:.55;background:none;border:1px solid var(--plan-ink);border-radius:2px;
+.fl-decor{position:absolute;opacity:.55;background:none;border:1px solid var(--steel-500);
   display:flex;align-items:center;justify-content:center;overflow:hidden;
-  font-size:1.1667cqw;font-weight:700;color:var(--plan-ink);text-transform:uppercase;
+  font-size:1.1667cqw;font-weight:700;color:var(--steel-500);text-transform:uppercase;
   letter-spacing:.6px;pointer-events:none;}
-.fl-decor.wall{background:var(--plan-ink);border:none;border-radius:1px;opacity:.5;}
+.fl-decor.wall{background:var(--steel-500);border:none;opacity:.5;}
 
 /* §§ Flow — the shape of the night
    Two series on one plot: the bars are covers walking IN, the pale block
@@ -900,10 +949,17 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    Two columns inside the pane. The LIST is always there, because it is the
    thing a host reads; the rail decides what sits beside it. They stack on
    anything narrow, list first, for the same reason. */
+/* THE DESK IS THE PANE: the book and the room, and nothing else. It used to
+   be a card floating on the page with 12 of ground all round it and a 16
+   corner — a frame around the only thing on the screen, and a frame around
+   everything is a frame around nothing. The pane already HAS edges: the top
+   bar's hairline above and the rail's down the left. A second hairline 12
+   pixels inside those is the Border law's "one hairline" broken twice over,
+   and it cost the room 24 of width and 24 of height for the privilege. */
+.pane:has(> .desk){padding:0;}
 .desk{display:flex;gap:0;align-items:stretch;min-height:0;height:100%;
-  background:var(--surface);border:1px solid var(--steel-200);
-  border-radius:var(--r-surface);overflow:hidden;}
-.desk-col{flex:0 0 var(--deskcol-w);min-width:0;max-height:calc(100vh - var(--deck-h) - var(--hub-edge) * 2);
+  background:var(--surface);overflow:hidden;}
+.desk-col{flex:0 0 var(--deskcol-w);min-width:0;max-height:calc(100vh - var(--deck-h));
   overflow-y:auto;overflow-x:hidden;border-right:1px solid var(--steel-200);}
 .desk-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:0;}
 /* Inside one card the stacked parts are separated by the seam alone: a band
@@ -915,7 +971,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    pinch pushes past its edges, and keeps the gesture off the page's own
    scrolling (touch-action). It is a SIZE CONTAINER, so the drawing inside can
    be measured against it — see below. */
-.desk-main > .fl-wrap{flex:1 1 auto;min-height:0;padding:var(--hub-edge);
+/* No padding here either: the status line above and the pacing below are the
+   room's own edges, and the room carries its own walls. */
+.desk-main > .fl-wrap{flex:1 1 auto;min-height:0;padding:0;
   display:flex;align-items:safe center;justify-content:safe center;overflow:hidden;
   touch-action:none;overscroll-behavior:contain;container-type:size;}
 .fl-stage{display:flex;align-items:center;justify-content:center;
@@ -928,7 +986,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    So ONE side is set: the width is the smaller of the pane's width and the
    width the pane's HEIGHT allows, and aspect-ratio takes the height from
    there. `cqh` is why the wrap is a size container. */
-.desk-main .fl-room{width:min(100%, calc(100cqh * 900 / 560));height:auto;
+.desk-main .fl-room{width:min(100%, calc(100cqh * var(--fl-arw, 1.6071)));height:auto;
   max-width:none;max-height:none;min-width:0;}
 /* The one line above the room: what it is doing, and the way back out. */
 .fl-status{flex:none;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
@@ -974,7 +1032,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
      1, 21, 22 and 24 were off the left edge of a phone with no way to reach
      them. `safe` falls back to flex-start the moment it would overflow. */
   .desk-main > .fl-wrap{overflow:auto;align-items:safe flex-start;justify-content:safe flex-start;}
-  .desk-main .fl-room{height:auto;width:900px;min-width:900px;max-width:none;}
+  .desk-main .fl-room{height:auto;width:var(--fl-w, 900px);min-width:var(--fl-w, 900px);max-width:none;}
   .fl-stage{width:auto;height:auto;}
 }
 @media (min-width:761px) and (max-width:900px){
@@ -990,11 +1048,11 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .topbar{min-height:48px;padding:4px 12px;}
   .deck-sq,.deck-chip{min-height:38px;height:38px;}
   :root{--rail-w:78px;}
-  /* 393 pixels of height hold five tiles, not nine, so holding the places
-     still while the sections scroll inside 78 of them helps nobody: here the
-     whole rail scrolls as one, sections first. */
-  .rail{overflow-y:auto;}
-  .rail-scroll{flex:none;overflow:visible;}
+  /* 393 pixels of height hold seven 50-tall tiles and the rail has eight, so
+     one of them has to travel. It is not SETTINGS: the foot stays pinned and
+     the seven above it scroll, with the cut end faded like every other
+     scroller. Shorter tiles are not the way out — eight into the 295 left
+     over is 42, under the finger law. */
   .rail-btn{aspect-ratio:auto;min-height:50px;gap:1px;padding:4px 2px;}
   .rail-ico svg{width:20px;height:20px;}
   .rail-label{font-size:var(--fs-chip);line-height:1.1;}
@@ -1002,13 +1060,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .desk-col{flex:0 0 300px;width:auto;max-height:calc(100vh - 58px);overflow-y:auto;}
 }
 
-/* The rail carries the whole app: the SECTIONS of what you are looking at
-   above the rule, and below it the five places you can go. One hairline is
-   all the separation two groups need — the POS's Border law.
+/* The rail carries the whole app: Service's four sections at the top, then
+   the three other places you can go, then Settings at the foot.
 
-   The sections are on top because the top of the rail is where the thumb
-   lands and the floor is what a host comes back to forty times a shift; the
-   places follow, because they are a journey, not a flick.
+   Service's sections are on top because the top of the rail is where the
+   thumb lands and the floor is what a host comes back to forty times a
+   shift; the rest follow, because they are a journey, not a flick.
 
    IT IS ONE RAIL. The sections sat above a hairline and the places below it,
    each group its own box, and it read as two rails stuck together — which is
@@ -1017,7 +1074,15 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    Nine square tiles still do not fit a laptop, so something has to give, and
    what does NOT is SETTINGS: it is pinned at the foot, outside the scroll,
    because it is the way back and a way back that can scroll out of reach is
-   not one. Everything else travels. */
+   not one. Everything else travels.
+
+   AND IT DOES NOT MOVE. It used to carry the sections of whatever you were
+   looking at, so its length changed as you went — eight tiles on Service, ten
+   on Guests, five on the waitlist — and every tile below the change moved
+   under the thumb that made it. It is the same eight at every screen now:
+   Service's four sections, then Waitlist, Notify, Guests, and Settings at the
+   foot. The guest book's six lenses went to a band above the list they
+   question, which is what took it from ten to eight. */
 /* NO GAP between the tiles: a rail tile is a square with no body until it is
    chosen, so the air around it is its own padding and a gap on top of that
    is a second space. Adding one cost 56 pixels and pushed a laptop at 900
@@ -1028,7 +1093,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 /* A tablet at 820 tall leaves room for three and a half section tiles, and
    half a tile reads as broken rather than as "more this way". The deck's rule
    applies down the rail too: nothing is sliced, the cut end fades. */
-/* The rail's sections scroll down, so they take the default axis and the
+/* The rail scrolls down, so it takes the default axis and the
    one depth — the 22 they used to draw was a second fade of their own.
    AND THEY SNAP, the till's own answer (.catrail does the same): 111 pixels
    of room for four 87-pixel tiles means an unsnapped scroll always rests
@@ -1036,10 +1101,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    whose glyph is centred — which reads as empty ground rather than as more
    this way, whatever depth the fade is. Snapped, the rail always comes to
    rest on a whole tile and the fade sits at a real edge. */
-/* The place you are in, while its own sections are above it. Hidden rather
-   than unrendered, because a phone's thumb bar still needs all five — see
+/* Service has no tile of its own on a desk: its four sections are the four
+   above, one of them is always lit, and a fifth tile saying "Service" is the
+   rail telling you where you are twice. Hidden rather than unrendered,
+   because a phone's thumb bar is the five PLACES and needs it — see
    renderRail(). */
-@media (min-width:761px){ .rail-btn.rail-here{display:none;} }
+@media (min-width:761px){ .rail-btn[data-act="view"][data-val="today"]{display:none;} }
 .rail-scroll{scroll-snap-type:y mandatory;}
 .rail-scroll .rail-btn{scroll-snap-align:start;}
 .rail-secs,.rail-modes{display:contents;}
@@ -1074,20 +1141,17 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 /* A short bar has no room for a second line under the date. */
 @media (max-height:520px){ .dd-2{display:none;} }
 
-/* §§ The plan — a drawing, not a screen
+/* §§ The plan — the room the till draws
    No chairs. They were drawn around every table until Sep '26 and they read
    as clutter at thirty tables — ninety-four dots on one room — so the table
    IS the table, the way the till draws it. With them gone nothing sits
    outside a table's box any more, so a square one clips its own label again
-   (only a TURNED one still spills, below). */
-/* A free table is an outline. Only a table with people on it is filled — which
-   is what makes a busy room legible from across it. */
-.fl-room .fl-table{background:none;border:1px solid var(--plan-line);color:var(--plan-ink);}
-.fl-room .fl-table.due{background:color-mix(in srgb, var(--st-due) 22%, transparent);border-color:var(--st-due);color:var(--plan-line);}
-.fl-room .fl-table.seated{background:var(--st-seated);border-color:var(--st-seated);color:#fff;}
-.fl-room .fl-table.over{background:var(--st-over);border-color:var(--st-over);color:#fff;}
+   (only a TURNED one still spills, below).
+   The table's own look — the finish, the venue's colour, the ink that reads on
+   it — is written inline by skinStyle(); the status is the wash above it. So
+   there is nothing left for a stylesheet to override here: a state rule would
+   be a second answer to a question the table already answers. */
 .fl-room.loose{background:none;border-color:var(--steel-200);}
-.fl-room.loose .fl-table{background:var(--surface);border:1px solid var(--steel-300);color:var(--charcoal-soft);}
 
 /* The night along the foot of the plan: covers landing in each slot, and how
    many are in the room against what the venue said it would take. */
@@ -1120,7 +1184,15 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    opens the month and that is how a thumb changes day; and the keys that are
    not find-or-book fold into one sheet. */
 .phone-only{display:none;}
-.secband{display:none;}
+/* THE BAND IS ONE BAND. Same markup at every width, and the stylesheet says
+   which of it a desk shows: the guest book's six lenses, and nothing else.
+   A lens is a question asked of one list, so it belongs above that list;
+   Service's four sections are tiles on the desk's rail, so a band repeating
+   them would be the app saying where you are twice. A phone has no room for
+   sections on a thumb bar, so down there the band carries them all. */
+.secband{display:flex;gap:6px;overflow-x:auto;margin:0 0 var(--hub-edge);}
+.secband .chip{flex:0 0 auto;}
+@media (min-width:761px){ .secband:not([data-rail="guests"]){display:none;} }
 .d-short{display:none;}
 @media (max-width:760px){
   .wide-only{display:none!important;}
@@ -1163,8 +1235,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .rail .rail-btn.active{background:none;color:var(--orange);}
   .rail .rail-btn.active .rail-ico{background:var(--orange-dim);border-radius:var(--r-pill);padding:2px 12px;}
 
-  .secband{display:flex;gap:6px;overflow-x:auto;margin:0 0 var(--hub-edge);}
-  .secband .chip{flex:0 0 auto;}
   .pane{padding-bottom:0;}
 }
 /* A count of nought is not news. */
@@ -1184,380 +1254,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 
 </style>
 <div id="app">Loading…</div>
-<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "d3f36a9d0d77add20c1bec7edc792a7027c85430";window.__RESV_ROOM__ = [
- {
-  "id": "fp1",
-  "name": "Inside",
-  "tables": [
-   {
-    "id": "t1784116477960",
-    "label": "21",
-    "seats": 2,
-    "x": 7,
-    "y": 33.8,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1784116479124",
-    "label": "22",
-    "seats": 2,
-    "x": 12.5,
-    "y": 44.2,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1784116485821",
-    "label": "222",
-    "seats": 4,
-    "x": 21,
-    "y": 11.3,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1784116486766",
-    "label": "11",
-    "seats": 4,
-    "x": 28,
-    "y": 11.3,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1784116487291",
-    "label": "1",
-    "seats": 6,
-    "x": 7,
-    "y": 11.3,
-    "width": 8.8,
-    "height": 6.6,
-    "shape": "rect",
-    "rotation": 315,
-    "type": "table"
-   },
-   {
-    "id": "t1784116487840",
-    "label": "4",
-    "seats": 4,
-    "x": 22.5,
-    "y": 68.3,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1784116488381",
-    "label": "24",
-    "seats": 4,
-    "x": 17.5,
-    "y": 56.3,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1784116488882",
-    "label": "23",
-    "seats": 8,
-    "x": 35,
-    "y": 11.3,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786359357489",
-    "label": "13",
-    "seats": 4,
-    "x": 42,
-    "y": 11.3,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786359372691",
-    "label": "14",
-    "seats": 4,
-    "x": 49,
-    "y": 11.3,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786359374499",
-    "label": "15",
-    "seats": 4,
-    "x": 56,
-    "y": 11.3,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786359375000",
-    "label": "17",
-    "seats": 4,
-    "x": 63,
-    "y": 11.3,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786359452749",
-    "label": "41",
-    "seats": 4,
-    "x": 62.5,
-    "y": 32.1,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786359453148",
-    "label": "42",
-    "seats": 4,
-    "x": 62.5,
-    "y": 44.2,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786359453929",
-    "label": "43",
-    "seats": 4,
-    "x": 62.5,
-    "y": 56.3,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786359454484",
-    "label": "44",
-    "seats": 4,
-    "x": 62.5,
-    "y": 68.3,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786359455030",
-    "label": "45",
-    "seats": 4,
-    "x": 62.5,
-    "y": 80.4,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786437103635",
-    "label": "31",
-    "seats": 4,
-    "x": 45,
-    "y": 36.2,
-    "width": 6.8,
-    "height": 10.9,
-    "shape": "round",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786437104445",
-    "label": "32",
-    "seats": 4,
-    "x": 37.5,
-    "y": 60.3,
-    "width": 6.8,
-    "height": 10.9,
-    "shape": "round",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786443757237",
-    "label": "46",
-    "seats": 4,
-    "x": 62.5,
-    "y": 92.4,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786450498817",
-    "label": "25",
-    "seats": 2,
-    "x": 27.5,
-    "y": 80.4,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786450498853",
-    "label": "26",
-    "seats": 2,
-    "x": 33.6,
-    "y": 92.6,
-    "width": 6,
-    "height": 9.8,
-    "shape": "square",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786498348976",
-    "label": "B1",
-    "seats": 1,
-    "x": 77.5,
-    "y": 12.1,
-    "width": 4.4,
-    "height": 7.1,
-    "shape": "round",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786498350216",
-    "label": "B7",
-    "seats": 1,
-    "x": 77.5,
-    "y": 80.4,
-    "width": 4.4,
-    "height": 7.1,
-    "shape": "round",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786498350814",
-    "label": "B2",
-    "seats": 1,
-    "x": 77.5,
-    "y": 24.1,
-    "width": 4.4,
-    "height": 7.1,
-    "shape": "round",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786498352255",
-    "label": "B3",
-    "seats": 1,
-    "x": 77.5,
-    "y": 35.3,
-    "width": 4.4,
-    "height": 7.1,
-    "shape": "round",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786498353190",
-    "label": "B4",
-    "seats": 1,
-    "x": 77.5,
-    "y": 46.6,
-    "width": 4.4,
-    "height": 7.1,
-    "shape": "round",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786498354189",
-    "label": "B5",
-    "seats": 1,
-    "x": 77.5,
-    "y": 57.8,
-    "width": 4.4,
-    "height": 7.1,
-    "shape": "round",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786498354685",
-    "label": "B6",
-    "seats": 1,
-    "x": 77.5,
-    "y": 69.1,
-    "width": 4.4,
-    "height": 7.1,
-    "shape": "round",
-    "rotation": 0,
-    "type": "table"
-   },
-   {
-    "id": "t1786498355328",
-    "label": "B8",
-    "seats": 1,
-    "x": 77.5,
-    "y": 92.4,
-    "width": 4.4,
-    "height": 7.1,
-    "shape": "round",
-    "rotation": 0,
-    "type": "table"
-   }
-  ]
- },
- {
-  "id": "fp1783937423539",
-  "name": "Outside",
-  "tables": []
- }
-]
-;window.__RESV_IS_BOOK__ = false;</script>
+<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "c6a550de6816af81f06c074bed18b286670aaf35";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
 <script>(function () {
   'use strict';
   // preview/shim.js — the front desk, running with no server.
@@ -5483,10 +5180,16 @@ app.get('/api/tables', (req, res) => {
     shape: t.shape, rotation: t.rotation || 0,
     kind: t.type === 'decor' ? 'decor' : 'table',
     decorType: t.type === 'decor' ? (t.decorType || null) : null,
+    // THE TABLE TOP, and the colour the venue painted it. The till dresses the
+    // room — oak, burgundy cloth, marble — and this is the same room, so it is
+    // dressed the same way: the finish IS the table, and a booking is a wash
+    // over it. Leaving it off drew a different room from the one the floor
+    // staff look at all night.
+    finish: t.finish || null, color: t.color || null,
   });
   res.json({
     tables: tablesOf(data),
-    floorPlans: data.floorPlans.map(fp => ({ id: fp.id, name: fp.name, tables: (fp.tables || []).filter(t => !t.mergedInto).map(shape) })),
+    floorPlans: data.floorPlans.map(fp => ({ id: fp.id, name: fp.name, bgColor: fp.bgColor || null, tables: (fp.tables || []).filter(t => !t.mergedInto).map(shape) })),
     fromPos: !!(data.posState && data.posState.connected),
   });
 });
@@ -7300,6 +7003,14 @@ const RAILS = {
     ],
   },
 };
+// Which place a section belongs to. The rail carries Service's four sections
+// from every screen, so "Timeline" has to mean Service's timeline whether it
+// is pressed from the floor or from the waitlist. Nothing named twice: the
+// four service keys and the six guest lenses share no name.
+function railOf(key) {
+  for (const v in RAILS) if (RAILS[v].items.some(it => it[0] === key)) return v;
+  return null;
+}
 // What you are looking at. The badges count the things that need a person:
 // people standing at the door, and openings with somebody to ring about them.
 function modeItems() {
@@ -7312,63 +7023,58 @@ function modeItems() {
     ['settings', 'Settings', 'settings', null],
   ];
 }
-function railTile(key, label, icon, n, on, act, extra) {
-  return `<button class="rail-btn${on ? ' active' : ''}${extra || ''}" data-act="${act}" data-val="${key}"
+function railTile(key, label, icon, n, on, act) {
+  return `<button class="rail-btn${on ? ' active' : ''}" data-act="${act}" data-val="${key}"
     aria-current="${on ? 'page' : 'false'}">
     <span class="rail-ico">${I[icon]}</span><span class="rail-label">${esc(label)}</span>
     ${n == null ? '' : `<span class="rail-n" data-zero="${n ? '0' : '1'}">${n}</span>`}
   </button>`;
 }
-// The SECTIONS come first and the modes below them, because the top of the
-// rail is where the thumb lands and the floor is what a host switches back to
-// forty times a shift. Waitlist, Guests and Settings are places you visit;
-// Floor, Timeline and Flow are the thing you are doing. Visits go under the
-// rule.
-// ONE RAIL, not two. The sections used to sit above a hairline and the places
-// below it, each group its own box, and it read as two rails stuck together —
-// which is what it was. It is one column now, and the only thing that does not
-// travel with it is SETTINGS, pinned at the foot: it is the way back, and a
-// way back that can scroll out of reach is not one.
+// THE RAIL DOES NOT MOVE. It used to carry the sections of whatever you were
+// looking at, so it grew and shrank as you went: eight tiles on Service, ten
+// on Guests, five on the waitlist. Every tile below the change moved under
+// the thumb that made it — you pressed Waitlist and Notify was where Waitlist
+// had been — and a column that rearranges itself on every press is not
+// navigation, it is a shuffle.
 //
-// The two groups are still separate ELEMENTS, because a phone takes them
-// apart again — the sections become the band of chips at the top of the pane
-// and the places become the thumb bar. They just no longer look like it.
-// THE RAIL NEVER SAYS WHERE YOU ARE TWICE. Once the hairline went, the place
-// you are in sat directly under its OWN sections and lit up beside one of
-// them: on Service both "Floor" and "Service" were blue, on the run sheet
-// both "Run sheet" and "Service". Two lit tiles in one column read as being
-// in two places, and they made a section and a place look like peers — which
-// is what "is Run sheet the same as Service?" is asking.
+// So it is the SAME EIGHT TILES at every screen, in the same order, at the
+// same height:
 //
-// They are not peers. Service IS Floor + Timeline + Flow + Run sheet: the
-// place is the sum of its own sections, so while you are in it its tile
-// carries nothing the four above it are not already saying, and one of them
-// is already lit. It is marked here and HIDDEN IN CSS rather than dropped
-// from the markup, because a phone still needs all five places in its thumb
-// bar — and a render that had to know the width would be wrong the moment
-// the phone turned.
+//   Floor · Timeline · Flow · Run sheet · Waitlist · Notify · Guests
+//   ————————————————————————————————————————————————————————————————
+//   Settings (pinned at the foot, outside the scroll)
 //
-// Only when the place HAS sections: on Waitlist, Notify and Settings there
-// is nothing above to carry the highlight, so their own tile keeps it.
+// The four at the top are Service's sections and they are ALWAYS there, from
+// the waitlist and the guest book too, because they are the seven places a
+// shift actually goes. That also makes the journey one press instead of two:
+// on the waitlist, the timeline used to be Service and then Timeline.
+//
+// Service has no tile of its own on a desk, because Service IS Floor +
+// Timeline + Flow + Run sheet and one of the four is always lit — a fifth
+// tile saying the same thing is the app telling you where you are twice. It
+// is still in the markup, hidden in CSS, because a PHONE needs it: down there
+// the rail is a thumb bar of the five PLACES and the sections come back as a
+// band of chips at the top of the pane.
+//
+// The guest book's six lenses came off the rail in the same move. They are
+// not places — they are a question asked of one list — so they belong with
+// the list, as a band above it, at every width. That is what took the rail
+// from ten tiles to eight and stopped it changing length.
+//
+// EXACTLY ONE TILE IS LIT, always: the section you are in, or the place you
+// are in when it has none.
+//
+// Its laws are still the POS's: a uniform square tile, icon over label, no
+// body at all until it is chosen, and chosen is a PALE ACCENT BLOCK with
+// accent ink — never a solid fill, which is the deck's language.
 function renderRail() {
   const items = modeItems();
-  const rail0 = RAILS[state.view];
-  const place = (k, label, icon, n) => {
-    const here = state.view === k;
-    return railTile(k, label, icon, n || null, here, 'view', here && rail0 ? ' rail-here' : '');
-  };
+  const place = (k, label, icon, n) => railTile(k, label, icon, n || null, state.view === k, 'view');
   const modes = items.filter(([k]) => k !== 'settings').map(x => place(...x)).join('');
   const foot = items.filter(([k]) => k === 'settings').map(x => place(...x)).join('');
-  const rail = RAILS[state.view];
-  let secs = '';
-  if (rail) {
-    const now = state[rail.key];
-    // Only the guest book carries counts. `null` is not `undefined`, and the
-    // difference printed the word "null" under every tile on Today.
-    const counts = state.view === 'guests' ? (state.guestCounts || {}) : null;
-    secs = `<div class="rail-secs">${rail.items.map(([k, label, icon]) =>
-      railTile(k, label, icon, counts ? counts[k] : null, now === k, 'mode')).join('')}</div>`;
-  }
+  const svc = RAILS.today;
+  const secs = `<div class="rail-secs">${svc.items.map(([k, label, icon]) =>
+    railTile(k, label, icon, null, state.view === 'today' && state[svc.key] === k, 'mode')).join('')}</div>`;
   return `<nav class="rail" aria-label="Sections"><div class="rail-scroll">${secs}<div class="rail-modes">${modes}</div></div><div class="rail-foot">${foot}</div></nav>`;
 }
 
@@ -7417,9 +7123,19 @@ function renderDeck() {
   </div>`;
 }
 
-// On a phone the sections cannot live on the rail — the rail is a thumb bar at
-// the foot, and five modes already fill it. They come back as a band of chips
-// at the top of the pane, which is where a phone puts a segmented control.
+// The band of chips at the top of the pane. It carries the sections of the
+// place you are in, and it is the same markup at every width — the stylesheet
+// decides which of them a desk shows.
+//
+// On a DESK it shows only the guest book's lenses, because a lens is not a
+// place: it is a question asked of one list, and it belongs above that list
+// rather than in a column of destinations. Service's four sections ARE on the
+// desk's rail, so the band would only say them twice.
+//
+// On a PHONE it shows all of them, because down there the rail is a thumb bar
+// of the five places and has no room for sections — this is where a phone puts
+// a segmented control. Bookings joins them as the first chip: the desk's two
+// columns cannot both fit, so the book and the room are a choice.
 function renderSecBand() {
   const rail = RAILS[state.view];
   if (!rail) return '';
@@ -7432,7 +7148,7 @@ function renderSecBand() {
   const book = state.view === 'today' && state.todayMode !== 'sheet'
     ? `<button class="chip${state.phonePane === 'book' ? ' active' : ''}" data-act="phone-pane" data-val="book">Bookings <span class="sub">${state.reservations.filter(inPickedService).length}</span></button>`
     : '';
-  return `<div class="band secband">${book}${rail.items.map(([k, label, icon]) => {
+  return `<div class="band secband" data-rail="${esc(state.view)}">${book}${rail.items.map(([k, label, icon]) => {
     const n = counts ? counts[k] : null;
     const on = now === k && (!book || state.phonePane === 'room');
     return `<button class="chip${on ? ' active' : ''}" data-act="mode" data-val="${k}">${esc(label)}${n == null ? '' : ` <span class="sub">${n}</span>`}</button>`;
@@ -7602,9 +7318,14 @@ function renderFloor() {
       ? `${r.name} · ${r.partySize} · ${hhmmOf(r.time)}${f.over ? ' · ' + f.over + ' min over' : ''}${f.late ? ' · ' + f.late + ' min late' : ''}`
       : `Table ${t.label} · ${t.seats} seats · free${f.nextAt ? ' until ' + f.nextAt : ''}`;
     const up = uprightStyle(t);
-    return `<button class="fl-table ${f.state}${r && heldTables(r).length > 1 ? ' joined' : ''}${state.highlightTable === t.id ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}"
+    // WHAT IT IS, THEN WHAT IT IS DOING. The skin is the table top the venue
+    // laid; the wash is a translucent tint OVER it, so a burgundy cloth is
+    // still burgundy cloth while somebody is sitting at it. A free table wears
+    // no wash at all — at rest, a table is just a table.
+    return `<button class="fl-table ${f.state}${r && heldTables(r).length > 1 ? ' joined' : ''}${state.highlightTable === t.id ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, state.highlightTable === t.id)}${skinStyle(t)}"
       data-act="${r ? 'edit-booking' : 'new-at'}" ${r ? `data-id="${esc(r.id)}"` : `data-time="${esc(at)}" data-table="${esc(t.id)}"`}
       title="${esc(why)}">
+      ${f.state === 'free' ? '' : `<span class="fl-wash ${f.state}"></span>`}
       <span class="fl-in" style="${up}">
         <span class="fl-no">${esc(t.label)}</span>
         ${sub ? `<span class="fl-sub">${sub}</span>` : ''}
@@ -7623,8 +7344,8 @@ function renderFloor() {
   </div>
   ${plans.length ? plans.map(fp => `
     ${plans.length > 1 ? `<div class="section-h">${esc(fp.name)}</div>` : ''}
-    <div class="fl-wrap" data-keep="floor"><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}">
-      ${(fp.tables || []).map(tableEl).join('')}
+    <div class="fl-wrap" data-keep="floor"><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${floorGround(fp)}${placed ? roomStyle(fp) : ''}">
+      ${(() => { const hug = placed ? floorHug(fp) : null; return (fp.tables || []).map(t => hug ? hugObject(t, hug) : t).map(tableEl).join(''); })()}
     </div></div></div>`).join('')
     : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>'}
   ${placed ? renderPace() : ''}`;
@@ -7697,7 +7418,7 @@ function renderArrange() {
     if (t.type === 'decor' || t.kind === 'decor') {
       return `<div class="fl-decor${t.decorType ? '' : ' wall'}" style="${placeStyle(t)}" aria-hidden="true">${t.decorType ? `<span style="${uprightStyle(t)}">${esc(String(t.decorType).replace(/-/g, ' '))}</span>` : ''}</div>`;
     }
-    return `<button class="fl-table free arr${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}"
+    return `<button class="fl-table free arr${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}${skinStyle(t)}"
       data-arrange="${esc(t.id)}" title="Table ${esc(t.label)} \u00b7 ${esc(String(t.seats))} seats \u2014 drag to move">
       <span class="fl-in" style="${uprightStyle(t)}">
         <span class="fl-no">${esc(t.label)}</span>
@@ -7775,12 +7496,124 @@ function renderPace() {
 // percent of a 900x560 canvas, and width/height as percentages of each axis —
 // its own layout maths, used verbatim so the room matches the till. A plan
 // with no coordinates falls back to a plain wrapped row.
-function placeStyle(t) {
+// §§ The table top — the POS's own finishes, verbatim
+//
+// The till DRESSES the room: every table carries a FINISH the venue picked in
+// the layout editor — oak, walnut, marble, brass, burgundy cloth — and that is
+// what makes a floor read as a room rather than as a diagram. This app drew
+// the same geometry as hollow outlines on a dark slab, and it was a different
+// picture of the same floor: a host looking up from the till saw one room and
+// the desk drew another.
+//
+// So the finishes come across exactly as the POS's own app.js writes them.
+// They are pure CSS — inline SVG tiles and gradient layers, no image files and
+// nothing to fetch — which is why they can be copied rather than linked. A
+// change here is a change to POS-LINK.md in the same commit.
+const texTile = (svg, px) => "url('data:image/svg+xml," + encodeURIComponent(svg).replace(/'/g, '%27') + "') 0 0 / " + (px || 72) + 'px ' + (px || 72) + 'px repeat';
+const TEX_OAK = texTile("<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72'><rect width='72' height='72' fill='#C8935F'/><g fill='none' stroke='#B37E4C' stroke-width='2.5'><path d='M-4 9 Q18 5 36 9 T76 9'/><path d='M-4 27 Q22 33 44 27 T76 29'/><path d='M-4 45 Q16 41 40 46 T76 44'/><path d='M-4 63 Q24 68 48 62 T76 64'/></g><g fill='none' stroke='#9A6337' stroke-width='1'><path d='M-4 18 Q20 15 40 18 T76 18'/><path d='M-4 36 Q18 39 38 35 T76 37'/><path d='M-4 54 Q26 50 46 55 T76 53'/><ellipse cx='52' cy='22' rx='7' ry='3.2'/><ellipse cx='52' cy='22' rx='3.5' ry='1.5'/></g></svg>");
+const TEX_WALNUT = texTile("<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72'><rect width='72' height='72' fill='#6E4A2E'/><g fill='none' stroke='#5C3A20' stroke-width='2.5'><path d='M-4 10 Q20 6 38 10 T76 10'/><path d='M-4 28 Q24 34 46 28 T76 30'/><path d='M-4 46 Q18 42 42 47 T76 45'/><path d='M-4 64 Q26 69 50 63 T76 65'/></g><g fill='none' stroke='#83573A' stroke-width='1'><path d='M-4 19 Q22 16 42 19 T76 19'/><path d='M-4 37 Q20 40 40 36 T76 38'/><path d='M-4 55 Q28 51 48 56 T76 54'/><ellipse cx='24' cy='50' rx='6.5' ry='3'/><ellipse cx='24' cy='50' rx='3' ry='1.3'/></g></svg>");
+const TEX_MARBLE = texTile("<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><defs><filter id='mv' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.013 0.017' numOctaves='5' seed='7' result='n'/><feColorMatrix in='n' type='matrix' values='0 0 0 0 0.44  0 0 0 0 0.43  0 0 0 0 0.39  0.9 0.9 0.9 0 0' result='g'/><feComponentTransfer in='g' result='v'><feFuncA type='gamma' amplitude='1' exponent='5.5' offset='0'/></feComponentTransfer></filter></defs><rect width='200' height='200' fill='#F4F2ED'/><rect width='200' height='200' filter='url(#mv)' opacity='0.5'/></svg>", 200);
+const TEX_MARBLE_DARK = texTile("<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><defs><filter id='mvd' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.013 0.017' numOctaves='5' seed='19' result='n'/><feColorMatrix in='n' type='matrix' values='0 0 0 0 0.80  0 0 0 0 0.67  0 0 0 0 0.40  0.9 0.9 0.9 0 0' result='g'/><feComponentTransfer in='g' result='v'><feFuncA type='gamma' amplitude='1' exponent='6' offset='0'/></feComponentTransfer></filter></defs><rect width='200' height='200' fill='#26262B'/><rect width='200' height='200' filter='url(#mvd)' opacity='0.55'/></svg>", 200);
+const TEX_WEAVE_DARK = 'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 3px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 3px)';
+const TABLE_FINISHES = [
+  { key: 'plain', bg: null, text: null },
+  { key: 'wood', bg: TEX_OAK, text: '#2b1c11' },
+  { key: 'walnut', bg: TEX_WALNUT, text: '#F4E9DD' },
+  { key: 'marble', text: '#24282A',
+    bg: 'linear-gradient(125deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 63%, rgba(255,255,255,0.22) 100%), radial-gradient(120% 90% at 22% 16%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 46%), radial-gradient(130% 100% at 84% 88%, rgba(120,116,104,0.16) 0%, rgba(120,116,104,0) 55%), ' + TEX_MARBLE },
+  { key: 'marble-dark', text: '#F0EDE6',
+    bg: 'linear-gradient(125deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 32%, rgba(255,255,255,0) 64%, rgba(255,255,255,0.08) 100%), radial-gradient(120% 90% at 24% 16%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 48%), radial-gradient(130% 100% at 82% 88%, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 55%), ' + TEX_MARBLE_DARK },
+  { key: 'brass', bg: 'repeating-linear-gradient(115deg, rgba(255,255,255,0.14) 0 1px, rgba(0,0,0,0.06) 1px 2px, transparent 2px 4px), linear-gradient(115deg, #7D5F22 0%, #C69C3F 26%, #F0D488 46%, #C9A145 58%, #8A6A25 82%, #A8842F 100%)', text: '#3A2C0C' },
+  { key: 'copper', bg: 'repeating-linear-gradient(115deg, rgba(255,255,255,0.12) 0 1px, rgba(0,0,0,0.06) 1px 2px, transparent 2px 4px), linear-gradient(115deg, #7A3D22 0%, #B9683F 28%, #E8A175 46%, #B9683F 60%, #83421F 84%, #9C5530 100%)', text: '#FFF0E4' },
+  { key: 'steel', bg: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.16) 0 1px, rgba(0,0,0,0.05) 1px 2px, transparent 2px 3px), linear-gradient(115deg, #9AA0A5 0%, #DFE4E7 30%, #B9BFC4 48%, #EFF2F4 66%, #8E959A 100%)', text: '#24282A' },
+  { key: 'cloth-white', bg: 'repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0 1px, transparent 1px 3px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.03) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 50% 40%, #FFFFFF 0%, #F7F4ED 55%, #E4DFD2 100%)', text: '#24282A' },
+  { key: 'cloth-navy', bg: TEX_WEAVE_DARK + ', radial-gradient(ellipse at 50% 40%, #3E5288 0%, #32436F 55%, #232F52 100%)', text: '#FFFFFF' },
+  { key: 'cloth-burgundy', bg: TEX_WEAVE_DARK + ', radial-gradient(ellipse at 50% 40%, #83394D 0%, #6C2C3F 55%, #4E1E2D 100%)', text: '#FFFFFF' },
+  { key: 'cloth-forest', bg: TEX_WEAVE_DARK + ', radial-gradient(ellipse at 50% 40%, #377350 0%, #2B5C3F 55%, #1D422C 100%)', text: '#FFFFFF' },
+];
+function tableFinish(key) { return TABLE_FINISHES.find(f => f.key === key) || TABLE_FINISHES[0]; }
+// The corner is 16% of the table's SHORT side, written as a PAIR of
+// percentages so a long table's corner stays a corner instead of stretching
+// into an oval with the box. The till's own sum, on the till's own 900x560.
+function tableRadiusFor(t) {
+  const round = t && (t.shape === 'round' || t.shape === 'oval' || t.shape === 'circle');
+  if (round) return '50%';
+  const wpx = ((t && t.width) || 10) * 9, hpx = ((t && t.height) || 10) * 5.6;
+  const r = 0.16 * Math.min(wpx, hpx);
+  return (r / wpx * 100).toFixed(1) + '% / ' + (r / hpx * 100).toFixed(1) + '%';
+}
+// Ink that can be read on a colour the venue painted by hand, so a table
+// painted red reads the same here as it does on the till.
+function contrastInk(hex) {
+  const m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(hex || ''));
+  if (!m) return 'var(--text-primary)';
+  let h = m[1];
+  if (h.length === 3) h = h[0] + h[0] + h[1] + h[1] + h[2] + h[2];
+  const n = parseInt(h, 16);
+  const lum = (0.299 * (n >> 16 & 255) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255;
+  return lum > 0.6 ? '#24282A' : '#FFFFFF';
+}
+// THE SKIN: what a table is MADE of, before anything is asked of it. The
+// venue's own colour wins, then the finish, then a plain top. What the table
+// is DOING is a wash over this, never a replacement for it — that is the whole
+// reason the finish is worth carrying.
+function skinStyle(t) {
+  const fin = tableFinish(t.finish);
+  const bg = t.color ? t.color : (fin.bg || 'var(--table-plain)');
+  const ink = t.color ? contrastInk(t.color) : (fin.text || 'var(--text-primary)');
+  return 'background:' + bg + ';color:' + ink + ';';
+}
+
+// THE ROOM IS HUGGED TO WHAT IS IN IT — the till's own `floorHug`, verbatim.
+// The canvas is 900x560, but almost no venue fills it: this room uses 83% of
+// the width, so a third of the drawing was empty ground on the right and every
+// table was drawn smaller than the till draws it to make room for nothing. The
+// till crops to the bounding box of the furniture plus a 3% margin and draws
+// THAT, which is why its floor is tight and ours was not.
+//
+// Settings → The room does NOT hug: that is the editor, and you drag a table
+// into the empty parts, so it needs the whole canvas. The till splits the same
+// way — its order screen hugs, its layout editor does not.
+function floorHug(fp) {
+  const objs = (fp && fp.tables) || [];
+  if (!objs.length) return { x0: 0, y0: 0, w: 100, h: 100 };
+  const m = 3; // a turned table's corners poke past its box by a little
+  let x0 = 100, y0 = 100, x1 = 0, y1 = 0;
+  objs.forEach(t => {
+    const hw = (t.width || 0) / 2, hh = (t.height || 0) / 2;
+    x0 = Math.min(x0, t.x - hw); x1 = Math.max(x1, t.x + hw);
+    y0 = Math.min(y0, t.y - hh); y1 = Math.max(y1, t.y + hh);
+  });
+  x0 = Math.max(0, x0 - m); y0 = Math.max(0, y0 - m); x1 = Math.min(100, x1 + m); y1 = Math.min(100, y1 + m);
+  return { x0, y0, w: Math.max(10, x1 - x0), h: Math.max(10, y1 - y0) };
+}
+function hugObject(t, hug) {
+  return Object.assign({}, t, { x: (t.x - hug.x0) / hug.w * 100, y: (t.y - hug.y0) / hug.h * 100,
+    width: (t.width || 0) / hug.w * 100, height: (t.height || 0) / hug.h * 100 });
+}
+// The shape of the hugged room, and the two lengths the layout needs off it:
+// how wide it is per unit of height (for the width the pane's HEIGHT allows)
+// and how wide it is at the native scale (for the phone, which never shrinks).
+function roomStyle(fp) {
+  const hug = floorHug(fp);
+  const w = 900 * hug.w / 100, h = 560 * hug.h / 100;
+  return `--fl-arw:${(w / h).toFixed(4)};--fl-w:${w.toFixed(2)}px;aspect-ratio:${w.toFixed(2)} / ${h.toFixed(2)};`;
+}
+// The venue paints its own floor in the till's layout editor. When it has,
+// that colour is the ground here too — it is the same room.
+function floorGround(fp) { return fp && fp.bgColor ? '--floor-bg:' + fp.bgColor + ';' : ''; }
+function placeStyle(t, picked) {
   if (!Number.isFinite(t.x) || !Number.isFinite(t.y)) return '';
   const rot = Number(t.rotation) || 0;
-  return `position:absolute;left:${t.x}%;top:${t.y}%;width:${t.width || 6}%;height:${t.height || 9.8}%;`
-    + `transform:translate(-50%,-50%)${rot ? ` rotate(${rot}deg)` : ''};`
-    + (t.shape === 'circle' ? 'border-radius:50%;' : '');
+  // THE FLOOR STACKS FROM THE BOTTOM UP, the till's rule: a table higher on
+  // the map paints over the one under it, so anything hanging off a table's
+  // foot lands ON its neighbour below rather than under it.
+  const decor = t.kind === 'decor' || t.type === 'decor';
+  const stack = decor ? '' : 'z-index:' + ((picked ? 300 : 100) - Math.round(t.y || 0)) + ';';
+  const radius = decor ? (t.shape === 'round' || t.shape === 'circle' ? '50%' : '8px') : tableRadiusFor(t);
+  return 'position:absolute;left:' + t.x + '%;top:' + t.y + '%;width:' + (t.width || 6) + '%;height:' + (t.height || 9.8) + '%;'
+    + 'transform:translate(-50%,-50%)' + (rot ? ' rotate(' + rot + 'deg)' : '') + ';'
+    + 'border-radius:' + radius + ';' + stack;
 }
 // A table turned on the floor keeps its angle — that is where it really sits —
 // but its WRITING does not turn with it. The POS can afford a sideways number
@@ -7788,10 +7621,12 @@ function placeStyle(t) {
 // name on its side is a name nobody reads across a busy room.
 function uprightStyle(t) {
   const rot = Number(t.rotation) || 0;
-  // Turned back upright, the writing no longer matches the box it sits in —
-  // it is wider than the diagonal it was measured against. So a turned table
-  // lets its label spill a little rather than clip it to "30m lat".
-  return rot ? `transform:rotate(${-rot}deg);min-width:130%;` : '';
+  // Nothing but the turn. The label used to be forced to 130% of the box so a
+  // turned table could spill rather than clip to "30m lat"; the chip has its
+  // own ground now, so a forced width is just a cream slab hanging off the
+  // corner. It sizes to its own words and overhangs if it must — the till's
+  // rule for a number wider than its table.
+  return rot ? `transform:rotate(${-rot}deg);` : '';
 }
 
 function renderFlow() {
@@ -9160,16 +8995,22 @@ document.addEventListener('click', async (ev) => {
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'phone-pane': state.phonePane = val; render(); break;
       case 'mode': {
-        const rail = RAILS[state.view];
+        // A section carries its own place. The rail shows Service's four from
+        // every screen, so pressing Timeline on the waitlist goes to Service's
+        // timeline in ONE press — it does not ask you to find Service first.
+        const view = railOf(val) || state.view;
+        const rail = RAILS[view];
         if (!rail) break;
         state[rail.key] = val;
+        const moved = state.view !== view;
+        state.view = view;
         // Asking for the floor on a phone is asking to look at the room.
-        if (state.view === 'today') state.phonePane = 'room';
+        if (view === 'today') state.phonePane = 'room';
         render();
-        // Today redraws from what is already in memory; the guest book has to
-        // ask the server, because a lens reads the whole book and the browser
-        // only ever holds a page of it.
-        if (state.view === 'guests') { await loadView(); render(); }
+        // Today redraws from what is already in memory; arriving from another
+        // place has to fetch, and so does the guest book every time, because a
+        // lens reads the whole book and the browser only ever holds a page.
+        if (moved || view === 'guests') { try { await loadView(); } catch (e) {} render(); }
         else if (val === 'sheet') { await loadDay(); render(); }
         break;
       }
