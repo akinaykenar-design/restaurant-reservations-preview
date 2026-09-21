@@ -155,7 +155,13 @@ h1,h2,h3{margin:0;}
    IS THE WHOLE COLUMN, not a rounded box floating in it. The seams step up to
    --steel-300 so the line is a line. */
 .rail{width:var(--rail-w);flex-shrink:0;background:var(--steel-200);border-right:1px solid var(--steel-300);
-  overflow:hidden;padding:var(--deck-pad) 0;display:flex;flex-direction:column;}
+  overflow:hidden;padding:0;display:flex;flex-direction:column;}
+/* NO AIR AT THE TOP. The rail carried 8 of its own padding above the first
+   tile, so the tile you are IN stopped 8 pixels short of the top bar and the
+   rail’s own colour showed through as a strip above it — a gap between the
+   two things that touch. The column starts where the pane starts and ends
+   where the window does; a tile’s air is its own padding, which is the
+   same reason there is no gap BETWEEN them. */
 .rail-btn{width:100%;aspect-ratio:1;background:none;border:none;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
   padding:8px 4px;color:var(--charcoal-soft);font-size:var(--fs-chip);font-weight:700;
@@ -644,6 +650,11 @@ body.book-page #app{display:block;height:auto;}
 .fl-wash.late{background:var(--st-late);}
 .fl-wash.arrived{background:var(--st-confirmed);}
 .fl-wash.walkin{background:var(--st-walkin);}
+/* A table the APP chose, in the BOOK: the same number, drawn light. Nothing
+   else changes — it is a real table and it is really held, it just has
+   nobody's name on the choice yet. The FLOOR draws it like any other: a room
+   is what is in it, and a host looking across it does not care who decided. */
+.bl-table.auto{font-weight:400;opacity:var(--dim);}
 /* Two tables pushed together are one booking; the ring says so without a
    second colour. */
 .fl-table.joined{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
@@ -3174,6 +3185,42 @@ function suggestTable(ctx, day, hhmm, party, opts) {
 // Pure, and it knows nothing about how a floor is drawn: the geometry comes
 // from the POS and stays in the client. `hhmm` is the moment being asked
 // about, which is usually now but is a scrubber on the screen.
+// §§ Who sits where, when nobody has said
+//
+// A booking with no table is not a booking without a table — it is one the
+// desk has not got round to. The app lays those out itself, so the floor and
+// the book both show the whole night instead of a night with holes in it, and
+// a host who wants a different table moves it by hand. What the APP chose is
+// faint on the list; what a PERSON chose is solid. That is the only
+// difference, and it is the whole feature: the desk can see at a glance which
+// of tonight's tables anybody has actually thought about.
+//
+// DERIVED, NEVER STORED. A stored auto pick is a second source for the same
+// answer and it goes stale the moment anything else moves — a party grows, a
+// booking cancels, somebody hard-assigns the table it was using. This is a
+// pure function of the day's bookings and the room, so it is the same answer
+// on the server, on the desk, and again tomorrow.
+//
+// THE ORDER MATTERS. Earliest first, and among equals the BIGGEST party
+// first: a six is harder to place than a two, and a room that seats its twos
+// first strands its sixes. Ties break on id so two runs never disagree.
+function autoAssign(ctx, day) {
+  const live = (ctx.reservations || []).filter(r => r && isLive(r) && dayOf(r.time) === day);
+  const loose = live.filter(r => !heldTables(r).length).sort((a, b) =>
+    (minsOf(a.time) - minsOf(b.time)) || (b.partySize - a.partySize) || String(a.id).localeCompare(String(b.id)));
+  // What the next pick has to work around: the bookings a personhas placed,
+  // plus every pick made earlier in this pass.
+  let around = live.filter(r => heldTables(r).length);
+  const out = {};
+  for (const r of loose) {
+    const t = suggestTable({ settings: ctx.settings, tables: ctx.tables, reservations: around },
+      day, hhmmOf(r.time), r.partySize, { duration: r.durationMin });
+    out[r.id] = t ? [t.id] : [];
+    if (t) around = around.concat([Object.assign({}, r, { tableId: t.id, tableIds: [] })]);
+  }
+  return out;
+}
+
 // §§ What a table is doing
 //
 // Four states became seven, because four of them answered "is somebody on
@@ -3806,7 +3853,7 @@ module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, suggestTable, suggestJoin, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
-  FLOOR_STATES, LATE_AFTER, floorAt, coverFlow,
+  FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, coverFlow,
   MOVABLE, canMove, snapSlot, seatsOf, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
@@ -5484,7 +5531,16 @@ app.get('/api/reservations', (req, res) => {
   if (from) list = list.filter(r => av.dayOf(r.time) >= from);
   if (to) list = list.filter(r => av.dayOf(r.time) <= to);
   if (guest) list = list.filter(r => r.guestId === guest);
-  res.json(list.slice().sort((a, b) => a.time.localeCompare(b.time)));
+  list = list.slice().sort((a, b) => a.time.localeCompare(b.time));
+  // WHAT THE APP WOULD CHOOSE, for a whole day only. av.autoAssign() lays out
+  // every booking nobody has placed, around the ones somebody has; it is
+  // derived on the way out and never written down, so it cannot go stale.
+  // A range or a guest's history is not a night, so it gets none.
+  if (date) {
+    const auto = av.autoAssign(Object.assign(ctxOf(data), { tables: floorTablesOf(data) }), date);
+    list = list.map(r => (auto[r.id] ? Object.assign({}, r, { autoTables: auto[r.id] }) : r));
+  }
+  res.json(list);
 });
 
 // How busy each day is, for the diary's month grid.
