@@ -964,11 +964,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 /* The way in and out without a gesture: a mouse has no pinch, and a host who
    has pushed into a corner needs a way back that does not depend on getting
    two fingers right. */
-.fl-zoom{display:flex;align-items:center;gap:4px;}
-.fl-zoom b{font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;
-  color:var(--charcoal-soft);min-width:38px;text-align:center;}
-.fl-status .chip.sq{min-height:30px;width:30px;}
-.fl-status .chip.sq svg{width:16px;height:16px;}
+
 .fl-status .chip.sq[disabled]{opacity:var(--dim);cursor:default;}
 .desk-main > .tl,.desk-main > .grid3,.desk-main > .flow,.desk-main > .empty{margin:var(--hub-edge);}
 .desk-main > .ts{padding:0 var(--hub-edge) var(--hub-edge);margin-top:0!important;}
@@ -7966,7 +7962,6 @@ function renderFloor() {
   // slider through the night (the timeline's question, answered properly).
   const count = (st) => Object.values(by).filter(f => f.state === st).length;
   const key = (st, label) => `<span class="fl-key"><i class="fl-dot ${st}"></i>${label} <b>${count(st)}</b></span>`;
-  const z = state.floorZoom || 1;
   // THE LENS: ask the whole room one question. The till hangs this off the
   // right of its floor band, behind the same switch that draws the pill at
   // all — switch the pill off and there is nothing to ask, so the chips go
@@ -7994,12 +7989,6 @@ function renderFloor() {
       + PILL_LENSES.map(([v, l]) =>
       `<button class="chip${lens === v ? ' on' : ''}" data-act="floor-lens" data-val="${v}"${lens === v ? ' aria-current="true"' : ''}>${esc(l)}</button>`).join('')
     }</span>` : ''}
-    <span class="fl-zoom">
-      <button class="chip sq" data-act="floor-out" title="Further out" aria-label="Zoom out"${z <= FLOOR_MIN ? ' disabled' : ''}>${I.minus}</button>
-      <b>${Math.round(z * 100)}%</b>
-      <button class="chip sq" data-act="floor-in" title="Closer in" aria-label="Zoom in"${z >= FLOOR_MAX ? ' disabled' : ''}>${I.plus}</button>
-      ${z > 1 ? `<button class="chip sq" data-act="floor-fit" title="Fit the room to the screen" aria-label="Fit the room to the screen">${I.shrink}</button>` : ''}
-    </span>
   </div>
   ${plans.length ? plans.map(fp => `
     ${plans.length > 1 ? `<div class="section-h">${esc(fp.name)}</div>` : ''}
@@ -9583,18 +9572,7 @@ document.addEventListener('click', async (ev) => {
         render();
         break;
       }
-      case 'floor-fit': state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); break;
       case 'floor-lens': state.floorLens = val; render(); break;
-      // A step either way, about the middle of what you are looking at.
-      case 'floor-in': case 'floor-out': {
-        const wrap = document.querySelector('.desk-main .fl-wrap');
-        const b = wrap ? wrap.getBoundingClientRect() : { left: 0, top: 0, width: 0, height: 0 };
-        const step = act === 'floor-in' ? 1.4 : 1 / 1.4;
-        flZoomAt(Math.max(FLOOR_MIN, Math.min(FLOOR_MAX, (state.floorZoom || 1) * step)),
-          b.left + b.width / 2, b.top + b.height / 2);
-        flCommit();
-        break;
-      }
       case 'new-booking': openBooking(null); break;
       // A walk-in is not a booking with the boxes left empty: it is always
       // NOW, always on the trading day whatever night is on screen, and it is
