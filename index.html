@@ -581,8 +581,7 @@ body.book-page #app{display:block;height:auto;}
 .fl-room.loose .fl-table{position:static;width:96px;height:64px;gap:2px;padding:2px;}
 .fl-room.loose .fl-in{gap:2px;}
 .fl-room.loose .fl-no{font-size:var(--fs-md);}
-.fl-room.loose .fl-sub,.fl-room.loose .fl-cpill b{font-size:var(--fs-chip);}
-.fl-room.loose .fl-cpill{transform:translate(-50%, 3px);gap:4px;padding:3px 8px;}
+.fl-room.loose .fl-sub{font-size:var(--fs-chip);}
 .fl-room.loose .fl-decor{display:none;}
 /* Arranging it. The room is the room — the only differences are that a table
    says it can be picked up, and that the drawing is a little shorter, because
@@ -620,32 +619,6 @@ body.book-page #app{display:block;height:auto;}
 /* --fs-md 13.5 and --fs-chip 10.5 at the native 900, as a share of it. */
 .fl-no{font-size:1.5cqw;line-height:1.1;}
 .fl-sub{font-family:var(--font-body);font-size:1.1667cqw;font-weight:700;opacity:.85;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-/* §§ The floating pill — the POS's .tbl-cpill, in our tokens
-   It hangs BELOW the table, outside its box, so the box can keep the number
-   and nothing has to share thirty pixels. .fl-badges is the anchor: it is
-   counter-rotated so a pill on a turned table is still readable, and carries
-   --pill-out, how far the pill must drop to clear that turned box. */
-.fl-badges{position:absolute;inset:0;z-index:5;pointer-events:none;
-  transform-origin:50% 50%;display:block;}
-.fl-cpill{position:absolute;left:50%;top:calc(100% + var(--pill-out, 0%));
-  transform:translate(-50%, .3333cqw);display:inline-flex;align-items:center;gap:.4444cqw;
-  white-space:nowrap;border-radius:var(--r-pill);padding:.3333cqw .8889cqw;pointer-events:none;
-  box-shadow:var(--lift-1);background:var(--surface);
-  color:var(--text-primary);}
-.fl-cpill b{font-family:var(--font-mono);font-weight:700;font-size:1.1667cqw;
-  line-height:1.2;letter-spacing:.2px;}
-/* A table about to go, and one whose party is due: the accent, quietly. */
-.fl-cpill.next,.fl-cpill.due{background:var(--orange-dim);color:var(--orange);}
-/* Closing in wears the tint. OVER wears a solid colour, because the alarm
-   must not whisper — the POS's rule, and its reason. */
-.fl-cpill.warn{background:color-mix(in srgb, var(--st-due) 22%, var(--surface));
-  color:color-mix(in srgb, var(--st-due) 60%, var(--text-primary));}
-.fl-cpill.late{background:var(--st-due);color:var(--charcoal);}
-.fl-cpill.over{background:var(--st-over);color:#fff;}
-/* A table showing a pill stands above its neighbours, or the pill — which
-   hangs outside the table's own box — is painted over by whichever table
-   comes next. The POS learnt this one the hard way. */
-.fl-table:has(.fl-cpill){z-index:6;}
 /* Furniture, not a key. A solid white slab reads as something you press; a
    wall and a bar are the room's edges and want the weight of a pencil line.
    A NAMED piece (bar, pass) keeps a faint wash so its label has a ground; an
@@ -1209,40 +1182,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-find input::-webkit-search-cancel-button{display:none;}
 .bl-find .chip.sq{flex:none;min-height:34px;width:34px;}
 
-/* THE LENS — a row of chips at the end of the status line, which is what the
-   Chip law says a set of selectors is. It rides behind the same switch that
-   draws the pill: with no pill there is nothing to ask. NOT wrapped in
-   .band, whatever the name suggests: .band carries its own ground and its
-   own hairline, and the status line already sits inside the desk's one card
-   — a box in a box is how a screen gets busy without anybody adding
-   anything. The chips keep the deck's sizing rather than the room's, because
-   they are a control on the app and not part of the drawing. */
-.fl-lens{display:flex;align-items:center;gap:4px;flex:none;}
-/* The app's own chip height, not a smaller one invented for this row: the
-   zoom keys sit right beside them and a row of two heights reads as a
-   mistake. Only the padding tightens, so four words fit the line. */
-.fl-lens .chip{padding:6px 10px;font-size:var(--fs-chip);}
-.fl-lens .chip.on{border-color:var(--orange);background:var(--orange-dim);color:var(--orange);}
-/* An allergy is the one thing on the room a host must not read past. */
-.fl-cpill.hot{background:var(--red);color:#fff;}
-/* A phone, and a phone turned sideways, fold the four into one: a third row
-   of bar is 40 pixels the room does not have, and sideways it is the whole
-   argument for that shape. The fold is a CSS swap, not a narrower render —
-   a render that had to know the width would be wrong the moment the phone
-   turned, and nothing re-renders on a rotation. */
-.fl-lens-cycle{display:none;}
-@media (max-width:760px){
-  .fl-lens .chip:not(.fl-lens-cycle){display:none;}
-  .fl-lens-cycle{display:inline-flex;}
-}
-/* A PHONE TURNED SIDEWAYS IS NOT OFFERED THE LENS AT ALL. There the two
-   columns sit side by side, so the room gets about 424 of the 852 — the
-   counts already fill that line, and one more chip wrapped it to a second
-   row: measured, 47 pixels of bar became 99 on a screen 393 tall. That is
-   a quarter of the height to ask a question, on the one shape whose whole
-   argument is that it has no height to spare. The room there is a glance
-   beside the book; asking it things is a desk and tablet job. */
-@media (max-height:520px) and (min-width:761px){ .fl-lens{display:none;} }
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "d3f36a9d0d77add20c1bec7edc792a7027c85430";window.__RESV_ROOM__ = [
@@ -3125,17 +3064,6 @@ const DEFAULT_SETTINGS = {
   maxPartySize: 12,
   seatSlack: 2,             // a table may have this many seats more than the party
   pacing: { maxCoversPer15: 0, maxBookingsPer15: 0 }, // 0 = off
-  // The floating pill under a table — the till's own card, in our terms. The
-  // POS times a sitting against one fixed cap because it has no booking to
-  // measure against; ours is a SHARE of the booking's own length, so a party
-  // of eight on a 150-minute sitting is not running long at ninety. See
-  // availability.js:tablePill(), which is where the rule and its tests live.
-  //   on             draw the pill at all (the till's floorStatusEnabled)
-  //   warnAt         % of the booking's length before a sitting speaks up
-  //   lateAfter      minutes past the time before "late" appears
-  //   veryLateAfter  minutes past the time before late goes solid
-  //   soonWithin     how far ahead a free table says it is going
-  floorPill: { on: true, warnAt: 65, lateAfter: 5, veryLateAfter: 20, soonWithin: 45 },
   // What the venue has recoloured. A key here is a CSS custom property the
   // client re-points at boot; a key ABSENT (or '') means the stylesheet's own
   // token stands. The accent is NOT in here — it comes from the POS with the
@@ -3247,8 +3175,6 @@ function migrate(data) {
   for (const k of Object.keys(DEFAULT_SETTINGS.online)) if (s.online[k] === undefined) s.online[k] = DEFAULT_SETTINGS.online[k];
   for (const k of Object.keys(DEFAULT_SETTINGS.pos)) if (s.pos[k] === undefined) s.pos[k] = DEFAULT_SETTINGS.pos[k];
   for (const k of Object.keys(DEFAULT_SETTINGS.pacing)) if (s.pacing[k] === undefined) s.pacing[k] = DEFAULT_SETTINGS.pacing[k];
-  if (!s.floorPill || typeof s.floorPill !== 'object' || Array.isArray(s.floorPill)) s.floorPill = {};
-  for (const k of Object.keys(DEFAULT_SETTINGS.floorPill)) if (s.floorPill[k] === undefined) s.floorPill[k] = DEFAULT_SETTINGS.floorPill[k];
   // The loop above already gives an older store `exceptions: []`; this catches
   // a hand-edited or half-written file that has the key but not an array.
   if (!Array.isArray(s.exceptions)) s.exceptions = [];
@@ -3550,16 +3476,10 @@ function floorAt(ctx, day, hhmm, opts) {
     if (!on) {
       return {
         id: t.id, state: 'free', bookingId: null, over: 0, late: 0, sat: 0, cap: 0,
-        // An allergy is a thing you PREPARE FOR, so it belongs to the table
-        // from the moment the night is set, not from the moment they sit.
-        allergy: allergyWordOf(next),
         nextAt, freeFor: next ? minsOf(next.time) - at : null,
       };
     }
     const start = minsOf(on.time);
-    // Whoever is ON the table now, or whoever is coming to it next: the
-    // kitchen needs to know before the plate is made, not after.
-    const allergy = allergyWordOf(on) || allergyWordOf(next);
     const cap = durOf(on);
     const end = start + cap;
     const state = on.status === 'seated' ? (at >= end ? 'over' : 'seated') : 'due';
@@ -3571,126 +3491,10 @@ function floorAt(ctx, day, hhmm, opts) {
       // How long they have been down, against how long they have. The pill's
       // danger scale is a SHARE of the second, so both travel with the state.
       sat: state === 'seated' || state === 'over' ? Math.max(0, at - start) : 0,
-      cap, allergy,
+      cap,
       nextAt, freeFor: null,
     };
   });
-}
-
-// §§ The floating pill — WHEN a table has news, and how loud
-//
-// The till's rule in our terms, and the reason it is here rather than in the
-// client: it is a booking rule, and booking rules are tested.
-//
-// The POS scales a sitting against a FIXED cap, because a till has no booking
-// to measure against — it only knows the table has been open an hour. The
-// desk has the booking's own length, so ours is a SHARE of that: a party of
-// eight on a 150-minute sitting is not running long at ninety minutes, and
-// the till would have said it was. The thresholds are the venue's, and the
-// defaults are the till's own reading — quiet under 0.65 of the cap, a tint
-// from 0.65, a solid colour at 1 and over, "because the alarm must not
-// whisper".
-//
-// It returns WHAT to say, never the words: 'over' and 'late' are solid,
-// 'warn' is a tint, 'due' and 'next' are the quiet accent, and null is a
-// table with nothing worth saying — which is most of them, most of the
-// night, and is the whole reason the room stays readable.
-const PILL_DEFAULTS = {
-  on: true,
-  warnAt: 65,         // % of the booking's length before a sitting speaks up
-  lateAfter: 5,       // minutes past the time before "late" appears at all
-  veryLateAfter: 20,  // minutes past the time before late goes solid
-  soonWithin: 45,     // how far ahead a free table says it is going
-};
-
-function pillSettings(settings) {
-  const s = (settings && settings.floorPill) || {};
-  const num = (v, d, lo, hi) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? Math.max(lo, Math.min(hi, Math.round(n))) : d;
-  };
-  return {
-    on: s.on !== false,
-    warnAt: num(s.warnAt, PILL_DEFAULTS.warnAt, 1, 100),
-    lateAfter: num(s.lateAfter, PILL_DEFAULTS.lateAfter, 0, 120),
-    // Very late can never come BEFORE late, whatever a settings file says —
-    // otherwise the solid colour lands first and the tint never shows.
-    veryLateAfter: Math.max(
-      num(s.lateAfter, PILL_DEFAULTS.lateAfter, 0, 120),
-      num(s.veryLateAfter, PILL_DEFAULTS.veryLateAfter, 0, 240)
-    ),
-    soonWithin: num(s.soonWithin, PILL_DEFAULTS.soonWithin, 0, 240),
-  };
-}
-
-// A pill has room for ONE WORD, not a paragraph: the chef reads the run
-// sheet, the host reads the room. So the allergy lens shows what it IS —
-// the first thing in the note that names a food, or just "allergy" when the
-// booking is tagged and says no more.
-function allergyWordOf(r) {
-  const a = allergyOf(r, null);
-  if (!a) return '';
-  const hit = String(a.notes || '').match(ALLERGY_RE);
-  return hit ? hit[0].toLowerCase() : 'allergy';
-}
-
-// The lenses. 'status' is ours and is what the room says when nobody has
-// asked it anything: the one thing per table that matters most, chosen by
-// priority. The other three are the till's idea — ask the whole room one
-// question and have every table answer it. The POS's other lenses (course,
-// attention, spend) are the till's own business: they need open orders, and
-// a lens that can only ever say nothing is worse than no lens.
-const PILL_LENSES = ['status', 'sitting', 'booked', 'allergy'];
-
-function tablePill(f, settings, lens) {
-  if (!f) return null;
-  const p = pillSettings(settings);
-  if (!p.on) return null;
-  const view = PILL_LENSES.indexOf(lens) >= 0 ? lens : 'status';
-
-  if (view === 'allergy') return f.allergy ? { kind: 'allergy', text: f.allergy } : null;
-
-  if (view === 'sitting') {
-    // Asked on purpose, so every sitting answers — even the one that has
-    // just sat, which the status lens rightly keeps quiet about. The scale
-    // only decides how loudly. This is the till's own sitting lens, and its
-    // number is the DWELL even once a table is over, never the overstay.
-    if (f.state !== 'seated' && f.state !== 'over') return null;
-    const cap = Number(f.cap) || 0;
-    const sat = Math.max(0, Number(f.sat) || 0);
-    const ratio = cap ? sat / cap : 0;
-    return { kind: ratio >= 1 ? 'over' : ratio >= p.warnAt / 100 ? 'warn' : 'quiet', mins: sat, dwell: true };
-  }
-
-  if (view === 'booked') {
-    // Every table with somebody coming says when, however far off — that is
-    // the question, and "soon" is not part of it.
-    return f.nextAt ? { kind: 'next', at: f.nextAt } : null;
-  }
-
-  if (f.state === 'over') return { kind: 'over', mins: Math.max(0, f.over || 0) };
-  if (f.state === 'due') {
-    const late = Math.max(0, f.late || 0);
-    // Late escalates in its own colour, never the over-staying one: a guest
-    // who has not arrived and a table that will not leave are two different
-    // problems and must not share a hue.
-    if (late > p.veryLateAfter) return { kind: 'late', mins: late };
-    if (late > p.lateAfter) return { kind: 'warn', mins: late, late: true };
-    return { kind: 'due' };
-  }
-  if (f.state === 'seated') {
-    const cap = Number(f.cap) || 0;
-    const sat = Math.max(0, Number(f.sat) || 0);
-    // A party that has just sat is not news, and a "0m" under a table reads
-    // as something broken. The dwell appears when it starts to matter.
-    if (!cap) return null;
-    return sat / cap >= p.warnAt / 100 ? { kind: 'warn', mins: sat } : null;
-  }
-  if (f.state === 'free' && f.nextAt && f.freeFor !== null && f.freeFor !== undefined
-      && f.freeFor <= p.soonWithin) {
-    return { kind: 'next', at: f.nextAt };
-  }
-  return null;
 }
 
 // §§ Cover flow — the shape of the night
@@ -4244,7 +4048,7 @@ module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, suggestTable, suggestJoin, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
-  FLOOR_STATES, floorAt, PILL_DEFAULTS, PILL_LENSES, pillSettings, allergyWordOf, tablePill, coverFlow,
+  FLOOR_STATES, floorAt, coverFlow,
   MOVABLE, canMove, snapSlot, seatsOf, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
@@ -5630,24 +5434,6 @@ app.put('/api/settings', async (req, res) => {
   if (b.maxPartySize !== undefined) s.maxPartySize = Math.max(1, Math.min(200, parseInt(b.maxPartySize) || 12));
   if (b.seatSlack !== undefined) s.seatSlack = Math.max(0, Math.min(10, parseInt(b.seatSlack) || 0));
   if (b.pacing) { s.pacing.maxCoversPer15 = Math.max(0, parseInt(b.pacing.maxCoversPer15) || 0); s.pacing.maxBookingsPer15 = Math.max(0, parseInt(b.pacing.maxBookingsPer15) || 0); }
-  // The floating pill's numbers. Clamped here the same way av.pillSettings()
-  // clamps them when it reads them, so a hand-edited store and a saved form
-  // can never give the room two different answers.
-  if (b.floorPill) {
-    // ZERO IS A REAL ANSWER HERE — "late from the first minute", "never say
-    // a table is going soon" — so the fallback is reached only when the value
-    // is not a number at all. `parseInt(v) || d` turned every 0 into the
-    // default and the field snapped back the moment it was saved.
-    const f = b.floorPill;
-    const n = (v, d, lo, hi) => { const x = parseInt(v, 10); return Number.isFinite(x) ? Math.max(lo, Math.min(hi, x)) : d; };
-    if (f.on !== undefined) s.floorPill.on = !!f.on;
-    if (f.warnAt !== undefined) s.floorPill.warnAt = n(f.warnAt, 65, 1, 100);
-    if (f.lateAfter !== undefined) s.floorPill.lateAfter = n(f.lateAfter, 5, 0, 120);
-    if (f.veryLateAfter !== undefined) s.floorPill.veryLateAfter = n(f.veryLateAfter, 20, 0, 240);
-    if (f.soonWithin !== undefined) s.floorPill.soonWithin = n(f.soonWithin, 45, 0, 240);
-    // Solid before tint would mean the tint never shows at all.
-    s.floorPill.veryLateAfter = Math.max(s.floorPill.lateAfter, s.floorPill.veryLateAfter);
-  }
   if (b.online) {
     const o = b.online;
     if (o.enabled !== undefined) s.online.enabled = !!o.enabled;
@@ -6985,9 +6771,6 @@ const state = {
   // shoved off the edge and lost.
   toast: '', toastFailed: '',
   floorZoom: 1, floorPanX: 0, floorPanY: 0,
-  // Which question the room is being asked. Not saved and not in the store:
-  // it is where you are looking, not how the venue is set up.
-  floorLens: 'status',
   // Which HALF of the desk a phone is showing. The desk proper shows both at
   // once and ignores this; a phone cannot, so it picks one. 'book' by default,
   // because the list is the thing a host reads.
@@ -7792,149 +7575,6 @@ function floorMoment() {
   return fromMin(first === undefined ? start : first);
 }
 
-// §§ The floating pill under a table — the POS's, ported
-//
-// The till hangs a pill BELOW each table rather than cramming the news inside
-// it: the box holds the number, the pill holds what is happening. Ours used to
-// squeeze "12m late" into the box beside the name, where it had about thirty
-// pixels and got them both.
-//
-// Three things are the POS's and are copied rather than reinvented:
-//   the grammar — 42m, 1h 25m;
-//   the danger scale — quiet under 0.65 of the cap, a tint from 0.65, a SOLID
-//     colour at 1 and over, because "the alarm must not whisper";
-//   and the upright anchor, below.
-function pillDur(mins) {
-  return mins < 60 ? mins + 'm' : Math.floor(mins / 60) + 'h ' + (mins % 60) + 'm';
-}
-// A pill on every table is the chairs all over again, so it is drawn only
-// where it carries news: a table running over, a booking gone late, a party
-// sitting, and a free table about to go.
-//
-// WHEN it carries news is not decided here. That is a booking rule, so it
-// lives in availability.js:tablePill() where it is tested, and the numbers
-// behind it are the venue's, from Settings → The room. This is the browser's
-// copy of that function — the same pattern as exceptionOn/servicesOn above,
-// and the same obligation: change them in step. It returns a KIND; the words
-// and the colour are this side's business.
-const PILL_FALLBACK = { on: true, warnAt: 65, lateAfter: 5, veryLateAfter: 20, soonWithin: 45 };
-function pillSettings() {
-  const s = (state.settings && state.settings.floorPill) || {};
-  const num = (v, d, lo, hi) => {
-    const n = Number(v);
-    return Number.isFinite(n) ? Math.max(lo, Math.min(hi, Math.round(n))) : d;
-  };
-  const lateAfter = num(s.lateAfter, PILL_FALLBACK.lateAfter, 0, 120);
-  return {
-    on: s.on !== false,
-    warnAt: num(s.warnAt, PILL_FALLBACK.warnAt, 1, 100),
-    lateAfter,
-    veryLateAfter: Math.max(lateAfter, num(s.veryLateAfter, PILL_FALLBACK.veryLateAfter, 0, 240)),
-    soonWithin: num(s.soonWithin, PILL_FALLBACK.soonWithin, 0, 240),
-  };
-}
-// The pill writes a clock time the till's way — 12-hour, no meridiem. The
-// room is NOW, so there is no half of the day to tell apart, and "AM" is
-// three characters that stretched a pill across three neighbouring tables.
-function pillTime(hhmm) {
-  const [h, m] = String(hhmm).split(':').map(Number);
-  return ((h % 12) || 12) + ':' + String(m).padStart(2, '0');
-}
-// The browser's copy of availability.js:PILL_LENSES / allergyWordOf. Same
-// obligation: change them in step.
-const PILL_LENSES = [
-  ['status', 'Status'], ['sitting', 'Sitting'], ['booked', 'Booked'], ['allergy', 'Allergy'],
-];
-const ALLERGY_RE = /\b(?:allerg\w*|coeliac|celiac|gluten|intoleran\w*|anaphyla\w*|epi-?pen|nuts?|peanuts?|shellfish|seafood|crustacean|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b/i;
-function allergyWordOf(r) {
-  if (!r) return '';
-  const tagged = (r.tags || []).some(t => String(t).toLowerCase() === 'allergy');
-  const notes = String(r.notes || '').trim();
-  if (!tagged && !ALLERGY_RE.test(notes)) return '';
-  const hit = notes && (tagged || ALLERGY_RE.test(notes)) ? notes.match(ALLERGY_RE) : null;
-  return hit ? hit[0].toLowerCase() : 'allergy';
-}
-function floorLens() {
-  const l = state.floorLens;
-  return PILL_LENSES.some(x => x[0] === l) ? l : 'status';
-}
-
-function floorPill(f) {
-  const p = pillSettings();
-  if (!p.on) return '';
-  const view = floorLens();
-
-  if (view === 'allergy') {
-    // Whoever is on the table now, or whoever is coming to it next. An
-    // allergy is a thing you prepare for, so it belongs to the table from
-    // the moment the night is set, not from the moment they sit down.
-    const w = allergyWordOf(f.r) || allergyWordOf(f.next);
-    return w ? `<span class="fl-cpill hot"><b>! ${esc(w)}</b></span>` : '';
-  }
-  if (view === 'sitting') {
-    // Asked on purpose, so every sitting answers — even one that has just sat,
-    // which the status lens rightly keeps quiet about. The number is the
-    // DWELL even once a table is over, which is the till's own reading.
-    if ((f.state !== 'seated' && f.state !== 'over') || !f.r) return '';
-    const sat = Math.max(0, toMin(floorMoment()) - toMin(hhmmOf(f.r.time)));
-    const cap = durationOf(f.r) || 90;
-    const ratio = cap ? sat / cap : 0;
-    const cls = ratio >= 1 ? ' over' : ratio >= p.warnAt / 100 ? ' warn' : '';
-    return `<span class="fl-cpill${cls}"><b>${esc(pillDur(sat))}</b></span>`;
-  }
-  if (view === 'booked') {
-    // Every table with somebody coming says when, however far off — that is
-    // the question, and "soon" is not part of it.
-    return f.nextAt ? `<span class="fl-cpill next"><b>${esc(pillTime(f.nextAt))}</b></span>` : '';
-  }
-
-  if (f.state === 'over') return `<span class="fl-cpill over"><b>${esc(pillDur(f.over))} over</b></span>`;
-  if (f.state === 'due') {
-    // Late escalates within its OWN colour. Reusing the over-staying violet
-    // for a guest who has not arrived would have the room's colour code
-    // saying two things with one hue.
-    if (f.late > p.lateAfter) return `<span class="fl-cpill${f.late > p.veryLateAfter ? ' late' : ' warn'}"><b>${esc(pillDur(f.late))} late</b></span>`;
-    return `<span class="fl-cpill due"><b>${esc(pillTime(hhmmOf(f.r.time)))} · due</b></span>`;
-  }
-  if (f.state === 'seated' && f.r) {
-    const sat = Math.max(0, toMin(floorMoment()) - toMin(hhmmOf(f.r.time)));
-    const cap = durationOf(f.r) || 90;
-    // A party that has just sat is not news, and "0m" under a table reads as
-    // something broken. The dwell appears when the sitting starts to matter —
-    // at a share of THIS booking's length, not one cap for the whole room.
-    return sat / cap >= p.warnAt / 100 ? `<span class="fl-cpill warn"><b>${esc(pillDur(sat))}</b></span>` : '';
-  }
-  // A free table that goes soon says WHEN, and only when. It used to say
-  // "7:25 · in 20m" — two facts, 110 pixels, and the only pill in the set
-  // wide enough to lie across its neighbours' (measured: it covered 23 of
-  // the pill on one side and 30 of the one on the other, on the venue's own
-  // room at rest). The pill is only drawn at all inside the next 45 minutes,
-  // so "soon" is what its presence already says; the clock time is the part
-  // a host cannot work out by looking. Zoom does not help here — the pills
-  // scale with the room, so an overlap at rest is an overlap at every size.
-  if (f.state === 'free' && f.nextAt && f.freeFor !== null && f.freeFor <= p.soonWithin) {
-    return `<span class="fl-cpill next"><b>${esc(pillTime(f.nextAt))}</b></span>`;
-  }
-  return '';
-}
-// THE PILL STAYS UPRIGHT AND CLEARS A TURNED BOX — the POS's own maths, and
-// the reason it is worth copying rather than guessing: a w by h box turned by
-// r stands (w|sin| + h|cos|) tall, so it pokes out below its own box by half
-// the difference. As a percentage of the box's height — which is what a `top`
-// percentage is measured against — that is ((w/h)|sin| + |cos| - 1) / 2. The
-// widths are a share of the canvas's WIDTH and the heights a share of its
-// HEIGHT, so the ratio has to come back through the canvas's proportions
-// first. Without it the pill sits inside a turned table instead of under it.
-function uprightBadges(t, inner) {
-  if (!inner) return '';
-  const rot = (((Number(t.rotation) || 0) % 360) + 360) % 360;
-  const rad = rot * Math.PI / 180;
-  const wh = (t.height ? (Number(t.width) || 0) / Number(t.height) : 1) * (900 / 560);
-  const grow = (wh * Math.abs(Math.sin(rad)) + Math.abs(Math.cos(rad)) - 1) / 2;
-  const out = Math.max(0, Math.round(grow * 100));
-  return `<span class="fl-badges" style="${rot ? `transform:rotate(${-rot}deg);` : ''}--pill-out:${out}%;">${inner}</span>`;
-}
-
 function renderFloor() {
   const plans = (state.floorPlans || []).filter(fp => (fp.tables || []).length);
   const at = floorMoment();
@@ -7969,7 +7609,6 @@ function renderFloor() {
         <span class="fl-no">${esc(t.label)}</span>
         ${sub ? `<span class="fl-sub">${sub}</span>` : ''}
       </span>
-      ${uprightBadges(t, floorPill(f))}
     </button>`;
   };
 
@@ -7978,33 +7617,9 @@ function renderFloor() {
   // slider through the night (the timeline's question, answered properly).
   const count = (st) => Object.values(by).filter(f => f.state === st).length;
   const key = (st, label) => `<span class="fl-key"><i class="fl-dot ${st}"></i>${label} <b>${count(st)}</b></span>`;
-  // THE LENS: ask the whole room one question. The till hangs this off the
-  // right of its floor band, behind the same switch that draws the pill at
-  // all — switch the pill off and there is nothing to ask, so the chips go
-  // with it. It is a band of chips, because every selector here is a chip.
-  // It is NOT saved: which question you are asking is where you are looking,
-  // and a desk that came back tomorrow still asking about allergies would be
-  // a desk lied to. The till does the same (its floorStatusView resets).
-  const pillOn = pillSettings().on;
-  const lens = floorLens();
-
   return `
   <div class="fl-status">
     ${key('seated', 'Seated')}${key('over', 'Over')}${key('due', 'Due')}${key('free', 'Free')}
-    <span class="spacer"></span>
-    ${pillOn ? `<span class="fl-lens">${
-      /* Folded to ONE on a phone and on a phone turned sideways, where a
-         third row of bar is 40 pixels the room does not have — the same
-         fold the top bar's keys take. It names where you ARE and moves on
-         one each tap; which is why the fold is done here, with the next
-         lens baked into the key, and shown or hidden in CSS: a render that
-         had to know the width would be wrong the moment the phone turned. */
-      `<button class="chip on fl-lens-cycle" data-act="floor-lens" data-val="${
-        PILL_LENSES[(PILL_LENSES.findIndex(x => x[0] === lens) + 1) % PILL_LENSES.length][0]
-      }" title="Ask the room something else">${esc((PILL_LENSES.find(x => x[0] === lens) || PILL_LENSES[0])[1])}</button>`
-      + PILL_LENSES.map(([v, l]) =>
-      `<button class="chip${lens === v ? ' on' : ''}" data-act="floor-lens" data-val="${v}"${lens === v ? ' aria-current="true"' : ''}>${esc(l)}</button>`).join('')
-    }</span>` : ''}
   </div>
   ${plans.length ? plans.map(fp => `
     ${plans.length > 1 ? `<div class="section-h">${esc(fp.name)}</div>` : ''}
@@ -8718,11 +8333,6 @@ function switchHtml(on, act, val) { return `<button type="button" class="switch$
 function renderSettings() {
   const s = state.settings, p = s.pos, ps = state.posStatus || {};
   const linkedFloor = p.enabled && p.baseUrl && p.useFloor !== false;
-  // The floating pill's numbers. A store written before this setting existed
-  // has no floorPill at all, and a field showing "undefined" is worse than a
-  // field showing the number the room is actually using.
-  const fp = s.floorPill || {};
-  const num = (v, d) => (Number.isFinite(Number(v)) ? Number(v) : d);
   const origin = location.origin;
   return `<div class="cards">
     <div class="settings-card">
@@ -8818,19 +8428,6 @@ function renderSettings() {
         </div>
       </div>
     </div>`}
-    <div class="settings-card wide">
-      <div class="th">Table status</div>
-      <div class="ts">The pill that hangs under a table on the floor — the till's own, and its numbers. It is drawn only where a table has something to say, because a pill on all thirty is a room nobody reads. The till times a sitting against one fixed cap; the desk has the booking's own length, so this is a share of THAT — a party of eight on a 150-minute sitting is not running long at ninety.</div>
-      <label class="toggle-row">${switchHtml(fp.on !== false, 'set-toggle', 'floorPill.on')} Show the pill on the floor</label>
-      ${fp.on === false ? '' : `
-      <div class="grid2">
-        <div><label class="field-label" for="fp-warn">A sitting is running long at this much of its length</label><div class="inline"><input id="fp-warn" type="number" min="1" max="100" value="${num(fp.warnAt, 65)}" data-field="settings.floorPill.warnAt" data-save="floorPill" style="width:72px;"><span class="ts">%</span></div></div>
-        <div><label class="field-label" for="fp-soon">A free table says it is going within</label><div class="inline"><input id="fp-soon" type="number" min="0" max="240" value="${num(fp.soonWithin, 45)}" data-field="settings.floorPill.soonWithin" data-save="floorPill" style="width:72px;"><span class="ts">min</span></div></div>
-        <div><label class="field-label" for="fp-late">Late after</label><div class="inline"><input id="fp-late" type="number" min="0" max="120" value="${num(fp.lateAfter, 5)}" data-field="settings.floorPill.lateAfter" data-save="floorPill" style="width:72px;"><span class="ts">min</span></div></div>
-        <div><label class="field-label" for="fp-vlate">Very late after</label><div class="inline"><input id="fp-vlate" type="number" min="0" max="240" value="${num(fp.veryLateAfter, 20)}" data-field="settings.floorPill.veryLateAfter" data-save="floorPill" style="width:72px;"><span class="ts">min</span></div></div>
-      </div>
-      <div class="ts">Late wears the tint; very late goes solid. Both in gold, never the over-staying violet — a guest who has not arrived and a table that will not leave are two different problems and must not share a hue.</div>`}
-    </div>
     <div class="settings-card">
       <div class="th">Colours</div>
       <div class="ts">The venue's own colour code. The accent is not here — it comes from the POS with the rest of the look, and a second source for it is what POS-LINK.md forbids. Free tables and joined tables are not here either: free is the plain surface, joined is the accent ring.</div>
@@ -9526,7 +9123,6 @@ async function flushSaves() {
       if (g === 'services') { body.services = s.services; body.slotMinutes = s.slotMinutes; }
       if (g === 'sittings') { body.defaultDuration = s.defaultDuration; body.seatSlack = s.seatSlack; body.durationByParty = s.durationByParty; body.maxPartySize = s.maxPartySize; body.noShowAfterMinutes = s.noShowAfterMinutes; }
       if (g === 'pacing') body.pacing = s.pacing;
-      if (g === 'floorPill') body.floorPill = s.floorPill;
       if (g === 'online') body.online = s.online;
       if (g === 'colours') body.statusColours = s.statusColours;
       state.settings = await put('/api/settings', body);
@@ -9588,7 +9184,6 @@ document.addEventListener('click', async (ev) => {
         render();
         break;
       }
-      case 'floor-lens': state.floorLens = val; render(); break;
       case 'new-booking': openBooking(null); break;
       // A walk-in is not a booking with the boxes left empty: it is always
       // NOW, always on the trading day whatever night is on screen, and it is
