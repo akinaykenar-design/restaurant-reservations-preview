@@ -1447,10 +1447,21 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   /* The rail lies down at the FOOT, over the content, with the home bar's
      inset added to its own padding so the last row of tiles is still tappable
      on a phone with no button. */
-  .shell{padding-bottom:calc(64px + env(safe-area-inset-bottom, 0px));}
+  /* 64 for the tile AND --ring for the bar's own hairline on top of it: the
+     bar is 65 tall, the reservation was 64, and the pane ended one pixel
+     under it. One pixel, hidden by the very hairline that caused it — but a
+     reservation that does not count the whole thing is wrong by inspection
+     and stays wrong when either number moves. */
+  .shell{padding-bottom:calc(64px + var(--ring) + env(safe-area-inset-bottom, 0px));}
+  /* THE THUMB BAR IS THE RAIL LYING DOWN, so it keeps the rail's GROUND. It
+     was drawn on --surface, which is the paper the list it floats over is
+     printed on — the same two-things-one-colour the desk's own chrome was
+     fixed for, except here they actually overlap, with a hairline and a
+     shadow doing all the work of saying which is which. --chrome is a step
+     off the paper and is what this bar is at every other width. */
   .rail{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:auto;
     flex-direction:row;padding:0;padding-bottom:env(safe-area-inset-bottom, 0px);
-    border-right:none;border-top:1px solid var(--steel-300);background:var(--surface);
+    border-right:none;border-top:1px solid var(--steel-300);background:var(--chrome);
     z-index:var(--z-panel);overflow:visible;box-shadow:var(--lift-1);}
   /* A PHONE TAKES THE TWO GROUPS APART AGAIN: the sections become the band
      of chips at the top of the pane, and the places become the thumb bar.
