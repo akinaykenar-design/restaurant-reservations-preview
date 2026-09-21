@@ -125,18 +125,27 @@
    alone could not fix this: four browns six points apart is still four
    browns, and "too much blending of shades" is exactly what a host sees. The
    frame is COOL and the work is WARM, so the eye separates them by hue
-   before it ever measures brightness:
-     --steel-100  #121110  the floor, and the page behind everything
-     --surface    #211E1A  the paper: the book, the rows, the popups — warm
-     --chrome     #2B2D31  the bar and the rail — one frame, and COOL
-     --steel-200  #33302B  every hairline ON the paper
-     --steel-300  #4A443C  the seams between grounds, so a line is a line
-   Light keeps its own arrangement: there the paper is white and the chrome
-   is the warm grey the rail already wore, which is contrast enough. */
+   before it ever measures brightness — which is the only thing that works
+   once the rail runs floor to ceiling and is the biggest single area of
+   chrome on the screen. A rail bright enough to read as a step UP from the
+   paper is a bright column down the left of everything; at that size it has
+   weight without brightness, so it takes the hue and leaves the value.
+     --steel-100     #121110  the floor, and the page behind everything
+     --deck-pill-bg  #121110  the night you are on, sunk into the bar
+     --deck-bg       #16171A  the bar — four points off the pill it carries
+     --chrome        #1F2126  the RAIL, floor to ceiling down the left — COOL
+     --surface       #211E1A  the paper: the book, the rows, the popups — WARM
+     --steel-200     #33302B  every hairline ON the paper
+     --steel-300     #4A443C  the seams between grounds, so a line is a line
+   The rail and the paper are two points apart in brightness and opposite in
+   hue. That is deliberate: the seam between them is --steel-300, and a
+   column does not need to be lighter than its neighbour to be a column.
+   Light keeps its own arrangement: there the paper is white and the bar and
+   rail are the warm grey the rail always wore, which is contrast enough. */
 body[data-theme="dark"]{
   --steel-100:#121110; --steel-200:#33302B; --steel-300:#4A443C; --steel-500:#6B645A;
   --surface:#211E1A;
-  --chrome:#34373D; --deck-bg:#16171A; --deck-pill-bg:#121110;
+  --chrome:#1F2126; --deck-bg:#16171A; --deck-pill-bg:#121110;
   --charcoal:#211E1A; --charcoal-soft:#D9D5CE;
   --text-primary:#EAE8E4; --text-secondary:#D9D5CE;
   --lift-1:0 6px 18px rgba(0,0,0,.40);
