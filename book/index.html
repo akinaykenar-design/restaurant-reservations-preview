@@ -969,7 +969,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-tables{flex:none;display:flex;align-items:center;gap:2px;padding-right:12px;}
 .bl-plus{padding:0 1px;font-style:normal;font-family:var(--font-mono);font-weight:700;
   color:var(--charcoal-soft);font-size:var(--fs-chip);}
-.bl-table{flex:none;min-width:38px;min-height:34px;padding:0 10px;display:flex;align-items:center;
+/* A KEY YOU PRESS, so it is a whole finger. It was 38x34 — under the law on
+   both axes — in a row 54 tall that had the room for it all along. */
+.bl-table{flex:none;min-width:var(--tap);min-height:var(--tap);padding:0 10px;display:flex;align-items:center;
   justify-content:center;border-radius:var(--r-btn);background:var(--steel-100);
   border:1px solid transparent;color:var(--text-primary);
   font-family:var(--font-mono);font-weight:700;font-size:var(--fs-md);white-space:nowrap;}
@@ -1262,10 +1264,17 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .deck-mid{position:absolute;left:50%;transform:translateX(-50%);max-width:66%;
   display:flex;align-items:center;gap:var(--deck-gap);min-width:0;}
 .deck-pill{display:flex;align-items:center;gap:4px;min-width:0;height:var(--tap);
-  padding:0 4px;border-radius:var(--r-pill);background:var(--deck-pill-bg);
+  padding:0;border-radius:var(--r-pill);background:var(--deck-pill-bg);
   color:var(--text-primary);}
 /* An arrow is a ghost: it MOVES you, it does not MAKE anything. */
-.pill-arw{width:32px;height:32px;min-width:32px;display:inline-flex;align-items:center;
+/* THE FINGER LAW APPLIES INSIDE THE PILL TOO. The pill is 44 tall, so it
+   LOOKED like it obeyed — but the hit areas in it were 32 squares with the
+   label between them, and a thumb aimed at "the night after" that landed six
+   pixels wide opened the MONTH instead. The pill is the most pressed thing in
+   the app; a host walks the night forward forty times a shift. Every segment
+   is the full --tap now and the pill's own padding goes, so the pill is
+   exactly as tall as the keys in it. */
+.pill-arw{width:var(--tap);height:var(--tap);min-width:var(--tap);display:inline-flex;align-items:center;
   justify-content:center;border:none;background:none;color:inherit;border-radius:var(--r-pill);opacity:.7;}
 .pill-arw:hover{opacity:1;background:var(--scrim);color:var(--on-scrim);}
 .pill-arw svg{width:16px;height:16px;}
@@ -1275,7 +1284,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    under the finger that was pressing it. Each label holds a width wide enough
    for the longest thing it can say, centred in it, and anything longer
    ellipses rather than growing. The arrows and the mark are already squares. */
-.pill-lbl{display:inline-flex;align-items:center;justify-content:center;height:32px;
+.pill-lbl{display:inline-flex;align-items:center;justify-content:center;height:var(--tap);
   padding:0 8px;border:none;background:none;color:inherit;
   font-weight:700;font-size:var(--fs-md);white-space:nowrap;overflow:hidden;
   text-overflow:ellipsis;border-radius:var(--r-pill);}
@@ -1359,6 +1368,11 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .deck-pill .pill-lbl{padding:0;font-size:var(--fs-lg);}
   .deck-spacer{display:none;}
   .topbar{gap:4px;}
+  /* THE BAND IS THE SEGMENTED CONTROL DOWN HERE, not a row of secondary keys.
+     38 is the height a secondary chip takes; this one is how a thumb gets
+     between the book and the room, and on a phone that is the whole of
+     getting about — so it takes the whole finger. */
+  .secband .chip{min-height:var(--tap);}
 
   /* The rail lies down at the FOOT, over the content, with the home bar's
      inset added to its own padding so the last row of tiles is still tappable
