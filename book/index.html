@@ -42,6 +42,11 @@
      this exact value; the BAR is what moves onto it, off the paper it shared
      with the book. */
   --chrome:#E2DED7;
+  /* The night-you-are-on pill. It was drawn on --steel-100, which is the
+     ROOM's ground, so the pill and the floor were the same decision and
+     neither could move without the other. Same value in both themes as it
+     always had — this names it, it does not change it. */
+  --deck-pill-bg:#E9E6DF;
   --surface:#FFFFFF;
   --text-primary:#38352F; --text-secondary:#8B877F;
   --lift-1:0 6px 18px rgba(20,24,25,.10);
@@ -122,7 +127,7 @@
 body[data-theme="dark"]{
   --steel-100:#121110; --steel-200:#33302B; --steel-300:#4A443C; --steel-500:#6B645A;
   --surface:#211E1A;
-  --chrome:#34373D;
+  --chrome:#34373D; --deck-pill-bg:#121110;
   --charcoal:#211E1A; --charcoal-soft:#D9D5CE;
   --text-primary:#EAE8E4; --text-secondary:#D9D5CE;
   --lift-1:0 6px 18px rgba(0,0,0,.40);
@@ -1214,7 +1219,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .deck-mid{position:absolute;left:50%;transform:translateX(-50%);max-width:66%;
   display:flex;align-items:center;gap:var(--deck-gap);min-width:0;}
 .deck-pill{display:flex;align-items:center;gap:4px;min-width:0;height:var(--tap);
-  padding:0 4px;border-radius:var(--r-pill);background:var(--steel-100);
+  padding:0 4px;border-radius:var(--r-pill);background:var(--deck-pill-bg);
   color:var(--text-primary);}
 /* An arrow is a ghost: it MOVES you, it does not MAKE anything. */
 .pill-arw{width:32px;height:32px;min-width:32px;display:inline-flex;align-items:center;
