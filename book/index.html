@@ -232,8 +232,16 @@ h1,h2,h3{margin:0;}
    same reason there is no gap BETWEEN them. */
 .rail-btn{width:100%;aspect-ratio:1;background:none;border:none;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  padding:8px 4px;color:var(--charcoal-soft);font-size:var(--fs-chip);font-weight:700;
+  padding:8px 4px;color:var(--charcoal-soft);font-size:var(--fs-md);font-weight:700;
   text-align:center;letter-spacing:.3px;}
+/* THE GLYPH WAS NEVER TOO BIG, THE WORD WAS TOO SMALL. The till sizes its
+   rail as one scale — 56 wide takes a 10.5 word and a 14 glyph, 84 wide takes
+   a 15 word and a 25 glyph. Ours is 88 wide with a 24 glyph, which is the
+   till's own pairing for that width; the LABEL was still on 10.5, the value
+   the till reserves for its narrowest rail. A 24 glyph over a 10.5 word is
+   not a big icon, it is a whisper under it — and what reads across a room is
+   the word, because eight glyphs in a column are eight shapes to tell apart
+   and one of them is the one you want. --fs-md is the till's own step here. */
 .rail-btn.active{background:var(--orange-dim);color:var(--orange);}
 .rail-ico{display:flex;}
 .rail-ico svg{width:24px;height:24px;}
