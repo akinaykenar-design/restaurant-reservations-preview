@@ -131,29 +131,32 @@
    a different material rather than a lighter shade of the same one. Value
    alone could not fix this: four browns six points apart is still four
    browns, and "too much blending of shades" is exactly what a host sees. The
-   frame is COOL and the work is WARM, so the eye separates them by hue
-   before it ever measures brightness — which is the only thing that works
-   once the rail runs floor to ceiling and is the biggest single area of
-   chrome on the screen. A rail bright enough to read as a step UP from the
-   paper is a bright column down the left of everything; at that size it has
-   weight without brightness, so it takes the hue and leaves the value.
-     --steel-100     #121110  the floor, and the page behind everything
-     --deck-pill-bg  #121110  the night you are on, sunk into the bar
-     --deck-bg       #16171A  the bar — four points off the pill it carries
-     --chrome        #1F2126  the RAIL, floor to ceiling down the left — COOL
-     --surface       #211E1A  the paper: the book, the rows, the popups — WARM
-     --steel-200     #33302B  every hairline ON the paper
-     --steel-300     #4A443C  the seams between grounds, so a line is a line
-   The rail and the paper are two points apart in brightness and opposite in
-   hue. That is deliberate: the seam between them is --steel-300, and a
-   column does not need to be lighter than its neighbour to be a column.
+   SO THE WHOLE SCREEN WENT COOL. The first answer made the CHROME cool
+   against warm paper, on the argument that hue separates faster than value.
+   It does — but the furniture is the thing being looked at, and this venue's
+   is burgundy cloth and oak, both warm. Warm paper under warm tables is the
+   mud all over again at the one place it matters, the drawing. A cool slate
+   ground is OPPOSITE the furniture, so the tables and the banquettes come
+   forward instead of sinking into it, and teal, green, gold and magenta all
+   read cleanly on it. Five grounds were rendered on the real floor before
+   this one was picked.
+     --steel-100     #0C1015  the floor, and the page behind everything
+     --deck-pill-bg  #0C1015  the night you are on, sunk into the bar
+     --deck-bg       #121820  the bar — a few points off the pill it carries
+     --chrome        #202832  the RAIL, floor to ceiling down the left
+     --surface       #161B21  the paper: the book, the rows, the popups
+     --steel-200     #242C35  every hairline ON the paper
+     --steel-300     #3A4551  the seams between grounds, so a line is a line
+   The rungs stay in the order they were tuned in — pill deepest, then the
+   bar, then the paper, then the rail — because that order was chosen against
+   the real screen. What changed is the family they are all drawn from.
    Light keeps its own arrangement: there the paper is white and the bar and
    rail are the warm grey the rail always wore, which is contrast enough. */
 body[data-theme="dark"]{
-  --steel-100:#121110; --steel-200:#33302B; --steel-300:#4A443C; --steel-500:#6B645A;
-  --surface:#211E1A;
-  --chrome:#1F2126; --deck-bg:#16171A; --deck-pill-bg:#121110;
-  --charcoal:#211E1A; --charcoal-soft:#D9D5CE;
+  --steel-100:#0C1015; --steel-200:#242C35; --steel-300:#3A4551; --steel-500:#6B7585;
+  --surface:#161B21;
+  --chrome:#202832; --deck-bg:#121820; --deck-pill-bg:#0C1015;
+  --charcoal:#161B21; --charcoal-soft:#C9D2DC;
   --text-primary:#EAE8E4; --text-secondary:#D9D5CE;
   --lift-1:0 6px 18px rgba(0,0,0,.40);
   --lift-2:0 10px 25px rgba(0,0,0,.45), 0 30px 60px rgba(0,0,0,.55);
@@ -168,7 +171,7 @@ body[data-theme="dark"]{
   --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#E8C24D; --src-pos:#D9D5CE;
   --st-late:#CF6152; --st-walkin:#19C3AB;
   --st-check:#D96AA3; --st-paid:#9AB0C4;
-  --table-plain:#35322D;
+  --table-plain:#2A323B;
 }
 @media (max-height:560px){ :root{ --num-key-w:64px; --num-key-h:52px; --num-key-r:10px; --num-key-fs:var(--fs-xl); --num-gap:8px; } }
 @media (max-width:768px){ :root{ --deck-edge:12px; --hub-edge:8px; } }
