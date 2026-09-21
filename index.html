@@ -7354,6 +7354,17 @@ async function loadBase() {
   const [settings, theme, tables, sm] = await Promise.all([api('/api/settings'), api('/api/theme'), api('/api/tables'), api('/api/set-menus')]);
   state.settings = settings; state.theme = theme; state.tables = tables.tables; state.floorPlans = tables.floorPlans;
   state.setMenus = sm.menus || []; state.setMenusFromPos = !!sm.fromPos;
+  // THE DESK OPENS ON A SERVICE, and this is the only place it can: which
+  // services a day has comes from the settings, so nothing before this call
+  // could pick one. `state.service` started empty and was only ever set by a
+  // PRESS — stepping the day, tapping Now, picking a date — so a desk that
+  // was merely OPENED had no service picked at all, and the flow, the pacing
+  // and the list all showed the whole night. The pill said "Lunch" the whole
+  // time, because its label falls back to the day's first service when
+  // nothing is picked, so the one thing on screen that could have reported
+  // the fault was the thing hiding it. Only on a first load: a poll must
+  // never drag a host back off the service they walked to.
+  if (!state.service) state.service = defaultService(state.date);
   applyTheme();
 }
 async function loadDay() {
@@ -7610,7 +7621,11 @@ function renderDeck() {
   const on = pickedService();
   // Lit when you are already there: tonight, on whatever is running.
   const isNow = state.date === tradingDay() && (state.service || '') === defaultService(tradingDay());
-  const svcLabel = !svcs.length ? 'Closed' : (on || svcs[0]).name;
+  // NO FALLBACK. This read `(on || svcs[0]).name`, so a desk with no service
+  // picked printed the first one's name and looked settled while every other
+  // screen was showing the whole night. A label that names a thing that is
+  // not selected is worse than one that says nothing.
+  const svcLabel = !svcs.length ? 'Closed' : on ? on.name : 'All night';
   const step = svcs.length > 1;
   return `
   <div class="topbar">
