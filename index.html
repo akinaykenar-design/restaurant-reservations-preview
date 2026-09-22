@@ -7520,8 +7520,8 @@ const I = {
   // THE BILL, and then THE MONEY. A till receipt with its torn foot, and a
   // note with a tick on it. The torn edge is what carries the receipt at 20px
   // — a plain rectangle with two lines in it is every other glyph in the app.
-  stCheck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.22 2h15.56v20l-3.89 -2.22 -3.89 2.22 -3.89 -2.22 -3.89 2.22V2z"/><path d="M8.11 7.56h7.78M8.11 12h7.78M8.11 16.44h5"/></svg>',
-  stPaid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" fill="currentColor" stroke="none" d="M4.22 2h15.56v20l-3.89 -2.22 -3.89 2.22 -3.89 -2.22 -3.89 2.22V2z M9.14 10.37L8.09 11.42 10.7 14.02 15.91 8.82 14.86 7.77 10.7 11.92z"/></svg>',
+  stCheck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.22 2h15.56v20l-2.593 -2.22 -2.593 2.22 -2.593 -2.22 -2.593 2.22 -2.593 -2.22 -2.593 2.22V2z"/><path d="M8.11 7.56h7.78M8.11 12h7.78M8.11 16.44h5"/></svg>',
+  stPaid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" fill="currentColor" stroke="none" d="M4.22 2h15.56v20l-2.593 -2.22 -2.593 2.22 -2.593 -2.22 -2.593 2.22 -2.593 -2.22 -2.593 2.22V2z M9.14 10.37L8.09 11.42 10.7 14.02 15.91 8.82 14.86 7.77 10.7 11.92z"/></svg>',
   srcStaff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 2.8h3.1l1.6 4.6-2.1 1.6a12.4 12.4 0 0 0 6.2 6.2l1.6-2.1 4.6 1.6v3.1a2.6 2.6 0 0 1-2.8 2.6A17 17 0 0 1 3.6 5.6a2.6 2.6 0 0 1 2.6-2.8z"/></svg>',
   srcOnline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg>',
   srcWalkIn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22V3.2C5 2.5 5.5 2 6.2 2h11.6c.7 0 1.2.5 1.2 1.2V22"/><path d="M3 22h18"/><circle cx="15.2" cy="12.4" r="1"/></svg>',
@@ -7756,7 +7756,7 @@ const STATUS_KEY = [
   ['arrived',      'Arrived',       'stArrived',     'All of them are in the room, not yet at the table.'],
   ['part-seated',  'Some seated',   'stPartSeated',  'Part of the party is down. The table is theirs, but do not run the order yet.'],
   ['seated',       'Seated',        'stSeated',      'All of them are at the table. It is theirs until they leave.'],
-  ['check',        'Check dropped', 'stCheck',       'The bill is on the table. The sitting is closing.'],
+  ['check',        'Bill',          'stCheck',       'The bill is on the table. The sitting is closing.'],
   ['paid',         'Paid',          'stPaid',        'Paid and still in the chair. You can promise this table to the next party.'],
   ['done',         'Left',          'stDone',        'Up and gone. The table is free again.'],
   ['cancelled',    'Cancelled',     'stCancelled',   'Called off. The table went back.'],
@@ -7767,7 +7767,7 @@ const FLOOR_KEY = [
   ['due',    'Due',    'stDue',    'Someone is booked on it within the half hour.'],
   ['seated', 'Seated', 'stSeated', 'A party is on it right now.'],
   ['over',   'Over',   'stOver',   'Still on it past the turn time. The next booking is at risk.'],
-  ['check',  'Check dropped', 'stCheck', 'The bill is on the table. It is closing.'],
+  ['check',  'Bill',   'stCheck', 'The bill is on the table. It is closing.'],
   ['paid',   'Paid',   'stPaid',   'Paid and still sitting. The next party can be promised it.'],
   ['joined', 'Joined', 'stJoined', 'Two or more tables pushed together for one party.'],
 ];
@@ -7783,7 +7783,7 @@ const SOURCE_KEY = [
 // to offer. Mirrors COLOUR_KEYS in db.js; the route refuses anything else.
 const COLOUR_SLOTS = [
   ['The booking', [['booked', 'Booked'], ['confirmed', 'Confirmed'], ['arrived', 'Arrived'],
-    ['seated', 'Seated'], ['check', 'Check dropped'], ['paid', 'Paid'],
+    ['seated', 'Seated'], ['check', 'Bill'], ['paid', 'Paid'],
     ['done', 'Left'], ['cancelled', 'Cancelled'], ['no-show', 'No-show']]],
   ['The table', [['due', 'Due'], ['over', 'Over']]],
   ['Where it came from', [['online', 'Online'], ['walk-in', 'Walk-in'], ['pos', 'From the till']]],
