@@ -2713,6 +2713,24 @@ const getFloorPlans = (c) => request(c, 'GET', '/api/floorplans');
 // PUTs or DELETEs a POS combo; the till owns its own menu.
 const getCombos = (c) => request(c, 'GET', '/api/combos');
 const getReservations = (c) => request(c, 'GET', '/api/reservations');
+// THE TILL'S CUSTOMERS. Read only, and never on the 8-second pass: asked for
+// when a guest card opens or the guest book is searched, and let go again.
+// The till owns its customer list — it is the tail of its LOYALTY, hung off
+// `order.customerId` — so keeping a copy here would be a second source of
+// the same people and would grow the venue's file without bound, which is
+// the same reason the orders are never stored either.
+const getCustomers = (c) => request(c, 'GET', '/api/customers');
+const searchCustomers = (c, q) => request(c, 'GET', '/api/customers/search?q=' + encodeURIComponent(String(q || '')));
+// Only the fields the guest book can honestly use. `visits` and `totalSpent`
+// are the TILL'S counts — every ticket it attached to them, walk-ins
+// included — and are deliberately NOT mixed with ours, which count bookings.
+function slimCustomer(c) {
+  return c && c.id ? {
+    id: String(c.id), name: String(c.name || ''), phone: String(c.phone || ''), email: String(c.email || ''),
+    points: Math.max(0, Number(c.points) || 0), visits: Math.max(0, Number(c.visits) || 0),
+    totalSpent: Math.max(0, Number(c.totalSpent) || 0),
+  } : null;
+}
 const createReservation = (c, payload) => request(c, 'POST', '/api/reservations', payload);
 const updateReservation = (c, id, payload) => request(c, 'PUT', '/api/reservations/' + encodeURIComponent(id), payload);
 const deleteReservation = (c, id) => request(c, 'DELETE', '/api/reservations/' + encodeURIComponent(id));
@@ -3020,6 +3038,7 @@ function menusFromCombos(list) {
 module.exports = {
   request, ready, testConnection, getVersion, getSettings, getTheme, getFloorPlans, getReservations,
   createReservation, updateReservation, deleteReservation, getCombos, menusFromCombos,
+  getCustomers, searchCustomers, slimCustomer,
   streamOrders, countable, dayStamp, MAX_ORDER_ROWS, MAX_ORDER_BYTES, ORDER_DEADLINE_MS, OLD_RUN,
   posStatus, toPos, plainText, posNotes, fieldsOf, hashOf, splitNotes, orderNet, slimOrder, STAFF_NAME,
 };
@@ -3168,7 +3187,7 @@ const DEFAULT_SETTINGS = {
   // order is ever fetched from the till, and no money is shown anywhere.
   // `useMenus` off means the desk's set menus are the local `setMenus` list
   // below, even while the POS is linked.
-  pos: { enabled: false, baseUrl: '', pushBookings: true, pullStatus: true, useFloor: true, useOrders: true, useMenus: true },
+  pos: { enabled: false, baseUrl: '', pushBookings: true, pullStatus: true, useFloor: true, useOrders: true, useMenus: true, useCustomers: true },
 };
 
 const DEFAULT_DATA = {
@@ -4880,6 +4899,57 @@ function guestLens(guests, lens, opts) {
   return { lens: LENSES[lens] ? lens : 'all', total: hits.length, results: hits.slice().sort((a, b) => l.order(a, b, today)).slice(0, limit) };
 }
 
+// §§ THE SAME PERSON, ON TWO MACHINES
+//
+// A regular who phones and books is in the guest book here. The same person
+// paying at the till is in the POS's Customers list. Two records, two
+// machines, and neither knows the other exists — and somebody who eats here
+// every week but always walks in has a till record and NO CARD HERE AT ALL,
+// so a host taking their call has nothing.
+//
+// These match the two. Nothing is copied and nothing is stored: the till's
+// list is asked for, read, and let go, the same discipline the orders read
+// follows — the till owns its customers, and keeping a copy would grow the
+// venue's file without bound.
+//
+// THE KEY IS A PHONE, then an email. Never a NAME: two Smiths are two
+// people, and a card that merged them would put one guest's allergy on
+// another guest's booking. A phone is folded to its digits so "(04) 0012
+// 3456" and "0400123456" are one person; an email is lowercased and trimmed.
+// Somebody with neither has no key and is never matched to anyone.
+function personKey(x) {
+  if (!x) return '';
+  const d = digits(x.phone);
+  if (d.length >= MIN_PHONE_DIGITS) return 'p:' + d;
+  const e = String(x.email || '').trim().toLowerCase();
+  return e ? 'e:' + e : '';
+}
+
+// The till's customer for this guest, or null. Ties go to the FIRST by id, so
+// two till records sharing a phone always resolve the same way round rather
+// than swapping between two reads of the same card.
+function tillCustomerFor(guest, customers) {
+  const key = personKey(guest);
+  if (!key) return null;
+  const hits = (customers || []).filter(c => personKey(c) === key);
+  if (!hits.length) return null;
+  return hits.slice().sort((a, b) => String(a.id).localeCompare(String(b.id)))[0];
+}
+
+// The till's customers that are NOBODY here yet. These are the walk-in
+// regulars: they answer the phone with a name the guest book has never heard.
+// Marked rather than imported, so the desk decides who is worth a card.
+function tillOnly(customers, guests) {
+  const known = new Set((guests || []).map(personKey).filter(Boolean));
+  const seen = new Set();
+  return (customers || []).filter(c => {
+    const key = personKey(c);
+    if (!key || known.has(key) || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 // What each tile on the rail would hold, in one pass over the book.
 function guestLensCounts(guests, today) {
   const out = {};
@@ -4892,6 +4962,7 @@ function guestLensCounts(guests, today) {
 }
 
 module.exports = {
+  personKey, tillCustomerFor, tillOnly,
   fold, digits, prepareQuery, matches, relevanceSort, searchReservations,
   MIN_CHARS, MIN_PHONE_DIGITS, DEFAULT_LIMIT, MAX_LIMIT,
   REGULAR_VISITS, VIP_TAGS, LENSES, hasAllergy, guestMatches, guestLens, guestLensCounts,
@@ -5840,7 +5911,7 @@ app.put('/api/settings', async (req, res) => {
     const p = b.pos;
     if (p.baseUrl !== undefined) s.pos.baseUrl = String(p.baseUrl || '').trim().replace(/\/+$/, '').slice(0, 120);
     if (p.enabled !== undefined) s.pos.enabled = !!p.enabled;
-    for (const k of ['pushBookings', 'pullStatus', 'useFloor', 'useOrders', 'useMenus']) if (p[k] !== undefined) s.pos[k] = !!p[k];
+    for (const k of ['pushBookings', 'pullStatus', 'useFloor', 'useOrders', 'useMenus', 'useCustomers']) if (p[k] !== undefined) s.pos[k] = !!p[k];
   }
   logAudit(data, staffFromReq(req), 'Updated settings');
   writeData(data);
@@ -6650,11 +6721,60 @@ function withBirthday(g, today) {
     age: search.ageOn(g.dob, today),
   });
 }
-app.get('/api/guests', (req, res) => {
+// THE SAME PERSON, ON TWO MACHINES. Asked of the till, never stored: the
+// till owns its customers and a copy here would be a second source of the
+// same people. It is asked only when somebody is actually looking — a card
+// open, or a query typed — and a till that cannot be reached is not an
+// error, it is a guest book with one column missing.
+async function tillCustomers(data, q) {
+  const cfg = data.settings.pos;
+  if (!pos.ready(cfg) || cfg.useCustomers === false) return [];
+  try {
+    const rows = q ? await pos.searchCustomers(cfg, q) : await pos.getCustomers(cfg);
+    return (Array.isArray(rows) ? rows : []).map(pos.slimCustomer).filter(Boolean);
+  } catch (e) { return []; }
+}
+
+// THE WALK-IN REGULARS COME BACK IN THE SEARCH. Somebody who eats here every
+// week and never books has a till record and no card here, so a host taking
+// their call had nothing to open. A typed query asks the till too and the
+// ones nobody here knows come back MARKED — `fromTill`, with no id of ours —
+// so the list can offer to make them a card. Nothing is written until
+// somebody does. Only on a typed query: the whole book is ours, and pulling
+// a venue's entire customer list into every idle page is not a search.
+app.get('/api/guests', async (req, res) => {
   const data = readData();
   const today = av.localDay(new Date());
-  const got = search.guestLens(data.guests, String(req.query.lens || 'all'), { q: String(req.query.q || ''), today });
-  res.json({ lens: got.lens, total: got.total, today, counts: search.guestLensCounts(data.guests, today), guests: got.results.map(g => withBirthday(g, today)) });
+  const q = String(req.query.q || '');
+  const got = search.guestLens(data.guests, String(req.query.lens || 'all'), { q, today });
+  const body = { lens: got.lens, total: got.total, today, counts: search.guestLensCounts(data.guests, today), guests: got.results.map(g => withBirthday(g, today)) };
+  if (q.trim() && got.lens === 'all') {
+    const extra = search.tillOnly(await tillCustomers(data, q.trim()), data.guests)
+      .map(c => ({ id: null, fromTill: true, till: c, name: c.name, phone: c.phone, email: c.email,
+        dob: '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0, firstSeen: 0, lastSeen: 0 }));
+    if (extra.length) { body.guests = body.guests.concat(extra); body.fromTill = extra.length; }
+  }
+  res.json(body);
+});
+// A till customer nobody here knows, given a card. The guest book grows
+// itself from bookings; this is the one other way in, and it is a PERSON
+// pressing a key — never the pass, which would fill the book with everyone
+// who ever paid.
+app.post('/api/guests', (req, res) => {
+  const data = readData();
+  const b = req.body || {};
+  const name = String(b.name || '').trim().slice(0, 60);
+  if (!name) return res.status(400).json({ error: 'A name is required' });
+  const phone = String(b.phone || '').trim().slice(0, 30);
+  const key = phone.replace(/\s+/g, '') ? 'p:' + phone.replace(/\s+/g, '') : 'n:' + name.toLowerCase();
+  const had = data.guests.find(x => x.key === key);
+  if (had) return res.json(had);
+  const g = { id: newId('g'), key, name, phone, email: String(b.email || '').trim().slice(0, 80),
+    dob: '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0, firstSeen: Date.now(), lastSeen: Date.now() };
+  data.guests.push(g);
+  writeData(data);
+  logAudit(data, staffFromReq(req), 'Added a guest card for ' + name);
+  res.json(g);
 });
 // The card carries what they spent — eleven visits AND $1,340. `sp` is the
 // value, never `spend`: that name is the module. The whole body is inside
@@ -6672,8 +6792,13 @@ app.get('/api/guests/:id', async (req, res) => {
     const bookings = data.reservations.filter(r => r.guestId === g.id).sort((a, b) => b.time.localeCompare(a.time));
     const money = spend.spendForGuest(ctxOf(data), sp.orders, bookings, { since: sp.since });
     if (keepSpendTotals(data, sp)) writeData(data);
+    // Their till card, matched on a phone and then an email — never a name.
+    // Its visits and total are the TILL'S own count of every ticket it
+    // attached to them, walk-ins included, so they are kept beside ours
+    // rather than added to them: ours counts bookings that happened.
+    const till = search.tillCustomerFor(g, await tillCustomers(data, g.phone || g.email || ''));
     res.json(Object.assign(withBirthday(g, av.localDay(new Date())), {
-      bookings,
+      bookings, till,
       spend: Object.assign({ linked: sp.linked, readAt: sp.at, from: sp.from, slow: sp.slow, error: sp.error }, money),
     }));
   } catch (e) {
