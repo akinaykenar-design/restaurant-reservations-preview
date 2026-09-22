@@ -3980,15 +3980,52 @@ function seatsOf(ctx, ids) {
   }, 0);
 }
 
-// Which tables the booking holds after it lands on `tableId`.
+// The seats a set of tables has. A STATED COMBINATION seats what the venue
+// said it seats — the join eats a setting at each end — and any other set of
+// tables is worth the sum of its parts. Wherever a landed set is measured
+// this is what measures it, so the drag and the booking popup can never come
+// to different numbers about the same three tables.
+function seatsFor(ctx, ids) {
+  const want = (ids || []).filter(Boolean);
+  const c = combosOf(ctx).find(x => x.tables.length === want.length && x.tables.every(id => want.includes(id)));
+  return c ? comboSeats(ctx, c) : seatsOf(ctx, want);
+}
+
+// Which tables the booking holds after it lands on `tableId`. `r.time` is
+// already the TARGET time here — moveCheck settles the hour before it asks.
 //   nothing      → the No-table lane, which clears the join too
 //   one it holds → the time moves, the tables do not (a joined booking
 //                  dragged along one of its own lanes)
-//   anything else→ the new lane becomes the primary, the joins ride along
-function movedTables(r, tableId) {
+//   one that seats them → that lane, alone
+//   anything else→ the tightest stated combination that lane belongs to
+//
+// A JOIN DOES NOT RIDE ALONG ANY MORE, and that was the bug. Dragging a six
+// off three tables onto lane 7 used to give it lane 7 PLUS the two tables it
+// had just left — a set nobody had ever pushed together, holding half the
+// room, and drawn as if somebody meant it. A lane is a place, so landing on
+// one takes the combination that lane is part of, whole, or nothing but the
+// lane itself.
+//
+// FREE FIRST, then tightest. Where two stated combinations share the lane the
+// drag lands in the one with room, which is what makes a party of six fall
+// into place; where none is free it still lands, on the tightest, and
+// conflictsFor() names who is already there. A drop that refuses to land is
+// a drag that has to be explained.
+function movedTables(ctx, r, tableId) {
   if (!tableId) return { tableId: null, tableIds: [] };
   if (heldTables(r).includes(tableId)) return { tableId: r.tableId || null, tableIds: (r.tableIds || []).slice() };
-  return { tableId, tableIds: (r.tableIds || []).slice() };
+  const alone = { tableId, tableIds: [] };
+  const party = r.partySize || 0;
+  const one = (ctx.tables || []).find(t => t.id === tableId);
+  if (one && one.seats >= party) return alone;
+  const fits2 = combosOf(ctx)
+    .filter(c => c.tables.includes(tableId) && comboSeats(ctx, c) >= party)
+    .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length));
+  if (!fits2.length) return alone;
+  const day = dayOf(r.time), start = minsOf(r.time), dur = durationFor(ctx.settings, party, r.durationMin);
+  const clear = (c) => c.tables.every(id => holdersOf(ctx, id, day, start, dur, r.id).length === 0);
+  const pick = fits2.find(clear) || fits2[0];
+  return { tableId, tableIds: pick.tables.filter(id => id !== tableId) };
 }
 
 // May this booking land here, and what would it look like if it did?
@@ -4003,18 +4040,19 @@ function moveCheck(ctx, r, target) {
   const out = { ok: true, reason: null, changed: false, time: r.time || '', tableId: r.tableId || null, tableIds: (r.tableIds || []).slice(), conflicts: [] };
   if (!canMove(r)) { out.ok = false; out.reason = MOVE_BLOCKED[r.status] || 'That booking does not move'; return out; }
   if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(String(target.time || ''))) { out.ok = false; out.reason = 'That is not a time'; return out; }
-  const next = movedTables(r, target.tableId);
+  // THE HOUR IS SETTLED FIRST, because which combination is free depends on
+  // WHEN they land, not on where they were. A sat booking keeps its hour
+  // whatever the caller asked for: the drag already holds the ghost in its own
+  // column, and this is the same rule said where nothing can get past it.
+  out.time = timePinned(r) ? (r.time || '') : joinTime(target.day || dayOf(r.time), target.time);
+  const next = movedTables(ctx, Object.assign({}, r, { time: out.time }), target.tableId);
   out.tableId = next.tableId;
   out.tableIds = next.tableIds;
-  // A sat booking keeps its hour whatever the caller asked for: the drag
-  // already holds the ghost in its own column, and this is the same rule said
-  // where nothing can get past it.
-  out.time = timePinned(r) ? (r.time || '') : joinTime(target.day || dayOf(r.time), target.time);
   out.changed = out.time !== r.time || (next.tableId || null) !== (r.tableId || null);
   // Seats only — never fits(), whose upper half (seats <= party + slack) is a
   // SUGGESTION rule. Refusing to put a 2-top on a free 6-top would be wrong.
   const ids = [next.tableId, ...next.tableIds].filter(Boolean);
-  const seats = seatsOf(ctx, ids);
+  const seats = seatsFor(ctx, ids);
   if (ids.length && seats < (r.partySize || 0)) {
     const t = ids.length === 1 ? (ctx.tables || []).find(x => x.id === ids[0]) : null;
     out.ok = false;
@@ -4368,7 +4406,7 @@ module.exports = {
   freeTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED,
-  MOVABLE, canMove, snapSlot, seatsOf, movedTables, moveCheck,
+  MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
   ALLERGY_RE, serviceAt, allergyOf, sheetRow, runSheet,
@@ -10414,17 +10452,44 @@ function tlSnap(min, step, lo, hi) {
   if (lo !== undefined && s < lo) s = Math.ceil(lo / step) * step;
   return s;
 }
-// The client's mirror of av.moveCheck — preview only, so the landing is
-// instant under the finger. The server is the truth: if this says yes and the
-// route says no, the failure toast shows the route's words. Keep the
-// sentences character-identical with availability.js.
+// §§ WHERE A DRAG LANDS — the client's half of one rule
+// av.movedTables() and av.seatsFor(), applied locally, because the block has
+// to land under the finger and a round trip a frame is not that. The server
+// is still the truth: if this says yes and the route says no, the failure
+// toast shows the route's words. Keep them in step, sentence for sentence.
+function comboList() { return ((state.settings || {}).tableCombos || []).filter(c => c && (c.tables || []).length > 1 && c.tables.every(tableById)); }
+function comboSeatsOf(c) { return c.seats > 0 ? c.seats : (c.tables || []).reduce((n, id) => n + (((tableById(id)) || {}).seats || 0), 0); }
+// A STATED COMBINATION seats what the venue said; any other set is the sum.
+function seatsForLocal(ids) {
+  const want = (ids || []).filter(Boolean);
+  const c = comboList().find(x => x.tables.length === want.length && x.tables.every(id => want.includes(id)));
+  return c ? comboSeatsOf(c) : want.reduce((n, id) => n + (((tableById(id)) || {}).seats || 0), 0);
+}
+// A JOIN DOES NOT RIDE ALONG. Landing on a lane takes the combination that
+// lane belongs to, whole, or nothing but the lane itself — free first, so a
+// party of six falls into the combination with room; tightest when none is.
+function movedTablesLocal(r, tableId, min) {
+  if (!tableId) return { tableId: null, tableIds: [] };
+  if (heldTables(r).includes(tableId)) return { tableId: r.tableId || null, tableIds: (r.tableIds || []).slice() };
+  const alone = { tableId, tableIds: [] };
+  const party = r.partySize || 0;
+  const one = tableById(tableId);
+  if (one && one.seats >= party) return alone;
+  const fits = comboList().filter(c => c.tables.includes(tableId) && comboSeatsOf(c) >= party)
+    .sort((a, b) => (comboSeatsOf(a) - comboSeatsOf(b)) || (a.tables.length - b.tables.length));
+  if (!fits.length) return alone;
+  const dur = durationOf(r);
+  const pick = fits.find(c => c.tables.every(id => !tlHolders([id], min, dur, r.id).length)) || fits[0];
+  return { tableId, tableIds: pick.tables.filter(id => id !== tableId) };
+}
 function tlPreview(r, tableId, min) {
   const out = { ok: true, reason: '', tableId: tableId || null, tableIds: (r.tableIds || []).slice(), conflicts: [] };
   if (!canMoveBooking(r)) { out.ok = false; out.reason = 'That booking does not move'; return out; }
-  if (!tableId) { out.tableId = null; out.tableIds = []; }
-  else if (heldTables(r).includes(tableId)) { out.tableId = r.tableId || null; }
+  const next = movedTablesLocal(r, tableId, min);
+  out.tableId = next.tableId;
+  out.tableIds = next.tableIds;
   const ids = [out.tableId, ...out.tableIds].filter(Boolean);
-  const seats = ids.reduce((n, id) => { const t = tableById(id); return n + (t ? t.seats : 0); }, 0);
+  const seats = seatsForLocal(ids);
   if (ids.length && seats < r.partySize) {
     const t = ids.length === 1 ? tableById(ids[0]) : null;
     out.ok = false;
@@ -10829,11 +10894,12 @@ window.addEventListener('blur', cancelTlDrag);   // insurance against a stuck fl
 async function moveBooking(r, hhmm, tableId) {
   const id = r.id;
   const was = { time: r.time, tableId: r.tableId || null, tableIds: (r.tableIds || []).slice() };
-  const held = heldTables(r);
   r.time = dayOf(r.time) + 'T' + hhmm;
-  // availability.js:movedTables, applied locally.
-  if (!tableId) { r.tableId = null; r.tableIds = []; }
-  else if (!held.includes(tableId)) r.tableId = tableId;
+  // av.movedTables, applied locally — the same one the preview used, so what
+  // the finger let go of is what the row says while the route answers.
+  const next = movedTablesLocal(r, tableId, toMin(hhmm));
+  r.tableId = next.tableId;
+  r.tableIds = next.tableIds;
   render();
   try {
     const saved = await post('/api/reservations/' + id + '/move', { time: hhmm, tableId: tableId });
