@@ -159,7 +159,13 @@
     // Throw this copy of the data away and come back on the build that is up.
     // A bare reload would keep it, and then the key would do nothing at all on
     // the days the build has not moved.
-    try { w.__RESV__.resetData(); } catch (e) { try { w.location.reload(); } catch (e2) { frame.src = frame.src; } }
+    // The fallbacks bust the cache too — a bare reload is what made this key
+    // hand back the page you already had.
+    var bust = function () {
+      try { var u = new URL(frame.src, location.href); u.searchParams.set('fresh', Date.now()); frame.src = u.href; }
+      catch (e2) { frame.src = frame.src; }
+    };
+    try { w.__RESV__.resetData(); } catch (e) { bust(); }
   }));
 
   // tablet.html points here with ?d=tablet, so open on the device asked for.

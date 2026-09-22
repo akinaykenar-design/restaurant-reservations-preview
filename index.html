@@ -1974,9 +1974,38 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
     process: processShim,
     dispatch: dispatch,
     bookUrl: bookUrl,
+    // GET LATEST HAS TO ACTUALLY GET THE LATEST. Throwing the seed away and
+    // calling location.reload() only asked the browser again, and the browser
+    // answered out of its own HTTP cache and the service worker's copy — so a
+    // deploy could be up for an hour and the key handed back exactly the page
+    // you already had, with nothing on screen to say so. Every cache goes
+    // first, the worker is told to look again, and the reload carries a
+    // stamp no cache can have an entry for.
     resetData: function () {
       try { localStorage.removeItem(LS_KEY); localStorage.removeItem(SEED_KEY); } catch (e) {}
-      location.reload();
+      var go = function () {
+        try { location.replace(location.pathname + '?fresh=' + Date.now()); }
+        catch (e) { location.reload(); }
+      };
+      var jobs = [];
+      try {
+        if (window.caches && caches.keys) {
+          jobs.push(caches.keys().then(function (ks) {
+            return Promise.all(ks.map(function (k) { return caches.delete(k); }));
+          }));
+        }
+      } catch (e) {}
+      try {
+        if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+          jobs.push(navigator.serviceWorker.getRegistrations().then(function (rs) {
+            return Promise.all(rs.map(function (r) { return r.update().catch(function () {}); }));
+          }));
+        }
+      } catch (e) {}
+      if (!jobs.length) return go();
+      // A cache that will not clear must not strand the key: go either way.
+      Promise.all(jobs).then(go, go);
+      setTimeout(go, 1500);
     },
     downloadData: function () {
       try {
