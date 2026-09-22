@@ -9129,9 +9129,24 @@ function renderTimeline() {
 // Seated is one the host has stopped watching. It sits at the TOP of
 // Upcoming, above the ones nobody has seen, because it is the one in that
 // group with people already in the room.
+// EVERYONE WHO IS NOT SITTING DOWN IS UPCOMING. There was an ARRIVED group
+// above Upcoming, which made two headings out of one question — who is still
+// to be seated — and a host reading the list had to hold both. They are one
+// group, and `statuses` IS the order, so arrived comes FIRST inside it: the
+// party standing in front of you is the top line, in its own colour, under
+// its own glyph. A heading is not what makes it urgent.
+//
+// NO TABLE STANDS ABOVE THEM ALL. A booking with no table is not a booking
+// without a table, it is one nothing has been able to place — not the desk
+// and not `autoAssign()`, which lays out everything it can — so it is the one
+// row on the list that will not sort itself out. It cuts ACROSS the statuses,
+// so it takes its rows out of the groups below rather than repeating them,
+// and it is the only group that does not appear when it is empty: a heading
+// that is always there saying nought is noise, and one that turns up is the
+// whole point.
 const LIST_GROUPS = [
-  ['arrived',   'Arrived',   ['part-arrived', 'arrived']],
-  ['upcoming',  'Upcoming',  ['part-seated', 'booked', 'confirmed']],
+  ['none',      'No table',  ['part-arrived', 'arrived', 'part-seated', 'booked', 'confirmed', 'seated', 'check', 'paid'], (r) => !tablesFor(r).length],
+  ['upcoming',  'Upcoming',  ['part-arrived', 'arrived', 'part-seated', 'booked', 'confirmed']],
   ['seated',    'Seated',    ['seated', 'check', 'paid']],
   ['done',      'Left',      ['done']],
   ['no-show',   'No-show',   ['no-show']],
@@ -9222,14 +9237,21 @@ function renderDayList() {
   const live = rows.filter(isLive);
   return find + `<div class="bl">
     <div class="bl-head total"><span class="bl-h-name">${q.on ? 'Found' : 'Total'}</span><span class="bl-h-n">${live.length} <i>(${coversOf(live)})</i></span></div>
-    ${LIST_GROUPS.map(([key, name, statuses]) => {
-      // The group's own order, then the day's: part-seated first in Upcoming
-      // and everything else as it comes. `statuses` IS the order, so a group
-      // is re-ordered by moving a word in the list above.
-      const list = rows.filter(r => statuses.includes(r.status))
-        .sort((a, b) => statuses.indexOf(a.status) - statuses.indexOf(b.status));
-      return head(key, name, list) + (state.listShut[key] || !list.length ? '' : `<div class="bl-rows">${list.map(row).join('')}</div>`);
-    }).join('')}
+    ${(() => {
+      // A group with a PICK takes its rows out of the day before the rest see
+      // it, so nothing is listed twice.
+      let left = rows;
+      return LIST_GROUPS.map(([key, name, statuses, pick]) => {
+        // The group's own order, then the day's: arrived first in Upcoming
+        // and everything else as it comes. `statuses` IS the order, so a group
+        // is re-ordered by moving a word in the list above.
+        const mine = left.filter(r => statuses.includes(r.status) && (!pick || pick(r)));
+        if (pick) left = left.filter(r => !mine.includes(r));
+        const list = mine.slice().sort((a, b) => statuses.indexOf(a.status) - statuses.indexOf(b.status));
+        if (pick && !list.length) return '';
+        return head(key, name, list) + (state.listShut[key] || !list.length ? '' : `<div class="bl-rows">${list.map(row).join('')}</div>`);
+      }).join('');
+    })()}
   </div>`;
 }
 
