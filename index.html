@@ -9130,12 +9130,16 @@ function switchHtml(on, act, val) { return `<button type="button" class="switch$
 // The order is the till's own rule — how often each job comes up in a working
 // day. The POS link and the audit log are set once and read twice a year; the
 // sittings and the room are tuned all season.
+// NAMED, NOT EXPLAINED. Each group first carried a line saying what was
+// behind it — a paragraph on a screen whose whole job is to be skimmed, and
+// the till's own law for a settings page is "no prose". So the GROUP is named
+// after the cards in it and the line is gone.
 const SET_GROUPS = [
-  ['bookings', 'Bookings', 'How long a table is held, how fast the night fills, and what the online form will take'],
-  ['room', 'The room', 'Which tables push together, the colours the night is drawn in, and the floor plan when no till is linked'],
-  ['venue', 'The venue', 'Its name, when it serves, and the dates that break the weekly pattern'],
-  ['till', 'The till', 'The link to restaurant-pos, and the set menus that come across it'],
-  ['data', 'This machine', 'Where the data lives, and what has been done on it'],
+  ['bookings', 'Bookings'],
+  ['room', 'The room'],
+  ['venue', 'The venue'],
+  ['till', 'The till'],
+  ['data', 'This machine'],
 ];
 function setGroupOf(k) { return SET_GROUPS.find(g => g[0] === k) || null; }
 // A combination's seats, the same fallback availability.js makes: what the
@@ -9152,14 +9156,14 @@ function renderSettings() {
   // The hub. Rows and not tiles, because a group needs a LINE saying what is
   // behind it — "The room" alone does not tell you the colours are in there —
   // and a tile has nowhere to put one.
-  if (!g) return `<div class="rows set-hub">${SET_GROUPS.map(([k, label, says]) => `<div class="row" data-act="set-group" data-val="${esc(k)}">
-    <div class="body"><div class="t1">${esc(label)}</div><div class="t2">${esc(says)}</div></div>
+  if (!g) return `<div class="rows set-hub">${SET_GROUPS.map(([k, label]) => `<div class="row" data-act="set-group" data-val="${esc(k)}">
+    <div class="body"><div class="t1">${esc(label)}</div></div>
     <span class="set-chev">${I.right}</span>
   </div>`).join('')}</div>`;
   const cards = {
     bookings: `    <div class="settings-card">
       <div class="th">Sittings</div>
-      <div class="ts">How long a table is held. ${p.enabled && p.baseUrl ? 'The POS\'s sitting length (Table setup) sets the default while linked.' : ''}</div>
+      ${p.enabled && p.baseUrl ? '<div class="ts">From the POS while linked.</div>' : ''}
       <div class="grid2">
         <div><label class="field-label" for="def-dur">Default (min)</label><input id="def-dur" type="number" min="30" max="360" value="${s.defaultDuration}" data-field="settings.defaultDuration" data-save="sittings"></div>
         <div><label class="field-label" for="seat-slack">Spare seats allowed</label><input id="seat-slack" type="number" min="0" max="10" value="${s.seatSlack}" data-field="settings.seatSlack" data-save="sittings"></div>
@@ -9173,7 +9177,7 @@ function renderSettings() {
     </div>
     <div class="settings-card">
       <div class="th">Pacing</div>
-      <div class="ts">Caps per ${s.slotMinutes}-minute slot so the kitchen is never hit all at once. 0 means no cap.</div>
+      <div class="ts">Per ${s.slotMinutes} minutes. 0 is no cap.</div>
       <div class="grid2">
         <div><label class="field-label" for="pace-covers">Max covers arriving</label><input id="pace-covers" type="number" min="0" value="${s.pacing.maxCoversPer15}" data-field="settings.pacing.maxCoversPer15" data-save="pacing"></div>
         <div><label class="field-label" for="pace-bookings">Max bookings arriving</label><input id="pace-bookings" type="number" min="0" value="${s.pacing.maxBookingsPer15}" data-field="settings.pacing.maxBookingsPer15" data-save="pacing"></div>
@@ -9191,11 +9195,11 @@ function renderSettings() {
       <label class="field-label" for="on-prompt">Notes prompt</label><input id="on-prompt" type="text" value="${esc(s.online.notesPrompt)}" data-field="settings.online.notesPrompt" data-save="online">
       <label class="toggle-row">${switchHtml(!!s.online.holdTables, 'set-toggle', 'online.holdTables')} Online bookings take a table straight away</label>
       <label class="toggle-row">${switchHtml(!!s.online.notifyList, 'set-toggle', 'online.notifyList')} Offer a notify list when a day is full</label>
-      <div class="inline" style="margin-top:8px;"><img class="qr" src="/connect.svg?to=book&host=${encodeURIComponent(origin)}" alt="QR code for the booking page"><div class="ts">Print this for the door or the counter. Guests scan it to book. It points at this computer's address, so it works on the venue wifi; a public address needs the router to forward it.</div></div>
+      <div class="inline" style="margin-top:8px;"><img class="qr" src="/connect.svg?to=book&host=${encodeURIComponent(origin)}" alt="QR code for the booking page"><div class="ts">This computer's address &mdash; the venue wifi, not the internet.</div></div>
     </div>`,
     room: `    ${linkedFloor ? '' : `<div class="settings-card wide">
       <div class="th">The room</div>
-      <div class="ts">No POS floor is linked, so the floor lives here \u2014 and this IS the floor Service draws, the same drawing with the bookings left off. Drag a table to move it: the room a host reads tonight is the room you arrange now.</div>
+      <div class="ts">No POS floor is linked. Drag a table to move it.</div>
       <div class="room-edit">
         ${renderArrange()}
         <div class="room-list">
@@ -9206,7 +9210,7 @@ function renderSettings() {
     </div>`}
     <div class="settings-card wide">
       <div class="th">Table combinations</div>
-      <div class="ts">Which tables actually push together, and how many the result seats between them. Only the venue knows &mdash; the till has no list of its own, because its combine is a live ticket merge a waiter does in the moment. While none are set the desk guesses, and a guess will join a table by the door to one across the room.</div>
+      ${(s.tableCombos || []).length ? '' : '<div class="ts">None set &mdash; the desk guesses.</div>'}
       ${(s.tableCombos || []).length ? `<div class="rows">${(s.tableCombos || []).map((c, i) => `<div class="row" data-act="combo-edit" data-i="${i}">
         <div class="cell">${av2ComboSeats(c)}<small>seats</small></div>
         <div class="body">
@@ -9219,7 +9223,6 @@ function renderSettings() {
     </div>
     <div class="settings-card">
       <div class="th">Colours</div>
-      <div class="ts">The venue's own colour code. The accent is not here — it comes from the POS with the rest of the look, and a second source for it is what POS-LINK.md forbids. Free tables and joined tables are not here either: free is the plain surface, joined is the accent ring.</div>
       ${COLOUR_SLOTS.map(([group, items]) => `
         <div class="section-h" style="font-size:var(--fs-md);">${esc(group)}</div>
         ${items.map(([k, label]) => `<div class="colour-row">
@@ -9231,16 +9234,16 @@ function renderSettings() {
     </div>`,
     venue: `    <div class="settings-card">
       <div class="th">Venue</div>
-      ${p.enabled && p.baseUrl ? '<div class="ts">The name and address come from the POS while it is linked; fill these in only to override.</div>' : ''}
+      ${p.enabled && p.baseUrl ? '<div class="ts">From the POS while linked. Fill in to override.</div>' : ''}
       <label class="field-label" for="venue-name">Name</label><input id="venue-name" type="text" value="${esc(s.venueName)}" data-field="settings.venueName" data-save="venue">
       <label class="field-label" for="venue-phone">Phone (shown to guests)</label><input id="venue-phone" type="tel" value="${esc(s.venuePhone)}" data-field="settings.venuePhone" data-save="venue">
       <label class="field-label" for="venue-address">Address</label><input id="venue-address" type="text" value="${esc(s.venueAddress)}" data-field="settings.venueAddress" data-save="venue">
       <label class="field-label">Look</label>
-      ${p.enabled && p.baseUrl ? `<div class="ts">Follows the POS (Settings → Design there): ${esc(state.theme.mode)} mode, accent <span class="mono">${esc(state.theme.accent)}</span>.</div>` : `<div class="chips">${['auto', 'light', 'dark'].map(m => `<button class="chip${state.theme.mode === m ? ' active' : ''}" data-act="theme-mode" data-val="${m}">${m[0].toUpperCase() + m.slice(1)}</button>`).join('')}</div>`}
+      ${p.enabled && p.baseUrl ? `<div class="ts">From the POS &middot; ${esc(state.theme.mode)} &middot; <span class="mono">${esc(state.theme.accent)}</span></div>` : `<div class="chips">${['auto', 'light', 'dark'].map(m => `<button class="chip${state.theme.mode === m ? ' active' : ''}" data-act="theme-mode" data-val="${m}">${m[0].toUpperCase() + m.slice(1)}</button>`).join('')}</div>`}
     </div>
     <div class="settings-card wide">
       <div class="th">Services</div>
-      <div class="ts">When bookings are taken. A day with no service is closed.</div>
+      <div class="ts">A day with no service is closed.</div>
       ${s.services.map((sv, i) => `<div class="svc-row">
         <input type="text" value="${esc(sv.name)}" data-field="settings.services.${i}.name" data-save="services" aria-label="Service name">
         <div class="days">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, di) => `<button class="chip${sv.days.includes(di) ? ' active' : ''}" data-act="svc-day" data-i="${i}" data-val="${di}">${d}</button>`).join('')}</div>
@@ -9251,13 +9254,11 @@ function renderSettings() {
     </div>
     <div class="settings-card wide">
       <div class="th">Closed days &amp; special hours</div>
-      <div class="ts">A date that breaks the weekly pattern above — shut, or open different hours. Guests are told the note when they try to book.</div>
       ${renderExceptions()}
       <div><button class="btn" data-act="exc-add">${I.plus} Add a date</button></div>
     </div>`,
     till: `    <div class="settings-card">
       <div class="th">POS link</div>
-      <div class="ts">Point this at the computer running restaurant-pos. Tables, the venue name and the look all come from there, and every booking shows on the till's floor.</div>
       <label class="field-label" for="pos-url">POS address</label>
       <input id="pos-url" type="url" value="${esc(p.baseUrl)}" placeholder="http://192.168.1.42:3000" data-field="settings.pos.baseUrl" data-save="pos">
       <div class="inline" style="margin-top:8px;">
@@ -9277,9 +9278,6 @@ function renderSettings() {
     </div>
     <div class="settings-card">
       <div class="th">Set menus${state.setMenusFromPos ? ' (from the POS)' : ''}</div>
-      <div class="ts">${state.setMenusFromPos
-        ? 'The POS holds these — they are its set menus (Menu → Set menus there). The desk puts one on a booking, and the till sees it in the booking\'s notes.'
-        : 'What a booking can be committed to — "Date Night for Two", the Christmas menu. Link the POS to pick from its own set menus instead.'}</div>
       ${state.setMenus.length ? '' : '<div class="ts">None yet.</div>'}
       ${state.setMenusFromPos
         ? state.setMenus.map(mn => `<div class="inline"><span style="flex:1;font-weight:700;">${esc(mn.name)}</span><span class="tag set">set menu</span></div>`).join('')
@@ -9288,7 +9286,7 @@ function renderSettings() {
     </div>`,
     data: `    <div class="settings-card">
       <div class="th">Data</div>
-      <div class="ts">Everything lives in <span class="mono">data/store.local.json</span> on this computer. A backup is written twice a day to <span class="mono">data/backups/</span>.</div>
+      <div class="ts"><span class="mono">data/store.local.json</span> &middot; backups twice a day in <span class="mono">data/backups/</span></div>
       <div><a class="btn" href="/api/export" download>Download everything</a></div>
     </div>
     <div class="settings-card wide">
