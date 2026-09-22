@@ -87,7 +87,17 @@
   --fs-chip:10.5px; --fs-md:13.5px; --fs-lg:15px; --fs-xl:19px; --fs-num:24px;
   --num-key-w:84px; --num-key-h:74px; --num-key-r:16px; --num-key-fs:var(--fs-num); --num-gap:12px;
   /* Booking status colours: the floor's own grammar. */
-  --st-booked:#8B877F; --st-confirmed:#2F74C9; --st-arrived:#C08A00; --st-seated:#4FA51D; --st-done:#B3ADA0; --st-cancelled:#A8483A; --st-noshow:#6D4FC4;
+  /* ARRIVED IS THE ACCENT BLUE, EVERYWHERE. The floor painted it blue and the
+     book, the timeline, the chip and the row key painted it gold — one status
+     wearing two colours on two screens, and editing "Arrived" in Settings
+     moved four of them and left the tables alone, because the floor was
+     reading CONFIRMED's token. Gold goes back to being DUE's alone, which is
+     the whole point of splitting due from arrived in the first place.
+     CONFIRMED AND ARRIVED ARE ONE JOURNEY, so they share a hue and differ in
+     DEPTH: confirmed is a dull navy, arrived is the live accent. Nothing else
+     in the palette is a navy — paid's slate is lighter and far greyer — and
+     the wheel had no free hue left to spend on a status nobody acts on. */
+  --st-booked:#8B877F; --st-confirmed:#1E4780; --st-arrived:#2F74C9; --st-seated:#4FA51D; --st-done:#B3ADA0; --st-cancelled:#A8483A; --st-noshow:#6D4FC4;
   --st-due:#C08A00; --st-over:#6D4FC4; --src-online:#0E9E8A; --src-walkin:#C08A00; --src-pos:#918E88;
   /* The two states the floor gained. LATE is the app's red, which is spent
      nowhere else on the drawing, so it can only mean "go and look". A
@@ -173,7 +183,7 @@ body[data-theme="dark"]{
      --orange-dim and --green-dim were already restated here; this is the one
      that was missed. A mix declared on :root and used in dark is a bug. */
   --pick-wash:color-mix(in srgb, var(--orange) 6%, var(--surface));
-  --st-booked:#A8A399; --st-confirmed:#3692E7; --st-arrived:#E8C24D; --st-seated:#7BC72F; --st-done:#6B645A; --st-cancelled:#CF6152; --st-noshow:#8B6FE8;
+  --st-booked:#A8A399; --st-confirmed:#2C5A8C; --st-arrived:#3692E7; --st-seated:#7BC72F; --st-done:#6B645A; --st-cancelled:#CF6152; --st-noshow:#8B6FE8;
   --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#E8C24D; --src-pos:#D9D5CE;
   --st-late:#CF6152; --st-walkin:#19C3AB;
   --st-check:#D96AA3; --st-paid:#9AB0C4;
@@ -762,7 +772,7 @@ body.book-page #app{display:block;height:auto;}
 .fl-wash.over{background:var(--st-over);}
 .fl-wash.due{background:var(--st-due);}
 .fl-wash.late{background:var(--st-late);}
-.fl-wash.arrived{background:var(--st-confirmed);}
+.fl-wash.arrived{background:var(--st-arrived);}
 .fl-wash.walkin{background:var(--st-walkin);}
 .fl-wash.check{background:var(--st-check);}
 .fl-wash.paid{background:var(--st-paid);}
@@ -992,8 +1002,16 @@ body.book-page #app{display:block;height:auto;}
 /* The swatch is the POS's: one size, one corner, everywhere a colour is
    picked — 44 square, so it answers the finger law on its own. */
 .colour-row{display:flex;align-items:center;gap:12px;min-height:54px;padding:6px 0;}
+/* A COLOUR IS A COLOUR *OF* SOMETHING. The swatch was a bare filled square,
+   so the one screen whose job is to say what a colour MEANS made the venue
+   read the word beside it to know what they were about to repaint. It carries
+   the slot's own glyph now, in whichever ink reads on the colour underneath —
+   the colour stays the fill, because here the colour is the thing being
+   shown, not the ink. */
 .colour-dot-btn{width:var(--sq-ctl);height:var(--sq-ctl);flex:0 0 var(--sq-ctl);
+  display:flex;align-items:center;justify-content:center;
   border-radius:var(--r-control);border:1px solid var(--steel-300);cursor:pointer;padding:0;}
+.colour-dot-btn svg{width:20px;height:20px;}
 .colour-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:8px 0 16px;}
 .colour-swatch{aspect-ratio:1;min-height:var(--sq-ctl);border-radius:var(--r-control);
   border:1px solid var(--steel-300);cursor:pointer;padding:0;}
@@ -1053,13 +1071,26 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-st svg{width:20px;height:20px;}
 .bl-st:hover{border-color:var(--st-ink, var(--steel-300));}
 .bl-st.on{box-shadow:inset 0 0 0 var(--ring) var(--st-ink, var(--orange));}
-.bl-st.booked{--st-ink:var(--st-booked);} .bl-st.confirmed{--st-ink:var(--st-confirmed);}
-.bl-st.part-arrived,.bl-st.arrived{--st-ink:var(--st-arrived);}
-.bl-st.part-seated,.bl-st.seated{--st-ink:var(--st-seated);}
-.bl-st.check{--st-ink:var(--st-check);} .bl-st.paid{--st-ink:var(--st-paid);}
-.bl-st.done{--st-ink:var(--st-done);} .bl-st.cancelled{--st-ink:var(--st-cancelled);}
-.bl-st.no-show{--st-ink:var(--st-noshow);}
-.bl-st{--st-wash:color-mix(in srgb, var(--st-ink, var(--steel-500)) 12%, var(--surface));}
+/* ONE TABLE OF STATUS INK, asked by everything that draws a status: the row's
+   key, the status sheet's eleven rows, anything after them. It used to hang
+   off .bl-st, so the sheet — the screen whose whole job is to NAME the
+   statuses — could only show a bare dot, and the glyph a host had just
+   pressed in the row was nowhere on the page it opened. */
+.st-ink.booked{--st-ink:var(--st-booked);} .st-ink.confirmed{--st-ink:var(--st-confirmed);}
+.st-ink.part-arrived,.st-ink.arrived{--st-ink:var(--st-arrived);}
+.st-ink.part-seated,.st-ink.seated{--st-ink:var(--st-seated);}
+.st-ink.check{--st-ink:var(--st-check);} .st-ink.paid{--st-ink:var(--st-paid);}
+.st-ink.done{--st-ink:var(--st-done);} .st-ink.cancelled{--st-ink:var(--st-cancelled);}
+.st-ink.no-show{--st-ink:var(--st-noshow);}
+.st-ink{--st-wash:color-mix(in srgb, var(--st-ink, var(--steel-500)) 12%, var(--surface));}
+/* The row key's box, worn by anything that has to NAME a status rather than
+   just tint one. Not a key here — it never takes a press, so it takes no
+   finger either and sits at the control square. */
+.st-mark{flex:none;width:var(--sq-ctl);height:var(--sq-ctl);display:flex;
+  align-items:center;justify-content:center;border-radius:var(--r-btn);
+  border:1px solid color-mix(in srgb, var(--st-ink, var(--steel-500)) 22%, transparent);
+  background:var(--st-wash, var(--steel-100));color:var(--st-ink, var(--charcoal-soft));}
+.st-mark svg{width:20px;height:20px;}
 .bl-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
 .bl-who small{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);
   font-family:var(--font-mono);letter-spacing:.3px;}
@@ -1189,7 +1220,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   border-radius:var(--r-control);text-align:left;cursor:pointer;}
 .bk-opt.on{border-color:var(--orange);box-shadow:inset 0 0 0 var(--ring) var(--orange);background:var(--pick-wash);}
 .bk-opt.off{opacity:var(--dim);}
-.bk-opt-mark{flex:0 0 24px;display:flex;align-items:center;justify-content:center;padding-top:4px;}
+.bk-opt-mark{flex:0 0 var(--sq-ctl);display:flex;align-items:center;justify-content:center;}
 .bk-opt-mark:empty{flex:0 0 0;}
 .bk-opt-mark .st-dot{margin-right:0;width:14px;height:14px;flex:0 0 14px;}
 .bk-opt-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
