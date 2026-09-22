@@ -1275,7 +1275,23 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    the room has no edges of its own to draw. Settings → The room keeps its
    box, because there you are dragging tables INTO the empty parts and need
    to see where they end. */
-.desk-main > .fl-wrap{flex:1 1 auto;min-height:0;padding:0;
+/* THE ROOM BAR. It floats in the room's own corner rather than standing in a
+   strip above it: the floor takes the pane with nothing over it, and a band
+   across the top to say one word would cost every floor its first 44 pixels
+   for the whole shift. The chip is the till's floor-band chip verbatim — 44
+   tall, 84 wide, --r-btn, steel under an unchosen one and the accent under
+   the chosen — so a waiter moving between the till and the desk learns one
+   control. It sits on the paper, not on the floor, because it is a thing you
+   PRESS and the floor is a drawing. */
+.fl-bar{position:absolute;right:12px;bottom:12px;z-index:2;display:flex;gap:8px;}
+.fl-rooms{display:flex;gap:4px;padding:4px;border-radius:var(--r-control);
+  background:var(--surface);border:1px solid var(--steel-300);box-shadow:var(--lift-1);}
+.fl-room-chip{flex:0 0 auto;min-width:84px;min-height:var(--tap);padding:8px 12px;
+  display:flex;align-items:center;justify-content:center;border:none;
+  border-radius:var(--r-btn);background:var(--steel-100);color:var(--charcoal-soft);
+  font-family:inherit;font-size:var(--fs-lg);font-weight:600;white-space:nowrap;cursor:pointer;}
+.fl-room-chip.on{background:var(--orange);color:#fff;}
+.desk-main > .fl-wrap{position:relative;flex:1 1 auto;min-height:0;padding:0;
   background:var(--floor-bg, var(--steel-100));
   display:flex;align-items:safe center;justify-content:safe center;overflow:hidden;
   touch-action:none;overscroll-behavior:contain;container-type:size;}

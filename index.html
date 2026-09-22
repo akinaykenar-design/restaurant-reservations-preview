@@ -1282,7 +1282,23 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    the room has no edges of its own to draw. Settings → The room keeps its
    box, because there you are dragging tables INTO the empty parts and need
    to see where they end. */
-.desk-main > .fl-wrap{flex:1 1 auto;min-height:0;padding:0;
+/* THE ROOM BAR. It floats in the room's own corner rather than standing in a
+   strip above it: the floor takes the pane with nothing over it, and a band
+   across the top to say one word would cost every floor its first 44 pixels
+   for the whole shift. The chip is the till's floor-band chip verbatim — 44
+   tall, 84 wide, --r-btn, steel under an unchosen one and the accent under
+   the chosen — so a waiter moving between the till and the desk learns one
+   control. It sits on the paper, not on the floor, because it is a thing you
+   PRESS and the floor is a drawing. */
+.fl-bar{position:absolute;right:12px;bottom:12px;z-index:2;display:flex;gap:8px;}
+.fl-rooms{display:flex;gap:4px;padding:4px;border-radius:var(--r-control);
+  background:var(--surface);border:1px solid var(--steel-300);box-shadow:var(--lift-1);}
+.fl-room-chip{flex:0 0 auto;min-width:84px;min-height:var(--tap);padding:8px 12px;
+  display:flex;align-items:center;justify-content:center;border:none;
+  border-radius:var(--r-btn);background:var(--steel-100);color:var(--charcoal-soft);
+  font-family:inherit;font-size:var(--fs-lg);font-weight:600;white-space:nowrap;cursor:pointer;}
+.fl-room-chip.on{background:var(--orange);color:#fff;}
+.desk-main > .fl-wrap{position:relative;flex:1 1 auto;min-height:0;padding:0;
   background:var(--floor-bg, var(--steel-100));
   display:flex;align-items:safe center;justify-content:safe center;overflow:hidden;
   touch-action:none;overscroll-behavior:contain;container-type:size;}
@@ -7499,6 +7515,10 @@ const state = {
   // arrives — the floor is left exactly as it was until then, so there is no
   // moment where the room is on screen doing nothing.
   picking: null,
+  // WHICH ROOM IS ON SCREEN. Empty means "the desk has not been asked", and
+  // the first room with tables in it answers. It is never stored: a venue
+  // that adds an Outside next season gets a chip for it, not a migration.
+  plan: '',
   // Which Settings group is open; '' is the hub of groups itself.
   setGroup: '',
   // The render gate for a live timeline drag, and nothing else about the
@@ -8377,7 +8397,7 @@ function floorMoment() {
 }
 
 function renderFloor() {
-  const plans = (state.floorPlans || []).filter(fp => (fp.tables || []).length);
+  const rooms = (state.floorPlans || []);
   const at = floorMoment();
   const by = {};
   for (const f of floorStateAt(at)) by[f.id] = f;
@@ -8393,10 +8413,19 @@ function renderFloor() {
   const pkMine = pkBook ? tablesFor(pkBook) : [];
   const pkFree = pk ? new Set(pk.free.tables.filter(x => x.free).map(x => x.id)) : null;
 
-  // A floor plan the POS has never sent has no geometry to draw. Rather than
-  // invent a room, the tables are laid out in reading order — the states and
-  // the tapping still work, which is the useful half.
-  const placed = plans.some(fp => (fp.tables || []).some(t => t.kind !== 'decor' && t.type !== 'decor' && Number.isFinite(t.x) && Number.isFinite(t.y)));
+  // ONE ROOM AT A TIME. The desk used to stack every floor plan down the pane
+  // with a heading over each, so a venue with an Inside and an Outside got two
+  // half-height rooms and neither drawn at a size you can read across a pass.
+  // A room is a PLACE — you are in one of them — so the floor draws the one
+  // you are in and the bar in the corner is how you walk between them.
+  // A TABLE ON SCREEN OUTRANKS THE PICK: ringing a table or putting the room
+  // into the picker follows the booking to whichever room its tables are in,
+  // because a ring nobody can see is the floor saying nothing at all.
+  const want = state.highlightTable || (pk ? pkMine[0] : null);
+  const holder = want ? rooms.find(x => (x.tables || []).some(t => t.id === want)) : null;
+  const fp = holder || rooms.find(x => x.id === state.plan)
+    || rooms.find(x => (x.tables || []).length) || rooms[0];
+  const placed = !!fp && (fp.tables || []).some(t => t.kind !== 'decor' && t.type !== 'decor' && Number.isFinite(t.x) && Number.isFinite(t.y));
 
   const tableEl = (t) => {
     if (t.kind === 'decor') {
@@ -8472,12 +8501,19 @@ function renderFloor() {
   // says no screen carries one, because the colours are learnt in a shift. It
   // cost 38 pixels off the top of every floor to say four numbers the room is
   // already saying, thirty tables at a time.
+  // THE ROOM BAR FLOATS IN THE CORNER OF THE ROOM, not in a strip above it:
+  // the floor takes the pane with nothing over it, and a band across the top
+  // to say one word would cost every floor its first 44 pixels for the whole
+  // shift. It rides the same chip the till's floor band wears, so a waiter
+  // moving between the two learns one control.
+  const bar = rooms.length > 1
+    ? `<div class="fl-bar"><div class="fl-rooms">${rooms.map(x => `<button class="fl-room-chip${x === fp ? ' on' : ''}" data-act="plan" data-id="${esc(x.id)}">${esc(x.name || 'Room')}</button>`).join('')}</div></div>`
+    : '';
   return `
-  ${plans.length ? plans.map(fp => `
-    ${plans.length > 1 ? `<div class="section-h">${esc(fp.name)}</div>` : ''}
+  ${fp ? `
     <div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : ''} style="${floorGround(fp)}"><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
       ${(() => { const hug = placed ? floorHug(fp) : null; return (fp.tables || []).map(t => hug ? hugObject(t, hug) : t).map(tableEl).join(''); })()}
-    </div></div></div>`).join('')
+    </div></div>${bar}</div>`
     : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>'}
   ${placed ? renderPace() : ''}`;
 }
@@ -10588,6 +10624,15 @@ document.addEventListener('click', async (ev) => {
       // Back to the top of the night: tonight, and the sitting the clock is
       // in. Both, because a host who has walked forward and narrowed down
       // wants the whole way back, not half of it.
+      // Walking between rooms. The zoom and the pan belong to the room you
+      // were in, so they go back to rest — a pan held over from a room twice
+      // the size pushes the new one off screen before you have seen it.
+      case 'plan':
+        state.plan = el.dataset.id || '';
+        state.highlightTable = null;
+        state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0;
+        render();
+        break;
       case 'now': {
         state.date = tradingDay();
         state.service = defaultService(state.date);
