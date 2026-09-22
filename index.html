@@ -7757,18 +7757,31 @@ function colourOf(k) { return ((state.settings && state.settings.statusColours) 
 function liveColourOf(k) {
   const set = colourOf(k);
   if (set) return set;
-  try { return getComputedStyle(document.documentElement).getPropertyValue(COLOUR_VARS[k]).trim() || ''; }
+  // BODY, not the root: the dark theme redeclares every status token on
+  // `body[data-theme="dark"]`, so the root's value is not what any row, table
+  // or block is actually painted with once it is dark.
+  try { return getComputedStyle(document.body).getPropertyValue(COLOUR_VARS[k]).trim() || ''; }
   catch (e) { return ''; }
 }
 // Re-point the custom properties the venue has changed, and CLEAR the ones it
 // has not — a colour removed in Settings has to go back to the stylesheet's
 // own without a reload.
+// THE OVERRIDE GOES ON THE BODY, and it used to go on the ROOT. Every status
+// token is declared twice — once on `:root` for light and again on
+// `body[data-theme="dark"]` — and a declaration on the body wins over one
+// inherited from the root for everything inside it, which is the whole app.
+// So a venue picking its own Seated green saw it in light and saw nothing at
+// all in dark: the floor, the book, the timeline and the row keys all went on
+// painting the stylesheet's. It is the same trap `--pick-wash` fell into, and
+// the rule is the same one: a token that is redeclared on the body must be
+// overridden on the body.
 function applyStatusColours() {
   const set = (state.settings && state.settings.statusColours) || {};
   for (const [k, cssVar] of Object.entries(COLOUR_VARS)) {
     const v = set[k];
-    if (v && /^#[0-9A-Fa-f]{6}$/.test(v)) document.documentElement.style.setProperty(cssVar, v);
-    else document.documentElement.style.removeProperty(cssVar);
+    if (v && /^#[0-9A-Fa-f]{6}$/.test(v)) document.body.style.setProperty(cssVar, v);
+    else document.body.style.removeProperty(cssVar);
+    document.documentElement.style.removeProperty(cssVar);
   }
 }
 // The list wears the code as a plain circle — the POS's admin rows do the same,
