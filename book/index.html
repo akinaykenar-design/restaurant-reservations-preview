@@ -772,19 +772,9 @@ body.book-page #app{display:block;height:auto;}
    the TOP the venue laid — the background and ink are written inline by
    skinStyle(), because a finish belongs to the table, not to a class. */
 .fl-table{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2222cqw;overflow:hidden;
-  border:1px solid var(--steel-200);background:var(--fl-skin,var(--table-plain));color:var(--text-primary);
+  border:1px solid var(--steel-200);background:var(--table-plain);color:var(--text-primary);
   font-family:var(--font-mono);font-weight:700;cursor:pointer;padding:.2222cqw;text-align:center;
   isolation:isolate;}
-/* A BARSTOOL IS A CIRCLE WITH ITS BOTTOM THIRD CUT OFF, the till's own shape —
-   a seat at the bar, not a table. The clip rides a COPY of the top rather
-   than the element, so the number and the marks are never sliced with it;
-   the wash is clipped to match, or a seated stool grows a rectangle under
-   the seat. --fl-skin is what makes one top wearable two ways. */
-.fl-table.stool{background:none;border-color:transparent;}
-.fl-table.stool::before{content:'';position:absolute;inset:0;border-radius:inherit;z-index:-2;
-  background:var(--fl-skin,var(--table-plain));border:1px solid var(--steel-200);
-  clip-path:inset(0 0 33% 0);box-sizing:border-box;}
-.fl-table.stool .fl-wash{clip-path:inset(0 0 33% 0);}
 /* WHAT THE TABLE IS DOING, over what it is MADE OF. A translucent tint under
    the number and above the top, so a burgundy cloth is still burgundy cloth
    with somebody sitting at it — a solid fill hid the room. A free table has

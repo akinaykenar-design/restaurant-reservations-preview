@@ -779,19 +779,9 @@ body.book-page #app{display:block;height:auto;}
    the TOP the venue laid — the background and ink are written inline by
    skinStyle(), because a finish belongs to the table, not to a class. */
 .fl-table{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2222cqw;overflow:hidden;
-  border:1px solid var(--steel-200);background:var(--fl-skin,var(--table-plain));color:var(--text-primary);
+  border:1px solid var(--steel-200);background:var(--table-plain);color:var(--text-primary);
   font-family:var(--font-mono);font-weight:700;cursor:pointer;padding:.2222cqw;text-align:center;
   isolation:isolate;}
-/* A BARSTOOL IS A CIRCLE WITH ITS BOTTOM THIRD CUT OFF, the till's own shape —
-   a seat at the bar, not a table. The clip rides a COPY of the top rather
-   than the element, so the number and the marks are never sliced with it;
-   the wash is clipped to match, or a seated stool grows a rectangle under
-   the seat. --fl-skin is what makes one top wearable two ways. */
-.fl-table.stool{background:none;border-color:transparent;}
-.fl-table.stool::before{content:'';position:absolute;inset:0;border-radius:inherit;z-index:-2;
-  background:var(--fl-skin,var(--table-plain));border:1px solid var(--steel-200);
-  clip-path:inset(0 0 33% 0);box-sizing:border-box;}
-.fl-table.stool .fl-wash{clip-path:inset(0 0 33% 0);}
 /* WHAT THE TABLE IS DOING, over what it is MADE OF. A translucent tint under
    the number and above the top, so a burgundy cloth is still burgundy cloth
    with somebody sitting at it — a solid fill hid the room. A free table has
@@ -8928,7 +8918,7 @@ function renderFloor() {
       : mine ? `Table ${t.label} — theirs already`
         : canPick ? `Put ${pkBook.name || 'them'} on table ${t.label} · ${t.seats} seats${pk.free.suggested === t.id ? ' · best fit' : ''}`
           : `Table ${t.label} — taken at ${hhmmOf(pkBook.time)}`;
-    return `<button class="fl-table ${f.state}${t.shape === 'stool' ? ' stool' : ''}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
+    return `<button class="fl-table ${f.state}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
       ${act}
       title="${esc(pkWhy)}">
       ${f.state === 'free' ? '' : `<span class="fl-wash ${f.state}"></span>`}
@@ -9040,7 +9030,7 @@ function renderArrange() {
     if (t.type === 'decor' || t.kind === 'decor') {
       return `<div class="fl-decor${t.decorType || t.color ? '' : ' wall'}" style="${placeStyle(t)}${decorStyle(t)}" aria-hidden="true">${decorInner(t)}</div>`;
     }
-    return `<button class="fl-table free arr${t.shape === 'stool' ? ' stool' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}${skinStyle(t)}"
+    return `<button class="fl-table free arr${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}${skinStyle(t)}"
       data-arrange="${esc(t.id)}" title="Table ${esc(t.label)} \u00b7 ${esc(String(t.seats))} seats \u2014 drag to move">
       <span class="fl-in" style="${uprightStyle(t)}">
         <span class="fl-no">${esc(t.label)}</span>
@@ -9201,13 +9191,15 @@ function decorStyle(t) {
 // percentages so a long table's corner stays a corner instead of stretching
 // into an oval with the box. The till's own sum, on the till's own 900x560.
 function tableRadiusFor(t) {
-  // A STOOL IS ROUND AND A HALF IS A HALF, the till's own two shapes. Neither
-  // was here, so a stool drew as a rounded rectangle on the desk and a circle
-  // on the till — the same seat, two shapes, which is exactly what a host is
-  // meant to recognise across a room.
-  const round = t && (t.shape === 'round' || t.shape === 'oval' || t.shape === 'circle' || t.shape === 'stool');
+  // THE TILL DRAWS FOUR SHAPES — square, round, rect, oval — and that is the
+  // whole list. A barstool and a half-round were here for one commit, ported
+  // out of a stale clone that still had them; the till had already deleted
+  // both. A shape the till cannot make is a shape no floor plan can carry,
+  // and carrying it here is the drift running the OTHER way.
+  // `circle` is not the till's word, it is ours, kept because the desk's own
+  // loose fallback has always written it.
+  const round = t && (t.shape === 'round' || t.shape === 'oval' || t.shape === 'circle');
   if (round) return '50%';
-  if (t && t.shape === 'half') return '50% 50% 10px 10px / 90% 90% 10px 10px';
   const wpx = ((t && t.width) || 10) * 9, hpx = ((t && t.height) || 10) * 5.6;
   const r = 0.16 * Math.min(wpx, hpx);
   return (r / wpx * 100).toFixed(1) + '% / ' + (r / hpx * 100).toFixed(1) + '%';
@@ -9231,11 +9223,7 @@ function skinStyle(t) {
   const fin = tableFinish(t.finish);
   const bg = t.color ? t.color : (fin.bg || 'var(--table-plain)');
   const ink = t.color ? contrastInk(t.color) : (fin.text || 'var(--text-primary)');
-  // The top is handed to the STYLESHEET as `--fl-skin` rather than painted on
-  // the element, because a BARSTOOL is a circle with its bottom third cut
-  // off and only a pseudo-element can carry a clipped copy of the top. One
-  // token, two ways of wearing it — the till's own mechanism.
-  return '--fl-skin:' + bg + ';color:' + ink + ';';
+  return 'background:' + bg + ';color:' + ink + ';';
 }
 
 // THE ROOM IS HUGGED TO WHAT IS IN IT — the till's own `floorHug`, verbatim.
