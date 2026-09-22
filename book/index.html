@@ -1321,7 +1321,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    carried only places — there is one rail at every width now, and the four
    are on it. */
 .rail-btn[data-act="view"][data-val="today"]{display:none;}
-.rail-scroll{scroll-snap-type:y mandatory;}
+@media (min-width:761px){ .rail-scroll{scroll-snap-type:y mandatory;} }
 .rail-scroll .rail-btn{scroll-snap-align:start;}
 .rail-secs,.rail-modes{display:contents;}
 
@@ -1452,40 +1452,48 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
      getting about — so it takes the whole finger. */
   .secband .chip{min-height:var(--tap);}
 
-  /* THE RAIL LIES DOWN AT THE FOOT — and it is still the WHOLE rail. It used
-     to lie down carrying the PLACES only, with the sections sent to a band of
-     chips at the top of the pane: one rail standing up and two things lying
-     down, which is the thing that never read as the same navigation. All
-     eight tiles are on it now, in the same order, with Settings last where it
-     is pinned last standing up. The band keeps the guest lenses and nothing
-     else, exactly as on a desk.
-     64 for the tile AND --ring for the bar's own hairline: the bar is 65
-     tall, and a reservation that counts only the tile leaves the pane one
-     pixel underneath it. */
-  .shell{padding-bottom:calc(64px + var(--ring) + env(safe-area-inset-bottom, 0px));}
+  /* THE RAIL LIES DOWN AT THE FOOT — and it is still the WHOLE rail, in the
+     SAME STYLE. Same eight tiles in the same order, Floor through Guests with
+     Settings last where standing up it is pinned last; same square tile, same
+     24 glyph over an --fs-md word, same count under it, and chosen is the
+     same PALE ACCENT BLOCK. Nothing about a tile changes when the column lies
+     down — the only thing that changes is which way it runs.
+     It SCROLLS rather than squeezing. Eight tiles shared across 390 is 49
+     each: above the finger law, but a squashed square with a two-line word in
+     it is not the same tile, and the whole point is that it is. Eight at the
+     rail's own 88 is 704, so the bar is swiped — and the cut end fades, like
+     every other scroller (--rail-axis, and `.rail` is already in RAIL_ENDS).
+     64 for the tile AND --ring for the bar's own hairline: a reservation that
+     counts only the tile leaves the pane a pixel underneath it. */
+  .shell{padding-bottom:calc(var(--rail-w) + var(--ring) + env(safe-area-inset-bottom, 0px));}
   /* It keeps the rail's GROUND: --chrome is what this bar is standing up, and
      --surface is the paper of the list it now floats OVER. */
   .rail{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:auto;
     flex-direction:row;padding:0;padding-bottom:env(safe-area-inset-bottom, 0px);
     border-right:none;border-top:1px solid var(--steel-300);background:var(--chrome);
-    z-index:var(--z-panel);overflow-x:auto;overflow-y:visible;box-shadow:var(--lift-1);
-    --rail-axis:90deg;}
-  /* One row of eight: every tile must be a flex child of the BAR, not of a
-     box inside it, or `flex:1` divides nothing. */
-  .rail-scroll,.rail-secs,.rail-modes,.rail-foot{display:contents;}
-  /* width:auto, or the base rule's width:100% survives the flex row and every
-     tile claims the whole bar — eight tiles each 390 wide, stacked in a
-     scroller nobody can reach the end of. */
-  .rail .rail-btn{flex:1 1 0;width:auto;min-width:44px;aspect-ratio:auto;min-height:64px;gap:2px;padding:6px 2px;}
-  .rail .rail-ico svg{width:22px;height:22px;}
-  .rail .rail-label{font-size:var(--fs-chip);letter-spacing:0;}
-  /* A count on a thumb bar is a badge, not a line of type under the label. */
-  .rail .rail-n{position:absolute;top:6px;right:50%;margin-right:-20px;
-    min-width:16px;height:16px;padding:0 4px;border-radius:var(--r-pill);
-    background:var(--red);color:#fff;font-size:var(--fs-chip);line-height:16px;text-align:center;opacity:1;}
-  .rail-btn{position:relative;}
-  .rail .rail-btn.active{background:none;color:var(--orange);}
-  .rail .rail-btn.active .rail-ico{background:var(--orange-dim);border-radius:var(--r-pill);padding:2px 10px;}
+    z-index:var(--z-panel);overflow:visible;box-shadow:var(--lift-1);}
+  /* THE SCROLLER IS THE SEVEN, NOT THE BAR — exactly as it is standing up.
+     The bar was the scroller with Settings stuck to its right edge, and the
+     seven slid UNDERNEATH it: "Run sheet" came to rest as the word "Run"
+     half behind the cog. Standing up nothing does that, because .rail-foot
+     sits OUTSIDE .rail-scroll and the scroll ends where the foot begins. The
+     same two boxes do the same two jobs lying down: the scroll takes the
+     room that is left and the foot takes its square at the end of it. */
+  .rail-scroll{flex:1 1 auto;min-width:0;min-height:0;flex-direction:row;
+    overflow-x:auto;overflow-y:visible;scroll-snap-type:x mandatory;}
+  /* Every tile a flex child of the SCROLLER, not of a box inside it —
+     otherwise the two groups share the row and the tiles divide what is left
+     of it. */
+  .rail-secs,.rail-modes{display:contents;}
+  /* AND SETTINGS IS STILL AT THE FOOT, outside the scroll, because it is the
+     way back and a way back that can scroll out of reach is not one. Lying
+     down, "the foot" is the right-hand END. Its own hairline, or it would
+     sit in the row as if it were one of them. */
+  .rail-foot{flex:0 0 var(--rail-w);border-left:1px solid var(--steel-300);}
+  /* A SQUARE, at the rail's own width. width:auto is doing real work: the
+     base rule is width:100%, and in a flex row that survived — every tile
+     claimed the whole 390 and the bar became a scroller eight screens long. */
+  .rail .rail-btn{flex:0 0 var(--rail-w);width:auto;height:var(--rail-w);}
 
   .pane{padding-bottom:0;}
 }
