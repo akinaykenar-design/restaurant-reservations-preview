@@ -1075,7 +1075,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   border:1px solid color-mix(in srgb, var(--st-ink, var(--steel-500)) 22%, transparent);
   background:var(--st-wash, var(--steel-100));
   color:var(--st-ink, var(--charcoal-soft));cursor:pointer;}
-.bl-st svg{width:20px;height:20px;}
+/* 24 in a 44 box. 20 left ten pixels of air each side and the glyph read as
+   a mark in a field rather than the key's own face. */
+.bl-st svg{width:24px;height:24px;}
 .bl-st:hover{border-color:var(--st-ink, var(--steel-300));}
 .bl-st.on{box-shadow:inset 0 0 0 var(--ring) var(--st-ink, var(--orange));}
 /* ONE TABLE OF STATUS INK, asked by everything that draws a status: the row's
@@ -1097,7 +1099,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   align-items:center;justify-content:center;border-radius:var(--r-btn);
   border:1px solid color-mix(in srgb, var(--st-ink, var(--steel-500)) 22%, transparent);
   background:var(--st-wash, var(--steel-100));color:var(--st-ink, var(--charcoal-soft));}
-.st-mark svg{width:20px;height:20px;}
+.st-mark svg{width:24px;height:24px;}
 .bl-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
 .bl-who small{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);
   font-family:var(--font-mono);letter-spacing:.3px;}
@@ -7483,9 +7485,9 @@ const I = {
   cake: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M4 21v-6.5a2.5 2.5 0 0 1 2.5-2.5h11a2.5 2.5 0 0 1 2.5 2.5V21"/><path d="M3.6 16.5c1.7 1.4 3.4 1.4 5.1 0s3.4-1.4 5.1 0 3.4 1.4 5.1 0"/><path d="M8.5 8.5V6M12 8.5V5.5M15.5 8.5V6"/></svg>',
   note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h9.5L19 8v12.5H5z"/><path d="M14 3.5V8h5"/><path d="M8.5 12.5h7M8.5 16h4.5"/></svg>',
   chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></svg>',
-  stBooked: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>',
-  stConfirmed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M7.8 12.4l2.7 2.7 5.7-5.7"/></svg>',
-  stArrived: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5S19 15.6 19 10.5a7 7 0 1 0-14 0c0 5.1 7 11 7 11z"/><circle cx="12" cy="10.2" r="2.6"/></svg>',
+  stBooked: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3h7a2 2 0 0 1 2 2v16l-5.5-4.2-5.5 4.2V5a2 2 0 0 1 2-2z"/></svg>',
+  stConfirmed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M7.5 2h9a2 2 0 0 1 2 2v18l-6.5-5-6.5 5V4a2 2 0 0 1 2-2z"/></svg>',
+  stArrived: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" fill="currentColor" stroke="none" d="M12 22S19.78 15.44 19.78 9.78a7.78 7.78 0 1 0-15.56 0c0 5.67 7.78 12.22 7.78 12.22z M12 6.56a2.89 2.89 0 1 0 0 5.78 2.89 2.89 0 1 0 0-5.78z"/></svg>',
   stDone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 12.6l4 4 6.6-6.9"/><path d="M11 16.6l1.5 1.5 8.5-9"/></svg>',
   stCancelled: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="7.8" r="3.6"/><path d="M2.8 20.5c0-3.7 3-6.2 6.7-6.2 1 0 2 .2 2.9.6"/><path d="M15.6 15.6l5.6 5.6M21.2 15.6l-5.6 5.6"/></svg>',
   stFree: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.8" y="7.4" width="18.4" height="9.2" rx="2.2"/></svg>',
@@ -7505,13 +7507,21 @@ const I = {
   // own dot, the person's own head — because solid against outline is the
   // strongest mark there is and it survives any size. It is also the device
   // the list's dot already uses for the same word.
-  stPartArrived: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5S19 15.6 19 10.5a7 7 0 1 0-14 0c0 5.1 7 11 7 11z"/><path d="M12 21.5C12 21.5 5 15.6 5 10.5a7 7 0 0 1 7-7z" fill="currentColor" stroke="none"/><circle cx="12" cy="10.2" r="2.6"/></svg>',
-  stPartSeated: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8" r="4"/><path d="M8.5 3a5 5 0 0 0 0 10z" fill="currentColor" stroke="none"/><path d="M2 20.5c0-3.6 2.9-6.5 6.5-6.5v6.5z" fill="currentColor" stroke="none"/><path d="M2 20.5c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><path d="M16.5 4.6a4 4 0 0 1 0 6.8"/><path d="M18.5 14.4c2.1 1 3.5 3.1 3.5 5.6"/></svg>',
+  stPartArrived: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21S19 15.1 19 10a7 7 0 1 0-14 0c0 5.1 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg>',
+  // SEATED IS THE TABLE, FILLED. It wore `people`, which is the RAIL's Guests
+  // tile — one shape doing two jobs, the fault this app names everywhere
+  // else. A party at a table is a table with somebody ON it, so it is the
+  // table seen from above with the seat taken: a solid disc, and the only
+  // solid disc in the set. Everything else on the status list is an outline,
+  // so it cannot be mistaken at any size, and PARTLY is then the same disc
+  // with half of it filled — the halving device drawn at its plainest.
+  stSeated: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="4" fill="currentColor" stroke="none"/></svg>',
+  stPartSeated: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3.5"/></svg>',
   // THE BILL, and then THE MONEY. A till receipt with its torn foot, and a
   // note with a tick on it. The torn edge is what carries the receipt at 20px
   // — a plain rectangle with two lines in it is every other glyph in the app.
-  stCheck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.4h14.4v19.2l-2.4-1.6-2.4 1.6-2.4-1.6-2.4 1.6-2.4-1.6L4.8 21.6z"/><path d="M8.4 8h7.2M8.4 12.4h7.2"/></svg>',
-  stPaid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6.4" width="20" height="11.2" rx="2"/><path d="M8 12.2l2.6 2.6 5.4-5.4"/></svg>',
+  stCheck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.22 2h15.56v20l-3.33 -2.22 -2.22 2.22 -2.22 -2.22 -2.22 2.22 -3.33 -2.22V2z"/><path d="M8.11 7.56h7.78M8.11 12h7.78M8.11 16.44h5"/></svg>',
+  stPaid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill-rule="evenodd" fill="currentColor" stroke="none" d="M4.22 2h15.56v20l-3.33 -2.22 -2.22 2.22 -2.22 -2.22 -2.22 2.22 -3.33 -2.22V2z M8.6 11.8l-1.25 1.25 3.1 3.1 6.2-6.2-1.25-1.25-4.95 4.95z"/></svg>',
   srcStaff: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.2 2.8h3.1l1.6 4.6-2.1 1.6a12.4 12.4 0 0 0 6.2 6.2l1.6-2.1 4.6 1.6v3.1a2.6 2.6 0 0 1-2.8 2.6A17 17 0 0 1 3.6 5.6a2.6 2.6 0 0 1 2.6-2.8z"/></svg>',
   srcOnline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/><path d="M12 3c2.5 2.8 3.8 5.8 3.8 9s-1.3 6.2-3.8 9c-2.5-2.8-3.8-5.8-3.8-9S9.5 5.8 12 3z"/></svg>',
   srcWalkIn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 22V3.2C5 2.5 5.5 2 6.2 2h11.6c.7 0 1.2.5 1.2 1.2V22"/><path d="M3 22h18"/><circle cx="15.2" cy="12.4" r="1"/></svg>',
@@ -7745,7 +7755,7 @@ const STATUS_KEY = [
   ['part-arrived', 'Some arrived',  'stPartArrived', 'Part of the party is in the room. The rest are still coming.'],
   ['arrived',      'Arrived',       'stArrived',     'All of them are in the room, not yet at the table.'],
   ['part-seated',  'Some seated',   'stPartSeated',  'Part of the party is down. The table is theirs, but do not run the order yet.'],
-  ['seated',       'Seated',        'people',        'All of them are at the table. It is theirs until they leave.'],
+  ['seated',       'Seated',        'stSeated',      'All of them are at the table. It is theirs until they leave.'],
   ['check',        'Check dropped', 'stCheck',       'The bill is on the table. The sitting is closing.'],
   ['paid',         'Paid',          'stPaid',        'Paid and still in the chair. You can promise this table to the next party.'],
   ['done',         'Left',          'stDone',        'Up and gone. The table is free again.'],
@@ -7755,7 +7765,7 @@ const STATUS_KEY = [
 const FLOOR_KEY = [
   ['free',   'Free',   'stFree',   'Nobody on it now. Tap it to book a walk-in.'],
   ['due',    'Due',    'stDue',    'Someone is booked on it within the half hour.'],
-  ['seated', 'Seated', 'people',   'A party is on it right now.'],
+  ['seated', 'Seated', 'stSeated', 'A party is on it right now.'],
   ['over',   'Over',   'stOver',   'Still on it past the turn time. The next booking is at risk.'],
   ['check',  'Check dropped', 'stCheck', 'The bill is on the table. It is closing.'],
   ['paid',   'Paid',   'stPaid',   'Paid and still sitting. The next party can be promised it.'],

@@ -1068,7 +1068,9 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   border:1px solid color-mix(in srgb, var(--st-ink, var(--steel-500)) 22%, transparent);
   background:var(--st-wash, var(--steel-100));
   color:var(--st-ink, var(--charcoal-soft));cursor:pointer;}
-.bl-st svg{width:20px;height:20px;}
+/* 24 in a 44 box. 20 left ten pixels of air each side and the glyph read as
+   a mark in a field rather than the key's own face. */
+.bl-st svg{width:24px;height:24px;}
 .bl-st:hover{border-color:var(--st-ink, var(--steel-300));}
 .bl-st.on{box-shadow:inset 0 0 0 var(--ring) var(--st-ink, var(--orange));}
 /* ONE TABLE OF STATUS INK, asked by everything that draws a status: the row's
@@ -1090,7 +1092,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   align-items:center;justify-content:center;border-radius:var(--r-btn);
   border:1px solid color-mix(in srgb, var(--st-ink, var(--steel-500)) 22%, transparent);
   background:var(--st-wash, var(--steel-100));color:var(--st-ink, var(--charcoal-soft));}
-.st-mark svg{width:20px;height:20px;}
+.st-mark svg{width:24px;height:24px;}
 .bl-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
 .bl-who small{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);
   font-family:var(--font-mono);letter-spacing:.3px;}
