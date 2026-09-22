@@ -8911,7 +8911,28 @@ function renderToday() {
     <div class="desk-main">${side}</div>
   </div>`;
 }
-const PX_PER_MIN = 2;
+// THE RULER STRETCHES TO THE PANE. Two pixels a minute is the FLOOR, not the
+// scale: a three-hour lunch on a 1180-wide pane drew 480 pixels of ruler and
+// left 700 of blank card, and every booking on it was a stub with its name
+// clipped. The window is known before the paint and so is the room it has to
+// fill, so the scale is that room over those minutes — never below the old 2,
+// so a whole day of an all-night view still scrolls exactly as it did. One
+// number, set on every paint and read by the blocks, the slots, the hour
+// lines and the drag alike, so the ruler the finger measures against is
+// always the ruler that was drawn.
+const PX_PER_MIN_FLOOR = 2;
+const TL_LABEL_W = 132;
+let PX_PER_MIN = PX_PER_MIN_FLOOR;
+// The pane is the only thing that knows how wide the desk is, and it is on
+// screen from the paint before this one. Falling back to the window is for
+// the very first paint, where the rail's width is the only chrome to take off.
+function tlScale(mins) {
+  const pane = document.querySelector('.pane');
+  const edge = 12, border = 2, scrollbar = 2;
+  const room = (pane ? pane.clientWidth : window.innerWidth - 88) - edge * 2 - border - TL_LABEL_W - scrollbar;
+  if (!(mins > 0) || !(room > 0)) return PX_PER_MIN_FLOOR;
+  return Math.max(PX_PER_MIN_FLOOR, Math.floor((room / mins) * 100) / 100);
+}
 // The day's live bookings holding any of these tables across [startMin, +dur).
 // availability.js:holdersOf() without the day filter, because state.reservations
 // only ever holds the day on screen. The red edges and the drag preview both
@@ -8924,8 +8945,9 @@ function tlHolders(ids, startMin, dur, ignoreId) {
 }
 function renderTimeline() {
   const { start, end } = serviceWindow(state.date);
+  PX_PER_MIN = tlScale(end - start);
   const width = (end - start) * PX_PER_MIN;
-  const labelW = 132;
+  const labelW = TL_LABEL_W;
   // THE TIMELINE SHOWS THE SERVICE YOU PICKED, like the list, the flow and
   // the pacing strip. It drew the WHOLE DAY'S bookings against a window that
   // had already been narrowed to one service (serviceWindow), so a 7pm
