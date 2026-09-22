@@ -798,6 +798,38 @@ body.book-page #app{display:block;height:auto;}
   font-size:1.1667cqw;font-weight:800;line-height:1;box-shadow:var(--lift-1);}
 .fl-mk.al{background:var(--st-late);color:var(--on-scrim);}
 .fl-mk.vip{background:var(--st-due);color:var(--tbl-num-ink);}
+/* THE LENS'S ANSWER, hanging off the table's foot. A SIBLING of the table and
+   not a child, because .fl-table is overflow:hidden and anything below its
+   edge would be sliced. Sized as a share of the room like everything else in
+   the drawing, so the picture stays one uniform scale at any pane width, and
+   never turned with the table — the floor can afford a table at an angle and
+   cannot afford sideways writing. Nothing is drawn at rest: with no lens
+   picked there is no element at all. */
+.fl-pill[data-in]{position:static;translate:none;box-shadow:none;font-size:var(--fs-chip);
+  gap:4px;padding:2px 6px;max-width:100%;overflow:hidden;}
+.fl-pill[data-in] i{width:8px;height:8px;}
+.fl-pill{position:absolute;translate:-50% .3333cqw;display:inline-flex;align-items:center;gap:.3333cqw;
+  padding:.2222cqw .5556cqw;border-radius:var(--r-pill);white-space:nowrap;pointer-events:none;
+  background:var(--tbl-num-bg);color:var(--tbl-num-ink);border:1px solid var(--steel-300);
+  font-family:var(--font-mono);font-size:1.1667cqw;font-weight:800;line-height:1;box-shadow:var(--lift-1);}
+.fl-pill i{width:1.1111cqw;height:1.1111cqw;border-radius:var(--r-pill);display:block;
+  border:1px solid var(--steel-300);box-sizing:border-box;}
+.fl-pill.bad{background:var(--st-late);color:var(--on-scrim);border-color:var(--st-late);}
+.fl-pill.vip{background:var(--st-due);border-color:var(--st-due);}
+.fl-pill.quiet{opacity:var(--dim);}
+/* The lens picker, beside the room chips in the floor's own bar. The chip is
+   the room chip — one control learnt once — and it is LIT when a lens is
+   picked, so the bar says a question is being asked without saying which
+   twice. */
+.fl-lens{position:relative;}
+.fl-lens-veil{position:fixed;inset:0;z-index:calc(var(--z-menu) - 1);}
+.fl-lens-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:var(--z-menu);
+  background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);
+  box-shadow:var(--lift-2);padding:4px;min-width:148px;display:flex;flex-direction:column;gap:4px;}
+.fl-lens-item{border:none;background:none;text-align:left;padding:12px;border-radius:var(--r-control);
+  font-family:var(--font-body);font-size:var(--fs-md);color:var(--text-primary);min-height:var(--tap);}
+.fl-lens-item.on{background:var(--orange);color:#fff;}
+.fl-room-chip.lit{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
 /* A table the APP chose, in the BOOK: the same number, drawn light. Nothing
    else changes — it is a real table and it is really held, it just has
    nobody's name on the choice yet. The FLOOR draws it like any other: a room
@@ -3796,6 +3828,28 @@ function tableVip(t) {
   return now.length ? now.join(' · ') : String((t && t.vipType) || '').trim();
 }
 
+// THE COURSE THE TILL SAYS THE TABLE IS ON. The one field on this call the
+// till does not send YET: the POS keeps a table's course in the open ORDER,
+// not on the floor plan, so `GET /api/floorplans` has never carried it (see
+// POS-LINK.md). Read here rather than derived, because a course is something
+// the KITCHEN decided and nothing in the book could work it out.
+//
+// It is read the way everything else on this call is read — whatever the till
+// sends, shaped — so the day the POS puts it on the table the desk lights up
+// with no migration and no second source. Until then every table answers
+// null, the Course lens says so, and nothing pretends.
+//   { name, colour, at }  — the course's name, the venue's own colour for it,
+//                           and when the kitchen fired it (ms, or null)
+function tableCourse(t) {
+  if (!t || typeof t !== 'object') return null;
+  const c = t.course;
+  const name = String((c && typeof c === 'object' ? c.name : c) || '').trim();
+  if (!name) return null;
+  const raw = String((c && typeof c === 'object' && (c.color || c.colour)) || t.courseColor || '').trim();
+  const at = Number((c && typeof c === 'object' && (c.at || c.sentAt)) || t.courseAt) || null;
+  return { name: name.slice(0, 24), colour: /^#[0-9A-Fa-f]{6}$/.test(raw) ? raw.toUpperCase() : null, at };
+}
+
 // §§ Who sits where, when nobody has said
 //
 // A booking with no table is not a booking without a table — it is one the
@@ -4656,7 +4710,7 @@ module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
-  FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, coverFlow,
+  FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
@@ -6046,9 +6100,9 @@ function tablesOf(data) { return av.tablesFrom(data.floorPlans); }
 function floorTablesOf(data) {
   const live = {};
   (data.floorPlans || []).forEach(fp => (fp.tables || []).forEach(t => {
-    live[t.id] = { covers: Math.max(0, Number(t.covers) || 0), allergies: av.tableAllergies(t), vip: av.tableVip(t) };
+    live[t.id] = { covers: Math.max(0, Number(t.covers) || 0), allergies: av.tableAllergies(t), vip: av.tableVip(t), course: av.tableCourse(t) };
   }));
-  return av.tablesFrom(data.floorPlans).map(t => Object.assign({}, t, live[t.id] || { covers: 0, allergies: [], vip: '' }));
+  return av.tablesFrom(data.floorPlans).map(t => Object.assign({}, t, live[t.id] || { covers: 0, allergies: [], vip: '', course: null }));
 }
 function ctxOf(data) { return { settings: effectiveSettings(data), tables: tablesOf(data), reservations: data.reservations }; }
 // What history.js needs to name a table in a line. No logic, just the floor.
@@ -6250,6 +6304,9 @@ app.get('/api/tables', (req, res) => {
     // the phone about it an hour later. Same for a VIP marked on the floor.
     // Both ride the floor-plan call that was already being made.
     allergies: av.tableAllergies(t), vip: av.tableVip(t),
+    // AND THE COURSE, the day the till sends it. Null until then — see
+    // av.tableCourse() and POS-LINK.md.
+    course: av.tableCourse(t),
   });
   res.json({
     tables: floorTablesOf(data),

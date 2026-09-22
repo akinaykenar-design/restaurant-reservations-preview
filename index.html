@@ -805,6 +805,38 @@ body.book-page #app{display:block;height:auto;}
   font-size:1.1667cqw;font-weight:800;line-height:1;box-shadow:var(--lift-1);}
 .fl-mk.al{background:var(--st-late);color:var(--on-scrim);}
 .fl-mk.vip{background:var(--st-due);color:var(--tbl-num-ink);}
+/* THE LENS'S ANSWER, hanging off the table's foot. A SIBLING of the table and
+   not a child, because .fl-table is overflow:hidden and anything below its
+   edge would be sliced. Sized as a share of the room like everything else in
+   the drawing, so the picture stays one uniform scale at any pane width, and
+   never turned with the table — the floor can afford a table at an angle and
+   cannot afford sideways writing. Nothing is drawn at rest: with no lens
+   picked there is no element at all. */
+.fl-pill[data-in]{position:static;translate:none;box-shadow:none;font-size:var(--fs-chip);
+  gap:4px;padding:2px 6px;max-width:100%;overflow:hidden;}
+.fl-pill[data-in] i{width:8px;height:8px;}
+.fl-pill{position:absolute;translate:-50% .3333cqw;display:inline-flex;align-items:center;gap:.3333cqw;
+  padding:.2222cqw .5556cqw;border-radius:var(--r-pill);white-space:nowrap;pointer-events:none;
+  background:var(--tbl-num-bg);color:var(--tbl-num-ink);border:1px solid var(--steel-300);
+  font-family:var(--font-mono);font-size:1.1667cqw;font-weight:800;line-height:1;box-shadow:var(--lift-1);}
+.fl-pill i{width:1.1111cqw;height:1.1111cqw;border-radius:var(--r-pill);display:block;
+  border:1px solid var(--steel-300);box-sizing:border-box;}
+.fl-pill.bad{background:var(--st-late);color:var(--on-scrim);border-color:var(--st-late);}
+.fl-pill.vip{background:var(--st-due);border-color:var(--st-due);}
+.fl-pill.quiet{opacity:var(--dim);}
+/* The lens picker, beside the room chips in the floor's own bar. The chip is
+   the room chip — one control learnt once — and it is LIT when a lens is
+   picked, so the bar says a question is being asked without saying which
+   twice. */
+.fl-lens{position:relative;}
+.fl-lens-veil{position:fixed;inset:0;z-index:calc(var(--z-menu) - 1);}
+.fl-lens-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:var(--z-menu);
+  background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);
+  box-shadow:var(--lift-2);padding:4px;min-width:148px;display:flex;flex-direction:column;gap:4px;}
+.fl-lens-item{border:none;background:none;text-align:left;padding:12px;border-radius:var(--r-control);
+  font-family:var(--font-body);font-size:var(--fs-md);color:var(--text-primary);min-height:var(--tap);}
+.fl-lens-item.on{background:var(--orange);color:#fff;}
+.fl-room-chip.lit{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
 /* A table the APP chose, in the BOOK: the same number, drawn light. Nothing
    else changes — it is a real table and it is really held, it just has
    nobody's name on the choice yet. The FLOOR draws it like any other: a room
@@ -3802,6 +3834,28 @@ function tableVip(t) {
   return now.length ? now.join(' · ') : String((t && t.vipType) || '').trim();
 }
 
+// THE COURSE THE TILL SAYS THE TABLE IS ON. The one field on this call the
+// till does not send YET: the POS keeps a table's course in the open ORDER,
+// not on the floor plan, so `GET /api/floorplans` has never carried it (see
+// POS-LINK.md). Read here rather than derived, because a course is something
+// the KITCHEN decided and nothing in the book could work it out.
+//
+// It is read the way everything else on this call is read — whatever the till
+// sends, shaped — so the day the POS puts it on the table the desk lights up
+// with no migration and no second source. Until then every table answers
+// null, the Course lens says so, and nothing pretends.
+//   { name, colour, at }  — the course's name, the venue's own colour for it,
+//                           and when the kitchen fired it (ms, or null)
+function tableCourse(t) {
+  if (!t || typeof t !== 'object') return null;
+  const c = t.course;
+  const name = String((c && typeof c === 'object' ? c.name : c) || '').trim();
+  if (!name) return null;
+  const raw = String((c && typeof c === 'object' && (c.color || c.colour)) || t.courseColor || '').trim();
+  const at = Number((c && typeof c === 'object' && (c.at || c.sentAt)) || t.courseAt) || null;
+  return { name: name.slice(0, 24), colour: /^#[0-9A-Fa-f]{6}$/.test(raw) ? raw.toUpperCase() : null, at };
+}
+
 // §§ Who sits where, when nobody has said
 //
 // A booking with no table is not a booking without a table — it is one the
@@ -4662,7 +4716,7 @@ module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
-  FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, coverFlow,
+  FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
@@ -6052,9 +6106,9 @@ function tablesOf(data) { return av.tablesFrom(data.floorPlans); }
 function floorTablesOf(data) {
   const live = {};
   (data.floorPlans || []).forEach(fp => (fp.tables || []).forEach(t => {
-    live[t.id] = { covers: Math.max(0, Number(t.covers) || 0), allergies: av.tableAllergies(t), vip: av.tableVip(t) };
+    live[t.id] = { covers: Math.max(0, Number(t.covers) || 0), allergies: av.tableAllergies(t), vip: av.tableVip(t), course: av.tableCourse(t) };
   }));
-  return av.tablesFrom(data.floorPlans).map(t => Object.assign({}, t, live[t.id] || { covers: 0, allergies: [], vip: '' }));
+  return av.tablesFrom(data.floorPlans).map(t => Object.assign({}, t, live[t.id] || { covers: 0, allergies: [], vip: '', course: null }));
 }
 function ctxOf(data) { return { settings: effectiveSettings(data), tables: tablesOf(data), reservations: data.reservations }; }
 // What history.js needs to name a table in a line. No logic, just the floor.
@@ -6256,6 +6310,9 @@ app.get('/api/tables', (req, res) => {
     // the phone about it an hour later. Same for a VIP marked on the floor.
     // Both ride the floor-plan call that was already being made.
     allergies: av.tableAllergies(t), vip: av.tableVip(t),
+    // AND THE COURSE, the day the till sends it. Null until then — see
+    // av.tableCourse() and POS-LINK.md.
+    course: av.tableCourse(t),
   });
   res.json({
     tables: floorTablesOf(data),
@@ -7703,6 +7760,12 @@ const state = {
   // the first room with tables in it answers. It is never stored: a venue
   // that adds an Outside next season gets a chip for it, not a migration.
   plan: '',
+  // WHICH QUESTION IS BEING ASKED OF THE ROOM. '' is the floor as it is — the
+  // number and the colour and nothing else, which is the law. Never stored
+  // either, and for a harder reason than the room is: a room is a place you
+  // are in, and a lens is a question you asked once. A desk opened tomorrow
+  // is not still asking it.
+  floorLens: '', lensOpen: false,
   // Which Settings group is open; '' is the hub of groups itself.
   setGroup: '',
   // The render gate for a live timeline drag, and nothing else about the
@@ -8579,6 +8642,90 @@ function flowLine(flow) {
 // availability.js for why, and for LATE_AFTER; test/availability.test.js
 // holds this copy to that one, minute for minute.
 const DESK_LATE_AFTER = 10;
+// §§ THE LENS — one question asked of the whole room
+//
+// The floor says two things at rest: the table's NUMBER and the colour of
+// what it is doing. That is the law, and the pill that used to hang under
+// every table with news came off in Sep '26 for breaking it. This is what
+// replaced it, and it starts from nothing rather than from that: a picker in
+// the room bar, NOTHING picked by default, and the floor exactly as it was
+// until somebody asks a question of it.
+//
+// It is never stored. A lens is a question, not a place — you ask it, you
+// read the answer, you put it away — so a desk that is merely opened is back
+// to the room and its colours. `state.plan` is not stored for the same
+// reason, one rung up.
+//
+// Three questions, and each is one the ROOM cannot already answer:
+//   Booked  when this table is promised next. The colour says somebody is on
+//           it; it never says who is coming at eight.
+//   Marks   the till's own marks, SPELT OUT. The star and the "!" are always
+//           in the corner, but a symbol only carries its meaning in a title
+//           and there is no hover on a tablet — so the lens is where the VIP
+//           says which kind and the allergy says which.
+//   Course  what the kitchen is on. Nothing in the book could work this out;
+//           it comes from the till, and until the till sends it the lens
+//           says so rather than drawing an empty room.
+const FLOOR_LENSES = [
+  ['', 'Lens'],
+  ['booked', 'Booked'],
+  ['marks', 'Marks'],
+  ['course', 'Course'],
+];
+function lensName(v) { const row = FLOOR_LENSES.find(x => x[0] === (v || '')); return row ? row[1] : 'Lens'; }
+
+// What the lens hangs under one table. '' is the answer for a table with
+// nothing to say — an empty pill on twenty tables is the clutter the caption
+// law took off this floor in the first place.
+function floorPill(t, f) {
+  const lens = state.floorLens || '';
+  if (!lens) return '';
+  if (lens === 'booked') {
+    // The NEXT booking, not the one sitting there: the colour already says
+    // somebody is on it, and what a host wants off this lens is when the
+    // table is promised. A free table with nothing coming says nothing.
+    if (!f.nextAt) return '';
+    const mins = toMin(f.nextAt) - toMin(state.deskQ || nowHHMM());
+    const rel = mins <= 0 ? 'now' : mins < 60 ? mins + 'm' : Math.floor(mins / 60) + 'h' + (mins % 60 ? ' ' + (mins % 60) + 'm' : '');
+    return pillHtml(t, '', `${esc(fmtHHMM(f.nextAt))} · ${esc(rel)}`, f.next ? `${f.next.name} · ${f.next.partySize}` : '');
+  }
+  if (lens === 'marks') {
+    const al = (t.allergies || []);
+    const said = [t.vip ? '★ ' + t.vip : '', al.length ? '! ' + al.join(' · ') : ''].filter(Boolean).join('  ');
+    if (!said) return '';
+    return pillHtml(t, al.length ? 'bad' : 'vip', esc(said), said);
+  }
+  // COURSE. The one thing on this floor the desk cannot derive and the till
+  // does not send yet, so the lens is honest about which: a table with an
+  // order on it and no course says "—", and a table with nobody on it says
+  // nothing at all.
+  const c = t.course;
+  if (c) return pillHtml(t, 'course', `${c.colour ? `<i style="background:${esc(c.colour)};"></i>` : ''}${esc(c.name)}`, 'Course · ' + c.name);
+  return f.state === 'free' ? '' : pillHtml(t, 'quiet', '—', 'The till is not sending courses');
+}
+// IT HANGS OFF THE TABLE'S FOOT, AND IT IS THE TABLE'S SIBLING, not its
+// child: `.fl-table` is `overflow:hidden` so the wash and the top stay inside
+// the rounded corner, and anything hanging below would be sliced off at the
+// edge. So it is placed the way the table is — the POS's own percentages of
+// the 900x560 canvas — half the table's height further down.
+//
+// It does NOT turn with the table, for the same reason the number does not:
+// the floor can afford a table at an angle and cannot afford sideways
+// writing. And it stacks by the same rule the tables do, one above its own
+// table, so a pill lands ON the neighbour below rather than under it.
+function pillHtml(t, kind, inner, title) {
+  const mark = `class="fl-pill${kind ? ' ' + kind : ''}"${title ? ` title="${esc(title)}"` : ''}`;
+  // THE LOOSE FALLBACK IS A DIFFERENT DRAWING — a grid of boxes, not a plan —
+  // so the answer goes INSIDE the box, under the number, where there is room
+  // for it. A pill hanging off a table in a wrapped flex row would land on
+  // the row beneath.
+  if (!Number.isFinite(t.x) || !Number.isFinite(t.y)) return `<span ${mark} data-in="1">${inner}</span>`;
+  const place = `left:${t.x}%;top:calc(${t.y}% + ${(Number(t.height) || 9.8) / 2}%);`
+    + `z-index:${101 - Math.round(t.y || 0)};`;
+  return `<span ${mark} style="${place}">${inner}</span>`;
+}
+function nowHHMM() { const d = new Date(); return fromMin(d.getHours() * 60 + d.getMinutes()); }
+
 function floorStateAt(hhmm) {
   const at = toMin(hhmm);
   const mine = state.reservations.filter(isLive);
@@ -8762,9 +8909,8 @@ function renderFloor() {
       ${marks ? `<span class="fl-marks">${marks}</span>` : ''}
       <span class="fl-in" style="${up}">
         <span class="fl-no">${esc(t.label)}</span>
-
-      </span>
-    </button>`;
+      </span>${placed ? '' : floorPill(t, f)}
+    </button>${placed ? floorPill(t, f) : ''}`;
   };
 
   // NOTHING ABOVE THE ROOM. There was a line here counting seated, over, due
@@ -8777,9 +8923,21 @@ function renderFloor() {
   // to say one word would cost every floor its first 44 pixels for the whole
   // shift. It rides the same chip the till's floor band wears, so a waiter
   // moving between the two learns one control.
-  const bar = rooms.length > 1
-    ? `<div class="fl-bar"><div class="fl-rooms">${rooms.map(x => `<button class="fl-room-chip${x === fp ? ' on' : ''}" data-act="plan" data-id="${esc(x.id)}">${esc(x.name || 'Room')}</button>`).join('')}</div></div>`
-    : '';
+  //
+  // AND THE LENS SITS BESIDE THE ROOMS. Which room you are in and which
+  // question you are asking of it are the two things you change about the
+  // floor without changing a booking, so they share the one bar. The lens is
+  // a DROPDOWN and the rooms are chips, because a room is a place you can be
+  // in (and the chips say which) while a lens is a question you ask once and
+  // put away again — the till's own `fp-dd`, and the same shape.
+  const lensChip = `<div class="fl-lens">
+      ${state.lensOpen ? '<div class="fl-lens-veil" data-act="lens-open"></div>' : ''}
+      <button class="fl-room-chip${state.lensOpen ? ' on' : ''}${state.floorLens ? ' lit' : ''}" data-act="lens-open">${esc(lensName(state.floorLens))}</button>
+      ${state.lensOpen ? `<div class="fl-lens-menu">${FLOOR_LENSES.map(([v, l]) => `<button class="fl-lens-item${v === (state.floorLens || '') ? ' on' : ''}" data-act="lens-pick" data-val="${esc(v)}">${esc(l)}</button>`).join('')}</div>` : ''}
+    </div>`;
+  const bar = `<div class="fl-bar">${rooms.length > 1
+    ? `<div class="fl-rooms">${rooms.map(x => `<button class="fl-room-chip${x === fp ? ' on' : ''}" data-act="plan" data-id="${esc(x.id)}">${esc(x.name || 'Room')}</button>`).join('')}</div>`
+    : ''}${lensChip}</div>`;
   return `
   ${fp ? `
     <div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : ''} style="${floorGround(fp)}"><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
@@ -10983,6 +11141,12 @@ document.addEventListener('click', async (ev) => {
       // Walking between rooms. The zoom and the pan belong to the room you
       // were in, so they go back to rest — a pan held over from a room twice
       // the size pushes the new one off screen before you have seen it.
+      // THE LENS IS A TOGGLE, like every other key that covers something: the
+      // chip that opened it puts it away, so it is never a mode to get stuck
+      // in. The GROUND is the other way out — a press on the veil — because a
+      // phone has no Escape.
+      case 'lens-open': state.lensOpen = !state.lensOpen; render(); break;
+      case 'lens-pick': state.floorLens = val || ''; state.lensOpen = false; render(); break;
       case 'plan':
         state.plan = el.dataset.id || '';
         state.highlightTable = null;
@@ -11709,6 +11873,7 @@ document.addEventListener('keydown', (ev) => {
   if (state.modal && state.modal.kind === 'find' && ev.key === 'Enter') { clearTimeout(_findTimer); runFind(); return; }
   if (ev.key === 'Escape' && state.modal && state.modal.page) { state.modal.page = ''; render(); return; }
   if (ev.key === 'Escape' && state.modal) { closeModal(); return; }
+  if (ev.key === 'Escape' && state.lensOpen) { state.lensOpen = false; render(); return; }
   if (ev.key === 'Escape' && state.picking) { state.picking = null; render(); return; }
   if (!state.modal && !typingInField() && (ev.key === '/' || ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k'))) { ev.preventDefault(); openFind(true); }
 });
