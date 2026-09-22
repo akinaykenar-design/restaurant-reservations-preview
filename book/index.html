@@ -437,6 +437,15 @@ h1,h2,h3{margin:0;}
 
 /* §§ The timeline — tables down the side, the service across the top */
 .tl{background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);overflow:auto;position:relative;max-height:calc(100vh - 260px);}
+/* THE TIMELINE FILLS THE PANE, and stops where its RULER stops. The card was
+   capped at 100vh - 260: a number that matched no chrome on the screen, so on
+   a 768 window it ended 180 pixels short of the pane and scrolled its lanes
+   internally while the page below it sat empty. And it ran the full width
+   whatever the window was, so a three-hour lunch drew a 480-pixel ruler on a
+   1180-pixel sheet of paper and the right half was blank card. Height comes
+   from the flex parent now; width is the content's, capped at the pane. The
+   slack beside it is the pane's own ground, exactly as the room's slack is. */
+.desk-main > .tl{flex:1 1 auto;min-height:0;max-height:none;width:max-content;max-width:calc(100% - var(--hub-edge) * 2);}
 .tl-grid{display:grid;min-width:max-content;position:relative;}
 .tl-head{position:sticky;top:0;z-index:3;display:contents;}
 .tl-corner{position:sticky;left:0;top:0;z-index:4;background:var(--surface);border-bottom:1px solid var(--steel-200);border-right:1px solid var(--steel-200);}
