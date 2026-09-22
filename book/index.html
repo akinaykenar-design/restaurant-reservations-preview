@@ -1228,14 +1228,18 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 /* A page behind a row is a list of whole options, not a wall of chips — room
    for the name, what it means, and a tick on the one that is chosen. */
 .bk-pick{display:flex;flex-direction:column;gap:var(--list-gap);}
-.bk-opt{display:flex;align-items:flex-start;gap:12px;width:100%;min-height:var(--h-primary);
+/* CENTRED, because a row is a WORD now. These rows carried a sentence under
+   the name and were topped out to it; with the explanations gone a single
+   word sat against the ceiling of a 64-tall box. The two that still carry a
+   second line carry DATA — which table is taken and when — and centre just
+   as well. */
+.bk-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:var(--h-primary);
   padding:12px;background:var(--surface);border:1px solid var(--steel-300);
   border-radius:var(--r-control);text-align:left;cursor:pointer;}
 .bk-opt.on{border-color:var(--orange);box-shadow:inset 0 0 0 var(--ring) var(--orange);background:var(--pick-wash);}
 .bk-opt.off{opacity:var(--dim);}
 .bk-opt-mark{flex:0 0 var(--sq-ctl);display:flex;align-items:center;justify-content:center;}
 .bk-opt-mark:empty{flex:0 0 0;}
-.bk-opt-mark .st-dot{margin-right:0;width:14px;height:14px;flex:0 0 14px;}
 .bk-opt-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
 .bk-opt-text b{font-size:var(--fs-lg);font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .bk-opt-text span{font-size:var(--fs-chip);color:var(--charcoal-soft);line-height:1.5;}

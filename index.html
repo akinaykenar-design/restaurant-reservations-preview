@@ -1235,14 +1235,18 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 /* A page behind a row is a list of whole options, not a wall of chips — room
    for the name, what it means, and a tick on the one that is chosen. */
 .bk-pick{display:flex;flex-direction:column;gap:var(--list-gap);}
-.bk-opt{display:flex;align-items:flex-start;gap:12px;width:100%;min-height:var(--h-primary);
+/* CENTRED, because a row is a WORD now. These rows carried a sentence under
+   the name and were topped out to it; with the explanations gone a single
+   word sat against the ceiling of a 64-tall box. The two that still carry a
+   second line carry DATA — which table is taken and when — and centre just
+   as well. */
+.bk-opt{display:flex;align-items:center;gap:12px;width:100%;min-height:var(--h-primary);
   padding:12px;background:var(--surface);border:1px solid var(--steel-300);
   border-radius:var(--r-control);text-align:left;cursor:pointer;}
 .bk-opt.on{border-color:var(--orange);box-shadow:inset 0 0 0 var(--ring) var(--orange);background:var(--pick-wash);}
 .bk-opt.off{opacity:var(--dim);}
 .bk-opt-mark{flex:0 0 var(--sq-ctl);display:flex;align-items:center;justify-content:center;}
 .bk-opt-mark:empty{flex:0 0 0;}
-.bk-opt-mark .st-dot{margin-right:0;width:14px;height:14px;flex:0 0 14px;}
 .bk-opt-text{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
 .bk-opt-text b{font-size:var(--fs-lg);font-weight:700;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 .bk-opt-text span{font-size:var(--fs-chip);color:var(--charcoal-soft);line-height:1.5;}
@@ -7676,6 +7680,20 @@ function heldTables(r) { return [r.tableId, ...(r.tableIds || [])].filter(Boolea
 // booking the desk has not got to yet still has to sit somewhere and a room
 // with holes in it is a room that lies about how full the night is.
 // autoTables comes off the day's own call — see av.autoAssign().
+// LANES ARE IN NUMBER ORDER. The POS sends its tables in the order they were
+// laid out, which is the order somebody dragged them onto the plan — 21, 22,
+// 222, 11, 1, 4 — and a column of lanes in that order is a column you have to
+// READ rather than scan. The till's own `tableLabelCompare`, verbatim: numbers
+// first and numerically, so 11 sits before 21 and 222 after 22, then anything
+// that is not a number, alphabetically, after them.
+function tableLabelCompare(a, b) {
+  const na = parseInt(a.label), nb = parseInt(b.label);
+  const an = !isNaN(na), bn = !isNaN(nb);
+  if (an && bn) return na - nb;
+  if (an) return -1;
+  if (bn) return 1;
+  return String(a.label).localeCompare(String(b.label));
+}
 function tablesFor(r) { const held = heldTables(r); return held.length ? held : ((r && r.autoTables) || []); }
 // True when nobody has said: the app picked it, and it is drawn faint.
 function isAutoTable(r) { return !heldTables(r).length && !!((r && r.autoTables) || []).length; }
@@ -9103,7 +9121,7 @@ function renderTimeline() {
     // — they are part of the drawing — and a lane for a wall is a lane a
     // booking can never land in. The room used to have no decor unless the
     // POS sent some, so this only bit once the desk drew its own.
-    for (const t of (fp.tables || []).filter(t => t.kind !== 'decor' && t.type !== 'decor')) {
+    for (const t of (fp.tables || []).filter(t => t.kind !== 'decor' && t.type !== 'decor').slice().sort(tableLabelCompare)) {
       const mine = rows.filter(r => heldTables(r).includes(t.id));
       html += `<div class="tl-label"><span>${esc(t.label)}</span><small>${t.seats} seats</small></div><div class="tl-lane" data-table="${esc(t.id)}" style="width:${width}px;">${slots(t.id)}${mine.map(r => block(r, t.id)).join('')}${nowLine}</div>`;
     }
@@ -9367,7 +9385,6 @@ function renderRunSheet() {
       <div class="stat"><b>${t.allergies || 0}</b><span>Allergies</span></div>
       <div class="stat"><b>${t.waiting || 0}</b><span>Waiting</span></div>
     </div>
-    <div class="ts">The right-hand column is covers so far in that service.</div>
     ${flowLine(s.flow)}
     ${allergies}
     ${setMenus}
@@ -9501,7 +9518,6 @@ function renderNotify() {
   return `
   <div class="settings-card" style="margin-bottom:var(--hub-edge);">
     <div class="th">Add someone to the notify list</div>
-    <div class="ts">Not a booking — a name to call when a table frees up.</div>
     <div class="grid2">
       <div><label class="field-label" for="nl-name">Name</label><input id="nl-name" type="text" value="${esc(n.name)}" data-field="nl.name" placeholder="e.g. Smith" autocomplete="off"></div>
       <div><label class="field-label" for="nl-phone">Phone</label><input id="nl-phone" type="tel" value="${esc(n.phone)}" data-field="nl.phone" placeholder="How we reach them"></div>
@@ -9652,11 +9668,11 @@ function renderSettings() {
       <label class="field-label" for="on-prompt">Notes prompt</label><input id="on-prompt" type="text" value="${esc(s.online.notesPrompt)}" data-field="settings.online.notesPrompt" data-save="online">
       <label class="toggle-row">${switchHtml(!!s.online.holdTables, 'set-toggle', 'online.holdTables')} Online bookings take a table straight away</label>
       <label class="toggle-row">${switchHtml(!!s.online.notifyList, 'set-toggle', 'online.notifyList')} Offer a notify list when a day is full</label>
-      <div class="inline" style="margin-top:8px;"><img class="qr" src="/connect.svg?to=book&host=${encodeURIComponent(origin)}" alt="QR code for the booking page"><div class="ts">This computer's address &mdash; the venue wifi, not the internet.</div></div>
+      <div class="inline" style="margin-top:8px;"><img class="qr" src="/connect.svg?to=book&host=${encodeURIComponent(origin)}" alt="QR code for the booking page"><div class="ts">This computer&rsquo;s address</div></div>
     </div>`,
     room: `    ${linkedFloor ? '' : `<div class="settings-card wide">
       <div class="th">The room</div>
-      <div class="ts">No POS floor is linked. Drag a table to move it.</div>
+      <div class="ts">No POS floor is linked.</div>
       <div class="room-edit">
         ${renderArrange()}
         <div class="room-list">
@@ -9887,7 +9903,7 @@ function renderStatusSheet() {
     </div>
     <div class="modal-body"><div class="bk-pick">${STATUS_KEY.map(k => `<button class="bk-opt${r.status === k[0] ? ' on' : ''}" data-act="row-status-set" data-id="${esc(r.id)}" data-val="${k[0]}">
       <span class="bk-opt-mark">${statusMark(k[0])}</span>
-      <span class="bk-opt-text"><b>${esc(k[1])}</b><span>${esc(k[3])}</span></span>
+      <span class="bk-opt-text"><b>${esc(k[1])}</b></span>
       ${r.status === k[0] ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
     </button>`).join('')}</div></div>
   </div></div>`;
@@ -10030,10 +10046,9 @@ function renderBookingPage(page) {
   const m = state.modal, b = m.b, s = state.settings;
 
   if (page === 'status') {
-    return `<div class="ts">Where this booking is. The colour is the same one it wears on the floor, the timeline and the list.</div>
-      <div class="bk-pick">${STATUS_KEY.map(k => `<button class="bk-opt${b.status === k[0] ? ' on' : ''}" data-act="set-status" data-val="${k[0]}">
-        <span class="bk-opt-mark">${statusDot(k[0])}</span>
-        <span class="bk-opt-text"><b>${esc(k[1])}</b><span>${esc(k[3])}</span></span>
+    return `<div class="bk-pick">${STATUS_KEY.map(k => `<button class="bk-opt${b.status === k[0] ? ' on' : ''}" data-act="set-status" data-val="${k[0]}">
+        <span class="bk-opt-mark">${statusMark(k[0])}</span>
+        <span class="bk-opt-text"><b>${esc(k[1])}</b></span>
         ${b.status === k[0] ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
       </button>`).join('')}</div>`;
   }
@@ -10097,7 +10112,7 @@ function renderBookingPage(page) {
         const hot = String(t).toLowerCase() === 'allergy';
         return `<button class="bk-opt${on ? ' on' : ''}" data-act="toggle-tag" data-val="${esc(t)}">
           <span class="bk-opt-mark">${hot ? `<span class="bl-mark hot">${I.alert}</span>` : ''}</span>
-          <span class="bk-opt-text"><b>${esc(t)}</b>${hot ? '<span>The one a cook has to act on — it prints on the run sheet in red.</span>' : ''}</span>
+          <span class="bk-opt-text"><b>${esc(t)}</b></span>
           ${on ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
         </button>`;
       }).join('')}</div>`;
@@ -10317,7 +10332,7 @@ function renderGuestPage(page) {
         const hot = t === 'Allergy';
         return `<button class="bk-opt${on ? ' on' : ''}" data-act="guest-tag" data-val="${esc(t)}">
           <span class="bk-opt-mark">${hot ? `<span class="bl-mark hot">${I.alert}</span>` : ''}</span>
-          <span class="bk-opt-text"><b>${esc(t)}</b>${hot ? '<span>Puts them in the Allergies list, and the note below is what the kitchen reads.</span>' : ''}</span>
+          <span class="bk-opt-text"><b>${esc(t)}</b></span>
           ${on ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
         </button>`;
       }).join('')}</div>`;
