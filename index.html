@@ -7381,15 +7381,14 @@ const I = {
   // past its box each way — so bar one ended at 9.5 and bar two began at 9.0
   // and they OVERLAPPED. It also stopped 16.9 tall against the law's 20. This
   // spreads to 2.5/10/17.5, which is 20.9 tall with a clean 1.5 between.
-  // THE BOOK IS ITS OWN ROWS. The open book is the top bar's key, which
-  // MAKES one, and the same glyph in the rail would be the app saying one
-  // shape for two jobs. This is what the section actually is: the night's
-  // rows, each led by its status dot, exactly as the list draws them. No
-  // container either — which is what tells it apart from the run sheet's
-  // page and the waitlist's clipboard at 20 pixels, where an outlined
-  // rectangle is an outlined rectangle. The dots are stroked round caps,
-  // not fills, so the icon law's outline-only still holds.
-  bookings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h.01M3 12h.01M3 21h.01"/><path d="M8 3h13M8 12h13M8 21h9"/></svg>',
+  // BOOKINGS IS THE BOOK, OPEN. The venue's own drawing: a spine down the
+  // middle with a leaf falling away either side, at the floor's stroke of
+  // 1.5 rather than the rail's 2 — the two softest glyphs in the column are
+  // the two biggest shapes in it, and a heavy outline on either reads as a
+  // blot at 20 pixels. It was the night's rows, each led by its status dot,
+  // which said what the section IS but never looked like anything you could
+  // pick out of a column at a glance.
+  bookings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v16"/><path d="M20.001 19A2 2 0 0 0 22 17V5a2 2 0 0 0-1.999-2L16 3.002A5 5 0 0 0 12 5a5 5 0 0 0-4-2H4a2 2 0 0 0-2 2v12a2 2 0 0 0 1.999 2H8a5 5 0 0 1 4 2 5 5 0 0 1 4-2z"/></svg>',
   timeline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="13" height="4" rx="1.2"/><rect x="7" y="10" width="15" height="4" rx="1.2"/><rect x="4" y="17.5" width="10" height="4" rx="1.2"/></svg>',
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5h20M2 12h20M2 17.5h20"/></svg>',
   // Columns of SQUARES, not solid bars: the flow counts covers table by table,
