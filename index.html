@@ -1602,6 +1602,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-find input::-webkit-search-cancel-button{display:none;}
 .bl-find .chip.sq{flex:none;min-height:34px;width:34px;}
 
+
+/* A COLOUR THE TILL OWNS IS SHOWN, NOT OFFERED. The dot still wears the
+   venue's own hue — it is the thing being reported — but it does not open a
+   picker, because the picker's answer would be a second source. `disabled`
+   is what stops the press; the ONE dim says it is not yours to change. */
+.colour-row.from-till .colour-dot-btn{cursor:default;opacity:var(--dim);}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "c6a550de6816af81f06c074bed18b286670aaf35";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -3372,6 +3378,21 @@ function cleanDob(input) {
   return `${String(y).padStart(4, '0')}-${m[2]}-${m[3]}`;
 }
 
+// THE THREE COLOURS BOTH APPS PAINT ON THE SAME TABLE.
+//
+// The till's whole table-colour vocabulary is three words — `available`,
+// `occupied` and `billPrinted` — and each is a table state this app draws
+// too, on the SAME floor plan, pulled from the same POS. A table that is
+// green on the till and violet on the desk is one table saying two things,
+// so those three come FROM the till and are not editable here: the accent
+// already works that way, and this is the same rule, not a new one.
+//
+// The other eight (booked, confirmed, arrived, paid, left, cancelled,
+// no-show, due, over) stay OURS, because the till has no notion of any of
+// them and so has nothing to disagree with. `free` is not in either list:
+// on this floor a free table is the plain surface, never a colour.
+const TILL_COLOURS = { seated: 'occupied', check: 'billPrinted' };
+
 // Reading a venue's colour code off the wire. Pure, so the rule that decides
 // whether a colour is kept can be read and tested without a request: a key we
 // do not know how to re-point, or a value that is not a full six-digit hex, is
@@ -3405,7 +3426,7 @@ const COLOUR_KEYS = {
   due: '--st-due', over: '--st-over',
   online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
 };
-module.exports = { readData, writeData, dataVersion, newId, migrate, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
+module.exports = { readData, writeData, dataVersion, newId, migrate, TILL_COLOURS, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./db'] = module;
@@ -5710,7 +5731,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db');
-const { readData, writeData, dataVersion, newId, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_SETTINGS } = db;
+const { readData, writeData, dataVersion, newId, TILL_COLOURS, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_SETTINGS } = db;
 const lock = require('./lock');
 const av = require('./availability');
 const search = require('./search');
@@ -5790,6 +5811,19 @@ function effectiveSettings(data) {
     if (p.venueAddress && !s.venueAddress) s.venueAddress = p.venueAddress;
     if (p.seatingMinutes > 0) s.defaultDuration = p.seatingMinutes;
     if (Number.isFinite(parseInt(p.dayStartsAt, 10))) s.dayStartsAt = parseInt(p.dayStartsAt, 10);
+    // THREE COLOURS COME FROM THE TILL, because they are the three it paints
+    // on the SAME tables: a table that is green on the till and violet here
+    // is one table saying two things. Handed over READ ONLY — there is no
+    // local override, because an override is exactly the second source
+    // POS-LINK.md forbids. Everything else in `statusColours` is ours, and
+    // stays ours, because the till has no notion of it to disagree with.
+    const t = p.tableStatusColors || {};
+    for (const [mine, theirs] of Object.entries(TILL_COLOURS)) {
+      if (t[theirs]) s.statusColours[mine] = t[theirs];
+    }
+    s.tillColours = Object.keys(TILL_COLOURS).filter(k => t[TILL_COLOURS[k]]);
+  } else {
+    s.tillColours = [];
   }
   return s;
 }
@@ -5816,6 +5850,17 @@ function tradingDay(data, d) {
 }
 
 // ---------- settings, theme, tables ----------
+// Only the keys we re-point, only as full six-digit hex. The till may send
+// anything, including a colour name or null for "use the built-in".
+function tillColoursOf(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object') return out;
+  for (const theirs of Object.values(TILL_COLOURS)) {
+    const v = String(raw[theirs] || '').trim();
+    if (/^#[0-9A-Fa-f]{6}$/.test(v)) out[theirs] = v;
+  }
+  return out;
+}
 function safeSettings(data) {
   const s = effectiveSettings(data);
   s.pos = Object.assign({}, s.pos); // nothing secret in here today, but keep the seam
@@ -5871,7 +5916,17 @@ app.put('/api/settings', async (req, res) => {
     nextColours = got.colours;
   }
 
-  if (nextColours) s.statusColours = nextColours;
+  if (nextColours) {
+    // THE TILL'S TWO ARE NOT WRITABLE HERE. effectiveSettings() would paint
+    // over a local value on the next read anyway, so keeping one would be a
+    // stored answer nobody uses that reappears the day the link goes off —
+    // which is the definition of a second source. Dropped, not refused: the
+    // card sends the whole map back and a refusal would block the eight that
+    // ARE ours over two the person never touched.
+    const linked = pos.ready(s.pos) && (data.posSettings || {}).tableStatusColors;
+    if (linked) for (const k of Object.keys(TILL_COLOURS)) delete nextColours[k];
+    s.statusColours = nextColours;
+  }
   if (b.venueName !== undefined) s.venueName = String(b.venueName || '').trim().slice(0, 40);
   if (b.venueAddress !== undefined) s.venueAddress = String(b.venueAddress || '').trim().slice(0, 80);
   if (b.venuePhone !== undefined) s.venuePhone = String(b.venuePhone || '').trim().slice(0, 30);
@@ -7085,7 +7140,12 @@ async function posPass(force) {
       ]);
       data = readData();
       if (Array.isArray(floorPlans) && floorPlans.length) data.floorPlans = floorPlans;
-      if (settings) data.posSettings = { venueName: settings.venueName || '', venueAddress: settings.venueAddress || '', seatingMinutes: settings.seatingMinutes || null, dayStartsAt: settings.dayStartsAt, coversEnabled: !!settings.coversEnabled };
+      if (settings) data.posSettings = { venueName: settings.venueName || '', venueAddress: settings.venueAddress || '', seatingMinutes: settings.seatingMinutes || null, dayStartsAt: settings.dayStartsAt, coversEnabled: !!settings.coversEnabled,
+        // THE THREE COLOURS BOTH APPS PAINT ON THE SAME TABLE. The till's
+        // whole table-colour vocabulary is `available`, `occupied` and
+        // `billPrinted` — see TILL_COLOURS in db.js for why those three and
+        // no others.
+        tableStatusColors: tillColoursOf(settings.tableStatusColors) };
       if (theme && theme.accent) data.theme = { accent: theme.accent, mode: theme.mode || 'auto' };
       // Guarded: a POS that 404s /api/combos, or answers oddly, leaves the
       // last good list in place rather than wiping the picker.
@@ -8091,7 +8151,6 @@ function renderDeck() {
       </div>
     </div>
     <div class="deck-spacer"></div>
-    ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
     <button class="deck-sq" data-act="new-walkin" aria-label="Seat a walk-in" title="Somebody is at the door — seat them now">${I.srcWalkIn}</button>
     <button class="deck-sq" data-act="new-booking" aria-label="New booking" title="Take a booking">${I.book}</button>
     <button class="deck-sq ghost" data-act="open-more" aria-label="${esc(title)}" title="${esc(title)}"><span class="deck-dot ${dot}"></span></button>
@@ -8138,7 +8197,6 @@ function renderMoreModal() {
     <h2>The desk</h2>
     <div class="bk-rows">
       <button class="bk-row" data-act="open-find"><span class="bk-k">Find a booking</span><span class="bk-v">On any night, not just this one</span><span class="bk-chev">${I.right}</span></button>
-      ${linked ? `<button class="bk-row" data-act="to-till"><span class="bk-k">The till</span><span class="bk-v">Open it on this venue</span><span class="bk-chev">${I.right}</span></button>` : ''}
     </div>
     <div class="ts" style="margin-top:12px;">${state.online ? (linked ? 'The POS is linked.' : 'No POS link.') : 'Offline \u2014 is the server running?'}</div>
     <div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Close</span></button></div>
@@ -9382,25 +9440,39 @@ function renderSettings() {
     <div class="settings-card wide">
       <div class="th">Table combinations</div>
       ${(s.tableCombos || []).length ? '' : '<div class="ts">None set &mdash; the desk guesses.</div>'}
-      ${(s.tableCombos || []).length ? `<div class="rows">${(s.tableCombos || []).map((c, i) => `<div class="row" data-act="combo-edit" data-i="${i}">
+      ${(s.tableCombos || []).length ? `<div class="rows">${(s.tableCombos || []).map((c, i) => {
+    // A combination naming a table the till no longer sends is DROPPED by
+    // availability.js and kept in the settings, so a till that is merely
+    // offline does not cost the venue its list. The card has to say which,
+    // or it is showing a rule that is not in force.
+    const gone = (c.tables || []).filter(id => !tableById(id));
+    return `<div class="row${gone.length ? ' dim' : ''}" data-act="combo-edit" data-i="${i}">
         <div class="cell">${av2ComboSeats(c)}<small>seats</small></div>
         <div class="body">
           <div class="t1">${(c.tables || []).map(id => esc(tableName(id))).join(' <i class="bl-plus">+</i> ')}</div>
-          <div class="t2">${c.seats > 0 ? 'Set by hand' : 'From the tables&rsquo; own seats'}</div>
+          <div class="t2">${gone.length ? (gone.length === 1 ? 'A table has left the floor' : gone.length + ' tables have left the floor')
+      : c.seats > 0 ? 'Set by hand' : 'From the tables&rsquo; own seats'}</div>
         </div>
         <div class="actions"><button class="chip sq" data-act="combo-remove" data-i="${i}" data-stop="1" aria-label="Remove this combination">${I.cross}</button></div>
-      </div>`).join('')}</div>` : '<div class="ts">None yet.</div>'}
+      </div>`;
+  }).join('')}</div>` : '<div class="ts">None yet.</div>'}
       <div><button class="btn" data-act="combo-add">${I.plus} Add a combination</button></div>
     </div>
     <div class="settings-card">
       <div class="th">Colours</div>
       ${COLOUR_SLOTS.map(([group, items]) => `
         <div class="section-h" style="font-size:var(--fs-md);">${esc(group)}</div>
-        ${items.map(([k, label]) => `<div class="colour-row">
+        ${items.map(([k, label]) => {
+    // THE TILL PAINTS THESE ON THE SAME TABLES, so it owns them: shown, and
+    // not pressable. Named rather than explained — the row says where the
+    // colour is from, which is the whole of what there is to say.
+    const fromTill = (s.tillColours || []).includes(k);
+    return `<div class="colour-row${fromTill ? ' from-till' : ''}">
           <button type="button" class="colour-dot-btn" style="background:${esc(liveColourOf(k) || 'transparent')};"
-            data-act="open-colour" data-key="${esc(k)}" data-label="${esc(label)}" aria-label="Change the colour for ${esc(label)}"></button>
-          <span class="key-text"><b>${esc(label)}</b><span>${esc(colourOf(k) || 'Built-in')}</span></span>
-        </div>`).join('')}`).join('')}
+            ${fromTill ? 'disabled' : `data-act="open-colour" data-key="${esc(k)}" data-label="${esc(label)}" aria-label="Change the colour for ${esc(label)}"`}></button>
+          <span class="key-text"><b>${esc(label)}</b><span>${fromTill ? 'From the till' : esc(colourOf(k) || 'Built-in')}</span></span>
+        </div>`;
+  }).join('')}`).join('')}
       <div><button class="btn" data-act="colours-reset">${I.refresh} Put them all back</button></div>
     </div>`,
     venue: `    <div class="settings-card">
@@ -11216,6 +11288,12 @@ function tillUrl(tableId) {
   if (!base) return null;
   return base.replace(/\/+$/, '') + (tableId ? '?table=' + encodeURIComponent(tableId) : '');
 }
+// The door to the till, and it is only ever a door to a PLACE — Table 5 on
+// the till, from the booking sitting on Table 5. There is no general one any
+// more: a key in the top bar that opened the till's home screen was the bar
+// carrying a PLACE, which its own law forbids, and it dropped whoever pressed
+// it exactly where the seam section of POS-LINK.md says nobody should land —
+// on a home screen, to find their own way back.
 function openTill(tableId) {
   const url = tillUrl(tableId);
   if (!url) { toast('No POS is linked.'); return; }

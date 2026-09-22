@@ -1595,6 +1595,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-find input::-webkit-search-cancel-button{display:none;}
 .bl-find .chip.sq{flex:none;min-height:34px;width:34px;}
 
+
+/* A COLOUR THE TILL OWNS IS SHOWN, NOT OFFERED. The dot still wears the
+   venue's own hue — it is the thing being reported — but it does not open a
+   picker, because the picker's answer would be a second source. `disabled`
+   is what stops the press; the ONE dim says it is not yours to change. */
+.colour-row.from-till .colour-dot-btn{cursor:default;opacity:var(--dim);}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
@@ -3366,6 +3372,21 @@ function cleanDob(input) {
   return `${String(y).padStart(4, '0')}-${m[2]}-${m[3]}`;
 }
 
+// THE THREE COLOURS BOTH APPS PAINT ON THE SAME TABLE.
+//
+// The till's whole table-colour vocabulary is three words — `available`,
+// `occupied` and `billPrinted` — and each is a table state this app draws
+// too, on the SAME floor plan, pulled from the same POS. A table that is
+// green on the till and violet on the desk is one table saying two things,
+// so those three come FROM the till and are not editable here: the accent
+// already works that way, and this is the same rule, not a new one.
+//
+// The other eight (booked, confirmed, arrived, paid, left, cancelled,
+// no-show, due, over) stay OURS, because the till has no notion of any of
+// them and so has nothing to disagree with. `free` is not in either list:
+// on this floor a free table is the plain surface, never a colour.
+const TILL_COLOURS = { seated: 'occupied', check: 'billPrinted' };
+
 // Reading a venue's colour code off the wire. Pure, so the rule that decides
 // whether a colour is kept can be read and tested without a request: a key we
 // do not know how to re-point, or a value that is not a full six-digit hex, is
@@ -3399,7 +3420,7 @@ const COLOUR_KEYS = {
   due: '--st-due', over: '--st-over',
   online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
 };
-module.exports = { readData, writeData, dataVersion, newId, migrate, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
+module.exports = { readData, writeData, dataVersion, newId, migrate, TILL_COLOURS, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./db'] = module;
@@ -5704,7 +5725,7 @@ const os = require('os');
 const path = require('path');
 const fs = require('fs');
 const db = require('./db');
-const { readData, writeData, dataVersion, newId, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_SETTINGS } = db;
+const { readData, writeData, dataVersion, newId, TILL_COLOURS, STATUSES, LIVE_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_SETTINGS } = db;
 const lock = require('./lock');
 const av = require('./availability');
 const search = require('./search');
@@ -5784,6 +5805,19 @@ function effectiveSettings(data) {
     if (p.venueAddress && !s.venueAddress) s.venueAddress = p.venueAddress;
     if (p.seatingMinutes > 0) s.defaultDuration = p.seatingMinutes;
     if (Number.isFinite(parseInt(p.dayStartsAt, 10))) s.dayStartsAt = parseInt(p.dayStartsAt, 10);
+    // THREE COLOURS COME FROM THE TILL, because they are the three it paints
+    // on the SAME tables: a table that is green on the till and violet here
+    // is one table saying two things. Handed over READ ONLY — there is no
+    // local override, because an override is exactly the second source
+    // POS-LINK.md forbids. Everything else in `statusColours` is ours, and
+    // stays ours, because the till has no notion of it to disagree with.
+    const t = p.tableStatusColors || {};
+    for (const [mine, theirs] of Object.entries(TILL_COLOURS)) {
+      if (t[theirs]) s.statusColours[mine] = t[theirs];
+    }
+    s.tillColours = Object.keys(TILL_COLOURS).filter(k => t[TILL_COLOURS[k]]);
+  } else {
+    s.tillColours = [];
   }
   return s;
 }
@@ -5810,6 +5844,17 @@ function tradingDay(data, d) {
 }
 
 // ---------- settings, theme, tables ----------
+// Only the keys we re-point, only as full six-digit hex. The till may send
+// anything, including a colour name or null for "use the built-in".
+function tillColoursOf(raw) {
+  const out = {};
+  if (!raw || typeof raw !== 'object') return out;
+  for (const theirs of Object.values(TILL_COLOURS)) {
+    const v = String(raw[theirs] || '').trim();
+    if (/^#[0-9A-Fa-f]{6}$/.test(v)) out[theirs] = v;
+  }
+  return out;
+}
 function safeSettings(data) {
   const s = effectiveSettings(data);
   s.pos = Object.assign({}, s.pos); // nothing secret in here today, but keep the seam
@@ -5865,7 +5910,17 @@ app.put('/api/settings', async (req, res) => {
     nextColours = got.colours;
   }
 
-  if (nextColours) s.statusColours = nextColours;
+  if (nextColours) {
+    // THE TILL'S TWO ARE NOT WRITABLE HERE. effectiveSettings() would paint
+    // over a local value on the next read anyway, so keeping one would be a
+    // stored answer nobody uses that reappears the day the link goes off —
+    // which is the definition of a second source. Dropped, not refused: the
+    // card sends the whole map back and a refusal would block the eight that
+    // ARE ours over two the person never touched.
+    const linked = pos.ready(s.pos) && (data.posSettings || {}).tableStatusColors;
+    if (linked) for (const k of Object.keys(TILL_COLOURS)) delete nextColours[k];
+    s.statusColours = nextColours;
+  }
   if (b.venueName !== undefined) s.venueName = String(b.venueName || '').trim().slice(0, 40);
   if (b.venueAddress !== undefined) s.venueAddress = String(b.venueAddress || '').trim().slice(0, 80);
   if (b.venuePhone !== undefined) s.venuePhone = String(b.venuePhone || '').trim().slice(0, 30);
@@ -7079,7 +7134,12 @@ async function posPass(force) {
       ]);
       data = readData();
       if (Array.isArray(floorPlans) && floorPlans.length) data.floorPlans = floorPlans;
-      if (settings) data.posSettings = { venueName: settings.venueName || '', venueAddress: settings.venueAddress || '', seatingMinutes: settings.seatingMinutes || null, dayStartsAt: settings.dayStartsAt, coversEnabled: !!settings.coversEnabled };
+      if (settings) data.posSettings = { venueName: settings.venueName || '', venueAddress: settings.venueAddress || '', seatingMinutes: settings.seatingMinutes || null, dayStartsAt: settings.dayStartsAt, coversEnabled: !!settings.coversEnabled,
+        // THE THREE COLOURS BOTH APPS PAINT ON THE SAME TABLE. The till's
+        // whole table-colour vocabulary is `available`, `occupied` and
+        // `billPrinted` — see TILL_COLOURS in db.js for why those three and
+        // no others.
+        tableStatusColors: tillColoursOf(settings.tableStatusColors) };
       if (theme && theme.accent) data.theme = { accent: theme.accent, mode: theme.mode || 'auto' };
       // Guarded: a POS that 404s /api/combos, or answers oddly, leaves the
       // last good list in place rather than wiping the picker.
