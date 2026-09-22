@@ -779,9 +779,19 @@ body.book-page #app{display:block;height:auto;}
    the TOP the venue laid — the background and ink are written inline by
    skinStyle(), because a finish belongs to the table, not to a class. */
 .fl-table{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2222cqw;overflow:hidden;
-  border:1px solid var(--steel-200);background:var(--table-plain);color:var(--text-primary);
+  border:1px solid var(--steel-200);background:var(--fl-skin,var(--table-plain));color:var(--text-primary);
   font-family:var(--font-mono);font-weight:700;cursor:pointer;padding:.2222cqw;text-align:center;
   isolation:isolate;}
+/* A BARSTOOL IS A CIRCLE WITH ITS BOTTOM THIRD CUT OFF, the till's own shape —
+   a seat at the bar, not a table. The clip rides a COPY of the top rather
+   than the element, so the number and the marks are never sliced with it;
+   the wash is clipped to match, or a seated stool grows a rectangle under
+   the seat. --fl-skin is what makes one top wearable two ways. */
+.fl-table.stool{background:none;border-color:transparent;}
+.fl-table.stool::before{content:'';position:absolute;inset:0;border-radius:inherit;z-index:-2;
+  background:var(--fl-skin,var(--table-plain));border:1px solid var(--steel-200);
+  clip-path:inset(0 0 33% 0);box-sizing:border-box;}
+.fl-table.stool .fl-wash{clip-path:inset(0 0 33% 0);}
 /* WHAT THE TABLE IS DOING, over what it is MADE OF. A translucent tint under
    the number and above the top, so a burgundy cloth is still burgundy cloth
    with somebody sitting at it — a solid fill hid the room. A free table has
@@ -889,10 +899,22 @@ body.book-page #app{display:block;height:auto;}
    wall and a bar are the room's edges and want the weight of a pencil line.
    A NAMED piece (bar, pass) keeps a faint wash so its label has a ground; an
    unnamed one — a wall — is the line itself. */
-.fl-decor{position:absolute;opacity:.55;background:none;border:1px solid var(--steel-500);
+/* THE FURNITURE, drawn the way the till draws it. The background, the ink and
+   the border come from decorStyle() — the till's own rule — because whether
+   an object is a coloured zone or bare artwork is the VENUE'S decision, made
+   in the till's layout editor, and a stylesheet cannot know which. What is
+   left here is the box it all sits in.
+   It is a SIZE CONTAINER so the artwork fills the footprint in cqmin at any
+   pane width, exactly as the till's marker does: the object then scales with
+   the room like every other length in the drawing. */
+.fl-decor{position:absolute;opacity:.55;container-type:size;background:none;border:none;
   display:flex;align-items:center;justify-content:center;overflow:hidden;
-  font-size:1.1667cqw;font-weight:700;color:var(--steel-500);text-transform:uppercase;
-  letter-spacing:.6px;pointer-events:none;}
+  pointer-events:none;}
+.fl-art{width:86%;height:86%;display:flex;align-items:center;justify-content:center;}
+.fl-art svg{width:100%;height:100%;display:block;}
+.fl-emoji{font-size:clamp(8px,96cqmin,480px);line-height:1;}
+/* A wall is an object the venue never named and never coloured — the pencil
+   line itself, lighter still than the furniture. */
 .fl-decor.wall{background:var(--steel-500);border:none;opacity:.5;}
 
 /* §§ Flow — the shape of the night
@@ -6294,7 +6316,11 @@ app.get('/api/tables', (req, res) => {
     x: t.x, y: t.y, width: t.width, height: t.height,
     shape: t.shape, rotation: t.rotation || 0,
     kind: t.type === 'decor' ? 'decor' : 'table',
+    // THE OBJECT AND ITS MARK. `decorType` picks the till's own artwork; the
+    // `icon` is the till's fallback for an object it has no drawing for, and
+    // leaving it off meant those came across as a blank box.
     decorType: t.type === 'decor' ? (t.decorType || null) : null,
+    icon: t.type === 'decor' ? String(t.icon || '').slice(0, 8) : '',
     // THE TABLE TOP, and the colour the venue painted it. The till dresses the
     // room — oak, burgundy cloth, marble — and this is the same room, so it is
     // dressed the same way: the finish IS the table, and a booking is a wash
@@ -8847,7 +8873,7 @@ function renderFloor() {
 
   const tableEl = (t) => {
     if (t.kind === 'decor') {
-      return `<div class="fl-decor${t.decorType ? '' : ' wall'}" style="${placeStyle(t)}" aria-hidden="true">${t.decorType ? `<span style="${uprightStyle(t)}">${esc(String(t.decorType).replace(/-/g, ' '))}</span>` : ''}</div>`;
+      return `<div class="fl-decor${t.decorType || t.color ? '' : ' wall'}" style="${placeStyle(t)}${decorStyle(t)}" aria-hidden="true">${decorInner(t)}</div>`;
     }
     const f = by[t.id] || { state: 'free', r: null };
     const r = f.r;
@@ -8902,7 +8928,7 @@ function renderFloor() {
       : mine ? `Table ${t.label} — theirs already`
         : canPick ? `Put ${pkBook.name || 'them'} on table ${t.label} · ${t.seats} seats${pk.free.suggested === t.id ? ' · best fit' : ''}`
           : `Table ${t.label} — taken at ${hhmmOf(pkBook.time)}`;
-    return `<button class="fl-table ${f.state}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
+    return `<button class="fl-table ${f.state}${t.shape === 'stool' ? ' stool' : ''}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
       ${act}
       title="${esc(pkWhy)}">
       ${f.state === 'free' ? '' : `<span class="fl-wash ${f.state}"></span>`}
@@ -9012,9 +9038,9 @@ function renderArrange() {
   if (!list.length) return '<div class="ts">No tables yet.</div>';
   const el = (t) => {
     if (t.type === 'decor' || t.kind === 'decor') {
-      return `<div class="fl-decor${t.decorType ? '' : ' wall'}" style="${placeStyle(t)}" aria-hidden="true">${t.decorType ? `<span style="${uprightStyle(t)}">${esc(String(t.decorType).replace(/-/g, ' '))}</span>` : ''}</div>`;
+      return `<div class="fl-decor${t.decorType || t.color ? '' : ' wall'}" style="${placeStyle(t)}${decorStyle(t)}" aria-hidden="true">${decorInner(t)}</div>`;
     }
-    return `<button class="fl-table free arr${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}${skinStyle(t)}"
+    return `<button class="fl-table free arr${t.shape === 'stool' ? ' stool' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}${skinStyle(t)}"
       data-arrange="${esc(t.id)}" title="Table ${esc(t.label)} \u00b7 ${esc(String(t.seats))} seats \u2014 drag to move">
       <span class="fl-in" style="${uprightStyle(t)}">
         <span class="fl-no">${esc(t.label)}</span>
@@ -9128,12 +9154,60 @@ const TABLE_FINISHES = [
   { key: 'cloth-forest', bg: TEX_WEAVE_DARK + ', radial-gradient(ellipse at 50% 40%, #377350 0%, #2B5C3F 55%, #1D422C 100%)', text: '#FFFFFF' },
 ];
 function tableFinish(key) { return TABLE_FINISHES.find(f => f.key === key) || TABLE_FINISHES[0]; }
+// §§ THE ROOM'S FURNITURE — the till's own artwork, verbatim
+//
+// The bar, the host stand, the door, the stairs, the plant: the till DRAWS
+// these, and the desk drew an outlined box with the key written in it, so a
+// venue's bar counter was a bar on one screen and the words "bar counter" on
+// the other. That is the drift POS-LINK.md exists to prevent — the desk has
+// to draw the room the floor staff look at all night, not an approximation
+// with captions.
+//
+// Copied rather than fetched, for TABLE_FINISHES' own reason: they are pure
+// inline SVG, no image files, and the alternative is a request per object
+// against a till on the other end of a venue's wifi. A change to the till's
+// list is a change to this one.
+const DECOR_ART = {
+  'bar-counter': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="6" y="9" width="36" height="13" rx="4" fill="#7a4a24"/><rect x="6" y="9" width="36" height="4.5" rx="4" fill="#9a6238"/><circle cx="14" cy="16" r="1.7" fill="#e6c79a"/><circle cx="21" cy="16" r="1.7" fill="#cf9155"/><circle cx="28" cy="16" r="1.7" fill="#8fce6b"/><circle cx="35" cy="16" r="1.7" fill="#d96b6b"/><circle cx="12" cy="32" r="3.2" fill="#c66a2f"/><circle cx="22" cy="32" r="3.2" fill="#c66a2f"/><circle cx="32" cy="32" r="3.2" fill="#c66a2f"/><circle cx="41" cy="32" r="3.2" fill="#c66a2f"/></svg>`,
+  'host-stand': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="16" y="21" width="16" height="19" rx="2" fill="#8a5a34"/><rect x="20" y="40" width="8" height="2.5" rx="1" fill="#6e4526"/><path d="M12 13 L36 13 L33 23 L15 23 Z" fill="#a06a3c"/><rect x="18" y="15.5" width="12" height="5" rx="1.2" fill="#eadfc6"/><path d="M24 15.5 v5" stroke="#c8bca0" stroke-width="1"/></svg>`,
+  'entrance': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><path d="M34 12 A20 20 0 0 1 34 40" fill="none" stroke="#00000026" stroke-width="1.6" stroke-dasharray="2 2.5"/><rect x="14" y="7" width="19" height="35" rx="2.5" fill="#5f81a6"/><rect x="16.5" y="9.5" width="14" height="30" rx="1.5" fill="#7699bd"/><circle cx="28" cy="25" r="1.9" fill="#f0cf6a"/></svg>`,
+  'restroom': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="6" y="8" width="36" height="32" rx="5" fill="#3f6fb0"/><line x1="24" y1="13" x2="24" y2="35" stroke="#ffffff80" stroke-width="1.4"/><circle cx="15" cy="15" r="3" fill="#fff"/><path d="M11.5 20 h7 v8 h-1.6 v7 h-3.8 v-7 h-1.6 z" fill="#fff"/><circle cx="33" cy="15" r="3" fill="#fff"/><path d="M33 19 l-5.5 10 h11 z" fill="#fff"/><rect x="30.4" y="29" width="1.7" height="6" fill="#fff"/><rect x="33.9" y="29" width="1.7" height="6" fill="#fff"/></svg>`,
+  'stairs': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="5" y="33" width="38" height="9" rx="1.5" fill="#9c7b57"/><rect x="13" y="25" width="30" height="9" rx="1.5" fill="#b58d64"/><rect x="21" y="17" width="22" height="9" rx="1.5" fill="#cba071"/><rect x="29" y="9" width="14" height="9" rx="1.5" fill="#e0b57e"/><rect x="5" y="33" width="38" height="2.3" fill="#0000001f"/><rect x="13" y="25" width="30" height="2.3" fill="#0000001f"/><rect x="21" y="17" width="22" height="2.3" fill="#0000001f"/><rect x="29" y="9" width="14" height="2.3" fill="#0000001f"/></svg>`,
+  'plant': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><path d="M24 31 C22 21 14 20 13 12 C21 12 24 20 24 27" fill="#4a9d4a"/><path d="M24 29 C24 19 33 17 35 10 C28 10 24 19 24 26" fill="#5cb85c"/><path d="M24 32 C26 25 32 24 34 19 C29 21 25 26 24 30" fill="#3f8f3f"/><path d="M16 30 h16 l-2.2 12 h-11.6 z" fill="#c8622e"/><rect x="14.5" y="28.5" width="19" height="4" rx="1.5" fill="#dd7c40"/></svg>`,
+};
+// A structure — a wall, a zone, a pillar — has no artwork and no icon: it IS
+// its coloured shape, which is what the till draws too. An OBJECT the till
+// gave an emoji to but no art falls back to the emoji.
+function decorInner(t) {
+  const a = DECOR_ART[t.decorType];
+  if (a) return `<span class="fl-art">${a}</span>`;
+  return t.icon ? `<span class="fl-emoji">${esc(t.icon)}</span>` : '';
+}
+// The till's own decor rule: round is a circle and everything else an 8px
+// box; the colour the venue painted it fills it, and without one it is the
+// artwork alone on no ground at all — never a filled box, never a border it
+// did not ask for.
+function decorStyle(t) {
+  // NOTHING INLINE WITHOUT A COLOUR. An inline background beats a class, and
+  // writing `transparent` here painted out `.fl-decor.wall` — the venue's
+  // unnamed, uncoloured wall, which is the stylesheet's own to draw. With no
+  // colour the object is its artwork on no ground at all, exactly as the till
+  // draws it, and the two classes decide the rest.
+  if (!t.color) return '';
+  return `background:${t.color};color:${contrastInk(t.color)};border:1px solid var(--steel-200);`;
+}
+
 // The corner is 16% of the table's SHORT side, written as a PAIR of
 // percentages so a long table's corner stays a corner instead of stretching
 // into an oval with the box. The till's own sum, on the till's own 900x560.
 function tableRadiusFor(t) {
-  const round = t && (t.shape === 'round' || t.shape === 'oval' || t.shape === 'circle');
+  // A STOOL IS ROUND AND A HALF IS A HALF, the till's own two shapes. Neither
+  // was here, so a stool drew as a rounded rectangle on the desk and a circle
+  // on the till — the same seat, two shapes, which is exactly what a host is
+  // meant to recognise across a room.
+  const round = t && (t.shape === 'round' || t.shape === 'oval' || t.shape === 'circle' || t.shape === 'stool');
   if (round) return '50%';
+  if (t && t.shape === 'half') return '50% 50% 10px 10px / 90% 90% 10px 10px';
   const wpx = ((t && t.width) || 10) * 9, hpx = ((t && t.height) || 10) * 5.6;
   const r = 0.16 * Math.min(wpx, hpx);
   return (r / wpx * 100).toFixed(1) + '% / ' + (r / hpx * 100).toFixed(1) + '%';
@@ -9157,7 +9231,11 @@ function skinStyle(t) {
   const fin = tableFinish(t.finish);
   const bg = t.color ? t.color : (fin.bg || 'var(--table-plain)');
   const ink = t.color ? contrastInk(t.color) : (fin.text || 'var(--text-primary)');
-  return 'background:' + bg + ';color:' + ink + ';';
+  // The top is handed to the STYLESHEET as `--fl-skin` rather than painted on
+  // the element, because a BARSTOOL is a circle with its bottom third cut
+  // off and only a pseudo-element can carry a clipped copy of the top. One
+  // token, two ways of wearing it — the till's own mechanism.
+  return '--fl-skin:' + bg + ';color:' + ink + ';';
 }
 
 // THE ROOM IS HUGGED TO WHAT IS IN IT — the till's own `floorHug`, verbatim.

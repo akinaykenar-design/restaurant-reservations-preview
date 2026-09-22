@@ -772,9 +772,19 @@ body.book-page #app{display:block;height:auto;}
    the TOP the venue laid — the background and ink are written inline by
    skinStyle(), because a finish belongs to the table, not to a class. */
 .fl-table{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.2222cqw;overflow:hidden;
-  border:1px solid var(--steel-200);background:var(--table-plain);color:var(--text-primary);
+  border:1px solid var(--steel-200);background:var(--fl-skin,var(--table-plain));color:var(--text-primary);
   font-family:var(--font-mono);font-weight:700;cursor:pointer;padding:.2222cqw;text-align:center;
   isolation:isolate;}
+/* A BARSTOOL IS A CIRCLE WITH ITS BOTTOM THIRD CUT OFF, the till's own shape —
+   a seat at the bar, not a table. The clip rides a COPY of the top rather
+   than the element, so the number and the marks are never sliced with it;
+   the wash is clipped to match, or a seated stool grows a rectangle under
+   the seat. --fl-skin is what makes one top wearable two ways. */
+.fl-table.stool{background:none;border-color:transparent;}
+.fl-table.stool::before{content:'';position:absolute;inset:0;border-radius:inherit;z-index:-2;
+  background:var(--fl-skin,var(--table-plain));border:1px solid var(--steel-200);
+  clip-path:inset(0 0 33% 0);box-sizing:border-box;}
+.fl-table.stool .fl-wash{clip-path:inset(0 0 33% 0);}
 /* WHAT THE TABLE IS DOING, over what it is MADE OF. A translucent tint under
    the number and above the top, so a burgundy cloth is still burgundy cloth
    with somebody sitting at it — a solid fill hid the room. A free table has
@@ -882,10 +892,22 @@ body.book-page #app{display:block;height:auto;}
    wall and a bar are the room's edges and want the weight of a pencil line.
    A NAMED piece (bar, pass) keeps a faint wash so its label has a ground; an
    unnamed one — a wall — is the line itself. */
-.fl-decor{position:absolute;opacity:.55;background:none;border:1px solid var(--steel-500);
+/* THE FURNITURE, drawn the way the till draws it. The background, the ink and
+   the border come from decorStyle() — the till's own rule — because whether
+   an object is a coloured zone or bare artwork is the VENUE'S decision, made
+   in the till's layout editor, and a stylesheet cannot know which. What is
+   left here is the box it all sits in.
+   It is a SIZE CONTAINER so the artwork fills the footprint in cqmin at any
+   pane width, exactly as the till's marker does: the object then scales with
+   the room like every other length in the drawing. */
+.fl-decor{position:absolute;opacity:.55;container-type:size;background:none;border:none;
   display:flex;align-items:center;justify-content:center;overflow:hidden;
-  font-size:1.1667cqw;font-weight:700;color:var(--steel-500);text-transform:uppercase;
-  letter-spacing:.6px;pointer-events:none;}
+  pointer-events:none;}
+.fl-art{width:86%;height:86%;display:flex;align-items:center;justify-content:center;}
+.fl-art svg{width:100%;height:100%;display:block;}
+.fl-emoji{font-size:clamp(8px,96cqmin,480px);line-height:1;}
+/* A wall is an object the venue never named and never coloured — the pencil
+   line itself, lighter still than the furniture. */
 .fl-decor.wall{background:var(--steel-500);border:none;opacity:.5;}
 
 /* §§ Flow — the shape of the night
@@ -6288,7 +6310,11 @@ app.get('/api/tables', (req, res) => {
     x: t.x, y: t.y, width: t.width, height: t.height,
     shape: t.shape, rotation: t.rotation || 0,
     kind: t.type === 'decor' ? 'decor' : 'table',
+    // THE OBJECT AND ITS MARK. `decorType` picks the till's own artwork; the
+    // `icon` is the till's fallback for an object it has no drawing for, and
+    // leaving it off meant those came across as a blank box.
     decorType: t.type === 'decor' ? (t.decorType || null) : null,
+    icon: t.type === 'decor' ? String(t.icon || '').slice(0, 8) : '',
     // THE TABLE TOP, and the colour the venue painted it. The till dresses the
     // room — oak, burgundy cloth, marble — and this is the same room, so it is
     // dressed the same way: the finish IS the table, and a booking is a wash
