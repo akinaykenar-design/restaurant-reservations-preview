@@ -250,7 +250,7 @@ h1,h2,h3{margin:0;}
    till's own pairing for that width; the LABEL was still on 10.5, the value
    the till reserves for its narrowest rail. A 24 glyph over a 10.5 word is
    not a big icon, it is a whisper under it — and what reads across a room is
-   the word, because eight glyphs in a column are eight shapes to tell apart
+   the word, because nine glyphs in a column are nine shapes to tell apart
    and one of them is the one you want. --fs-md is the till's own step here. */
 .rail-btn.active{background:var(--orange-dim);color:var(--orange);}
 .rail-ico{display:flex;}
@@ -1160,9 +1160,28 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    so a list beside either is the night printed twice in a column that costs
    the other 340 pixels. The floor is the one view that does not carry the
    bookings itself — it carries TABLES — so it is the one that needs the book.
-   Hidden in CSS and not in JS, so a PHONE still renders both halves and keeps
-   Bookings as the first chip on its band from every section. */
-@media (min-width:761px){ .desk:not(.mode-floor) > .desk-col{display:none;} }
+   Hidden in CSS and not in JS, so both halves are rendered at every width and
+   a tablet turned sideways is right on the first frame with nothing listening
+   for a resize. BOOKINGS is the exception the rule needed: the list is that
+   section's whole reason, so it is the one other mode the column survives. */
+@media (min-width:761px){ .desk:not(.mode-floor):not(.mode-book) > .desk-col{display:none;} }
+/* AND BOOKINGS IS THAT BOOK WITH THE ROOM TAKEN AWAY. It is the only section
+   whose column is the WHOLE desk, so it drops the seam it has nothing to sit
+   beside and the cap that only ever existed to leave the room some height.
+   Stated here, above every width, because it is the same one column at all
+   of them — a tablet's stack and a phone's are both a stack of ONE.
+
+   AND IT STOPS AT 900, the run sheet's own width, because a row is a line of
+   READING: the name sits at one end and the covers and the table at the
+   other, and at 1352 that is a thousand pixels of nothing between a host's
+   eye and the number it is going for. No card and no border with it — the
+   desk is ONE surface and the paper still runs to both edges of the pane;
+   what is capped is the line, the way a page caps a line. WIDTH:100% is
+   doing real work beside that cap: an auto inline margin turns off a flex
+   child's cross-axis STRETCH, so below 900 — where the desk is a column —
+   the list shrank to fit its widest row and came out 221 wide on a phone. */
+.desk.mode-book > .desk-col{flex:1 1 auto;width:100%;max-height:none;border-right:none;
+  max-width:900px;margin-inline:auto;}
 .desk-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:0;}
 /* Inside one card the stacked parts are separated by the seam alone: a band
    is a ROW, not a card on a card; the room gets the card's padding; the
@@ -1275,7 +1294,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .desk-col{flex:0 0 300px;width:auto;max-height:calc(100vh - 58px);overflow-y:auto;}
 }
 
-/* The rail carries the whole app: Service's four sections at the top, then
+/* The rail carries the whole app: Service's five sections at the top, then
    the three other places you can go, then Settings at the foot.
 
    Service's sections are on top because the top of the rail is where the
@@ -1295,7 +1314,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    looking at, so its length changed as you went — eight tiles on Service, ten
    on Guests, five on the waitlist — and every tile below the change moved
    under the thumb that made it. It is the same eight at every screen now:
-   Service's four sections, then Waitlist, Notify, Guests, and Settings at the
+   Service's five sections, then Waitlist, Notify, Guests, and Settings at the
    foot. The guest book's six lenses went to a band above the list they
    question, which is what took it from ten to eight. */
 /* NO GAP between the tiles: a rail tile is a square with no body until it is
@@ -1316,7 +1335,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    whose glyph is centred — which reads as empty ground rather than as more
    this way, whatever depth the fade is. Snapped, the rail always comes to
    rest on a whole tile and the fade sits at a real edge. */
-/* Service has no tile of its own on a desk: its four sections are the four
+/* Service has no tile of its own on a desk: its five sections are the five
    above, one of them is always lit, and a fifth tile saying "Service" is the
    rail telling you where you are twice. Hidden rather than unrendered,
    because a phone's thumb bar is the five PLACES and needs it — see
@@ -1425,7 +1444,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 /* THE BAND IS ONE BAND. Same markup at every width, and the stylesheet says
    which of it a desk shows: the guest book's six lenses, and nothing else.
    A lens is a question asked of one list, so it belongs above that list;
-   Service's four sections are tiles on the desk's rail, so a band repeating
+   Service's five sections are tiles on the desk's rail, so a band repeating
    them would be the app saying where you are twice. A phone has no room for
    sections on a thumb bar, so down there the band carries them all. */
 /* NOWRAP. .band sets flex-wrap:wrap and the sections band never said
@@ -1460,15 +1479,16 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .secband .chip{min-height:var(--tap);}
 
   /* THE RAIL LIES DOWN AT THE FOOT — and it is still the WHOLE rail, in the
-     SAME STYLE. Same eight tiles in the same order, Floor through Guests with
+     SAME STYLE. Same nine tiles in the same order, Floor through Guests with
      Settings last where standing up it is pinned last; same square tile, same
      24 glyph over an --fs-md word, same count under it, and chosen is the
      same PALE ACCENT BLOCK. Nothing about a tile changes when the column lies
      down — the only thing that changes is which way it runs.
-     It SCROLLS rather than squeezing. Eight tiles shared across 390 is 49
-     each: above the finger law, but a squashed square with a two-line word in
-     it is not the same tile, and the whole point is that it is. Eight at the
-     rail's own 88 is 704, so the bar is swiped — and the cut end fades, like
+     It SCROLLS rather than squeezing. Nine tiles shared across 390 is 43
+     each, under the finger law outright — and even at eight it was 49, which
+     clears the law but a squashed square with a two-line word in it is not
+     the same tile, and the whole point is that it is. Nine at the rail's own
+     88 is 792, so the bar is swiped — and the cut end fades, like
      every other scroller (--rail-axis, and `.rail` is already in RAIL_ENDS).
      64 for the tile AND --ring for the bar's own hairline: a reservation that
      counts only the tile leaves the pane a pixel underneath it. */
@@ -6950,6 +6970,15 @@ const I = {
   // past its box each way — so bar one ended at 9.5 and bar two began at 9.0
   // and they OVERLAPPED. It also stopped 16.9 tall against the law's 20. This
   // spreads to 2.5/10/17.5, which is 20.9 tall with a clean 1.5 between.
+  // THE BOOK IS ITS OWN ROWS. The open book is the top bar's key, which
+  // MAKES one, and the same glyph in the rail would be the app saying one
+  // shape for two jobs. This is what the section actually is: the night's
+  // rows, each led by its status dot, exactly as the list draws them. No
+  // container either — which is what tells it apart from the run sheet's
+  // page and the waitlist's clipboard at 20 pixels, where an outlined
+  // rectangle is an outlined rectangle. The dots are stroked round caps,
+  // not fills, so the icon law's outline-only still holds.
+  bookings: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h.01M3 12h.01M3 21h.01"/><path d="M8 3h13M8 12h13M8 21h9"/></svg>',
   timeline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2.5" width="13" height="4" rx="1.2"/><rect x="7" y="10" width="15" height="4" rx="1.2"/><rect x="4" y="17.5" width="10" height="4" rx="1.2"/></svg>',
   list: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6.5h20M2 12h20M2 17.5h20"/></svg>',
   // Columns of SQUARES, not solid bars: the flow counts covers table by table,
@@ -7594,6 +7623,14 @@ const RAILS = {
     key: 'todayMode',
     items: [
       ['floor', 'Floor', 'floor'],
+      // THE BOOK ALONE, AS A PLACE. On the floor it stands beside the room and
+      // on nothing else, so everywhere else the night's list had no home — and
+      // a phone was worse off still, because there the book took 38vh off the
+      // top of the room to be on screen at all. It is a section now: the whole
+      // pane, the same rows, one press from anywhere. Second, beside Floor,
+      // because on the desk those two are literally side by side and this tile
+      // is that same book with the room taken away.
+      ['book', 'Bookings', 'bookings'],
       ['timeline', 'Timeline', 'timeline'],
       ['flow', 'Flow', 'flow'],
       ['sheet', 'Run sheet', 'sheet'],
@@ -7616,7 +7653,7 @@ const RAILS = {
     ],
   },
 };
-// Which place a section belongs to. The rail carries Service's four sections
+// Which place a section belongs to. The rail carries Service's five sections
 // from every screen, so "Timeline" has to mean Service's timeline whether it
 // is pressed from the floor or from the waitlist. Nothing named twice: the
 // four service keys and the six guest lenses share no name.
@@ -7748,7 +7785,7 @@ function renderDeck() {
 //
 // On a DESK it shows only the guest book's lenses, because a lens is not a
 // place: it is a question asked of one list, and it belongs above that list
-// rather than in a column of destinations. Service's four sections ARE on the
+// rather than in a column of destinations. Service's five sections ARE on the
 // desk's rail, so the band would only say them twice.
 //
 // On a PHONE it shows all of them, because down there the rail is a thumb bar
@@ -7761,7 +7798,7 @@ function renderSecBand() {
   const now = state[rail.key];
   const counts = state.view === 'guests' ? (state.guestCounts || {}) : null;
   // ONE RAIL, so the band carries only what is NOT a place: the guest book's
-  // lenses. It used to carry Service's four sections on a phone, with a
+  // lenses. It used to carry Service's five sections on a phone, with a
   // Bookings chip in front of them, because down there the rail had lain down
   // at the foot and the two halves of the desk could not both fit. The rail
   // stands at every width now and the desk STACKS the way a tablet does, so
@@ -8396,6 +8433,14 @@ function renderToday() {
   // the hiding is a CSS rule, so down there Bookings stays the first chip on
   // the band and the choice between the book and the room still works from
   // the timeline, the flow and everywhere else.
+  // BOOKINGS IS THE BOOK WITH THE ROOM TAKEN AWAY — one column, the pane, the
+  // same rows and the same search. Branched in JS and not in CSS, the way the
+  // run sheet is: a MODE is state and re-renders anyway, so there is nothing
+  // for a resize to catch out. (The desk/phone split stays in CSS, because
+  // that one must be right on the first frame with nothing listening.)
+  if (state.todayMode === 'book') return `${notice}<div class="desk mode-book">
+    <div class="desk-col" data-keep="desk-col">${renderDayList()}</div>
+  </div>`;
   const whole = state.todayMode === 'sheet';
   const side = state.todayMode === 'floor' ? renderFloor()
     : state.todayMode === 'flow' ? renderFlow()
@@ -9710,7 +9755,7 @@ document.addEventListener('click', async (ev) => {
       case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'mode': {
-        // A section carries its own place. The rail shows Service's four from
+        // A section carries its own place. The rail shows Service's five from
         // every screen, so pressing Timeline on the waitlist goes to Service's
         // timeline in ONE press — it does not ask you to find Service first.
         const view = railOf(val) || state.view;
@@ -9734,7 +9779,12 @@ document.addEventListener('click', async (ev) => {
       // it back, so it is a question and not a mode you can get stuck in.
       case 'pick-table': {
         const id = el.dataset.table;
-        state.highlightTable = state.highlightTable === id ? null : id;
+        // A key that says "show it on the floor" shows it on the floor. From
+        // Bookings there is no room on screen to ring, so the press takes you
+        // to one with that table already lit; on the floor itself a second tap
+        // puts it back, so it stays a question and not a mode to get stuck in.
+        if (state.view === 'today' && state.todayMode !== 'floor') { state.highlightTable = id; state.todayMode = 'floor'; }
+        else state.highlightTable = state.highlightTable === id ? null : id;
         render();
         break;
       }

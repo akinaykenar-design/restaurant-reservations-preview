@@ -243,7 +243,7 @@ h1,h2,h3{margin:0;}
    till's own pairing for that width; the LABEL was still on 10.5, the value
    the till reserves for its narrowest rail. A 24 glyph over a 10.5 word is
    not a big icon, it is a whisper under it — and what reads across a room is
-   the word, because eight glyphs in a column are eight shapes to tell apart
+   the word, because nine glyphs in a column are nine shapes to tell apart
    and one of them is the one you want. --fs-md is the till's own step here. */
 .rail-btn.active{background:var(--orange-dim);color:var(--orange);}
 .rail-ico{display:flex;}
@@ -1153,9 +1153,28 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    so a list beside either is the night printed twice in a column that costs
    the other 340 pixels. The floor is the one view that does not carry the
    bookings itself — it carries TABLES — so it is the one that needs the book.
-   Hidden in CSS and not in JS, so a PHONE still renders both halves and keeps
-   Bookings as the first chip on its band from every section. */
-@media (min-width:761px){ .desk:not(.mode-floor) > .desk-col{display:none;} }
+   Hidden in CSS and not in JS, so both halves are rendered at every width and
+   a tablet turned sideways is right on the first frame with nothing listening
+   for a resize. BOOKINGS is the exception the rule needed: the list is that
+   section's whole reason, so it is the one other mode the column survives. */
+@media (min-width:761px){ .desk:not(.mode-floor):not(.mode-book) > .desk-col{display:none;} }
+/* AND BOOKINGS IS THAT BOOK WITH THE ROOM TAKEN AWAY. It is the only section
+   whose column is the WHOLE desk, so it drops the seam it has nothing to sit
+   beside and the cap that only ever existed to leave the room some height.
+   Stated here, above every width, because it is the same one column at all
+   of them — a tablet's stack and a phone's are both a stack of ONE.
+
+   AND IT STOPS AT 900, the run sheet's own width, because a row is a line of
+   READING: the name sits at one end and the covers and the table at the
+   other, and at 1352 that is a thousand pixels of nothing between a host's
+   eye and the number it is going for. No card and no border with it — the
+   desk is ONE surface and the paper still runs to both edges of the pane;
+   what is capped is the line, the way a page caps a line. WIDTH:100% is
+   doing real work beside that cap: an auto inline margin turns off a flex
+   child's cross-axis STRETCH, so below 900 — where the desk is a column —
+   the list shrank to fit its widest row and came out 221 wide on a phone. */
+.desk.mode-book > .desk-col{flex:1 1 auto;width:100%;max-height:none;border-right:none;
+  max-width:900px;margin-inline:auto;}
 .desk-main{flex:1;min-width:0;min-height:0;display:flex;flex-direction:column;gap:0;}
 /* Inside one card the stacked parts are separated by the seam alone: a band
    is a ROW, not a card on a card; the room gets the card's padding; the
@@ -1268,7 +1287,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .desk-col{flex:0 0 300px;width:auto;max-height:calc(100vh - 58px);overflow-y:auto;}
 }
 
-/* The rail carries the whole app: Service's four sections at the top, then
+/* The rail carries the whole app: Service's five sections at the top, then
    the three other places you can go, then Settings at the foot.
 
    Service's sections are on top because the top of the rail is where the
@@ -1288,7 +1307,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    looking at, so its length changed as you went — eight tiles on Service, ten
    on Guests, five on the waitlist — and every tile below the change moved
    under the thumb that made it. It is the same eight at every screen now:
-   Service's four sections, then Waitlist, Notify, Guests, and Settings at the
+   Service's five sections, then Waitlist, Notify, Guests, and Settings at the
    foot. The guest book's six lenses went to a band above the list they
    question, which is what took it from ten to eight. */
 /* NO GAP between the tiles: a rail tile is a square with no body until it is
@@ -1309,7 +1328,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    whose glyph is centred — which reads as empty ground rather than as more
    this way, whatever depth the fade is. Snapped, the rail always comes to
    rest on a whole tile and the fade sits at a real edge. */
-/* Service has no tile of its own on a desk: its four sections are the four
+/* Service has no tile of its own on a desk: its five sections are the five
    above, one of them is always lit, and a fifth tile saying "Service" is the
    rail telling you where you are twice. Hidden rather than unrendered,
    because a phone's thumb bar is the five PLACES and needs it — see
@@ -1418,7 +1437,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 /* THE BAND IS ONE BAND. Same markup at every width, and the stylesheet says
    which of it a desk shows: the guest book's six lenses, and nothing else.
    A lens is a question asked of one list, so it belongs above that list;
-   Service's four sections are tiles on the desk's rail, so a band repeating
+   Service's five sections are tiles on the desk's rail, so a band repeating
    them would be the app saying where you are twice. A phone has no room for
    sections on a thumb bar, so down there the band carries them all. */
 /* NOWRAP. .band sets flex-wrap:wrap and the sections band never said
@@ -1453,15 +1472,16 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .secband .chip{min-height:var(--tap);}
 
   /* THE RAIL LIES DOWN AT THE FOOT — and it is still the WHOLE rail, in the
-     SAME STYLE. Same eight tiles in the same order, Floor through Guests with
+     SAME STYLE. Same nine tiles in the same order, Floor through Guests with
      Settings last where standing up it is pinned last; same square tile, same
      24 glyph over an --fs-md word, same count under it, and chosen is the
      same PALE ACCENT BLOCK. Nothing about a tile changes when the column lies
      down — the only thing that changes is which way it runs.
-     It SCROLLS rather than squeezing. Eight tiles shared across 390 is 49
-     each: above the finger law, but a squashed square with a two-line word in
-     it is not the same tile, and the whole point is that it is. Eight at the
-     rail's own 88 is 704, so the bar is swiped — and the cut end fades, like
+     It SCROLLS rather than squeezing. Nine tiles shared across 390 is 43
+     each, under the finger law outright — and even at eight it was 49, which
+     clears the law but a squashed square with a two-line word in it is not
+     the same tile, and the whole point is that it is. Nine at the rail's own
+     88 is 792, so the bar is swiped — and the cut end fades, like
      every other scroller (--rail-axis, and `.rail` is already in RAIL_ENDS).
      64 for the tile AND --ring for the bar's own hairline: a reservation that
      counts only the tile leaves the pane a pixel underneath it. */
