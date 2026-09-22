@@ -821,7 +821,14 @@ body.book-page #app{display:block;height:auto;}
    the room chip — one control learnt once — and it is LIT when a lens is
    picked, so the bar says a question is being asked without saying which
    twice. */
-.fl-lens{position:relative;}
+.fl-lens{position:relative;display:flex;}
+/* The seam between the rooms and the lens: the pill's own hairline, so one
+   floating control reads as two jobs rather than as two controls. */
+.fl-sep{width:1px;align-self:stretch;background:var(--steel-300);margin:0 4px;}
+/* A room chip is 84 so the rooms line up as a set; the lens is one key beside
+   them and takes the width of its own word. The finger law is on the SHORT
+   axis here — 44 tall, and the padding carries the rest. */
+.fl-room-chip.snug{min-width:0;}
 .fl-lens-veil{position:fixed;inset:0;z-index:calc(var(--z-menu) - 1);}
 .fl-lens-menu{position:absolute;right:0;bottom:calc(100% + 8px);z-index:var(--z-menu);
   background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);
