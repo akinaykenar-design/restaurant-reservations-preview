@@ -1216,8 +1216,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    halves are always rendered and a tablet turned sideways is right on the
    first frame with nothing listening for a resize. */
 @media (max-width:760px){
-  .desk.show-book .desk-main{display:none;}
-  .desk.show-room .desk-col{display:none;}
   /* A thirty-table room fitted to a 400-wide pane is a stamp. On a phone the
      drawing is NOT shrunk — it is drawn at the size it was drawn for, 900 by
      560, in its own sideways scroller, and the pinch gets you closer still.
@@ -1237,7 +1235,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .desk-main .fl-room{height:auto;width:var(--fl-w, 900px);min-width:var(--fl-w, 900px);max-width:none;}
   .fl-stage{width:auto;height:auto;}
 }
-@media (min-width:761px) and (max-width:900px){
+/* STACKED IS STACKED AT EVERY WIDTH. The book took 38vh and gave the rest to
+   the room from 761 to 900, and below that it took whatever it wanted —
+   which on a phone is the whole pane, with the room a sliver under it. The
+   cap belongs to the STACK, not to the tablet: wherever the two are one above
+   the other, the book gets its 38 and the room gets the rest. */
+@media (max-width:900px){
   .desk-col{max-height:38vh;overflow-y:auto;}
 }
 
@@ -1318,7 +1321,13 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    rail telling you where you are twice. Hidden rather than unrendered,
    because a phone's thumb bar is the five PLACES and needs it — see
    renderRail(). */
-@media (min-width:761px){ .rail-btn[data-act="view"][data-val="today"]{display:none;} }
+/* Service has no tile of its own ANYWHERE now. It is Floor + Timeline + Flow
+   + Run sheet and one of those four is always lit; a fifth tile saying
+   "Service" is the rail saying where you are twice. The phone used to need
+   it, because down there the four were chips on a band and the thumb bar
+   carried only places — there is one rail at every width now, and the four
+   are on it. */
+.rail-btn[data-act="view"][data-val="today"]{display:none;}
 .rail-scroll{scroll-snap-type:y mandatory;}
 .rail-scroll .rail-btn{scroll-snap-align:start;}
 .rail-secs,.rail-modes{display:contents;}
@@ -1427,7 +1436,13 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    every other scroller in the app. */
 .secband{display:flex;flex-wrap:nowrap;gap:6px;overflow-x:auto;margin:0 0 var(--hub-edge);}
 .secband .chip{flex:0 0 auto;}
-@media (min-width:761px){ .secband:not([data-rail="guests"]){display:none;} }
+/* ONE RAIL, so ONE PLACE for the sections — and that place is the rail. The
+   band used to come back on a phone as a segmented control, because down
+   there the rail had lain down at the foot and had no room for them. It has
+   not lain down any more, so a band of section chips would be the rail
+   saying where you are twice. The guest lenses are the only thing it still
+   carries, and they are a QUESTION asked of one list, not a place. */
+.secband:not([data-rail="guests"]){display:none;}
 @media (max-width:760px){
   .wide-only{display:none!important;}
   .phone-only{display:inline-flex;}
@@ -1443,45 +1458,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
      between the book and the room, and on a phone that is the whole of
      getting about — so it takes the whole finger. */
   .secband .chip{min-height:var(--tap);}
-
-  /* The rail lies down at the FOOT, over the content, with the home bar's
-     inset added to its own padding so the last row of tiles is still tappable
-     on a phone with no button. */
-  /* 64 for the tile AND --ring for the bar's own hairline on top of it: the
-     bar is 65 tall, the reservation was 64, and the pane ended one pixel
-     under it. One pixel, hidden by the very hairline that caused it — but a
-     reservation that does not count the whole thing is wrong by inspection
-     and stays wrong when either number moves. */
-  .shell{padding-bottom:calc(64px + var(--ring) + env(safe-area-inset-bottom, 0px));}
-  /* THE THUMB BAR IS THE RAIL LYING DOWN, so it keeps the rail's GROUND. It
-     was drawn on --surface, which is the paper the list it floats over is
-     printed on — the same two-things-one-colour the desk's own chrome was
-     fixed for, except here they actually overlap, with a hairline and a
-     shadow doing all the work of saying which is which. --chrome is a step
-     off the paper and is what this bar is at every other width. */
-  .rail{position:fixed;left:0;right:0;bottom:0;top:auto;width:auto;height:auto;
-    flex-direction:row;padding:0;padding-bottom:env(safe-area-inset-bottom, 0px);
-    border-right:none;border-top:1px solid var(--steel-300);background:var(--chrome);
-    z-index:var(--z-panel);overflow:visible;box-shadow:var(--lift-1);}
-  /* A PHONE TAKES THE TWO GROUPS APART AGAIN: the sections become the band
-     of chips at the top of the pane, and the places become the thumb bar.
-     They are still separate elements for exactly this reason — on a desk
-     they only LOOK like one column. */
-  .rail-secs{display:none;}
-  /* The thumb bar is one row of five: the places must be flex children of
-     the bar itself, not of a box inside it, or `flex:1` divides nothing —
-     and Settings rejoins them, because down here nothing scrolls away. */
-  .rail-scroll,.rail-modes,.rail-foot{display:contents;}
-  .rail .rail-btn{flex:1;aspect-ratio:auto;min-height:64px;gap:2px;padding:6px 2px;}
-  .rail .rail-ico svg{width:22px;height:22px;}
-  .rail .rail-label{font-size:var(--fs-chip);letter-spacing:0;}
-  /* A count on a thumb bar is a badge, not a line of type under the label. */
-  .rail .rail-n{position:absolute;top:6px;right:50%;margin-right:-24px;
-    min-width:16px;height:16px;padding:0 4px;border-radius:var(--r-pill);
-    background:var(--red);color:#fff;font-size:var(--fs-chip);line-height:16px;text-align:center;opacity:1;}
-  .rail-btn{position:relative;}
-  .rail .rail-btn.active{background:none;color:var(--orange);}
-  .rail .rail-btn.active .rail-ico{background:var(--orange-dim);border-radius:var(--r-pill);padding:2px 12px;}
 
   .pane{padding-bottom:0;}
 }
@@ -7007,10 +6983,6 @@ const state = {
   // shoved off the edge and lost.
   toast: '', toastFailed: '',
   floorZoom: 1, floorPanX: 0, floorPanY: 0,
-  // Which HALF of the desk a phone is showing. The desk proper shows both at
-  // once and ignores this; a phone cannot, so it picks one. 'book' by default,
-  // because the list is the thing a host reads.
-  phonePane: 'book',
   // Which service the desk is narrowed to, '' for the whole night.
   service: '',
   // The moment the floor plan is showing, or null for "now". Cleared
@@ -7745,17 +7717,16 @@ function renderSecBand() {
   if (!rail) return '';
   const now = state[rail.key];
   const counts = state.view === 'guests' ? (state.guestCounts || {}) : null;
-  // On the desk the book and the room stand side by side. A phone has room
-  // for one of them, and stacking put the floor 935 pixels down a 727-pixel
-  // screen — past the whole night's list — so on a phone they are chips you
-  // choose between, and Bookings is the first of them.
-  const book = state.view === 'today' && state.todayMode !== 'sheet'
-    ? `<button class="chip${state.phonePane === 'book' ? ' active' : ''}" data-act="phone-pane" data-val="book">Bookings <span class="sub">${state.reservations.filter(inPickedService).length}</span></button>`
-    : '';
-  return `<div class="band secband" data-rail="${esc(state.view)}">${book}${rail.items.map(([k, label, icon]) => {
+  // ONE RAIL, so the band carries only what is NOT a place: the guest book's
+  // lenses. It used to carry Service's four sections on a phone, with a
+  // Bookings chip in front of them, because down there the rail had lain down
+  // at the foot and the two halves of the desk could not both fit. The rail
+  // stands at every width now and the desk STACKS the way a tablet does, so
+  // the sections are tiles wherever you are and the book is always on screen
+  // above the room. The stylesheet hides everything but the lenses.
+  return `<div class="band secband" data-rail="${esc(state.view)}">${rail.items.map(([k, label, icon]) => {
     const n = counts ? counts[k] : null;
-    const on = now === k && (!book || state.phonePane === 'room');
-    return `<button class="chip${on ? ' active' : ''}" data-act="mode" data-val="${k}">${esc(label)}${n == null ? '' : ` <span class="sub">${n}</span>`}</button>`;
+    return `<button class="chip${now === k ? ' active' : ''}" data-act="mode" data-val="${k}">${esc(label)}${n == null ? '' : ` <span class="sub">${n}</span>`}</button>`;
   }).join('')}</div>`;
 }
 
@@ -8393,7 +8364,7 @@ function renderToday() {
   // Both halves are always RENDERED — the phone hides one in CSS rather than
   // in JS, so nothing has to listen for a resize and a tablet turned sideways
   // is right on the first frame.
-  return `${notice}<div class="desk mode-${esc(state.todayMode)} show-${esc(state.phonePane)}">
+  return `${notice}<div class="desk mode-${esc(state.todayMode)}">
     <div class="desk-col" data-keep="desk-col">${renderDayList()}</div>
     <div class="desk-main">${side}</div>
   </div>`;
@@ -9695,7 +9666,6 @@ document.addEventListener('click', async (ev) => {
       case 'view': setView(val); break;
       case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
-      case 'phone-pane': state.phonePane = val; render(); break;
       case 'mode': {
         // A section carries its own place. The rail shows Service's four from
         // every screen, so pressing Timeline on the waitlist goes to Service's
@@ -9706,8 +9676,6 @@ document.addEventListener('click', async (ev) => {
         state[rail.key] = val;
         const moved = state.view !== view;
         state.view = view;
-        // Asking for the floor on a phone is asking to look at the room.
-        if (view === 'today') state.phonePane = 'room';
         render();
         // Today redraws from what is already in memory; arriving from another
         // place has to fetch, and so does the guest book every time, because a
