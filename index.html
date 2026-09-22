@@ -57,7 +57,11 @@
      (#16171A against #121110): the pill is the night you are working on, and
      a control sunk into a strip four points off it reads as part of that
      strip rather than a hole cut through it. Light keeps the one value. */
-  --deck-bg:#E2DED7;
+  /* THE BAR IS NOT THE RAIL, and in light it was: both #E2DED7, so the
+     top-left corner where they meet had no seam and the two read as one
+     L-shaped slab. Dark had this pass and light never did. One step off the
+     rail, on the same warm family, so the corner is a corner. */
+  --deck-bg:#E8E4DC;
   /* The night-you-are-on pill. It was drawn on --steel-100, which is the
      ROOM's ground, so the pill and the floor were the same decision and
      neither could move without the other. Same value in both themes as it
@@ -167,6 +171,15 @@ body[data-theme="dark"]{
   --deck-chip-on-bg:#EDE6D6; --deck-chip-on-ink:#26231F;
   --orange-dim:color-mix(in srgb, var(--orange) 27%, var(--surface));
   --green-dim:color-mix(in srgb, var(--green) 20%, var(--surface));
+  /* MIXED ON THE PAPER THAT IS ACTUALLY UNDER IT. Every wash here is a
+     colour-mix against --surface, and --surface is redefined on BODY while
+     the mixes are declared on :root — so var(--surface) inside them resolved
+     against ROOT's white and dark mode washed things in 6% blue on #FFFFFF.
+     The picked pacing slot came out a near-white block on a near-black
+     strip, and every .selected row and the timeline's No-table lane with it.
+     --orange-dim and --green-dim were already restated here; this is the one
+     that was missed. A mix declared on :root and used in dark is a bug. */
+  --pick-wash:color-mix(in srgb, var(--orange) 6%, var(--surface));
   --st-booked:#A8A399; --st-confirmed:#3692E7; --st-arrived:#E8C24D; --st-seated:#7BC72F; --st-done:#6B645A; --st-cancelled:#CF6152; --st-noshow:#8B6FE8;
   --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#E8C24D; --src-pos:#D9D5CE;
   --st-late:#CF6152; --st-walkin:#19C3AB;
