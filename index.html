@@ -772,6 +772,14 @@ body.book-page #app{display:block;height:auto;}
 /* Two tables pushed together are one booking; the ring says so without a
    second colour. */
 .fl-table.joined{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
+/* THE ROOM AS A PICKER. A row's table key puts the floor in here, and the
+   only thing that changes is which tables can be PRESSED: the ones that are
+   not free at that booking's time go quiet and stop answering. Nothing is
+   drawn over the room and no note is added to it — the room already says what
+   every table is doing, in the colour it has said it in all night. `off` is
+   the one dim there is; `disabled` is what stops the press, so a quiet table
+   cannot be tapped by accident and the cursor says so. */
+.fl-table[disabled]{opacity:var(--dim);cursor:default;}
 /* The band is drawn ON TOP of the wash. The wash is a child covering the whole
    table, so an inset shadow on the marker itself is painted over by it and
    only the 1px edge survives — a two-toned rim, the till's own lesson. One
@@ -1008,11 +1016,34 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-row{display:flex;align-items:center;border-bottom:1px solid var(--steel-200);background:var(--surface);}
 .bl-rows > .bl-row:last-child{border-bottom:none;}
 .bl-row.selected{background:var(--pick-wash);box-shadow:inset var(--ring) 0 0 0 var(--orange);}
-/* The row proper: five things, and the eye lands on them in the order a host
-   asks for them — where it is, when, who, how many, which table. */
-.bl-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:54px;padding:8px 4px 8px 12px;
+/* The row proper: a KEY at each end and the name between them — where it is
+   up to, when and who, how many, and which table. */
+.bl-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:54px;padding:8px 4px 8px 4px;
   background:none;border:none;text-align:left;cursor:pointer;}
 .bl-main .st-dot{width:16px;height:16px;flex:0 0 16px;margin-right:0;}
+/* THE STATUS IS A KEY, NOT A DOT. Where a booking is up to is the thing a
+   host changes most across a shift and it was a 16-pixel dot INSIDE the row's
+   own button — readable, and unreachable without opening the whole booking.
+   It is a box at the head of the row now, wearing the status's own glyph in
+   the status's own colour on a pale wash of it: the rail's language for
+   "chosen", applied to a thing that is always chosen. The colour is the same
+   one it wears on the floor, the timeline and the chip, so nothing new is
+   learnt. A whole finger, like every other key. */
+.bl-st{flex:none;width:var(--tap);height:var(--tap);margin-left:8px;display:flex;
+  align-items:center;justify-content:center;border-radius:var(--r-btn);
+  border:1px solid color-mix(in srgb, var(--st-ink, var(--steel-500)) 22%, transparent);
+  background:var(--st-wash, var(--steel-100));
+  color:var(--st-ink, var(--charcoal-soft));cursor:pointer;}
+.bl-st svg{width:20px;height:20px;}
+.bl-st:hover{border-color:var(--st-ink, var(--steel-300));}
+.bl-st.on{box-shadow:inset 0 0 0 var(--ring) var(--st-ink, var(--orange));}
+.bl-st.booked{--st-ink:var(--st-booked);} .bl-st.confirmed{--st-ink:var(--st-confirmed);}
+.bl-st.part-arrived,.bl-st.arrived{--st-ink:var(--st-arrived);}
+.bl-st.part-seated,.bl-st.seated{--st-ink:var(--st-seated);}
+.bl-st.check{--st-ink:var(--st-check);} .bl-st.paid{--st-ink:var(--st-paid);}
+.bl-st.done{--st-ink:var(--st-done);} .bl-st.cancelled{--st-ink:var(--st-cancelled);}
+.bl-st.no-show{--st-ink:var(--st-noshow);}
+.bl-st{--st-wash:color-mix(in srgb, var(--st-ink, var(--steel-500)) 12%, var(--surface));}
 .bl-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
 .bl-who small{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);
   font-family:var(--font-mono);letter-spacing:.3px;}
@@ -7080,6 +7111,13 @@ const state = {
   // The whole model GET /api/run-sheet last returned, for the day it names.
   sheet: null,
   modal: null, toast: '', busy: false, pendingLink: null, highlightTable: null,
+  // THE ROW ASKS THE ROOM WHICH TABLE. Pressing a row's table key puts the
+  // floor into picking: the booking's own tables ring, every table free at
+  // its time lights, the rest go quiet, and a press lands it. `free` is the
+  // server's answer (av.freeTables, the tested one) and is null until it
+  // arrives — the floor is left exactly as it was until then, so there is no
+  // moment where the room is on screen doing nothing.
+  picking: null,
   // The render gate for a live timeline drag, and nothing else about the
   // gesture (see §§ Timeline drag). The POS's own state._sortDragging.
   dragging: false,
@@ -7972,6 +8010,17 @@ function renderFloor() {
   const at = floorMoment();
   const by = {};
   for (const f of floorStateAt(at)) by[f.id] = f;
+  // THE ROOM IS THE TABLE PICKER. A row's table key puts the floor in here:
+  // the booking's own tables keep the accent ring, every table free at its
+  // time is a key, and the rest go quiet. Nothing is drawn OVER the room and
+  // no note is added to it — the room already says which is which in colour,
+  // and a free one that can be pressed is the only thing that changes.
+  // Until the server's answer lands `pick` is null here, so the floor is
+  // exactly the floor: there is no moment where the room is on screen inert.
+  const pk = state.picking && state.picking.free ? state.picking : null;
+  const pkBook = pk ? (state.reservations || []).find(x => x.id === pk.id) : null;
+  const pkMine = pkBook ? tablesFor(pkBook) : [];
+  const pkFree = pk ? new Set(pk.free.tables.filter(x => x.free).map(x => x.id)) : null;
 
   // A floor plan the POS has never sent has no geometry to draw. Rather than
   // invent a room, the tables are laid out in reading order — the states and
@@ -8021,9 +8070,23 @@ function renderFloor() {
     // laid; the wash is a translucent tint OVER it, so a burgundy cloth is
     // still burgundy cloth while somebody is sitting at it. A free table wears
     // no wash at all — at rest, a table is just a table.
-    return `<button class="fl-table ${f.state}${r && heldTables(r).length > 1 ? ' joined' : ''}${state.highlightTable === t.id ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, state.highlightTable === t.id)}${skinStyle(t)}"
-      data-act="${r ? 'edit-booking' : 'new-at'}" ${r ? `data-id="${esc(r.id)}"` : `data-time="${esc(at)}" data-table="${esc(t.id)}"`}
-      title="${esc(why)}">
+    // Picking: this table is THEIRS (ring it, and a press gives it back), it
+    // is FREE at their time (a press lands them on it), or it is neither and
+    // goes quiet. The RING means theirs and nothing else — the desk's own best
+    // fit is on the hover, not drawn, because a second thing wearing the
+    // accent ring is the floor saying "chosen" about two tables at once.
+    const mine = pk ? pkMine.includes(t.id) : false;
+    const canPick = pk ? (mine || pkFree.has(t.id)) : false;
+    const ring = pk ? mine : state.highlightTable === t.id;
+    const act = pk ? (canPick ? `data-act="pick-seat" data-id="${esc(pk.id)}" data-table="${esc(t.id)}"` : 'disabled')
+      : `data-act="${r ? 'edit-booking' : 'new-at'}" ${r ? `data-id="${esc(r.id)}"` : `data-time="${esc(at)}" data-table="${esc(t.id)}"`}`;
+    const pkWhy = !pk ? why
+      : mine ? `Table ${t.label} — theirs already`
+        : canPick ? `Put ${pkBook.name || 'them'} on table ${t.label} · ${t.seats} seats${pk.free.suggested === t.id ? ' · best fit' : ''}`
+          : `Table ${t.label} — taken at ${hhmmOf(pkBook.time)}`;
+    return `<button class="fl-table ${f.state}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
+      ${act}
+      title="${esc(pkWhy)}">
       ${f.state === 'free' ? '' : `<span class="fl-wash ${f.state}"></span>`}
       ${marks ? `<span class="fl-marks">${marks}</span>` : ''}
       <span class="fl-in" style="${up}">
@@ -8041,7 +8104,7 @@ function renderFloor() {
   return `
   ${plans.length ? plans.map(fp => `
     ${plans.length > 1 ? `<div class="section-h">${esc(fp.name)}</div>` : ''}
-    <div class="fl-wrap" data-keep="floor" style="${floorGround(fp)}"><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
+    <div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : ''} style="${floorGround(fp)}"><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
       ${(() => { const hug = placed ? floorHug(fp) : null; return (fp.tables || []).map(t => hug ? hugObject(t, hug) : t).map(tableEl).join(''); })()}
     </div></div></div>`).join('')
     : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>'}
@@ -8580,25 +8643,41 @@ function renderDayList() {
   if (q.on && !rows.length) return find + `<div class="empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d.
     <div style="margin-top:12px;"><button class="btn" data-act="find-every-day">${I.search} Look on every day</button></div></div>`;
 
+  // TWO BOXES AND A NAME BETWEEN THEM. The two things a host CHANGES about a
+  // booking during service are where it is up to and which table it is on, and
+  // both used to be read-only on this row — the status a 16-pixel dot inside
+  // the row's own button, the table a key that only rang the floor. They are
+  // the row's two KEYS now, one at each end, each opening the thing it names:
+  // the status a panel that slides out over the room, the table the ROOM
+  // ITSELF with every free one lit. Everything else about the booking is still
+  // behind the middle, which opens the sheet.
   const row = (r) => {
     const held = tablesFor(r);
     // FAINT IS THE APP'S, SOLID IS A PERSON'S. The list used to say "assign"
     // wherever nobody had chosen — a job the desk has to finish before the
     // night reads as a night. The app lays it out instead and says so by
-    // WEIGHT: the same number, drawn light. Tapping it opens the booking,
-    // which is where you overrule it; a table a person chose rings the floor
-    // instead, which is what a settled table is for.
+    // WEIGHT: the same number, drawn light.
     const auto = isAutoTable(r);
-    // One key a table, not one key for "T9 + T10": a host pointing at a join
-    // means one of the two, and the floor can only light what was pointed at.
+    // ONE QUESTION, SO ONE ANSWER: every table key on the row opens the pick
+    // for that BOOKING, whether a person chose it, the desk did, or nobody
+    // has. It still rings what it names — the booking's tables wear the
+    // accent on the floor while the pick is open — and now it also offers
+    // the ones it could be instead, which is the thing the key was for.
+    const picking = !!state.picking && state.picking.id === r.id;
+    const key = (label, extra, title) => `<button class="bl-table${extra}${picking ? ' on' : ''}"
+      data-act="row-table" data-id="${esc(r.id)}" title="${esc(title)}">${esc(label)}</button>`;
+    // One key a table, not one key for "T9 + T10": a join is two boxes, and
+    // both belong to the one booking, so both open the one pick.
     const tables = held.length
-      ? held.map(id => `<button class="bl-table${auto ? ' auto' : ''}${state.highlightTable === id ? ' on' : ''}"
-          data-act="${auto ? 'edit-booking' : 'pick-table'}" ${auto ? `data-id="${r.id}"` : `data-table="${esc(id)}"`}
-          title="${auto ? 'Nobody has chosen — the desk would use ' + esc(tableName(id)) : 'Show ' + esc(tableName(id)) + ' on the floor'}">${esc(tableName(id))}</button>`).join('<i class="bl-plus">+</i>')
-      : `<button class="bl-table none" data-act="edit-booking" data-id="${r.id}">assign</button>`;
+      ? held.map(id => key(tableName(id), auto ? ' auto' : '',
+        auto ? 'Nobody has chosen — the desk would use ' + tableName(id) + '. Tap to pick one on the floor'
+          : 'Table ' + tableName(id) + ' — tap to pick one on the floor')).join('<i class="bl-plus">+</i>')
+      : key('assign', ' none', 'No table — tap to pick one on the floor');
+    const stOpen = !!state.modal && state.modal.kind === 'status' && state.modal.id === r.id;
     return `<div class="bl-row${state.highlightTable && held.includes(state.highlightTable) ? ' selected' : ''}">
+      <button class="bl-st ${esc(r.status)}${stOpen ? ' on' : ''}" data-act="row-status" data-id="${esc(r.id)}"
+        title="${esc(statusLabel(r.status))} — tap to change" aria-label="${esc(statusLabel(r.status))}, change">${statusIcon(r.status)}</button>
       <button class="bl-main" data-act="edit-booking" data-id="${r.id}">
-        ${statusDot(r.status)}
         <span class="bl-who"><small>${esc(fmtHHMM(hhmmOf(r.time)))}</small><b>${esc(r.name || 'No name')}</b></span>
         <span class="bl-marks">${listMarks(r)}</span>
         <span class="bl-pax" title="${r.partySize} covers">${r.partySize}</span>
@@ -9125,8 +9204,33 @@ function renderModal() {
   if (m.kind === 'colour') return renderColourModal();
   if (m.kind === 'cal') return renderCalModal();
   if (m.kind === 'more') return renderMoreModal();
+  if (m.kind === 'status') return renderStatusSheet();
   if (m.kind === 'confirm') return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1"><h2>${esc(m.title)}</h2>${m.body ? `<div class="ts">${esc(m.body)}</div>` : ''}<div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Cancel</span></button><button class="icon-action ${m.danger ? 'discard' : 'send'}" data-act="confirm-yes">${m.danger ? I.trash : I.tick}<span class="ia-label">${esc(m.yes || 'Yes')}</span></button></div></div></div>`;
   return '';
+}
+// §§ THE STATUS SLIDES OUT OVER THE ROOM
+// Pressed from a row's status key. It is the booking SHEET's own landing —
+// in from the right, on the seam, the book still readable beside it — because
+// it is the same gesture answering the same kind of question, and a second
+// way of covering the room would be a second thing to learn. It carries the
+// eleven statuses and nothing else: no Save, because there is one field and a
+// press IS the answer, the way Settings saves on the press.
+function renderStatusSheet() {
+  const m = state.modal, r = (state.reservations || []).find(x => x.id === m.id);
+  if (!r) return '';
+  const onDesk = state.view === 'today' && state.todayMode === 'floor';
+  return `<div class="modal-bg full bk-sheet" data-act="close-modal"><div class="modal full bk-sheet${onDesk ? '' : ' pane-wide'}" data-stop="1">
+    <div class="modal-top">
+      <h2>${esc(r.name || 'No name')} ${statusChip(r.status)}
+        <span class="tag mono">${esc(fmtHHMM(hhmmOf(r.time)))} · ${r.partySize}</span></h2>
+      <button class="chip sq" data-act="close-modal" aria-label="Close">${I.cross}</button>
+    </div>
+    <div class="modal-body"><div class="bk-pick">${STATUS_KEY.map(k => `<button class="bk-opt${r.status === k[0] ? ' on' : ''}" data-act="row-status-set" data-id="${esc(r.id)}" data-val="${k[0]}">
+      <span class="bk-opt-mark">${statusDot(k[0])}</span>
+      <span class="bk-opt-text"><b>${esc(k[1])}</b><span>${esc(k[3])}</span></span>
+      ${r.status === k[0] ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
+    </button>`).join('')}</div></div>
+  </div></div>`;
 }
 function actionKeys(opts) {
   return `<div class="modal-actions">
@@ -9761,7 +9865,7 @@ document.addEventListener('click', async (ev) => {
       // Settings is the one place that still asks for a code — and it asks
       // once, then holds it for as long as this tab is open.
       case 'view': setView(val); break;
-      case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
+      case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.picking = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'mode': {
         // A section carries its own place. The rail shows Service's five from
@@ -9786,6 +9890,82 @@ document.addEventListener('click', async (ev) => {
       case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.service = defaultService(val); render(); await loadDay(); render(); break;
       // Point at a table in the book and the room answers. A second tap puts
       // it back, so it is a question and not a mode you can get stuck in.
+      // §§ THE ROW'S TWO KEYS
+      // The status slides out over the room; the table turns the room INTO
+      // the picker. Both are a toggle — pressing the key that opened it puts
+      // it away — so neither is a mode you can get stuck in.
+      case 'row-status': {
+        if (state.modal && state.modal.kind === 'status' && state.modal.id === id) { closeModal(); break; }
+        state.picking = null;
+        state.modal = { kind: 'status', id, openedAt: Date.now() };
+        render();
+        break;
+      }
+      // One field, one press, saved where it is pressed — Settings' own rule.
+      // A PUT carrying only the status merges onto the booking on the server
+      // (cleanReservation reads `cur` first), so nothing else about it can be
+      // rewritten by a key that only says where they are up to.
+      case 'row-status-set': {
+        const r = (state.reservations || []).find(x => x.id === id);
+        if (!r) { toastBad('That booking has gone'); break; }
+        if (r.status === val) { closeModal(); break; }
+        state.modal = null; render();
+        try {
+          await put('/api/reservations/' + id, { status: val });
+          await loadView(); render();
+          toast(`${r.name || 'Booking'} · ${statusLabel(val)}`);
+        } catch (e) { toastBad(e.message); }
+        break;
+      }
+      case 'row-table': {
+        if (state.picking && state.picking.id === id) { state.picking = null; render(); break; }
+        const r = (state.reservations || []).find(x => x.id === id);
+        if (!r) { toastBad('That booking has gone'); break; }
+        // The ROOM is the picker, so the room has to be the thing on screen.
+        // From Bookings, the timeline or the flow the press takes you to the
+        // floor first — a key that says "pick one on the floor" shows you one.
+        if (state.view === 'today' && state.todayMode !== 'floor') state.todayMode = 'floor';
+        state.modal = null; state.highlightTable = null;
+        state.picking = { id, free: null };
+        render();
+        try {
+          const q = `date=${dayOf(r.time)}&time=${hhmmOf(r.time)}&party=${r.partySize}&ignore=${encodeURIComponent(id)}`
+            + (r.durationMin ? `&duration=${r.durationMin}` : '');
+          const free = await api('/api/free-tables?' + q);
+          if (state.picking && state.picking.id === id) { state.picking.free = free; render(); }
+        } catch (e) { state.picking = null; render(); toastBad('Could not ask which tables are free'); }
+        break;
+      }
+      // Pressed on the floor while picking. Theirs already = put it back, so
+      // the same press that rang it releases it; anything else lands them.
+      // THE GROUND IS THE WAY OUT. Escape does it on a desk; a phone has no
+      // Escape and the row that opened the pick is a section away, so the
+      // floor itself has to let go — a press on the room and not on a table
+      // puts it away, which is what every veil in the app already does. A PAN
+      // is not a press: the drag swallows the click it would otherwise fire.
+      case 'pick-off': state.picking = null; render(); break;
+      case 'pick-seat': {
+        const r = (state.reservations || []).find(x => x.id === id);
+        const tid = el.dataset.table;
+        if (!r) { state.picking = null; render(); toastBad('That booking has gone'); break; }
+        // KEEPS, not "is drawn on it": only a table a PERSON chose is handed
+        // back by a second press. The desk's own auto pick is derived, never
+        // stored, so pressing the one it was going to use is how you SETTLE
+        // it — a press that took it away would leave the booking exactly
+        // where it started and look like nothing happened.
+        const keeps = heldTables(r).includes(tid);
+        state.picking = null; render();
+        try {
+          // tableIds is sent EMPTY: a pick is one table, and leaving a join's
+          // second half behind would hold a table the booking no longer sits
+          // at. Clearing a person's own pick hands it back to autoAssign(),
+          // which is derived and never stored.
+          await put('/api/reservations/' + id, { tableId: keeps ? null : tid, tableIds: [] });
+          await loadView(); render();
+          toast(keeps ? `${r.name || 'Booking'} · no table` : `${r.name || 'Booking'} · ${tableName(tid)}`);
+        } catch (e) { toastBad(e.message); }
+        break;
+      }
       case 'pick-table': {
         const id = el.dataset.table;
         // A key that says "show it on the floor" shows it on the floor. From
@@ -9889,7 +10069,7 @@ document.addEventListener('click', async (ev) => {
       case 'now': {
         state.date = tradingDay();
         state.service = defaultService(state.date);
-        state.highlightTable = null; state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0;
+        state.highlightTable = null; state.picking = null; state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0;
         render();
         await loadDay();
         render();
@@ -10495,6 +10675,7 @@ document.addEventListener('keydown', (ev) => {
   if (state.modal && state.modal.kind === 'find' && ev.key === 'Enter') { clearTimeout(_findTimer); runFind(); return; }
   if (ev.key === 'Escape' && state.modal && state.modal.page) { state.modal.page = ''; render(); return; }
   if (ev.key === 'Escape' && state.modal) { closeModal(); return; }
+  if (ev.key === 'Escape' && state.picking) { state.picking = null; render(); return; }
   if (!state.modal && !typingInField() && (ev.key === '/' || ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k'))) { ev.preventDefault(); openFind(true); }
 });
 
