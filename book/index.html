@@ -1100,6 +1100,25 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .modal.full{border-radius:var(--r-surface);max-width:960px;margin:0 auto;height:100%;}
 }
 
+/* §§ SETTINGS IS A HUB, NOT A PILE
+   Twelve cards in one scroll is one wall — the POS link beside the colour
+   code beside the audit log, in no order at all. The till groups its admin
+   and drills in; the desk does the same one level shallower, because the
+   rail's Settings tile IS the category. So Settings opens the list of
+   GROUPS, and a group opens its cards.
+
+   ROWS AND NOT TILES: a group needs a LINE saying what is behind it — "The
+   room" alone does not tell you the colours are in there — and a tile has
+   nowhere to put one. It is the app's own Row, so nothing new is learnt. */
+.set-hub{max-width:640px;}
+.set-hub .row{padding-left:12px;}
+.set-chev{flex:none;display:flex;color:var(--charcoal-soft);}
+.set-chev svg{width:18px;height:18px;}
+/* The way back, and the name of where you are. One line above the cards,
+   not a bar: a bar would be a second piece of chrome under the top bar's. */
+.set-back{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.set-back .th{margin:0;}
+
 /* §§ The booking SHEET — in from the right, over the room
    Named bk-sheet, not sheet: `.sheet` is already the RUN sheet, the page for
    paper, and a modal that borrowed the name quietly inherited its 900px cap
@@ -3115,6 +3134,16 @@ const DEFAULT_SETTINGS = {
   ],
   maxPartySize: 12,
   seatSlack: 2,             // a table may have this many seats more than the party
+  // WHICH TABLES ACTUALLY PUSH TOGETHER. A fact about the furniture, so the
+  // only place it can come from is the venue — the till has no stored list
+  // either, its own "combine" being a live ticket merge a waiter does in the
+  // moment. Keyed on the POS's own table ids, so if the till ever grows a
+  // list this one is deleted rather than migrated.
+  //   [{ id, tables: [tableId, …], seats }]
+  // `seats` is STATED, not summed: two four-tops pushed together are usually
+  // eight and sometimes six, because the join eats a setting at each end. 0
+  // means nobody said, and availability.js falls back to the sum.
+  tableCombos: [],
   pacing: { maxCoversPer15: 0, maxBookingsPer15: 0 }, // 0 = off
   // What the venue has recoloured. A key here is a CSS custom property the
   // client re-points at boot; a key ABSENT (or '') means the stylesheet's own
@@ -3230,6 +3259,7 @@ function migrate(data) {
   // The loop above already gives an older store `exceptions: []`; this catches
   // a hand-edited or half-written file that has the key but not an array.
   if (!Array.isArray(s.exceptions)) s.exceptions = [];
+  if (!Array.isArray(s.tableCombos)) s.tableCombos = [];
   if (!s.statusColours || typeof s.statusColours !== 'object' || Array.isArray(s.statusColours)) s.statusColours = {};
   // The desk has no users any more — no sign-in, no PIN, nobody to pick. An
   // older store still carries the list, and a PIN that nothing checks is only
@@ -3593,10 +3623,19 @@ function autoAssign(ctx, day) {
   let around = live.filter(r => heldTables(r).length);
   const out = {};
   for (const r of loose) {
-    const t = suggestTable({ settings: ctx.settings, tables: ctx.tables, reservations: around },
-      day, hhmmOf(r.time), r.partySize, { duration: r.durationMin });
-    out[r.id] = t ? [t.id] : [];
-    if (t) around = around.concat([Object.assign({}, r, { tableId: t.id, tableIds: [] })]);
+    const sub = { settings: ctx.settings, tables: ctx.tables, reservations: around };
+    const t = suggestTable(sub, day, hhmmOf(r.time), r.partySize, { duration: r.durationMin });
+    // A NINE HAD NO PICK AT ALL until combinations existed: nothing single
+    // fits it, so the book and the floor both carried a hole where the
+    // biggest party of the night should have been. A stated combination is
+    // laid out the same way one table is — and only a STATED one, never the
+    // old guess, because a pick nobody asked for that puts a nine on two
+    // tables at opposite ends of the room is worse than the hole was.
+    const ids = t ? [t.id] : (combosOf(ctx).length
+      ? ((freeCombos(sub, day, hhmmOf(r.time), r.partySize, { duration: r.durationMin })[0] || {}).tables || [])
+      : []);
+    out[r.id] = ids.slice();
+    if (ids.length) around = around.concat([Object.assign({}, r, { tableId: ids[0], tableIds: ids.slice(1) })]);
   }
   return out;
 }
@@ -3755,8 +3794,58 @@ function coverFlow(ctx, day, opts) {
   };
 }
 
+// §§ COMBINATIONS — which tables actually push together
+//
+// WHICH TWO TABLES MAKE A SIX IS A FACT ABOUT THE FURNITURE, and the only
+// place it can come from is the venue. The desk used to guess: any free
+// tables whose seats added up, biggest first, which would happily join table
+// 1 by the door to table 46 across the room and offer the six o'clock it
+// cannot actually seat. The till cannot answer it either — its own "combine"
+// is a live ticket merge a waiter does in the moment, not a stored list — so
+// there is nothing to read and no second source to invent. It lives here,
+// in the settings, keyed on the POS's own table ids so that if the till ever
+// grows a list of its own this one is deleted rather than migrated.
+//
+//   settings.tableCombos = [{ id, tables: [tableId, …], seats }]
+//
+// SEATS IS STATED, not summed. Two four-tops pushed together are usually
+// eight and sometimes six, because the join eats a setting at each end, and
+// the sum cannot know which. It falls back to the sum for a combination
+// somebody added and never numbered.
+function combosOf(ctx) {
+  const ids = new Set((ctx.tables || []).map(t => t.id));
+  return (((ctx.settings || {}).tableCombos) || [])
+    .filter(c => c && Array.isArray(c.tables) && c.tables.length > 1 && c.tables.every(id => ids.has(id)));
+}
+function comboSeats(ctx, combo) {
+  return combo.seats > 0 ? combo.seats : seatsOf(ctx, combo.tables);
+}
+// The combinations whose every table is free at this time and which seat the
+// party, tightest first.
+//
+// SEATING THEM IS THE WHOLE TEST — there is no seatSlack here, deliberately.
+// The slack stops a single ten-top being wasted on a two, because a smaller
+// table was there all along. A combination is not wasted, it is BUILT: it
+// only ever gets asked when no single table fits, so the alternative to
+// putting a nine on a twelve is not a better table, it is turning them away.
+// The tightest-first sort is what keeps it from taking more of the room than
+// it has to.
+function freeCombos(ctx, day, hhmm, party, opts) {
+  const free = new Set(freeTables(ctx, day, hhmm, party, opts).map(t => t.id));
+  return combosOf(ctx)
+    .filter(c => c.tables.every(id => free.has(id)) && comboSeats(ctx, c) >= party)
+    .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length));
+}
+
 // Two or more free tables that together seat the party (a joined booking).
+// A stated combination when the venue has stated any; the old guess when it
+// has not, so a desk that has just been updated goes on offering big parties
+// the times it always did until somebody sets the real ones down.
 function suggestJoin(ctx, day, hhmm, party, opts) {
+  if (combosOf(ctx).length) {
+    const c = freeCombos(ctx, day, hhmm, party, opts)[0];
+    return c ? c.tables.map(id => (ctx.tables || []).find(t => t.id === id)) : null;
+  }
   const free = freeTables(ctx, day, hhmm, party, opts).sort((a, b) => b.seats - a.seats);
   const pick = [];
   let seats = 0;
@@ -4270,7 +4359,7 @@ function runSheet(ctx, day, opts) {
 module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, suggestTable, suggestJoin, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
+  freeTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED,
   MOVABLE, canMove, snapSlot, seatsOf, movedTables, moveCheck,
@@ -5682,6 +5771,19 @@ app.put('/api/settings', async (req, res) => {
   if (Array.isArray(b.durationByParty)) s.durationByParty = b.durationByParty.slice(0, 6).map(x => ({ upTo: Math.max(1, parseInt(x.upTo) || 1), minutes: Math.max(30, Math.min(360, parseInt(x.minutes) || 90)) })).sort((x, y) => x.upTo - y.upTo);
   if (b.maxPartySize !== undefined) s.maxPartySize = Math.max(1, Math.min(200, parseInt(b.maxPartySize) || 12));
   if (b.seatSlack !== undefined) s.seatSlack = Math.max(0, Math.min(10, parseInt(b.seatSlack) || 0));
+  // Which tables push together. Two or more DISTINCT ids and nothing else —
+  // a one-table "combination" is a table, and the same id twice would count
+  // its seats and its occupancy twice. The ids are not checked against the
+  // floor plan here: the plan comes from the till and can change under us, so
+  // availability.js drops a combination naming a table that has gone rather
+  // than the settings losing it the next time the till is offline.
+  if (Array.isArray(b.tableCombos)) {
+    s.tableCombos = b.tableCombos.slice(0, 40).map((c, i) => ({
+      id: String((c && c.id) || 'tc' + (i + 1)).slice(0, 40),
+      tables: Array.isArray(c && c.tables) ? [...new Set(c.tables.filter(x => typeof x === 'string' && x).map(x => x.slice(0, 60)))].slice(0, 8) : [],
+      seats: Math.max(0, Math.min(200, parseInt(c && c.seats) || 0)),
+    })).filter(c => c.tables.length > 1);
+  }
   if (b.pacing) { s.pacing.maxCoversPer15 = Math.max(0, parseInt(b.pacing.maxCoversPer15) || 0); s.pacing.maxBookingsPer15 = Math.max(0, parseInt(b.pacing.maxBookingsPer15) || 0); }
   if (b.online) {
     const o = b.online;

@@ -1107,6 +1107,25 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .modal.full{border-radius:var(--r-surface);max-width:960px;margin:0 auto;height:100%;}
 }
 
+/* §§ SETTINGS IS A HUB, NOT A PILE
+   Twelve cards in one scroll is one wall — the POS link beside the colour
+   code beside the audit log, in no order at all. The till groups its admin
+   and drills in; the desk does the same one level shallower, because the
+   rail's Settings tile IS the category. So Settings opens the list of
+   GROUPS, and a group opens its cards.
+
+   ROWS AND NOT TILES: a group needs a LINE saying what is behind it — "The
+   room" alone does not tell you the colours are in there — and a tile has
+   nowhere to put one. It is the app's own Row, so nothing new is learnt. */
+.set-hub{max-width:640px;}
+.set-hub .row{padding-left:12px;}
+.set-chev{flex:none;display:flex;color:var(--charcoal-soft);}
+.set-chev svg{width:18px;height:18px;}
+/* The way back, and the name of where you are. One line above the cards,
+   not a bar: a bar would be a second piece of chrome under the top bar's. */
+.set-back{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.set-back .th{margin:0;}
+
 /* §§ The booking SHEET — in from the right, over the room
    Named bk-sheet, not sheet: `.sheet` is already the RUN sheet, the page for
    paper, and a modal that borrowed the name quietly inherited its 900px cap
@@ -3121,6 +3140,16 @@ const DEFAULT_SETTINGS = {
   ],
   maxPartySize: 12,
   seatSlack: 2,             // a table may have this many seats more than the party
+  // WHICH TABLES ACTUALLY PUSH TOGETHER. A fact about the furniture, so the
+  // only place it can come from is the venue — the till has no stored list
+  // either, its own "combine" being a live ticket merge a waiter does in the
+  // moment. Keyed on the POS's own table ids, so if the till ever grows a
+  // list this one is deleted rather than migrated.
+  //   [{ id, tables: [tableId, …], seats }]
+  // `seats` is STATED, not summed: two four-tops pushed together are usually
+  // eight and sometimes six, because the join eats a setting at each end. 0
+  // means nobody said, and availability.js falls back to the sum.
+  tableCombos: [],
   pacing: { maxCoversPer15: 0, maxBookingsPer15: 0 }, // 0 = off
   // What the venue has recoloured. A key here is a CSS custom property the
   // client re-points at boot; a key ABSENT (or '') means the stylesheet's own
@@ -3236,6 +3265,7 @@ function migrate(data) {
   // The loop above already gives an older store `exceptions: []`; this catches
   // a hand-edited or half-written file that has the key but not an array.
   if (!Array.isArray(s.exceptions)) s.exceptions = [];
+  if (!Array.isArray(s.tableCombos)) s.tableCombos = [];
   if (!s.statusColours || typeof s.statusColours !== 'object' || Array.isArray(s.statusColours)) s.statusColours = {};
   // The desk has no users any more — no sign-in, no PIN, nobody to pick. An
   // older store still carries the list, and a PIN that nothing checks is only
@@ -3599,10 +3629,19 @@ function autoAssign(ctx, day) {
   let around = live.filter(r => heldTables(r).length);
   const out = {};
   for (const r of loose) {
-    const t = suggestTable({ settings: ctx.settings, tables: ctx.tables, reservations: around },
-      day, hhmmOf(r.time), r.partySize, { duration: r.durationMin });
-    out[r.id] = t ? [t.id] : [];
-    if (t) around = around.concat([Object.assign({}, r, { tableId: t.id, tableIds: [] })]);
+    const sub = { settings: ctx.settings, tables: ctx.tables, reservations: around };
+    const t = suggestTable(sub, day, hhmmOf(r.time), r.partySize, { duration: r.durationMin });
+    // A NINE HAD NO PICK AT ALL until combinations existed: nothing single
+    // fits it, so the book and the floor both carried a hole where the
+    // biggest party of the night should have been. A stated combination is
+    // laid out the same way one table is — and only a STATED one, never the
+    // old guess, because a pick nobody asked for that puts a nine on two
+    // tables at opposite ends of the room is worse than the hole was.
+    const ids = t ? [t.id] : (combosOf(ctx).length
+      ? ((freeCombos(sub, day, hhmmOf(r.time), r.partySize, { duration: r.durationMin })[0] || {}).tables || [])
+      : []);
+    out[r.id] = ids.slice();
+    if (ids.length) around = around.concat([Object.assign({}, r, { tableId: ids[0], tableIds: ids.slice(1) })]);
   }
   return out;
 }
@@ -3761,8 +3800,58 @@ function coverFlow(ctx, day, opts) {
   };
 }
 
+// §§ COMBINATIONS — which tables actually push together
+//
+// WHICH TWO TABLES MAKE A SIX IS A FACT ABOUT THE FURNITURE, and the only
+// place it can come from is the venue. The desk used to guess: any free
+// tables whose seats added up, biggest first, which would happily join table
+// 1 by the door to table 46 across the room and offer the six o'clock it
+// cannot actually seat. The till cannot answer it either — its own "combine"
+// is a live ticket merge a waiter does in the moment, not a stored list — so
+// there is nothing to read and no second source to invent. It lives here,
+// in the settings, keyed on the POS's own table ids so that if the till ever
+// grows a list of its own this one is deleted rather than migrated.
+//
+//   settings.tableCombos = [{ id, tables: [tableId, …], seats }]
+//
+// SEATS IS STATED, not summed. Two four-tops pushed together are usually
+// eight and sometimes six, because the join eats a setting at each end, and
+// the sum cannot know which. It falls back to the sum for a combination
+// somebody added and never numbered.
+function combosOf(ctx) {
+  const ids = new Set((ctx.tables || []).map(t => t.id));
+  return (((ctx.settings || {}).tableCombos) || [])
+    .filter(c => c && Array.isArray(c.tables) && c.tables.length > 1 && c.tables.every(id => ids.has(id)));
+}
+function comboSeats(ctx, combo) {
+  return combo.seats > 0 ? combo.seats : seatsOf(ctx, combo.tables);
+}
+// The combinations whose every table is free at this time and which seat the
+// party, tightest first.
+//
+// SEATING THEM IS THE WHOLE TEST — there is no seatSlack here, deliberately.
+// The slack stops a single ten-top being wasted on a two, because a smaller
+// table was there all along. A combination is not wasted, it is BUILT: it
+// only ever gets asked when no single table fits, so the alternative to
+// putting a nine on a twelve is not a better table, it is turning them away.
+// The tightest-first sort is what keeps it from taking more of the room than
+// it has to.
+function freeCombos(ctx, day, hhmm, party, opts) {
+  const free = new Set(freeTables(ctx, day, hhmm, party, opts).map(t => t.id));
+  return combosOf(ctx)
+    .filter(c => c.tables.every(id => free.has(id)) && comboSeats(ctx, c) >= party)
+    .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length));
+}
+
 // Two or more free tables that together seat the party (a joined booking).
+// A stated combination when the venue has stated any; the old guess when it
+// has not, so a desk that has just been updated goes on offering big parties
+// the times it always did until somebody sets the real ones down.
 function suggestJoin(ctx, day, hhmm, party, opts) {
+  if (combosOf(ctx).length) {
+    const c = freeCombos(ctx, day, hhmm, party, opts)[0];
+    return c ? c.tables.map(id => (ctx.tables || []).find(t => t.id === id)) : null;
+  }
   const free = freeTables(ctx, day, hhmm, party, opts).sort((a, b) => b.seats - a.seats);
   const pick = [];
   let seats = 0;
@@ -4276,7 +4365,7 @@ function runSheet(ctx, day, opts) {
 module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, suggestTable, suggestJoin, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
+  freeTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED,
   MOVABLE, canMove, snapSlot, seatsOf, movedTables, moveCheck,
@@ -5688,6 +5777,19 @@ app.put('/api/settings', async (req, res) => {
   if (Array.isArray(b.durationByParty)) s.durationByParty = b.durationByParty.slice(0, 6).map(x => ({ upTo: Math.max(1, parseInt(x.upTo) || 1), minutes: Math.max(30, Math.min(360, parseInt(x.minutes) || 90)) })).sort((x, y) => x.upTo - y.upTo);
   if (b.maxPartySize !== undefined) s.maxPartySize = Math.max(1, Math.min(200, parseInt(b.maxPartySize) || 12));
   if (b.seatSlack !== undefined) s.seatSlack = Math.max(0, Math.min(10, parseInt(b.seatSlack) || 0));
+  // Which tables push together. Two or more DISTINCT ids and nothing else —
+  // a one-table "combination" is a table, and the same id twice would count
+  // its seats and its occupancy twice. The ids are not checked against the
+  // floor plan here: the plan comes from the till and can change under us, so
+  // availability.js drops a combination naming a table that has gone rather
+  // than the settings losing it the next time the till is offline.
+  if (Array.isArray(b.tableCombos)) {
+    s.tableCombos = b.tableCombos.slice(0, 40).map((c, i) => ({
+      id: String((c && c.id) || 'tc' + (i + 1)).slice(0, 40),
+      tables: Array.isArray(c && c.tables) ? [...new Set(c.tables.filter(x => typeof x === 'string' && x).map(x => x.slice(0, 60)))].slice(0, 8) : [],
+      seats: Math.max(0, Math.min(200, parseInt(c && c.seats) || 0)),
+    })).filter(c => c.tables.length > 1);
+  }
   if (b.pacing) { s.pacing.maxCoversPer15 = Math.max(0, parseInt(b.pacing.maxCoversPer15) || 0); s.pacing.maxBookingsPer15 = Math.max(0, parseInt(b.pacing.maxBookingsPer15) || 0); }
   if (b.online) {
     const o = b.online;
@@ -7122,6 +7224,8 @@ const state = {
   // arrives — the floor is left exactly as it was until then, so there is no
   // moment where the room is on screen doing nothing.
   picking: null,
+  // Which Settings group is open; '' is the hub of groups itself.
+  setGroup: '',
   // The render gate for a live timeline drag, and nothing else about the
   // gesture (see §§ Timeline drag). The POS's own state._sortDragging.
   dragging: false,
@@ -9015,58 +9119,45 @@ function renderGuests() {
 
 // §§ Settings — manager only
 function switchHtml(on, act, val) { return `<button type="button" class="switch${on ? ' on' : ''}" data-act="${act}" data-val="${val || ''}" data-on="${on ? '1' : '0'}" role="switch" aria-checked="${on}"><span class="knob"></span></button>`; }
+// §§ SETTINGS IS A HUB, NOT A PILE
+// Twelve cards in one scroll is not twelve settings, it is one wall — the POS
+// link beside the colour code beside the audit log, in no order at all, and
+// the thing you came for is somewhere in the middle of it. The till answers
+// this by grouping its admin and drilling in, and the desk answers it the
+// same way, one level shallower: the rail's Settings tile IS the category, so
+// what it opens is the list of GROUPS and what a group opens is its cards.
+//
+// The order is the till's own rule — how often each job comes up in a working
+// day. The POS link and the audit log are set once and read twice a year; the
+// sittings and the room are tuned all season.
+const SET_GROUPS = [
+  ['bookings', 'Bookings', 'How long a table is held, how fast the night fills, and what the online form will take'],
+  ['room', 'The room', 'Which tables push together, the colours the night is drawn in, and the floor plan when no till is linked'],
+  ['venue', 'The venue', 'Its name, when it serves, and the dates that break the weekly pattern'],
+  ['till', 'The till', 'The link to restaurant-pos, and the set menus that come across it'],
+  ['data', 'This machine', 'Where the data lives, and what has been done on it'],
+];
+function setGroupOf(k) { return SET_GROUPS.find(g => g[0] === k) || null; }
+// A combination's seats, the same fallback availability.js makes: what the
+// venue stated, or what the tables have between them.
+function av2ComboSeats(c) {
+  if (c.seats > 0) return c.seats;
+  return (c.tables || []).reduce((n, id) => n + (((tableById(id) || {}).seats) || 0), 0);
+}
 function renderSettings() {
   const s = state.settings, p = s.pos, ps = state.posStatus || {};
   const linkedFloor = p.enabled && p.baseUrl && p.useFloor !== false;
   const origin = location.origin;
-  return `<div class="cards">
-    <div class="settings-card">
-      <div class="th">POS link</div>
-      <div class="ts">Point this at the computer running restaurant-pos. Tables, the venue name and the look all come from there, and every booking shows on the till's floor.</div>
-      <label class="field-label" for="pos-url">POS address</label>
-      <input id="pos-url" type="url" value="${esc(p.baseUrl)}" placeholder="http://192.168.1.42:3000" data-field="settings.pos.baseUrl" data-save="pos">
-      <div class="inline" style="margin-top:8px;">
-        <button class="btn" data-act="pos-test">Test</button>
-        <label class="toggle-row">${switchHtml(!!p.enabled, 'set-toggle', 'pos.enabled')} Link on</label>
-        <button class="btn" data-act="pos-sync" ${p.enabled ? '' : 'disabled'}>${I.refresh} Sync now</button>
-      </div>
-      <div class="kv" style="margin-top:8px;">
-        <b>Status</b><span>${!p.enabled ? 'Off' : ps.connected ? 'Connected' : 'Not reachable'}${ps.lastError ? ' — ' + esc(ps.lastError) : ''}</span>
-        <b>Last sync</b><span>${ps.lastSyncAt ? esc(fmtTime(ps.lastSyncAt)) : 'Never'}</span>
-        <b>On the till</b><span>${ps.linked || 0} bookings mirrored${ps.pendingDeletes ? ', ' + ps.pendingDeletes + ' deletions waiting' : ''}</span>
-      </div>
-      <label class="toggle-row">${switchHtml(p.pushBookings !== false, 'set-toggle', 'pos.pushBookings')} Send bookings to the till</label>
-      <label class="toggle-row">${switchHtml(p.useFloor !== false, 'set-toggle', 'pos.useFloor')} Use the POS floor plan</label>
-      <label class="toggle-row">${switchHtml(p.useOrders !== false, 'set-toggle', 'pos.useOrders')} Read what tables spent</label>
-      <label class="toggle-row">${switchHtml(p.useMenus !== false, 'set-toggle', 'pos.useMenus')} Use the POS's set menus</label>
-    </div>
-    <div class="settings-card">
-      <div class="th">Venue</div>
-      ${p.enabled && p.baseUrl ? '<div class="ts">The name and address come from the POS while it is linked; fill these in only to override.</div>' : ''}
-      <label class="field-label" for="venue-name">Name</label><input id="venue-name" type="text" value="${esc(s.venueName)}" data-field="settings.venueName" data-save="venue">
-      <label class="field-label" for="venue-phone">Phone (shown to guests)</label><input id="venue-phone" type="tel" value="${esc(s.venuePhone)}" data-field="settings.venuePhone" data-save="venue">
-      <label class="field-label" for="venue-address">Address</label><input id="venue-address" type="text" value="${esc(s.venueAddress)}" data-field="settings.venueAddress" data-save="venue">
-      <label class="field-label">Look</label>
-      ${p.enabled && p.baseUrl ? `<div class="ts">Follows the POS (Settings → Design there): ${esc(state.theme.mode)} mode, accent <span class="mono">${esc(state.theme.accent)}</span>.</div>` : `<div class="chips">${['auto', 'light', 'dark'].map(m => `<button class="chip${state.theme.mode === m ? ' active' : ''}" data-act="theme-mode" data-val="${m}">${m[0].toUpperCase() + m.slice(1)}</button>`).join('')}</div>`}
-    </div>
-    <div class="settings-card wide">
-      <div class="th">Services</div>
-      <div class="ts">When bookings are taken. A day with no service is closed.</div>
-      ${s.services.map((sv, i) => `<div class="svc-row">
-        <input type="text" value="${esc(sv.name)}" data-field="settings.services.${i}.name" data-save="services" aria-label="Service name">
-        <div class="days">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, di) => `<button class="chip${sv.days.includes(di) ? ' active' : ''}" data-act="svc-day" data-i="${i}" data-val="${di}">${d}</button>`).join('')}</div>
-        <div class="inline"><input type="time" value="${sv.start}" data-field="settings.services.${i}.start" data-save="services" aria-label="Start" style="width:120px;"> <span class="ts">to</span> <input type="time" value="${sv.end}" data-field="settings.services.${i}.end" data-save="services" aria-label="End" style="width:120px;"></div>
-        <button class="chip sq" data-act="svc-remove" data-i="${i}" aria-label="Remove service">${I.cross}</button>
-      </div>`).join('')}
-      <div class="inline"><button class="btn" data-act="svc-add">${I.plus} Add a service</button><span class="spacer"></span><span class="field-label" style="margin:0;">Bookings start every</span>${[15, 30].map(m => `<button class="chip${s.slotMinutes === m ? ' active' : ''}" data-act="set-num" data-key="slotMinutes" data-val="${m}">${m} min</button>`).join('')}</div>
-    </div>
-    <div class="settings-card wide">
-      <div class="th">Closed days &amp; special hours</div>
-      <div class="ts">A date that breaks the weekly pattern above — shut, or open different hours. Guests are told the note when they try to book.</div>
-      ${renderExceptions()}
-      <div><button class="btn" data-act="exc-add">${I.plus} Add a date</button></div>
-    </div>
-    <div class="settings-card">
+  const g = setGroupOf(state.setGroup);
+  // The hub. Rows and not tiles, because a group needs a LINE saying what is
+  // behind it — "The room" alone does not tell you the colours are in there —
+  // and a tile has nowhere to put one.
+  if (!g) return `<div class="rows set-hub">${SET_GROUPS.map(([k, label, says]) => `<div class="row" data-act="set-group" data-val="${esc(k)}">
+    <div class="body"><div class="t1">${esc(label)}</div><div class="t2">${esc(says)}</div></div>
+    <span class="set-chev">${I.right}</span>
+  </div>`).join('')}</div>`;
+  const cards = {
+    bookings: `    <div class="settings-card">
       <div class="th">Sittings</div>
       <div class="ts">How long a table is held. ${p.enabled && p.baseUrl ? 'The POS\'s sitting length (Table setup) sets the default while linked.' : ''}</div>
       <div class="grid2">
@@ -9101,8 +9192,8 @@ function renderSettings() {
       <label class="toggle-row">${switchHtml(!!s.online.holdTables, 'set-toggle', 'online.holdTables')} Online bookings take a table straight away</label>
       <label class="toggle-row">${switchHtml(!!s.online.notifyList, 'set-toggle', 'online.notifyList')} Offer a notify list when a day is full</label>
       <div class="inline" style="margin-top:8px;"><img class="qr" src="/connect.svg?to=book&host=${encodeURIComponent(origin)}" alt="QR code for the booking page"><div class="ts">Print this for the door or the counter. Guests scan it to book. It points at this computer's address, so it works on the venue wifi; a public address needs the router to forward it.</div></div>
-    </div>
-    ${linkedFloor ? '' : `<div class="settings-card wide">
+    </div>`,
+    room: `    ${linkedFloor ? '' : `<div class="settings-card wide">
       <div class="th">The room</div>
       <div class="ts">No POS floor is linked, so the floor lives here \u2014 and this IS the floor Service draws, the same drawing with the bookings left off. Drag a table to move it: the room a host reads tonight is the room you arrange now.</div>
       <div class="room-edit">
@@ -9113,6 +9204,19 @@ function renderSettings() {
         </div>
       </div>
     </div>`}
+    <div class="settings-card wide">
+      <div class="th">Table combinations</div>
+      <div class="ts">Which tables actually push together, and how many the result seats between them. Only the venue knows &mdash; the till has no list of its own, because its combine is a live ticket merge a waiter does in the moment. While none are set the desk guesses, and a guess will join a table by the door to one across the room.</div>
+      ${(s.tableCombos || []).length ? `<div class="rows">${(s.tableCombos || []).map((c, i) => `<div class="row" data-act="combo-edit" data-i="${i}">
+        <div class="cell">${av2ComboSeats(c)}<small>seats</small></div>
+        <div class="body">
+          <div class="t1">${(c.tables || []).map(id => esc(tableName(id))).join(' <i class="bl-plus">+</i> ')}</div>
+          <div class="t2">${c.seats > 0 ? 'Set by hand' : 'From the tables&rsquo; own seats'}</div>
+        </div>
+        <div class="actions"><button class="chip sq" data-act="combo-remove" data-i="${i}" data-stop="1" aria-label="Remove this combination">${I.cross}</button></div>
+      </div>`).join('')}</div>` : '<div class="ts">None yet.</div>'}
+      <div><button class="btn" data-act="combo-add">${I.plus} Add a combination</button></div>
+    </div>
     <div class="settings-card">
       <div class="th">Colours</div>
       <div class="ts">The venue's own colour code. The accent is not here — it comes from the POS with the rest of the look, and a second source for it is what POS-LINK.md forbids. Free tables and joined tables are not here either: free is the plain surface, joined is the accent ring.</div>
@@ -9124,6 +9228,52 @@ function renderSettings() {
           <span class="key-text"><b>${esc(label)}</b><span>${esc(colourOf(k) || 'Built-in')}</span></span>
         </div>`).join('')}`).join('')}
       <div><button class="btn" data-act="colours-reset">${I.refresh} Put them all back</button></div>
+    </div>`,
+    venue: `    <div class="settings-card">
+      <div class="th">Venue</div>
+      ${p.enabled && p.baseUrl ? '<div class="ts">The name and address come from the POS while it is linked; fill these in only to override.</div>' : ''}
+      <label class="field-label" for="venue-name">Name</label><input id="venue-name" type="text" value="${esc(s.venueName)}" data-field="settings.venueName" data-save="venue">
+      <label class="field-label" for="venue-phone">Phone (shown to guests)</label><input id="venue-phone" type="tel" value="${esc(s.venuePhone)}" data-field="settings.venuePhone" data-save="venue">
+      <label class="field-label" for="venue-address">Address</label><input id="venue-address" type="text" value="${esc(s.venueAddress)}" data-field="settings.venueAddress" data-save="venue">
+      <label class="field-label">Look</label>
+      ${p.enabled && p.baseUrl ? `<div class="ts">Follows the POS (Settings → Design there): ${esc(state.theme.mode)} mode, accent <span class="mono">${esc(state.theme.accent)}</span>.</div>` : `<div class="chips">${['auto', 'light', 'dark'].map(m => `<button class="chip${state.theme.mode === m ? ' active' : ''}" data-act="theme-mode" data-val="${m}">${m[0].toUpperCase() + m.slice(1)}</button>`).join('')}</div>`}
+    </div>
+    <div class="settings-card wide">
+      <div class="th">Services</div>
+      <div class="ts">When bookings are taken. A day with no service is closed.</div>
+      ${s.services.map((sv, i) => `<div class="svc-row">
+        <input type="text" value="${esc(sv.name)}" data-field="settings.services.${i}.name" data-save="services" aria-label="Service name">
+        <div class="days">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, di) => `<button class="chip${sv.days.includes(di) ? ' active' : ''}" data-act="svc-day" data-i="${i}" data-val="${di}">${d}</button>`).join('')}</div>
+        <div class="inline"><input type="time" value="${sv.start}" data-field="settings.services.${i}.start" data-save="services" aria-label="Start" style="width:120px;"> <span class="ts">to</span> <input type="time" value="${sv.end}" data-field="settings.services.${i}.end" data-save="services" aria-label="End" style="width:120px;"></div>
+        <button class="chip sq" data-act="svc-remove" data-i="${i}" aria-label="Remove service">${I.cross}</button>
+      </div>`).join('')}
+      <div class="inline"><button class="btn" data-act="svc-add">${I.plus} Add a service</button><span class="spacer"></span><span class="field-label" style="margin:0;">Bookings start every</span>${[15, 30].map(m => `<button class="chip${s.slotMinutes === m ? ' active' : ''}" data-act="set-num" data-key="slotMinutes" data-val="${m}">${m} min</button>`).join('')}</div>
+    </div>
+    <div class="settings-card wide">
+      <div class="th">Closed days &amp; special hours</div>
+      <div class="ts">A date that breaks the weekly pattern above — shut, or open different hours. Guests are told the note when they try to book.</div>
+      ${renderExceptions()}
+      <div><button class="btn" data-act="exc-add">${I.plus} Add a date</button></div>
+    </div>`,
+    till: `    <div class="settings-card">
+      <div class="th">POS link</div>
+      <div class="ts">Point this at the computer running restaurant-pos. Tables, the venue name and the look all come from there, and every booking shows on the till's floor.</div>
+      <label class="field-label" for="pos-url">POS address</label>
+      <input id="pos-url" type="url" value="${esc(p.baseUrl)}" placeholder="http://192.168.1.42:3000" data-field="settings.pos.baseUrl" data-save="pos">
+      <div class="inline" style="margin-top:8px;">
+        <button class="btn" data-act="pos-test">Test</button>
+        <label class="toggle-row">${switchHtml(!!p.enabled, 'set-toggle', 'pos.enabled')} Link on</label>
+        <button class="btn" data-act="pos-sync" ${p.enabled ? '' : 'disabled'}>${I.refresh} Sync now</button>
+      </div>
+      <div class="kv" style="margin-top:8px;">
+        <b>Status</b><span>${!p.enabled ? 'Off' : ps.connected ? 'Connected' : 'Not reachable'}${ps.lastError ? ' — ' + esc(ps.lastError) : ''}</span>
+        <b>Last sync</b><span>${ps.lastSyncAt ? esc(fmtTime(ps.lastSyncAt)) : 'Never'}</span>
+        <b>On the till</b><span>${ps.linked || 0} bookings mirrored${ps.pendingDeletes ? ', ' + ps.pendingDeletes + ' deletions waiting' : ''}</span>
+      </div>
+      <label class="toggle-row">${switchHtml(p.pushBookings !== false, 'set-toggle', 'pos.pushBookings')} Send bookings to the till</label>
+      <label class="toggle-row">${switchHtml(p.useFloor !== false, 'set-toggle', 'pos.useFloor')} Use the POS floor plan</label>
+      <label class="toggle-row">${switchHtml(p.useOrders !== false, 'set-toggle', 'pos.useOrders')} Read what tables spent</label>
+      <label class="toggle-row">${switchHtml(p.useMenus !== false, 'set-toggle', 'pos.useMenus')} Use the POS's set menus</label>
     </div>
     <div class="settings-card">
       <div class="th">Set menus${state.setMenusFromPos ? ' (from the POS)' : ''}</div>
@@ -9135,8 +9285,8 @@ function renderSettings() {
         ? state.setMenus.map(mn => `<div class="inline"><span style="flex:1;font-weight:700;">${esc(mn.name)}</span><span class="tag set">set menu</span></div>`).join('')
         : state.setMenus.map((mn, i) => `<div class="inline"><input type="text" value="${esc(mn.name)}" data-field="setMenus.${i}.name" data-save="setmenus" aria-label="Set menu name"><button class="chip sq sm-remove" data-act="set-menu-remove" data-i="${i}" aria-label="Remove ${esc(mn.name)}">${I.cross}</button></div>`).join('')
         + '<div><button class="btn" data-act="set-menu-add">' + I.plus + ' Add a set menu</button></div>'}
-    </div>
-    <div class="settings-card">
+    </div>`,
+    data: `    <div class="settings-card">
       <div class="th">Data</div>
       <div class="ts">Everything lives in <span class="mono">data/store.local.json</span> on this computer. A backup is written twice a day to <span class="mono">data/backups/</span>.</div>
       <div><a class="btn" href="/api/export" download>Download everything</a></div>
@@ -9144,7 +9294,11 @@ function renderSettings() {
     <div class="settings-card wide">
       <div class="th">Recent activity</div>
       <div class="audit">${state.audit.slice(0, 40).map(a => `<div><span class="mono">${esc(fmtStamp(a.timestamp))}</span><span>${esc(a.staffName)}</span><span>${esc(a.action)}</span></div>`).join('') || '<div class="ts">Nothing yet.</div>'}</div>
-    </div>
+    </div>`,
+  };
+  return `<div class="set-back"><button class="chip sq" data-act="set-group" data-val="" aria-label="Back to Settings">${I.left}</button><div class="th">${esc(g[1])}</div></div>
+  <div class="cards">
+${cards[g[0]]}
   </div>`;
 }
 
@@ -9209,9 +9363,42 @@ function renderModal() {
   if (m.kind === 'cal') return renderCalModal();
   if (m.kind === 'more') return renderMoreModal();
   if (m.kind === 'status') return renderStatusSheet();
+  if (m.kind === 'combo') return renderComboModal();
   if (m.kind === 'confirm') return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1"><h2>${esc(m.title)}</h2>${m.body ? `<div class="ts">${esc(m.body)}</div>` : ''}<div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Cancel</span></button><button class="icon-action ${m.danger ? 'discard' : 'send'}" data-act="confirm-yes">${m.danger ? I.trash : I.tick}<span class="ia-label">${esc(m.yes || 'Yes')}</span></button></div></div></div>`;
   return '';
 }
+// §§ WHICH TABLES PUSH TOGETHER
+// The room's own list with a tick on each, the way the booking's Table page
+// asks the same question — a combination is just that question asked twice or
+// more. SEATS is a number the venue types, because two four-tops pushed
+// together are usually eight and sometimes six: the join eats a setting at
+// each end and nothing on either side of the link can know which. Left empty
+// it follows the tables' own seats, and says so.
+function renderComboModal() {
+  const m = state.modal, c = m.c, picked = c.tables;
+  const sum = picked.reduce((n, id) => n + (((tableById(id) || {}).seats) || 0), 0);
+  return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1">
+    <h2>${m.i < 0 ? 'New combination' : 'Combination'}${picked.length > 1 ? ` <span class="tag mono">${picked.map(id => esc(tableName(id))).join(' + ')}</span>` : ''}</h2>
+    <div class="bk-form">
+      <div><label class="field-label" for="combo-seats">Seats together</label>
+        <!-- Left empty it follows the tables' own seats, which is what the
+             placeholder is already showing — so there is no second line
+             saying so, and nothing on screen to go stale between keystrokes. -->
+        <input id="combo-seats" type="number" min="0" max="200" placeholder="${sum}" value="${c.seats || ''}" data-field="modal.c.seats"></div>
+    </div>
+    <label>Tables</label>
+    <div class="bk-pick">${state.tables.map(t => {
+    const on = picked.includes(t.id);
+    return `<button class="bk-opt${on ? ' on' : ''}" data-act="combo-table" data-val="${esc(t.id)}">
+        <span class="bk-opt-mark"><i class="fl-dot"></i></span>
+        <span class="bk-opt-text"><b>${esc(t.name || String(t.label))} <span class="bk-seats">${t.seats} seats</span></b></span>
+        ${on ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
+      </button>`;
+  }).join('')}</div>
+    ${actionKeys({ saveAct: 'combo-save', saveLabel: 'Save' })}
+  </div></div>`;
+}
+
 // §§ THE STATUS SLIDES OUT OVER THE ROOM
 // Pressed from a row's status key. It is the booking SHEET's own landing —
 // in from the right, on the seam, the book still readable beside it — because
@@ -9838,6 +10025,7 @@ async function flushSaves() {
       if (g === 'pacing') body.pacing = s.pacing;
       if (g === 'online') body.online = s.online;
       if (g === 'colours') body.statusColours = s.statusColours;
+      if (g === 'combos') body.tableCombos = s.tableCombos;
       state.settings = await put('/api/settings', body);
       if (g === 'colours') applyStatusColours();
       if (g === 'pos') { state.posStatus = await api('/api/pos/status'); const t = await api('/api/tables'); state.tables = t.tables; state.floorPlans = t.floorPlans; }
@@ -10128,6 +10316,42 @@ document.addEventListener('click', async (ev) => {
       case 'pos-test': { const url = state.settings.pos.baseUrl; toast('Testing…'); try { const r = await post('/api/pos/test', { baseUrl: url }); toast(`Connected to ${r.venueName || 'the POS'}`); } catch (e) { toastBad(e.message, 4000); } break; }
       case 'pos-sync': { toast('Syncing…'); try { const r = await post('/api/pos/sync'); toast(`Synced: ${r.pushed} sent, ${r.imported} imported, ${r.patched} updated`); await loadView(); render(); } catch (e) { toastBad(e.message, 4000); } break; }
       case 'svc-day': { const sv = state.settings.services[parseInt(el.dataset.i)]; const d = parseInt(val); const i = sv.days.indexOf(d); if (i >= 0) sv.days.splice(i, 1); else sv.days.push(d); render(); queueSave('services'); break; }
+      // §§ SETTINGS' GROUPS AND THE COMBINATIONS
+      case 'set-group': state.setGroup = val || ''; render(); break;
+      case 'combo-add': {
+        if (!Array.isArray(state.settings.tableCombos)) state.settings.tableCombos = [];
+        state.modal = { kind: 'combo', i: -1, c: { id: 'tc' + Date.now().toString(36), tables: [], seats: 0 } };
+        render(); break;
+      }
+      case 'combo-edit': {
+        const i = parseInt(el.dataset.i);
+        const c = (state.settings.tableCombos || [])[i];
+        if (!c) { toastBad('That combination has gone'); break; }
+        state.modal = { kind: 'combo', i, c: JSON.parse(JSON.stringify(c)) };
+        render(); break;
+      }
+      case 'combo-remove': {
+        state.settings.tableCombos.splice(parseInt(el.dataset.i), 1);
+        render(); queueSave('combos'); break;
+      }
+      // A combination is a SET, so a table is in it or it is not — the tick
+      // toggles, and the order is the room's, never the order they were
+      // tapped in, so the same two tables always read the same way round.
+      case 'combo-table': {
+        const c = state.modal.c, has = c.tables.includes(val);
+        c.tables = has ? c.tables.filter(x => x !== val)
+          : state.tables.filter(t => c.tables.includes(t.id) || t.id === val).map(t => t.id);
+        render(); break;
+      }
+      case 'combo-save': {
+        const m = state.modal;
+        // Two is what makes it a combination: one table is a table, and the
+        // server drops a one-table row anyway, so refusing here is the only
+        // way the person finds out rather than watching it vanish.
+        if (m.c.tables.length < 2) { toastBad('A combination is two tables or more'); break; }
+        if (m.i < 0) state.settings.tableCombos.push(m.c); else state.settings.tableCombos[m.i] = m.c;
+        state.modal = null; render(); queueSave('combos'); break;
+      }
       case 'svc-add': state.settings.services.push({ id: 'sv' + Date.now(), name: 'Service', days: [0, 1, 2, 3, 4, 5, 6], start: '17:00', end: '21:30' }); render(); queueSave('services'); break;
       case 'svc-remove': state.settings.services.splice(parseInt(el.dataset.i), 1); render(); queueSave('services'); break;
       case 'exc-add': { const ex = { id: 'ex' + Date.now().toString(36), date: state.date, closed: true, note: '', services: [] }; state.modal = { kind: 'exception', ex, isNew: true, error: '' }; render(); break; }
