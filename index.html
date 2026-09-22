@@ -11353,6 +11353,12 @@ function openTill(tableId) {
   // the `in` test passes and the property access is what fails — a rejected
   // promise is not the failure mode here and .catch() never sees it. The
   // offline shell is a nicety; nothing is allowed to fall over for it.
-  try { if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
+  // NO SERVICE WORKER. It cached the shell and a deploy could be live while
+  // the device drew the page from before it — a removed button kept coming
+  // back, and the cure was a hard refresh, which is not a thing you can do on
+  // a phone. sw.js is a kill switch now: registering it again would only
+  // delete itself. The desk runs on the venue's own wifi against its own
+  // server, so there was never much offline to keep.
+  try { if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then((rs) => rs.forEach((r) => r.unregister())).catch(() => {}); } catch (e) {}
 })();
 </script>

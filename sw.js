@@ -1,30 +1,36 @@
-// Preview service worker: NETWORK-FIRST, so every deploy reaches the device
-// on its next launch and the cached copy only answers when the network is
-// down. The preview's API is an in-page shim, so no data ever passes through
-// here — only the shell.
-const CACHE = 'resv-preview-v2';
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(['./'])).catch(() => {}));
-  self.skipWaiting();
-});
+// Preview service worker: a KILL SWITCH, and nothing else.
+//
+// It used to cache the shell network-first, which sounds harmless and was
+// not: a plain fetch() goes through the browser's own HTTP cache, so a deploy
+// could be live for an hour while the device drew the page from before it,
+// with nothing on screen to say so. A removed button kept coming back, and
+// the only cure was a hard refresh — which is not a thing you can do on a
+// phone. A preview that can lie about what is deployed is worse than a
+// preview with no offline support, and offline is not what a preview is for.
+//
+// So this worker's whole job is to delete every cache, unregister itself and
+// send the open windows back to the network. A browser re-checks a worker
+// SCRIPT on navigation without going through the HTTP cache, so this reaches
+// a device that is otherwise stuck, on its next open, with nobody touching
+// anything. The registration is gone from the page too, so once it has run
+// there is no worker here at all.
+self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => {
-  e.waitUntil(caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim()));
-});
-self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-  e.respondWith(
-    // NETWORK-FIRST IS NOT FRESH-FIRST. GitHub Pages serves the shell with a
-    // max-age, and a plain fetch() goes through the browser's own HTTP cache
-    // first — so a deploy could be live and the device still drawing the page
-    // from ten minutes ago, with no way to tell. The shell is asked for with
-    // no-store; everything else may come from the HTTP cache as usual.
-    fetch(e.request, e.request.mode === 'navigate' ? { cache: 'no-store' } : undefined).then((res) => {
-      if (res.ok && new URL(e.request.url).origin === self.location.origin) {
-        const copy = res.clone();
-        caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+  e.waitUntil((async () => {
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map((k) => caches.delete(k)));
+    } catch (err) {}
+    try { await self.registration.unregister(); } catch (err) {}
+    try {
+      const open = await self.clients.matchAll({ type: 'window' });
+      // navigate() where it exists, because it lands on the network with no
+      // worker left to answer; a bare reload can still be served by this one.
+      for (const c of open) {
+        try { await c.navigate(c.url); } catch (err) { try { c.postMessage('reload'); } catch (e2) {} }
       }
-      return res;
-    }).catch(() => caches.match(e.request, { ignoreSearch: true })
-      .then((hit) => hit || (e.request.mode === 'navigate' ? caches.match('./') : undefined)))
-  );
+    } catch (err) {}
+  })());
 });
+// Answer nothing. With no fetch handler the browser goes straight to the
+// network, so even the moment before this worker dies is honest.
