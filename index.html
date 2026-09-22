@@ -1018,7 +1018,11 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-row.selected{background:var(--pick-wash);box-shadow:inset var(--ring) 0 0 0 var(--orange);}
 /* The row proper: a KEY at each end and the name between them — where it is
    up to, when and who, how many, and which table. */
-.bl-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:54px;padding:8px 4px 8px 4px;
+/* THE COVERS ARE NOT PART OF THE TABLE. Four pixels between a mono number
+   and a mono number in a box read as one field — "2 21" — and the two say
+   completely different things. Twelve is the row's own step, the same air the
+   table keys keep from the row's right edge. */
+.bl-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:54px;padding:8px 12px 8px 4px;
   background:none;border:none;text-align:left;cursor:pointer;}
 .bl-main .st-dot{width:16px;height:16px;flex:0 0 16px;margin-right:0;}
 /* THE STATUS IS A KEY, NOT A DOT. Where a booking is up to is the thing a
