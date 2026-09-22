@@ -1158,6 +1158,13 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    for a resize. BOOKINGS is the exception the rule needed: the list is that
    section's whole reason, so it is the one other mode the column survives. */
 @media (min-width:761px){ .desk:not(.mode-floor):not(.mode-book) > .desk-col{display:none;} }
+/* AND ON A PHONE THE FLOOR TAKES THE WHOLE PANE TOO. The book was stacked
+   over the room down there for one reason: it had nowhere else to be, so it
+   bought its way onto the floor with 38vh off the top of the drawing — a
+   room in a 340-pixel letterbox with the night's list sitting on it. It has
+   somewhere else to be now. Bookings is one press away on the bar, so the
+   floor is the floor: the whole pane, the full 560, nothing above it. */
+@media (max-width:760px){ .desk:not(.mode-book) > .desk-col{display:none;} }
 /* AND BOOKINGS IS THAT BOOK WITH THE ROOM TAKEN AWAY. It is the only section
    whose column is the WHOLE desk, so it drops the seam it has nothing to sit
    beside and the cap that only ever existed to leave the room some height.
@@ -1247,11 +1254,13 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .desk-main .fl-room{height:auto;width:var(--fl-w, 900px);min-width:var(--fl-w, 900px);max-width:none;}
   .fl-stage{width:auto;height:auto;}
 }
-/* STACKED IS STACKED AT EVERY WIDTH. The book took 38vh and gave the rest to
-   the room from 761 to 900, and below that it took whatever it wanted —
-   which on a phone is the whole pane, with the room a sliver under it. The
-   cap belongs to the STACK, not to the tablet: wherever the two are one above
-   the other, the book gets its 38 and the room gets the rest. */
+/* A TABLET STACKS, A PHONE CHOOSES. From 761 to 900 the desk is one column
+   and the book takes 38vh of it, leaving the rest to the room — there is
+   height enough for both, and the pair is what Floor is for. Below 760 there
+   is not, so the floor takes the pane and the book is its own tile (see the
+   phone rule above .desk-main). The cap belongs to the STACK, not to the
+   tablet: wherever the two ARE one above the other, the book gets its 38 and
+   the room gets the rest — and below 760 there is no stack to cap. */
 @media (max-width:900px){
   .desk-col{max-height:38vh;overflow-y:auto;}
 }
