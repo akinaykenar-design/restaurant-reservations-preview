@@ -8966,10 +8966,15 @@ function renderTimeline() {
 // paid one stands with the seated because it is still in the chair. What the
 // finer word buys you is the ROW, which says it, and the floor, which paints
 // it.
+// SOME SEATED IS STILL UPCOMING. Part of the party is down and the rest are
+// still coming, so the desk has not finished with them — and a booking in
+// Seated is one the host has stopped watching. It sits at the TOP of
+// Upcoming, above the ones nobody has seen, because it is the one in that
+// group with people already in the room.
 const LIST_GROUPS = [
   ['arrived',   'Arrived',   ['part-arrived', 'arrived']],
-  ['upcoming',  'Upcoming',  ['booked', 'confirmed']],
-  ['seated',    'Seated',    ['part-seated', 'seated', 'check', 'paid']],
+  ['upcoming',  'Upcoming',  ['part-seated', 'booked', 'confirmed']],
+  ['seated',    'Seated',    ['seated', 'check', 'paid']],
   ['done',      'Left',      ['done']],
   ['no-show',   'No-show',   ['no-show']],
   ['cancelled', 'Cancelled', ['cancelled']],
@@ -9060,7 +9065,11 @@ function renderDayList() {
   return find + `<div class="bl">
     <div class="bl-head total"><span class="bl-h-name">${q.on ? 'Found' : 'Total'}</span><span class="bl-h-n">${live.length} <i>(${coversOf(live)})</i></span></div>
     ${LIST_GROUPS.map(([key, name, statuses]) => {
-      const list = rows.filter(r => statuses.includes(r.status));
+      // The group's own order, then the day's: part-seated first in Upcoming
+      // and everything else as it comes. `statuses` IS the order, so a group
+      // is re-ordered by moving a word in the list above.
+      const list = rows.filter(r => statuses.includes(r.status))
+        .sort((a, b) => statuses.indexOf(a.status) - statuses.indexOf(b.status));
       return head(key, name, list) + (state.listShut[key] || !list.length ? '' : `<div class="bl-rows">${list.map(row).join('')}</div>`);
     }).join('')}
   </div>`;
