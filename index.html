@@ -8175,7 +8175,12 @@ function renderDeck() {
   const svcs = servicesInOrderOn(state.date);
   const on = pickedService();
   // Lit when you are already there: tonight, on whatever is running.
-  const isNow = state.date === tradingDay() && (state.service || '') === defaultService(tradingDay());
+  // LIT ONLY WHEN YOU ARE ACTUALLY THERE. The key takes you to tonight, the
+  // service the clock is in, AND the floor, so all three have to hold for it
+  // to say you have arrived — a key glowing on the run sheet is the bar
+  // claiming a place you are not standing in.
+  const isNow = state.date === tradingDay() && (state.service || '') === defaultService(tradingDay())
+    && state.view === 'today' && state.todayMode === 'floor';
   // NO FALLBACK. This read `(on || svcs[0]).name`, so a desk with no service
   // picked printed the first one's name and looked settled while every other
   // screen was showing the whole night. A label that names a thing that is
@@ -10586,6 +10591,14 @@ document.addEventListener('click', async (ev) => {
       case 'now': {
         state.date = tradingDay();
         state.service = defaultService(state.date);
+        // AND IT PUTS YOU IN THE ROOM. Now is the way BACK, and back is the
+        // floor: it is what a host returns to forty times a shift and the one
+        // screen that answers "where are we right now". Setting the night and
+        // the service while leaving you on the guest book or the run sheet is
+        // half a way back, and it left the key lit on a screen that has no
+        // now in it.
+        state.view = 'today';
+        state.todayMode = 'floor';
         state.highlightTable = null; state.picking = null; state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0;
         render();
         await loadDay();
