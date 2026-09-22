@@ -2,13 +2,21 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Reservations — Preview</title>
-<!-- Installable: Add to Home Screen gives a fullscreen front desk with its
-     own icon. The service worker is network-first, so a new deploy reaches
-     the device on next launch. -->
+<!-- INSTALLABLE ON A PHONE, which is where the rail lies down as a bar at
+     the foot: Add to Home Screen gives the desk its own icon and opens it
+     with no browser chrome, so the bar is the only bar on the screen.
+     Chrome will not offer to install without a 192 and a 512 PNG, and iOS
+     ignores the manifest's icons entirely and reads apple-touch-icon — the
+     manifest carried an empty `icons` list, so neither ever offered.
+     The icon is the VENUE'S OWN MARK, the same one the top bar's Now key
+     wears: a table seen end on. `standalone` and not `fullscreen`, because
+     fullscreen hides the status bar and a host at the pass wants the time. -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Bookings">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="theme-color" content="#E9E6DF">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2333352F' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='3'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E">
 
