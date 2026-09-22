@@ -1702,8 +1702,16 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
      sits OUTSIDE .rail-scroll and the scroll ends where the foot begins. The
      same two boxes do the same two jobs lying down: the scroll takes the
      room that is left and the foot takes its square at the end of it. */
+  /* AND LYING DOWN IT DOES NOT SNAP. Standing up a snap is right: the column
+     has room for four tiles and a bit, and an unsnapped rest leaves the
+     blank top of a fifth showing as if it were something. Under a THUMB it
+     is the opposite — a flick wants to coast and a mandatory snap catches it
+     mid-glide and yanks it to the nearest tile, which reads as the bar
+     fighting the finger. The nine tiles are 88 apart on a 390 screen, so
+     there is nothing to line up with anyway. */
   .rail-scroll{flex:1 1 auto;min-width:0;min-height:0;flex-direction:row;
-    overflow-x:auto;overflow-y:visible;scroll-snap-type:x mandatory;}
+    overflow-x:auto;overflow-y:visible;scroll-snap-type:none;
+    -webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;}
   /* Every tile a flex child of the SCROLLER, not of a box inside it —
      otherwise the two groups share the row and the tiles divide what is left
      of it. */
