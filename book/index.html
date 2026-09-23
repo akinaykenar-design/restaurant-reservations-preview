@@ -657,6 +657,54 @@ label.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;font-si
    the success colour. */
 .toast .dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none;}
 .toast .dot.bad{background:var(--red-btn);}
+/* §§ WELCOME BACK — the line a host says at the door (renderWelcome()).
+   It wears the VIP MARK'S OWN COLOURS: --st-due under --tbl-num-ink, the
+   gold chip the floor puts in a VIP table's corner and the Marks lens puts
+   under it. One gold for "somebody the house knows", wherever it is drawn —
+   a second gold for the card would be the desk calling one thing two
+   colours. The disc and the badge ARE that chip; the card is a wash of it on
+   the paper, and in dark only a breath of it, because gold mixed into slate
+   is olive and olive is nobody's colour.
+   It sits at the foot of the BOOK, where the eye already is when the key
+   that marked them arrived was pressed, and it is the book's width so it
+   never lands on the room. */
+/* The card stands on a DOCK of the book's own paper, flush to the column and
+   to its seam: floating on its own, the rows behind it showed through the
+   gutters round it and a half row peeked out underneath. */
+.wb{position:fixed;left:var(--rail-w);bottom:0;width:calc(var(--deskcol-w) - 1px);padding:8px;
+  background:var(--surface);z-index:var(--z-toast);animation:wb-rise .32s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--wb-gone);}
+@keyframes wb-rise{from{transform:translateY(24px);opacity:0;}to{transform:none;opacity:1;}}
+.wb-card{position:relative;display:block;width:100%;margin:0;padding:16px 52px 16px 16px;text-align:left;
+  font:inherit;color:var(--text-primary);cursor:pointer;overflow:hidden;border-radius:var(--r-surface);
+  border:1px solid color-mix(in srgb, var(--st-due) 55%, var(--surface));
+  background:color-mix(in srgb, var(--st-due) 13%, var(--surface));box-shadow:var(--lift-1);}
+.wb-head{display:flex;align-items:center;gap:12px;}
+.wb-disc{flex:none;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--st-due);color:var(--tbl-num-ink);font-size:var(--fs-num);font-weight:800;}
+.wb-id{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.wb-name{display:flex;align-items:center;gap:8px;min-width:0;font-size:var(--fs-xl);line-height:1.2;}
+.wb-name b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wb-vip{flex:none;display:inline-flex;align-items:center;gap:4px;padding:2px 8px 2px 6px;border-radius:var(--r-pill);
+  background:var(--st-due);color:var(--tbl-num-ink);font-size:var(--fs-md);font-weight:700;}
+.wb-vip svg{width:14px;height:14px;fill:currentColor;}
+.wb-hello{font-size:var(--fs-md);font-weight:600;color:var(--text-secondary);}
+.wb-facts{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
+.wb-facts li{display:flex;align-items:flex-start;gap:10px;font-size:var(--fs-lg);line-height:1.35;}
+.wb-facts li span{min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.wb-facts svg{flex:none;width:20px;height:20px;color:color-mix(in srgb, var(--st-due) 70%, var(--text-primary));}
+/* It goes by itself, and the time it has left runs out along its own foot. */
+.wb-timer{position:absolute;left:0;bottom:0;width:100%;height:4px;background:var(--st-due);transform-origin:left;
+  animation:wb-run var(--wb-ms) linear both;animation-delay:var(--wb-gone);}
+@keyframes wb-run{from{transform:scaleX(1);}to{transform:scaleX(0);}}
+.wb-x{position:absolute;top:12px;right:12px;width:var(--tap);height:var(--tap);display:flex;align-items:center;
+  justify-content:center;padding:0;border:none;border-radius:var(--r-btn);background:none;color:var(--text-primary);cursor:pointer;}
+.wb-x svg{width:20px;height:20px;}
+body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--st-due) 6%, var(--surface));}
+@media (prefers-reduced-motion:reduce){ .wb{animation:none;} }
+/* A phone has no book column: the card takes the width, clear of the bar. */
+@media (max-width:760px){
+  .wb{left:0;right:0;width:auto;bottom:calc(var(--rail-w) + var(--ring) + env(safe-area-inset-bottom, 0px));}
+}
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--charcoal);color:#fff;padding:12px 20px;border-radius:var(--r-pill);font-weight:600;font-size:var(--fs-md);z-index:var(--z-toast);display:flex;align-items:center;gap:8px;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:var(--lift-1);}
 body[data-theme="dark"] .toast{background:#EDE6D6;color:#26231F;}
 
@@ -5237,6 +5285,57 @@ function birthdaySoon(g, today) {
   return n !== null && n <= BIRTHDAY_WINDOW;
 }
 
+// §§ Welcome back
+// The line a host says at the door, worked out from the book the moment a
+// party arrives. Pure, like the rest of this file: `today` is never read off
+// a clock, it is the booking's own day, so a test can hold every word.
+//
+// A guest with no sitting before this one gets NOTHING unless they are
+// tagged for the floor: "welcome back" to somebody who has never been is a
+// lie, and the ordinary arrival toast is the right answer for them. A VIP on
+// a first visit still gets the card, because being told who is at the door is
+// the whole reason a VIP tag exists.
+//
+// A visit is a sitting that HAPPENED before this booking's own time — the
+// same test recountGuest() uses (sat, or left) — so a party that booked
+// twice this week and has not come yet is not a regular.
+function welcomeFor(g, bookings, r) {
+  if (!g || !r || !r.time) return null;
+  // Matched on a phone or an email, NEVER a name — personKey()'s rule. The
+  // book still files a phoneless booking under its name, so every "Walk-in"
+  // and every Smith who left no number would share one card, and the desk
+  // would greet a stranger with somebody else's fifty visits.
+  if (!personKey(g)) return null;
+  const day = String(r.time).slice(0, 10);
+  const before = (bookings || [])
+    .filter(b => b && b.id !== r.id && b.time && b.time < r.time && (av.isSat(b) || b.status === 'done'))
+    .sort((a, b) => b.time.localeCompare(a.time));
+  const vipTag = ((g.tags || []).concat(r.tags || [])).find(t => VIP_TAGS.includes(fold(t))) || '';
+  if (!before.length && !vipTag) return null;
+  const lastDay = before.length ? before[0].time.slice(0, 10) : null;
+  const daysBetween = (a, b) => {
+    const p = dobParts(a), q = dobParts(b);
+    return Math.round((Date.UTC(q.year, q.month - 1, q.day) - Date.UTC(p.year, p.month - 1, p.day)) / 86400000);
+  };
+  const bday = daysToBirthday(g.dob, day);
+  // The occasion is THIS booking's: a tag the desk ticked, then the words it
+  // wrote. The guest's own notes are a different thing — what is true of them
+  // every time — and ride on their own line.
+  const occasion = (r.tags || []).find(t => ['birthday', 'anniversary'].includes(fold(t))) || '';
+  return {
+    guestId: g.id,
+    name: g.name || r.name || '',
+    vip: String(vipTag),
+    visit: before.length + 1,
+    lastDay,
+    lastDaysAgo: lastDay ? daysBetween(lastDay, day) : null,
+    occasion: String(occasion),
+    bookingNote: String(r.notes || '').trim(),
+    guestNote: String(g.notes || '').trim(),
+    birthdayIn: bday !== null && bday <= BIRTHDAY_WINDOW ? bday : null,
+  };
+}
+
 const LENSES = {
   all: { keep: () => true, order: (a, b) => (b.lastSeen || 0) - (a.lastSeen || 0) },
   regulars: {
@@ -5347,6 +5446,7 @@ module.exports = {
   MIN_CHARS, MIN_PHONE_DIGITS, DEFAULT_LIMIT, MAX_LIMIT,
   REGULAR_VISITS, VIP_TAGS, LENSES, hasAllergy, guestMatches, guestLens, guestLensCounts,
   BIRTHDAY_WINDOW, dobParts, daysToBirthday, ageOn, birthdaySoon,
+  welcomeFor,
 };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
@@ -6954,6 +7054,19 @@ function keepSpendTotals(data, sp) {
   for (const row of rows) { const r = byId.get(row.id); if (r) { r.spend = row.spend; moved++; } }
   return moved > 0;
 }
+
+// WELCOME BACK. Asked by the desk the moment a party is marked arrived, and
+// answered from the book alone — no till, no await, because the card has to
+// be up while the guest is still at the door. search.welcomeFor() says
+// whether there is anything to say; null is the ordinary arrival.
+app.get('/api/reservations/:id/welcome', (req, res) => {
+  const data = readData();
+  const r = data.reservations.find(x => x.id === req.params.id);
+  if (!r) return res.status(404).json({ error: 'Booking not found' });
+  const g = r.guestId ? data.guests.find(x => x.id === r.guestId) : null;
+  const mine = g ? data.reservations.filter(x => x.guestId === g.id) : [];
+  res.json({ welcome: search.welcomeFor(g, mine, r) });
+});
 
 // What is on this booking's table. No PIN and no manager check: it is the
 // same data as the booking itself, which anything on the venue wifi can
