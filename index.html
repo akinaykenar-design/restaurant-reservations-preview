@@ -43,7 +43,15 @@
 :root{
   --font-body:'Noto Sans',-apple-system,system-ui,sans-serif;
   --font-mono:'IBM Plex Mono','Noto Sans',monospace;
-  --steel-100:#E9E6DF; --steel-200:#E2DED7; --steel-300:#D3CFC6; --steel-500:#B3ADA0;
+  /* A SEAM IS DARKER THAN WHAT IT SEPARATES. These three were all LIGHTER
+     than the paper they ran across, so a line was a scratch on one surface
+     rather than the join between two — and the app read as one pale slab
+     with faint marks on it. --steel-200 is the hairline ON the paper,
+     --steel-300 the seam BETWEEN grounds, and the seam is the darker of the
+     two because it separates more. --steel-100, the room's ground, steps
+     down with them so the floor still sits under the book rather than
+     beside it. */
+  --steel-100:#E4E0D7; --steel-200:#D5CFC3; --steel-300:#A9A092; --steel-500:#8E877A;
   --charcoal:#23211D; --charcoal-soft:#918E88;
   --orange:#2F74C9; --orange-dim:color-mix(in srgb, var(--orange) 12%, var(--surface));
   --pick-wash:color-mix(in srgb, var(--orange) 6%, var(--surface));
@@ -56,7 +64,19 @@
      frame drawn in two colours is two frames. Light already had the rail on
      this exact value; the BAR is what moves onto it, off the paper it shared
      with the book. */
-  --chrome:#E2DED7;
+  --chrome:#2B3138;
+  /* THE RAIL IS INK, SO ITS WORDS ARE LIGHT. --charcoal-soft on the old
+     chrome was the lowest contrast on the screen and it was the navigation:
+     nine words a host reads across a room, drawn a step off their own
+     ground. The rail carries its own ink token now rather than borrowing
+     the page's, because the page's is chosen against paper and this is not
+     paper. A CHOSEN tile keeps the grammar — a pale accent block with accent
+     ink, never a solid fill — mixed against the RAIL's ground rather than
+     the paper's, or "pale" on ink is a hole cut through it. */
+  --rail-ink:#AEB6BF;
+  --rail-on-bg:color-mix(in srgb, var(--orange) 30%, var(--chrome));
+  --rail-on-ink:color-mix(in srgb, var(--orange) 40%, #FFFFFF);
+  --rail-seam:#1D2228;
   /* THE BAR IS NOT THE RAIL ANY MORE. They were one token while the bar ran
      across the top of the rail and the two read as one frame. The rail goes
      ALL THE WAY UP now, so they no longer touch along an edge — they touch at
@@ -182,9 +202,18 @@
    Light keeps its own arrangement: there the paper is white and the bar and
    rail are the warm grey the rail always wore, which is contrast enough. */
 body[data-theme="dark"]{
-  --steel-100:#0C1015; --steel-200:#242C35; --steel-300:#3A4551; --steel-500:#6B7585;
-  --surface:#161B21;
-  --chrome:#202832; --deck-bg:#121820; --deck-pill-bg:#0C1015;
+  /* THE SAME LAW, THE OTHER WAY UP. A seam that is LIGHTER than the panels
+     beside it is a scratch here too — it just glows instead of scuffing. So
+     the hairline and the seam both drop BELOW the paper, and a line is a
+     shadow between two panels rather than a mark on one.
+     AND THE RAIL LIFTS. Light puts the rail in ink against paper; dark
+     cannot go darker than a near-black page, so it goes the other way and
+     the rail sits ABOVE the floor. Either way the frame is the thing that
+     is not the work. */
+  --steel-100:#0A0D11; --steel-200:#0A0E13; --steel-300:#04070A; --steel-500:#4A5663;
+  --surface:#1A212A;
+  --chrome:#2A343F; --deck-bg:#1A222B; --deck-pill-bg:#0C1015;
+  --rail-ink:#C9D2DC; --rail-seam:#04070A;
   --charcoal:#161B21; --charcoal-soft:#C9D2DC;
   --text-primary:#EAE8E4; --text-secondary:#D9D5CE;
   --lift-1:0 6px 18px rgba(0,0,0,.40);
@@ -195,6 +224,8 @@ body[data-theme="dark"]{
   --deck-chip-bg:#43474F; --deck-chip-line:#545963; --deck-chip-ink:#CFC9BE;
   --deck-chip-on-bg:#EDE6D6; --deck-chip-on-ink:#26231F;
   --orange-dim:color-mix(in srgb, var(--orange) 27%, var(--surface));
+  --rail-on-bg:color-mix(in srgb, var(--orange) 26%, var(--chrome));
+  --rail-on-ink:color-mix(in srgb, var(--orange) 55%, #FFFFFF);
   --green-dim:color-mix(in srgb, var(--green) 20%, var(--surface));
   /* MIXED ON THE PAPER THAT IS ACTUALLY UNDER IT. Every wash here is a
      colour-mix against --surface, and --surface is redefined on BODY while
@@ -268,9 +299,12 @@ h1,h2,h3{margin:0;}
    step apart down the ladder: the rail on --chrome (the bar's ground too —
    they are one frame), the book on the paper (--surface), the room on the
    till's own --steel-100. And the ROOM'S GROUND
-   IS THE WHOLE COLUMN, not a rounded box floating in it. The seams step up to
-   --steel-300 so the line is a line. */
-.rail{width:var(--rail-w);flex-shrink:0;background:var(--chrome);border-right:1px solid var(--steel-300);
+   IS THE WHOLE COLUMN, not a rounded box floating in it. A SEAM IS DARKER
+   THAN WHAT IT SEPARATES, so the seam between two grounds is --steel-300,
+   a step below the --steel-200 hairline that runs across one of them — and
+   the rail, which is ink, takes --rail-seam, darker again, because a line
+   drawn in the paper's ladder on a near-black column is a stripe of light. */
+.rail{width:var(--rail-w);flex-shrink:0;background:var(--chrome);border-right:1px solid var(--rail-seam);
   overflow:hidden;padding:0;display:flex;flex-direction:column;}
 /* NO AIR AT THE TOP. The rail carried 8 of its own padding above the first
    tile, so the tile you are IN stopped 8 pixels short of the top bar and the
@@ -280,7 +314,7 @@ h1,h2,h3{margin:0;}
    same reason there is no gap BETWEEN them. */
 .rail-btn{width:100%;aspect-ratio:1;background:none;border:none;cursor:pointer;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
-  padding:8px 4px;color:var(--charcoal-soft);font-size:var(--fs-md);font-weight:700;
+  padding:8px 4px;color:var(--rail-ink);font-size:var(--fs-md);font-weight:700;
   text-align:center;letter-spacing:.3px;}
 /* THE GLYPH WAS NEVER TOO BIG, THE WORD WAS TOO SMALL. The till sizes its
    rail as one scale — 56 wide takes a 10.5 word and a 14 glyph, 84 wide takes
@@ -290,7 +324,7 @@ h1,h2,h3{margin:0;}
    not a big icon, it is a whisper under it — and what reads across a room is
    the word, because nine glyphs in a column are nine shapes to tell apart
    and one of them is the one you want. --fs-md is the till's own step here. */
-.rail-btn.active{background:var(--orange-dim);color:var(--orange);}
+.rail-btn.active{background:var(--rail-on-bg);color:var(--rail-on-ink);}
 .rail-ico{display:flex;}
 .rail-ico svg{width:24px;height:24px;}
 .rail-label{line-height:1.15;}
@@ -1145,7 +1179,13 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    and a mono number in a box read as one field — "2 21" — and the two say
    completely different things. Twelve is the row's own step, the same air the
    table keys keep from the row's right edge. */
-.bl-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:54px;padding:8px 12px 8px 4px;
+/* A ROW IS A LINE OF READING, NOT A CARD IN A STACK. 54 tall with 8 of
+   padding inside it gave every booking the air of a tile, and ten of them
+   filled a column that holds thirteen at 48 — on the four, and still four
+   clear of the finger law, which this row has never been anywhere near:
+   the things a finger presses in it are the two KEYS at its ends, and both
+   keep their own 44. */
+.bl-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:48px;padding:4px 12px 4px 4px;
   background:none;border:none;text-align:left;cursor:pointer;}
 .bl-main .st-dot{width:16px;height:16px;flex:0 0 16px;margin-right:0;}
 /* THE STATUS IS A KEY, NOT A DOT. Where a booking is up to is the thing a
@@ -1206,8 +1246,13 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 /* A KEY YOU PRESS, so it is a whole finger. It was 38x34 — under the law on
    both axes — in a row 54 tall that had the room for it all along. */
 .bl-table{flex:none;min-width:var(--tap);min-height:var(--tap);padding:0 10px;display:flex;align-items:center;
-  justify-content:center;border-radius:var(--r-btn);background:var(--steel-100);
-  border:1px solid transparent;color:var(--text-primary);
+  /* A TABLE IS A NUMBER YOU READ, so it is drawn as one. It wore a filled
+     44-square of --steel-100 — the room's own ground, lifted onto the paper
+     — which made every row carry a slab the size of the finger law with two
+     digits lost inside it. The hairline says it is a key; the number is
+     what you came for. It keeps the 44 in both axes. */
+  justify-content:center;border-radius:var(--r-btn);background:none;
+  border:1px solid var(--steel-300);color:var(--text-primary);
   font-family:var(--font-mono);font-weight:700;font-size:var(--fs-md);white-space:nowrap;}
 .bl-table.on{background:var(--pick-wash);border-color:var(--orange);color:var(--orange);}
 /* NO TABLE IS THE APP'S RED. Nothing could place this booking — not the desk
@@ -1750,7 +1795,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
      way back and a way back that can scroll out of reach is not one. Lying
      down, "the foot" is the right-hand END. Its own hairline, or it would
      sit in the row as if it were one of them. */
-  .rail-foot{flex:0 0 var(--rail-w);border-left:1px solid var(--steel-300);}
+  .rail-foot{flex:0 0 var(--rail-w);border-left:1px solid var(--rail-seam);}
   /* A SQUARE, at the rail's own width. width:auto is doing real work: the
      base rule is width:100%, and in a flex row that survived — every tile
      claimed the whole 390 and the bar became a scroller eight screens long. */
