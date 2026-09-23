@@ -125,12 +125,14 @@
      in the palette is a navy — paid's slate is lighter and far greyer — and
      the wheel had no free hue left to spend on a status nobody acts on. */
   --st-booked:#8B877F; --st-confirmed:#1E4780; --st-arrived:#2F74C9; --st-seated:#4FA51D; --st-done:#B3ADA0; --st-cancelled:#A8483A; --st-noshow:#6D4FC4;
-  --st-due:#C08A00; --st-over:#6D4FC4; --src-online:#0E9E8A; --src-walkin:#C08A00; --src-pos:#918E88;
-  /* The two states the floor gained. LATE is the app's red, which is spent
-     nowhere else on the drawing, so it can only mean "go and look". A
-     WALK-IN is teal — the online source's colour, because both mean "this
-     did not come from the desk". */
-  --st-late:#A8483A; --st-walkin:#0E9E8A;
+  --st-due:#C08A00; --st-over:#6D4FC4; --src-online:#0E9E8A; --src-walkin:#D9822B; --src-pos:#918E88;
+  /* LATE is the app's red, which is spent nowhere else on the drawing, so it
+     can only mean "go and look" — drawn as the RING round a late table, whose
+     fill is its booking's own colour. A walk-in the till seated wears the
+     Walk-in source colour (--src-walkin) that Settings gives — an ORANGE by
+     default, because it used to be the Due gold, and that gold is the VIP
+     mark's: a VIP star on a walk-in's table vanished into it. */
+  --st-late:#A8483A;
   /* THE END OF THE SITTING, which the floor could not say at all. CHECK is a
      magenta nothing else on the drawing wears, so a bill on a table reads
      from across the room; PAID is a cool slate that steps DOWN towards the
@@ -222,8 +224,8 @@ body[data-theme="dark"]{
      that was missed. A mix declared on :root and used in dark is a bug. */
   --pick-wash:color-mix(in srgb, var(--orange) 6%, var(--surface));
   --st-booked:#A8A399; --st-confirmed:#2C5A8C; --st-arrived:#3692E7; --st-seated:#7BC72F; --st-done:#6B645A; --st-cancelled:#CF6152; --st-noshow:#8B6FE8;
-  --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#E8C24D; --src-pos:#D9D5CE;
-  --st-late:#CF6152; --st-walkin:#19C3AB;
+  --st-due:#E8C24D; --st-over:#8B6FE8; --src-online:#19C3AB; --src-walkin:#F0A058; --src-pos:#D9D5CE;
+  --st-late:#CF6152;
   --st-check:#D96AA3; --st-paid:#9AB0C4;
   --table-plain:#2A323B;
 }
@@ -795,13 +797,13 @@ body.book-page #app{display:block;height:auto;}
 .tl-block .tl-set{font-family:var(--font-body);background:color-mix(in srgb, #fff 24%, transparent);border-radius:var(--r-pill);padding:1px 6px;font-weight:700;opacity:1;max-width:40%;overflow:hidden;text-overflow:ellipsis;}
 
 /* §§ Floor — the room at a moment
-   A DIFFERENT GRAMMAR FROM THE TIMELINE, on purpose. The timeline colours a
-   block by the BOOKING's status; the floor colours a table by the TABLE's
-   state, which is four things and not seven (availability.js says why).
-   Green is shared between them because it means the same thing in both —
-   somebody is eating. Gold and violet are the two questions only a room can
-   ask: who is late, and who is running over. Tokens throughout, so both
-   themes and the print block follow. */
+   THE SAME GRAMMAR AS THE BOOK AND THE TIMELINE. A table's wash is the
+   status of the booking on it, in the colour Settings gives that status —
+   so a table, its row's key and its timeline block are one colour. The two
+   questions only a room can ask, who is late and who is running over, are
+   RINGS round the table rather than colours of their own (.fl-table.late,
+   .fl-table.over). Tokens throughout, so both themes and the print block
+   follow. */
 /* `.fl-key` went with the last legend on the app (the flow's, Sep '26). The
    DOT stays: it is not a legend there, it is the free-or-taken mark beside a
    table in the booking sheet's own list, where it is the answer and not a
@@ -809,7 +811,6 @@ body.book-page #app{display:block;height:auto;}
 .fl-dot{width:10px;height:10px;border-radius:var(--r-pill);border:1px solid var(--steel-300);background:var(--surface);}
 .fl-dot.seated{background:var(--st-seated);border-color:var(--st-seated);}
 .fl-dot.over{background:var(--st-over);border-color:var(--st-over);}
-.fl-dot.due{background:var(--st-due);border-color:var(--st-due);}
 
 /* The canvas is the POS's own: 900 by 560, so a plan drawn here sits exactly
    where it sits on the till. */
@@ -848,7 +849,9 @@ body.book-page #app{display:block;height:auto;}
 .fl-room.loose{aspect-ratio:auto;min-width:0;display:flex;flex-wrap:wrap;gap:8px;padding:8px;}
 /* The loose fallback is a row of boxes, not a drawing: there is no 900 for a
    length to be a share of, so it keeps the tokens and the fixed pixels. */
-.fl-room.loose .fl-table{position:static;width:96px;height:64px;gap:2px;padding:2px;}
+/* RELATIVE, not static: the wash is absolutely placed inside its table, and
+   a static table is no box for it — every wash covered the whole room. */
+.fl-room.loose .fl-table{position:relative;width:96px;height:64px;gap:2px;padding:2px;}
 .fl-room.loose .fl-in{gap:2px;}
 .fl-room.loose .fl-no{font-size:var(--fs-md);}
 .fl-room.loose .fl-sub{font-size:var(--fs-chip);}
@@ -875,16 +878,42 @@ body.book-page #app{display:block;height:auto;}
 /* WHAT THE TABLE IS DOING, over what it is MADE OF. A translucent tint under
    the number and above the top, so a burgundy cloth is still burgundy cloth
    with somebody sitting at it — a solid fill hid the room. A free table has
-   no wash element at all: at rest, a table is just a table. */
+   no wash element at all: at rest, a table is just a table.
+   A TABLE WEARS ITS BOOKING'S COLOUR — the one Settings gives that status,
+   the one its row's key wears in the book beside it. The wash is classed by
+   the BOOKING'S STATUS, never by the floor's state: the floor used to paint
+   its own words — Due in a gold, Late in a red and Over in a violet that no
+   status in the book wears — so a party marked Booked was one colour in the
+   list and another on its table, and the Booked and Confirmed colours a
+   venue set never reached the room at all. Late and over are still said,
+   as a RING (below), because they are an alarm ABOUT the booking and not a
+   different thing it is. A walk-in the till seated wears the Walk-in colour
+   Settings gives the walk-in source, for the same reason. */
 .fl-wash{position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;opacity:var(--tbl-wash);}
-.fl-wash.seated{background:var(--st-seated);}
-.fl-wash.over{background:var(--st-over);}
-.fl-wash.due{background:var(--st-due);}
-.fl-wash.late{background:var(--st-late);}
-.fl-wash.arrived{background:var(--st-arrived);}
-.fl-wash.walkin{background:var(--st-walkin);}
+.fl-wash.booked{background:var(--st-booked);}
+.fl-wash.confirmed{background:var(--st-confirmed);}
+.fl-wash.part-arrived,.fl-wash.arrived{background:var(--st-arrived);}
+.fl-wash.part-seated,.fl-wash.seated{background:var(--st-seated);}
 .fl-wash.check{background:var(--st-check);}
 .fl-wash.paid{background:var(--st-paid);}
+.fl-wash.walkin{background:var(--src-walkin);}
+/* THE ALARM IS A RING, not a colour. Late is the app's red, the one colour
+   the room spends on "go and look"; over is Settings' Over. It stands OUTSIDE
+   the table with a gap of the room's own ground between: drawn on the
+   table's edge it vanished into any fill near its own colour — a red ring on
+   a venue's red Booked, a grey Over on a pale Seated. The gap is what makes
+   it a ring whatever the table is wearing.
+   AND IT IS DRAWN IN THE ROOM'S OWN SHARES, like every length in here. In
+   pixels it did not shrink with the drawing, and tables stand about nine
+   native pixels apart, so on a tablet two neighbours' rings crossed and a
+   ring read as the next table's. 2.5 + 1.5 native is under half the
+   tightest gap, so two rings side by side can never touch, at any size.
+   An OUTLINE, not a pseudo-element: it anchors to the table itself however
+   the table is positioned, so the loose fallback's static grid gets it too,
+   and it leaves ::after to the picked ring, which can be on at the same
+   time. */
+.fl-table.late,.fl-table.over{outline:.2778cqw solid var(--st-late);outline-offset:.1667cqw;}
+.fl-table.over{outline-color:var(--st-over);}
 /* THE TILL S MARKS, top corner of the table. A fact about the GUEST, not a
    status: the table s colour still says what the table is doing, and these
    say what the waiter already knows about the people on it. Sized as a share
@@ -3629,6 +3658,7 @@ function migrate(data) {
   if (!s.timeline || typeof s.timeline !== 'object' || Array.isArray(s.timeline)) s.timeline = {};
   for (const k of Object.keys(DEFAULT_SETTINGS.timeline)) if (s.timeline[k] === undefined) s.timeline[k] = DEFAULT_SETTINGS.timeline[k];
   if (!s.statusColours || typeof s.statusColours !== 'object' || Array.isArray(s.statusColours)) s.statusColours = {};
+  for (const k of RETIRED_COLOUR_KEYS) delete s.statusColours[k];
   // The desk has no users any more — no sign-in, no PIN, nobody to pick. An
   // older store still carries the list, and a PIN that nothing checks is only
   // a credential waiting to leak, so it goes on the first read after update.
@@ -3742,6 +3772,9 @@ function cleanColours(input) {
   }
   const out = {};
   for (const [k, v] of Object.entries(input)) {
+    // A slot that was offered once and has gone: dropped, not refused, so a
+    // tablet still showing the old card can save the colours that ARE ours.
+    if (RETIRED_COLOUR_KEYS.includes(k)) continue;
     if (!Object.prototype.hasOwnProperty.call(COLOUR_KEYS, k)) {
       return { ok: false, error: `There is nothing called "${k}" to colour` };
     }
@@ -3753,6 +3786,9 @@ function cleanColours(input) {
   return { ok: true, colours: out };
 }
 
+// Due was a colour of its own until the floor started painting a waiting
+// table in its booking's Booked or Confirmed — a stored one is dropped.
+const RETIRED_COLOUR_KEYS = ['due'];
 // Every colour a venue may change, and the custom property each one
 // re-points. `free` and `joined` are deliberately absent: free is the plain
 // surface, and joined is the accent ring, which follows the POS.
@@ -3760,7 +3796,7 @@ const COLOUR_KEYS = {
   booked: '--st-booked', confirmed: '--st-confirmed', arrived: '--st-arrived',
   seated: '--st-seated', check: '--st-check', paid: '--st-paid',
   done: '--st-done', cancelled: '--st-cancelled', 'no-show': '--st-noshow',
-  due: '--st-due', over: '--st-over',
+  over: '--st-over',
   online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
 };
 module.exports = { readData, writeData, dataVersion, newId, migrate, TILL_COLOURS, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
