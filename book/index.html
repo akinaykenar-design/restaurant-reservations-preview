@@ -920,17 +920,25 @@ body.book-page #app{display:block;height:auto;}
    colour of whatever their booking is doing — the same colour it wears on
    the floor, the timeline and the list. Under each column is the one number
    the pacing caps are written against. */
-/* IT IS STILL A BAR CHART. The squares STACK from a baseline, so a column's
-   HEIGHT is how many tables land in that slot and the shape of the night
-   reads at arm's length exactly as it did — only now every unit of the bar
-   names itself. The x axis is the times, under the baseline; the covers for
-   the slot sit on the line between. */
-.flowgrid{display:flex;align-items:stretch;gap:8px;overflow-x:auto;padding-bottom:4px;
+/* IT IS STILL A BAR CHART, AND IT HANGS. The squares stack off the axis, so
+   a column's LENGTH is how many tables land in that slot and the shape of
+   the night reads at arm's length exactly as a bar chart's does — only now
+   every unit of the bar names itself.
+   THE AXIS IS ON TOP AND THE BARS GROW DOWN. A table is a SQUARE of fixed
+   size, so a busy slot's column is as long as it needs to be and no two
+   columns are the same length; standing up off a baseline, that meant the
+   times sat at the foot and every column's own number floated at a
+   different height above them, with the reading eye going UP from the one
+   fixed line to find them. Hanging, the times are the fixed line and they
+   are at the TOP where the eye starts, each slot's covers on the line
+   directly under its own hour, and the bars fall away from it. A longer
+   column then runs INTO the space below rather than pushing its own label
+   off the top of the plot. */
+.flowgrid{display:flex;align-items:flex-start;gap:8px;overflow-x:auto;padding-bottom:4px;
   min-height:220px;--rail-axis:90deg;}
-/* justify-content:flex-end puts the whole group on the floor of the column,
-   so the stack grows UP off the baseline instead of hanging down from the
-   top — which is the difference between a bar chart and a list. */
-.fg-col{flex:0 0 72px;display:flex;flex-direction:column;justify-content:flex-end;gap:8px;min-width:0;}
+/* justify-content:flex-start hangs the group from the ceiling of the column,
+   so the stack grows DOWN off the axis instead of standing up from the foot. */
+.fg-col{flex:0 0 72px;display:flex;flex-direction:column;justify-content:flex-start;gap:8px;min-width:0;}
 /* The hour, and the gap between two services, are the only lines — the Border
    law's one hairline, standing up. A column with nothing in it fades rather
    than shouting a nought down the whole strip. */
@@ -941,10 +949,17 @@ body.book-page #app{display:block;height:auto;}
    column down and put the strip of totals on two different lines. A class
    name that already means something else is not a free name. */
 .fg-col.quiet{opacity:var(--dim);}
-.fg-time{font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;}
-/* column-reverse: the FIRST booking of the slot sits on the baseline and the
-   rest pile on top of it, the way a bar is built. */
-.fg-stack{display:flex;flex-direction:column-reverse;gap:8px;align-items:center;}
+/* The axis line itself: one hairline under the times, the Border law's, so
+   the hours read as a ruler the bars hang off rather than as a caption on
+   each column. It is drawn per column, exactly as the timeline's hour lines
+   are, so there is no second element to keep in step with the widths. */
+.fg-time{font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);white-space:nowrap;
+  padding-bottom:4px;border-bottom:1px solid var(--steel-200);}
+/* column, not column-reverse: the FIRST booking of the slot sits against the
+   axis and the rest hang below it, the way a bar is built from its own end.
+   Reversed, it was the first booking on the baseline with the rest piling up
+   — the same order, read the other way up. */
+.fg-stack{display:flex;flex-direction:column;gap:8px;align-items:center;}
 /* A SQUARE THAT LOOKS LIKE A TABLE: the floor's corner, the floor's colours,
    and THE COVERS — nothing else. It carried the table number on a cream chip
    as well, and at the size one unit of a bar is drawn that is two numbers
