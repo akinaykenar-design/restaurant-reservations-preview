@@ -672,50 +672,65 @@ label.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;font-si
    the success colour. */
 .toast .dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none;}
 .toast .dot.bad{background:var(--red-btn);}
-/* §§ WELCOME BACK — the line a host says at the door (renderWelcome()).
-   It wears the VIP MARK'S OWN COLOURS: --st-due under --tbl-num-ink, the
-   gold chip the floor puts in a VIP table's corner and the Marks lens puts
-   under it. One gold for "somebody the house knows", wherever it is drawn —
-   a second gold for the card would be the desk calling one thing two
-   colours. The disc and the badge ARE that chip; the card is a wash of it on
-   the paper, and in dark only a breath of it, because gold mixed into slate
-   is olive and olive is nobody's colour.
-   It sits at the foot of the BOOK, where the eye already is when the key
-   that marked them arrived was pressed, and it is the book's width so it
-   never lands on the room. */
-/* The card stands on a DOCK of the book's own paper, flush to the column and
-   to its seam: floating on its own, the rows behind it showed through the
-   gutters round it and a half row peeked out underneath. */
+/* §§ WELCOME BACK — what a host has to know at the door (renderWelcome()).
+   EVERY FLAG WEARS THE COLOUR ITS OWN TAG ALREADY WEARS, so the card teaches
+   nothing new: the VIP is the gold chip the floor puts in a VIP table's
+   corner (--st-due under --tbl-num-ink), the allergy is the floor's red "!"
+   (--st-late under --on-scrim), the occasion is the birthday tag's green, and
+   a need — a wheelchair, a high chair — is the plain tag's outline.
+   The CARD takes the colour of whichever flag LEADS (search.welcomeFor()'s
+   `kind`: allergy, then VIP, then occasion, then a regular, who wears
+   arrived's own blue because arriving is what just happened). The disc and
+   the timer are that colour; the card is a wash of it on the paper, and in
+   dark only a breath of it, because a colour mixed into slate goes to mud.
+   It stands on a dock of the book's own paper at the foot of the book,
+   where the eye already is, flush to the column and its seam, so no row
+   shows round it and it never lands on the room. */
+.wb{--wb-c:var(--st-arrived);--wb-on:var(--on-scrim);}
+.wb.vip{--wb-c:var(--st-due);--wb-on:var(--tbl-num-ink);}
+.wb.allergy{--wb-c:var(--st-late);--wb-on:var(--on-scrim);}
+.wb.occasion{--wb-c:var(--green);--wb-on:var(--tbl-num-ink);}
+.wb.note{--wb-c:var(--steel-500);--wb-on:var(--on-scrim);}
 .wb{position:fixed;left:var(--rail-w);bottom:0;width:calc(var(--deskcol-w) - 1px);padding:8px;
   background:var(--surface);z-index:var(--z-toast);animation:wb-rise .32s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--wb-gone);}
 @keyframes wb-rise{from{transform:translateY(24px);opacity:0;}to{transform:none;opacity:1;}}
 .wb-card{position:relative;display:block;width:100%;margin:0;padding:16px 52px 16px 16px;text-align:left;
   font:inherit;color:var(--text-primary);cursor:pointer;overflow:hidden;border-radius:var(--r-surface);
-  border:1px solid color-mix(in srgb, var(--st-due) 55%, var(--surface));
-  background:color-mix(in srgb, var(--st-due) 13%, var(--surface));box-shadow:var(--lift-1);}
+  border:1px solid color-mix(in srgb, var(--wb-c) 55%, var(--surface));
+  background:color-mix(in srgb, var(--wb-c) 12%, var(--surface));box-shadow:var(--lift-1);}
+div.wb-card{cursor:default;}
 .wb-head{display:flex;align-items:center;gap:12px;}
 .wb-disc{flex:none;width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  background:var(--st-due);color:var(--tbl-num-ink);font-size:var(--fs-num);font-weight:800;}
+  background:var(--wb-c);color:var(--wb-on);font-size:var(--fs-num);font-weight:800;}
 .wb-id{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
-.wb-name{display:flex;align-items:center;gap:8px;min-width:0;font-size:var(--fs-xl);line-height:1.2;}
+.wb-name{display:flex;min-width:0;font-size:var(--fs-xl);line-height:1.2;}
 .wb-name b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.wb-vip{flex:none;display:inline-flex;align-items:center;gap:4px;padding:2px 8px 2px 6px;border-radius:var(--r-pill);
-  background:var(--st-due);color:var(--tbl-num-ink);font-size:var(--fs-md);font-weight:700;}
-.wb-vip svg{width:14px;height:14px;fill:currentColor;}
 .wb-hello{font-size:var(--fs-md);font-weight:600;color:var(--text-secondary);}
+.wb-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.wb-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--r-pill);
+  border:1px solid var(--steel-300);color:var(--text-primary);font-size:var(--fs-md);font-weight:700;}
+.wb-chip svg{width:14px;height:14px;flex:none;}
+.wb-chip.vip{background:var(--st-due);border-color:var(--st-due);color:var(--tbl-num-ink);}
+.wb-chip.vip svg{fill:currentColor;}
+.wb-chip.al{background:var(--st-late);border-color:var(--st-late);color:var(--on-scrim);}
+.wb-chip.occ{background:var(--green);border-color:var(--green);color:var(--tbl-num-ink);}
 .wb-facts{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
 .wb-facts li{display:flex;align-items:flex-start;gap:10px;font-size:var(--fs-lg);line-height:1.35;}
 .wb-facts li span{min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
-.wb-facts svg{flex:none;width:20px;height:20px;color:color-mix(in srgb, var(--st-due) 70%, var(--text-primary));}
+.wb-facts svg{flex:none;width:20px;height:20px;color:var(--text-secondary);}
+/* The allergy line is the one a kitchen can hurt somebody over: its words are
+   bold and its mark is the allergy's red, whatever colour the card is. */
+.wb-facts li.al{font-weight:700;}
+.wb-facts li.al svg{color:var(--st-late);}
 /* It goes by itself, and the time it has left runs out along its own foot. */
-.wb-timer{position:absolute;left:0;bottom:0;width:100%;height:4px;background:var(--st-due);transform-origin:left;
+.wb-timer{position:absolute;left:0;bottom:0;width:100%;height:4px;background:var(--wb-c);transform-origin:left;
   animation:wb-run var(--wb-ms) linear both;animation-delay:var(--wb-gone);}
 @keyframes wb-run{from{transform:scaleX(1);}to{transform:scaleX(0);}}
 .wb-x{position:absolute;top:12px;right:12px;width:var(--tap);height:var(--tap);display:flex;align-items:center;
   justify-content:center;padding:0;border:none;border-radius:var(--r-btn);background:none;color:var(--text-primary);cursor:pointer;}
 .wb-x svg{width:20px;height:20px;}
-body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--st-due) 6%, var(--surface));}
-@media (prefers-reduced-motion:reduce){ .wb{animation:none;} }
+body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, var(--surface));}
+@media (prefers-reduced-motion:reduce){ .wb,.wb-timer{animation:none;} }
 /* A phone has no book column: the card takes the width, clear of the bar. */
 @media (max-width:760px){
   .wb{left:0;right:0;width:auto;bottom:calc(var(--rail-w) + var(--ring) + env(safe-area-inset-bottom, 0px));}
@@ -5300,53 +5315,73 @@ function birthdaySoon(g, today) {
 }
 
 // §§ Welcome back
-// The line a host says at the door, worked out from the book the moment a
+// What a host has to know at the door, worked out from the book the moment a
 // party arrives. Pure, like the rest of this file: `today` is never read off
 // a clock, it is the booking's own day, so a test can hold every word.
 //
-// A guest with no sitting before this one gets NOTHING unless they are
-// tagged for the floor: "welcome back" to somebody who has never been is a
-// lie, and the ordinary arrival toast is the right answer for them. A VIP on
-// a first visit still gets the card, because being told who is at the door is
-// the whole reason a VIP tag exists.
+// A card goes up when there is something to SAY: they have been before, they
+// are tagged for the floor, there is an occasion, an allergy, or a need
+// (a wheelchair, a high chair, a pram). A first visit with none of those gets
+// NOTHING — the ordinary arrival toast is the right answer for them, and
+// "welcome back" to somebody who has never been is a lie.
 //
 // A visit is a sitting that HAPPENED before this booking's own time — the
-// same test recountGuest() uses (sat, or left) — so a party that booked
-// twice this week and has not come yet is not a regular.
+// same test recountGuest() uses (sat, or left) — so a party that booked twice
+// this week and has not come yet is not a regular.
+//
+// `kind` is which of those LEADS, and so which colour the card wears: the
+// allergy first, because it is the one a kitchen can hurt somebody over; then
+// the VIP; then the occasion; then a regular. Each is the colour its own tag
+// already wears in the app, so nothing new is learnt.
+const OCCASION_TAGS = ['birthday', 'anniversary'];
+const NEED_TAGS = ['wheelchair', 'high chair', 'pram', 'quiet', 'window', 'large group'];
 function welcomeFor(g, bookings, r) {
-  if (!g || !r || !r.time) return null;
+  if (!r || !r.time) return null;
   // Matched on a phone or an email, NEVER a name — personKey()'s rule. The
   // book still files a phoneless booking under its name, so every "Walk-in"
   // and every Smith who left no number would share one card, and the desk
-  // would greet a stranger with somebody else's fifty visits.
-  if (!personKey(g)) return null;
+  // would greet a stranger with somebody else's fifty visits — or their
+  // allergy. Without a key only THIS booking speaks: its own tags and notes.
+  const known = !!(g && personKey(g));
+  const guest = known ? g : null;
   const day = String(r.time).slice(0, 10);
-  const before = (bookings || [])
+  const before = known ? (bookings || [])
     .filter(b => b && b.id !== r.id && b.time && b.time < r.time && (av.isSat(b) || b.status === 'done'))
-    .sort((a, b) => b.time.localeCompare(a.time));
-  const vipTag = ((g.tags || []).concat(r.tags || [])).find(t => VIP_TAGS.includes(fold(t))) || '';
-  if (!before.length && !vipTag) return null;
+    .sort((a, b) => b.time.localeCompare(a.time)) : [];
+  const find = (list, want) => (list || []).find(t => want.includes(fold(t))) || '';
+  const vip = find(((guest && guest.tags) || []).concat(r.tags || []), VIP_TAGS);
+  const occasion = find(r.tags, OCCASION_TAGS);
+  const needs = (r.tags || []).filter(t => NEED_TAGS.includes(fold(t))).map(String);
+  // The run sheet's own allergy rule, so the door and the pass can never
+  // disagree about the same guest.
+  const al = av.allergyOf(r, guest);
+  const allergy = al ? { text: [al.notes, al.guestNotes].filter(Boolean).join(' · '), tagged: !!al.tagged } : null;
+  const bday = guest ? daysToBirthday(guest.dob, day) : null;
+  const birthdayIn = bday !== null && bday <= BIRTHDAY_WINDOW ? bday : null;
+  if (!before.length && !vip && !occasion && !allergy && !needs.length && birthdayIn === null) return null;
   const lastDay = before.length ? before[0].time.slice(0, 10) : null;
   const daysBetween = (a, b) => {
     const p = dobParts(a), q = dobParts(b);
     return Math.round((Date.UTC(q.year, q.month - 1, q.day) - Date.UTC(p.year, p.month - 1, p.day)) / 86400000);
   };
-  const bday = daysToBirthday(g.dob, day);
-  // The occasion is THIS booking's: a tag the desk ticked, then the words it
-  // wrote. The guest's own notes are a different thing — what is true of them
-  // every time — and ride on their own line.
-  const occasion = (r.tags || []).find(t => ['birthday', 'anniversary'].includes(fold(t))) || '';
+  // A note that is the allergy is said ONCE, on the allergy's own line.
+  const bookingNote = String(r.notes || '').trim();
+  const guestNote = String((guest && guest.notes) || '').trim();
   return {
-    guestId: g.id,
-    name: g.name || r.name || '',
-    vip: String(vipTag),
-    visit: before.length + 1,
+    guestId: guest ? guest.id : '',
+    name: (guest && guest.name) || r.name || '',
+    kind: allergy ? 'allergy' : vip ? 'vip' : (occasion || birthdayIn === 0) ? 'occasion' : before.length ? 'regular' : 'note',
+    known,
+    visit: known ? before.length + 1 : null,
     lastDay,
     lastDaysAgo: lastDay ? daysBetween(lastDay, day) : null,
+    vip: String(vip),
+    allergy,
     occasion: String(occasion),
-    bookingNote: String(r.notes || '').trim(),
-    guestNote: String(g.notes || '').trim(),
-    birthdayIn: bday !== null && bday <= BIRTHDAY_WINDOW ? bday : null,
+    needs,
+    bookingNote: al && al.notes ? '' : bookingNote,
+    guestNote: al && al.guestNotes ? '' : guestNote,
+    birthdayIn,
   };
 }
 
@@ -10991,31 +11026,41 @@ function lastHereWord(w) {
 function renderWelcome() {
   const x = state.welcome, w = x.w;
   const gone = Math.max(0, Math.min(WELCOME_MS, Date.now() - x.at));
-  const lead = w.visit > 1 ? `Welcome back · ${ordinal(w.visit)} visit` : 'First visit';
+  const lead = !w.known ? '' : w.visit > 1 ? `Welcome back · ${ordinal(w.visit)} visit` : 'First visit';
   const last = lastHereWord(w);
   // Written at the booking in whatever case the desk typed it; it leads a
   // line here, so it starts like one.
   const cap = (t) => t ? t[0].toUpperCase() + t.slice(1) : '';
-  const occasion = cap([w.occasion, w.bookingNote].filter(Boolean).join(' · '));
+  // THE CHIPS are the flags, each in the colour its own tag already wears:
+  // the VIP mark's gold, the allergy's red, the birthday tag's green, and a
+  // need in the plain tag's outline. The LINES under them are the words.
+  const chips = [
+    w.vip ? `<span class="wb-chip vip">${I.star}${esc(w.vip)}</span>` : '',
+    w.allergy ? `<span class="wb-chip al">${I.alert}Allergy</span>` : '',
+    w.occasion ? `<span class="wb-chip occ">${I.cake}${esc(w.occasion)}</span>` : '',
+  ].concat((w.needs || []).map(n => `<span class="wb-chip">${esc(n)}</span>`)).join('');
   const facts = [
-    occasion ? `<li>${I.cheer}<span>${esc(occasion)}</span></li>` : '',
+    w.allergy ? `<li class="al">${I.alert}<span>${esc(cap(w.allergy.text) || 'Allergy on file — ask before they order')}</span></li>` : '',
+    w.bookingNote ? `<li>${w.occasion ? I.cheer : I.note}<span>${esc(cap(w.bookingNote))}</span></li>` : '',
     w.birthdayIn !== null && w.birthdayIn !== undefined ? `<li>${I.cake}<span>${esc(birthdayWord(w))}</span></li>` : '',
     w.guestNote ? `<li>${I.note}<span>${esc(w.guestNote)}</span></li>` : '',
   ].join('');
   const initial = (String(w.name || '?').trim()[0] || '?').toUpperCase();
-  return `<div class="wb" role="status" aria-live="polite" style="--wb-gone:-${gone}ms;--wb-ms:${WELCOME_MS}ms;">
-    <button class="wb-card" data-act="open-guest" data-id="${esc(w.guestId)}">
+  const open = w.guestId ? ` data-act="open-guest" data-id="${esc(w.guestId)}"` : '';
+  return `<div class="wb ${esc(w.kind || 'regular')}" role="status" aria-live="polite" style="--wb-gone:-${gone}ms;--wb-ms:${WELCOME_MS}ms;">
+    <${w.guestId ? 'button' : 'div'} class="wb-card"${open}>
       <span class="wb-head">
         <span class="wb-disc" aria-hidden="true">${esc(initial)}</span>
         <span class="wb-id">
-          <span class="wb-name"><b>${esc(w.name)}</b>${w.vip ? `<span class="wb-vip">${I.star}${esc(w.vip)}</span>` : ''}</span>
-          <span class="wb-hello">${esc(lead)}</span>
-          ${last ? `<span class="wb-hello">${esc(last[0].toUpperCase() + last.slice(1))}</span>` : ''}
+          <span class="wb-name"><b>${esc(w.name)}</b></span>
+          ${lead ? `<span class="wb-hello">${esc(lead)}</span>` : ''}
+          ${last ? `<span class="wb-hello">${esc(cap(last))}</span>` : ''}
         </span>
       </span>
+      ${chips ? `<span class="wb-chips">${chips}</span>` : ''}
       ${facts ? `<ul class="wb-facts">${facts}</ul>` : ''}
       <i class="wb-timer" aria-hidden="true"></i>
-    </button>
+    </${w.guestId ? 'button' : 'div'}>
     <button class="wb-x" data-act="welcome-close" aria-label="Dismiss">${I.cross}</button>
   </div>`;
 }
