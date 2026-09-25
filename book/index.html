@@ -4036,6 +4036,44 @@ function tableCourse(t) {
   return { name: name.slice(0, 24), colour: /^#[0-9A-Fa-f]{6}$/.test(raw) ? raw.toUpperCase() : null, at };
 }
 
+// §§ THE BILL AND THE PAYMENT COME FROM THE TILL
+// A bill is printed at the till and paid at the till, so a host pressing
+// "Bill" or "Paid" at the desk is typing out something another machine
+// already knows. The till keeps both on the open ORDER today, not on the
+// table, so the floor-plan call does not carry them yet (POS-LINK.md has the
+// shape asked for). Read here the way the course is read — whatever the table
+// says, shaped — so the day the till sends it the desk follows with no
+// migration and no second source. Both spellings, because a flag and a word
+// are the two obvious ways to send it.
+//   'paid' | 'bill' | null
+function tableBill(t) {
+  if (!t || typeof t !== 'object') return null;
+  const w = String(t.bill || '').trim().toLowerCase();
+  if (t.paid === true || w === 'paid') return 'paid';
+  if (t.billPrinted === true || w === 'printed' || w === 'bill') return 'bill';
+  return null;
+}
+// Whether the till is SENDING the bill at all — any table carrying the field,
+// set or not. Until it does, Bill and Paid stay keys a host can press; the
+// day it does, they stop being offered, because a second hand on the same
+// fact is how the desk and the till come to disagree about it.
+function tillSendsBill(tables) {
+  return (tables || []).some(t => t && typeof t === 'object' && ['billPrinted', 'paid', 'bill'].some(k => Object.prototype.hasOwnProperty.call(t, k)));
+}
+// What the till's tables say a SAT booking has reached — or null. It only ever
+// moves a sitting FORWARD (seated → bill → paid): a flag the till has not
+// sent yet, or has dropped because the order moved on, is not an instruction
+// to go back, and a booking that is not sat down is never touched by a bill.
+const SITTING_ORDER = ['part-seated', 'seated', 'check', 'paid'];
+function tillSitting(r, tables) {
+  if (!r || SITTING_ORDER.indexOf(r.status) < 0) return null;
+  const ids = heldTables(r);
+  if (!ids.length) return null;
+  const marks = (tables || []).filter(t => t && ids.includes(t.id)).map(tableBill);
+  const to = marks.includes('paid') ? 'paid' : marks.includes('bill') ? 'check' : null;
+  return to && SITTING_ORDER.indexOf(to) > SITTING_ORDER.indexOf(r.status) ? to : null;
+}
+
 // §§ Who sits where, when nobody has said
 //
 // A booking with no table is not a booking without a table — it is one the
@@ -4896,7 +4934,7 @@ module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
-  FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, coverFlow,
+  FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
@@ -6574,6 +6612,7 @@ app.get('/api/tables', (req, res) => {
     tables: floorTablesOf(data),
     floorPlans: data.floorPlans.map(fp => ({ id: fp.id, name: fp.name, bgColor: fp.bgColor || null, tables: (fp.tables || []).filter(t => !t.mergedInto).map(shape) })),
     fromPos: !!(data.posState && data.posState.connected),
+    billFromTill: av.tillSendsBill([].concat(...(data.floorPlans || []).map(fp => fp.tables || []))),
   });
 });
 
@@ -7722,6 +7761,21 @@ async function posPass(force) {
     const wasLive = new Set(readData().reservations.filter(av.isLive).map(x => x.id));
     out = await sync.run(cfg, (d, msg) => logAudit(d, 'POS', msg));
     data = readData();
+    // THE BILL AND THE PAYMENT, from the till's own tables (av.tillSitting).
+    // Tonight only: a flag left on a table is about the party sitting there
+    // now, never about last week's booking that once held it.
+    const tillTables = [];
+    (data.floorPlans || []).forEach(fp => (fp.tables || []).forEach(t => tillTables.push(t)));
+    const today = av.localDay(new Date());
+    for (const r of data.reservations) {
+      if (String(r.time || '').slice(0, 10) !== today) continue;
+      const to = av.tillSitting(r, tillTables);
+      if (!to) continue;
+      const before = Object.assign({}, r);
+      r.status = to;
+      const evs = history.changeEvents(before, r, { by: 'POS', at: Date.now() }, evOpts(data));
+      if (evs.length) r.events = history.append(r.events, evs);
+    }
     for (const r of data.reservations) if (wasLive.has(r.id) && ['cancelled', 'no-show'].includes(r.status)) raiseOpening(data, r, 'cancelled on the POS', 'POS');
     data.posState = Object.assign(data.posState, { connected: true, lastSyncAt: Date.now(), lastError: '', version, last: out });
     writeData(data);
