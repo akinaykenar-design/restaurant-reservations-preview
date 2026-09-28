@@ -188,6 +188,11 @@
    the real screen. What changed is the family they are all drawn from.
    Light keeps its own arrangement: there the paper is white and the bar and
    rail are the warm grey the rail always wore, which is contrast enough. */
+/* The ROOT wears the dark palette too, for its own background: `html` took
+   --steel-100 from the light :root, and every overscroll of a dark page
+   showed a band of beige behind it. The body still declares them, so an
+   override on the body (applyStatusColours) still wins inside the app. */
+html[data-theme="dark"],
 body[data-theme="dark"]{
   /* THE SAME LAW, THE OTHER WAY UP. A seam that is LIGHTER than the panels
      beside it is a scratch here too — it just glows instead of scuffing. So
@@ -407,7 +412,10 @@ h1,h2,h3{margin:0;}
 .chip.warn{border-color:var(--gold);color:var(--gold);}
 .band .title{font-weight:800;font-size:var(--fs-lg);padding:0 6px;}
 .chips{display:flex;flex-wrap:wrap;gap:6px;}
-.chips .chip{min-height:var(--tap);}
+.chips .chip{min-height:var(--tap);min-width:var(--tap);}
+/* 44 IS A FLOOR in Settings too: "15 min / 30 min" and every other choice
+   on a card is a target a thumb has to hit. */
+.settings-card .chip{min-height:var(--tap);}
 .chip .sub{font-family:var(--font-mono);font-size:var(--fs-chip);opacity:.8;}
 .chip.taken{opacity:var(--dim);text-decoration:line-through;}
 /* A chip for something that is there but not on offer: a slot that has gone,
@@ -529,6 +537,7 @@ h1,h2,h3{margin:0;}
    grammar (accent ring + wash); gold is the popup's warning, red its warnbox. */
 .tl-block.movable{cursor:grab;}
 .tl-block.extra{opacity:.7;}                     /* a joined booking's other lanes */
+.tl-block.auto{font-weight:400;}                 /* a table the app chose: the weight says who */
 .tl-drag-src{opacity:var(--dim);cursor:grabbing;}
 .tl-drag-ghost{position:fixed!important;z-index:var(--z-menu);pointer-events:none;margin:0;opacity:.95;box-shadow:var(--lift-2);will-change:translate;}
 .tl-drop{position:absolute;top:5px;height:34px;border-radius:var(--r-btn);border:1px solid var(--orange);box-shadow:inset 0 0 0 var(--ring) var(--orange);background:var(--pick-wash);pointer-events:none;}
@@ -589,6 +598,11 @@ label.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;font-si
    layout that has come apart rather than a button. */
 .btn{min-height:var(--h-control);padding:8px 16px;border-radius:var(--r-control);border:1px solid var(--steel-300);background:var(--steel-100);font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap;}
 .btn.go{background:var(--green);border-color:var(--green);color:#fff;}
+/* The guest's one key says the whole booking back to them — "Book 2 for
+   12:45 PM on Wednesday, September 3" — and on a 390 phone that is wider
+   than the key. A key that cuts off its own first letter is worse than one
+   that takes two lines. */
+.book .btn.go{white-space:normal;text-align:center;}
 .btn.add{background:var(--green);border-color:var(--green);color:#fff;}
 .btn.danger{background:var(--red-btn);border-color:var(--red-btn);color:#fff;}
 .btn.primary{background:var(--orange);border-color:var(--orange);color:#fff;}
@@ -596,13 +610,23 @@ label.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;font-si
 .kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:var(--fs-md);}
 .kv b{font-weight:700;}
 .qr{width:200px;height:200px;border-radius:var(--r-control);background:#fff;padding:8px;}
-.svc-row{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;}
-.days{display:flex;gap:4px;}
-.days .chip{min-width:38px;padding:7px 0;min-height:38px;}
+/* A service is four things in a row that WRAPS, not a four-column grid: at a
+   tablet's 674 the grid left the name 47 wide ("Lur", "Din"), and the phone's
+   two-column fallback ran the seven days out of the card and the pane
+   sideways. The name takes what is left of its line and never less than
+   180; the days, the hours and the remove key keep their own widths. */
+.svc-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.svc-row > input[type="text"]{flex:1 1 180px;min-width:0;}
+.svc-row > .inline{flex:none;}
+/* Wrapped, one service's hours sit right above the next one's name: the
+   Border law's hairline says where one ends. */
+.svc-row + .svc-row{border-top:1px solid var(--steel-200);padding-top:12px;margin-top:4px;}
+.days{display:flex;gap:4px;flex:none;}
+.days .chip{min-width:var(--tap);padding:7px 0;min-height:var(--tap);}
 .audit{font-size:var(--fs-md);display:flex;flex-direction:column;gap:6px;}
 .audit div{display:grid;grid-template-columns:120px 100px 1fr;gap:8px;}
 .audit .mono{color:var(--charcoal-soft);font-size:var(--fs-chip);}
-@media (max-width:640px){ .audit div{grid-template-columns:1fr;gap:0;} .svc-row{grid-template-columns:1fr 1fr;} }
+@media (max-width:640px){ .audit div{grid-template-columns:1fr;gap:0;} }
 
 /* §§ Stepper (Stepper law: two square keys and a value that never moves) */
 .stepper{display:inline-flex;align-items:center;gap:4px;}
@@ -630,7 +654,7 @@ label.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;font-si
 @media (max-width:768px){ .modal-bg{padding:10px;} .modal{padding:20px;max-height:calc(100vh - 20px);} }
 .status-row{display:flex;flex-wrap:wrap;gap:6px;}
 .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;max-height:190px;overflow-y:auto;padding:2px;}
-.slots .chip{padding:7px 4px;font-family:var(--font-mono);}
+.slots .chip{padding:7px 4px;font-family:var(--font-mono);min-height:var(--tap);}
 .hist{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto;}
 .hist div{display:flex;gap:8px;align-items:center;font-size:var(--fs-md);}
 .hist .mono{color:var(--charcoal-soft);}
@@ -1619,9 +1643,16 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    desktop shape — rail down the left, where vertical space is not spent — and
    everything gets shorter. */
 @media (min-width:761px) and (max-height:520px){
-  .topbar{min-height:48px;padding:4px 12px;}
-  .deck-sq{min-height:38px;height:38px;}
-  .deck-pill{height:38px;}
+  /* THE ROOM BAR NEVER LIES OVER A TABLE. Turned sideways the room fills
+     the column's height, so the bar floating in its corner sat on 45, 46,
+     26 and B8, and at rest nothing pans to reach them. Here the bar gets its
+     own strip at the foot of the room — a smaller room, every table in it
+     pressable — and the pinch still brings them closer. */
+  .desk-main > .fl-wrap{padding-bottom:calc(var(--tap) + 24px);}
+  /* Shorter, but not under the finger law: the keys were 44x38 here. */
+  .topbar{min-height:52px;padding:4px 12px;}
+  .deck-sq{min-height:var(--tap);height:var(--tap);}
+  .deck-pill{height:var(--tap);}
   /* THE SERVICE GOES SIDEWAYS TOO. The bar lost the rail's 78 pixels when the
      rail went all the way up, so 852 across leaves 774 of bar — and a 406
      pill centred in 774 ends at 668 with the first key starting at 640. It
@@ -3957,18 +3988,49 @@ function overlaps(aStart, aDur, bStart, bDur) { return aStart < bStart + bDur &&
 // A party fits a table when it has enough seats and not absurdly many.
 function fits(table, party, slack) { return table.seats >= party && table.seats <= party + (slack === undefined ? 2 : slack); }
 
+// The minute of the day it is NOW, when the question is about today and the
+// caller knows the clock (ctx.now) — else null, and the arithmetic is the
+// plan alone, as it always was.
+function nowOn(ctx, day) {
+  const n = ctx && ctx.now;
+  return n instanceof Date && localDay(n) === day ? n.getHours() * 60 + n.getMinutes() : null;
+}
+
+// How long a booking holds its table. Its sitting — unless it has sat down
+// and is still there past it: a booking that has run over holds the table
+// until somebody marks it Left, which is the whole point of `over`, and
+// floorAt() already draws it that way. The free-table answer used to let
+// the sitting end on paper while the party was still in the chairs.
+function heldFor(ctx, r, now) {
+  const d = durationFor(ctx.settings, r.partySize, r.durationMin);
+  return now !== null && isSat(r) ? Math.max(d, now + 1 - minsOf(r.time)) : d;
+}
+
 // Bookings that hold a table at this moment on this day.
 function holdersOf(ctx, tableId, day, startMin, dur, ignoreId) {
+  const now = nowOn(ctx, day);
   return (ctx.reservations || []).filter(r => r.id !== ignoreId && isLive(r) && dayOf(r.time) === day && heldTables(r).includes(tableId)
-    && overlaps(startMin, dur, minsOf(r.time), durationFor(ctx.settings, r.partySize, r.durationMin)));
+    && overlaps(startMin, dur, minsOf(r.time), heldFor(ctx, r, now)));
 }
 
 // Tables with nobody on them for this party at this time.
+//
+// THE TILL KNOWS THINGS THE BOOK DOES NOT, here as on the floor: covers on a
+// table nobody booked are a walk-in the till sat, and a walk-in now is
+// somebody in those chairs now. Their end is unknown, so they are given a
+// sitting for their size from this minute — a desk that offers the table
+// they are eating at is the thing the covers come across to prevent. Only
+// today, only when the clock is known, and never over a booking that is on
+// the table now (a booking outranks the covers, as in floorAt()).
 function freeTables(ctx, day, hhmm, party, opts) {
   opts = opts || {};
   const dur = durationFor(ctx.settings, party, opts.duration);
   const start = toMin(hhmm);
-  return (ctx.tables || []).filter(t => holdersOf(ctx, t.id, day, start, dur, opts.ignoreId).length === 0);
+  const now = nowOn(ctx, day);
+  const walkedIn = (t) => now !== null && Number(t.covers) > 0
+    && overlaps(start, dur, now, durationFor(ctx.settings, Number(t.covers)))
+    && holdersOf(ctx, t.id, day, now, 1, null).length === 0;
+  return (ctx.tables || []).filter(t => holdersOf(ctx, t.id, day, start, dur, opts.ignoreId).length === 0 && !walkedIn(t));
 }
 
 // The best table for this party: the tightest fit, and among equals the
@@ -4224,7 +4286,10 @@ function floorAt(ctx, day, hhmm, opts) {
     // THE TILL KNOWS THINGS THE BOOK DOES NOT. Covers come across with the
     // floor plan: somebody sat down at the till without a booking, and the
     // desk would otherwise draw that table free and offer it to the phone.
-    const covers = Math.max(0, Number(t.covers) || 0);
+    // They are THIS MINUTE'S, though: tomorrow's floor, or lunch looked at
+    // from dinner, is the book alone (opts.live false), or every day of the
+    // week drew tonight's walk-ins on it.
+    const covers = opts.live === false ? 0 : Math.max(0, Number(t.covers) || 0);
     if (!on) {
       return {
         id: t.id, state: covers > 0 ? 'walkin' : 'free', bookingId: null,
@@ -4435,6 +4500,20 @@ function officeMayChange(r, now) {
   const at = timeMs(r.time), t = (now || new Date()).getTime();
   if (t >= at - OFFICE_HANDS_OFF * 60000) return 'It is within the hour — call the restaurant';
   return null;
+}
+
+// A day that exists. 2026-13-45 has the shape of a date and is no day at
+// all: stored, it drops the booking out of every view of the book.
+function isRealDay(d) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(d))) return false;
+  const [y, m, dd] = d.split('-').map(Number);
+  const x = new Date(Date.UTC(y, m - 1, dd));
+  return x.getUTCFullYear() === y && x.getUTCMonth() === m - 1 && x.getUTCDate() === dd;
+}
+// A booking time that exists: a real day and a real hour of it.
+function isRealTime(t) {
+  const m = /^(\d{4}-\d{2}-\d{2})T([01]\d|2[0-3]):[0-5]\d$/.exec(String(t));
+  return !!m && isRealDay(m[1]);
 }
 
 // Whether an online guest may book this day at all.
@@ -4992,7 +5071,7 @@ function runSheet(ctx, day, opts) {
 module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF,
+  freeTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -6457,6 +6536,7 @@ function infoOf(ctx, opts) {
     largerPartyMessage: s.online.largerPartyMessage || '',
     tzOffsetMinutes: -now.getTimezoneOffset(),
     minNoticeMinutes: s.online.minNoticeMinutes || 0,
+    notifyList: s.online.notifyList !== false,
   };
 }
 
@@ -6519,9 +6599,21 @@ function grantsFor(ctx, opts) {
   const today = av.localDay(now);
   const grants = [];
   for (let i = 0; i < GRANT_DAYS; i++) grants.push(dayGrant(ctx, av.addDays(today, i), now));
-  const out = { info: infoOf(ctx, Object.assign({}, opts, { now })), grants };
+  const out = { info: infoOf(ctx, Object.assign({}, opts, { now })), grants, guests: guestsOf(ctx, today) };
   out.replica = opts.office ? replicaOf(ctx, now, opts.tableLabel) : null;
   return out;
+}
+
+// What the desk did to the bookings guests made on the relay — the time and
+// where it stands, keyed on the reference, and never a name — so a guest
+// checking "Already booked?" is told half past eight, or cancelled, rather
+// than the seven o'clock the relay sold them. Only what came through the
+// relay: the relay knows no other reference and would ignore it anyway.
+const GUEST_STATUS = { cancelled: 'cancelled', 'no-show': 'cancelled', done: 'finished' };
+function guestsOf(ctx, today) {
+  return (ctx.reservations || [])
+    .filter(r => r && r.ref && (r.source === 'online' || r.createdBy === 'Online' || r.createdBy === 'Office') && av.dayOf(r.time) >= today)
+    .map(r => ({ ref: r.ref, date: av.dayOf(r.time), time: String(r.time).slice(11, 16), status: GUEST_STATUS[r.status] || 'booked' }));
 }
 
 // ---------- the office's copy ----------
@@ -6563,7 +6655,22 @@ function editRefusal(item, diary, now) {
   const r = ((diary && diary.reservations) || []).find(x => x.id === p.id);
   if (!r) return 'That booking is not in the book any more';
   if (stampOf(r) !== Number(p.was)) return 'It changed while you had it open — here it is now';
-  return av.officeMayChange(r, now);
+  const here = av.officeMayChange(r, now);
+  if (here || p.cancel) return here;
+  // SERVICE WINS AT THE NEW TIME TOO. Checking only where the booking is now
+  // let the office move a party INTO the hour, into the past, to three in
+  // the morning, or to a day that does not exist — which the desk then
+  // stored and could never show again.
+  const t = (p.patch || {}).time;
+  if (t === undefined || t === r.time) return null;
+  if (!av.isRealTime(t)) return 'That is not a date and time';
+  now = now || new Date();
+  if (av.timeMs(t) <= now.getTime()) return 'That time has passed';
+  const at = av.officeMayChange(Object.assign({}, r, { time: t }), now);
+  if (at) return at;
+  const s = diary && diary.settings;
+  if (s && !av.slotTimes(s, av.dayOf(t)).includes(t.slice(11, 16))) return 'The restaurant does not take bookings then';
+  return null;
 }
 
 // The booking with the office's change in it. A new time or party size keeps
@@ -6605,6 +6712,9 @@ const HHMM_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 //   skip     nothing to do, or nonsense
 function decide(item, diary, now) {
   const p = (item && item.payload) || {};
+  // Delivered again because the ack that said "got it" was lost: what was
+  // applied is not applied twice, nor refused as a change made since.
+  if (item && item.id && ((diary && diary.relayState && diary.relayState.done) || []).includes(item.id)) return 'dupe';
   const ref = String(p.ref || '').toUpperCase();
   const rows = (diary && diary.reservations) || [];
   if (item.kind === 'booking') {
@@ -6622,10 +6732,22 @@ function decide(item, diary, now) {
     return editRefusal(item, diary, now || new Date()) ? 'refuse' : 'edit';
   }
   if (item.kind === 'notify') {
+    if (diary && diary.settings && diary.settings.online && diary.settings.online.notifyList === false) return 'skip';
     if (!p.id || !String(p.name || '').trim() || !DAY_RE.test(p.date)) return 'skip';
     return ((diary && diary.notify) || []).some(e => e.relayId === p.id) ? 'skip' : 'notify';
   }
   return 'skip';
+}
+
+// Which queue items the diary has applied, by the relay's own item id, so a
+// repeat delivery is recognised (decide → 'dupe'). Bounded: the relay drops
+// an item for good once it is acknowledged, so only the last few matter.
+const DONE_KEEP = 500;
+function remember(diary, item, what) {
+  if (!item || !item.id || ['skip', 'dupe', 'refuse'].includes(what)) return;
+  diary.relayState = diary.relayState || {};
+  const done = (diary.relayState.done || []).concat(item.id);
+  diary.relayState.done = done.slice(-DONE_KEEP);
 }
 
 // The diary row for a booking the relay took. It lands on the table the
@@ -6652,7 +6774,7 @@ function bookingFrom(payload, ctx, opts) {
   };
 }
 
-module.exports = { GRANT_DAYS, grantsFor, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, editedBooking };
+module.exports = { GRANT_DAYS, grantsFor, guestsOf, remember, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, editedBooking };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relaysync'] = module;
@@ -6782,7 +6904,9 @@ function floorTablesOf(data) {
   }));
   return av.tablesFrom(data.floorPlans).map(t => Object.assign({}, t, live[t.id] || { covers: 0, allergies: [], vip: '', course: null }));
 }
-function ctxOf(data) { return { settings: effectiveSettings(data), tables: tablesOf(data), reservations: data.reservations }; }
+// `now` so the free-table answer knows who is in the chairs this minute, and
+// the till's covers on the tables so it knows about the walk-ins it sat.
+function ctxOf(data) { return { settings: effectiveSettings(data), tables: floorTablesOf(data), reservations: data.reservations, now: new Date() }; }
 // What history.js needs to name a table in a line. No logic, just the floor.
 function evOpts(data) { return { tableLabel: history.tableLabeller(tablesOf(data)) }; }
 // The trading day: before dayStartsAt (4am) still counts as "yesterday".
@@ -7139,7 +7263,9 @@ function cleanReservation(data, body, existing) {
 }
 function validateReservation(r) {
   if (!r.name) return 'Guest name is required';
-  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(r.time || '')) return 'Date and time are required';
+  // A real day and hour, not just the shape of one: 2026-13-45 stored is a
+  // booking no view of the book can ever show again.
+  if (!av.isRealTime(r.time || '')) return 'Date and time are required';
   if (!(r.partySize > 0)) return 'Party size is required';
   return null;
 }
@@ -8336,7 +8462,11 @@ async function relayPass(forceGrant) {
       const items = (got && got.items) || [];
       if (!items.length) break;
       data = readData();
-      const done = items.map(it => Object.assign({ seq: it.seq }, applyRelayItem(data, it)));
+      const done = items.map(it => {
+        const d = applyRelayItem(data, it);
+        relaysync.remember(data, it, d.what); // written with it, so a lost ack repeats nothing
+        return Object.assign({ seq: it.seq }, d);
+      });
       const whats = done.map(d => d.what);
       writeData(data);
       await relay.ack(cfg, got.cursor, done.filter(d => d.what === 'refuse').map(d => ({ seq: d.seq, id: (items.find(i => i.seq === d.seq).payload || {}).id, why: d.why, now: d.now })));
@@ -8528,6 +8658,7 @@ function applyTheme(theme) {
   const t = theme || {};
   const mode = t.mode === 'auto' || !t.mode ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t.mode;
   document.body.dataset.theme = mode;
+  document.documentElement.dataset.theme = mode; // the root's own background is dark too
   if (t.accent && /^#[0-9A-Fa-f]{6}$/.test(t.accent)) document.documentElement.style.setProperty('--orange', t.accent);
 }
 // The days on offer, as { day, closed, note }. A dated exception replaces the
