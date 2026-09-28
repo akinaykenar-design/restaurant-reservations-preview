@@ -1597,23 +1597,25 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    halves are always rendered and a tablet turned sideways is right on the
    first frame with nothing listening for a resize. */
 @media (max-width:760px){
-  /* A thirty-table room fitted to a 400-wide pane is a stamp. On a phone the
-     drawing is NOT shrunk — it is drawn at the size it was drawn for, 900 by
-     560, in its own sideways scroller, and the pinch gets you closer still.
-     560 was the floor until Sep '26 and it was half a rule: the geometry
-     shrank with the room but the pill did not, because type is in pixels and
-     has no rung below --fs-chip to step down to. At 560 the tables came out
-     34 wide under pills of 74 and neighbours' news lay across each other
-     (measured: two collisions on the venue's own room). At 900 every table,
-     every label and every pill sits at the proportion the till drew them,
-     and the height — 560 against a 558 pane — still lands whole, so only the
-     width is ever swiped.
+  /* A thirty-table room fitted to a 400-wide pane is a stamp, so on a phone
+     the room is NOT fitted to the width: it is sized off the pane's HEIGHT,
+     exactly as the till's own phone floor is (its `.tp-canvas-wrap
+     .floor-canvas`, --fc-base:100cqh), and the width runs on in a sideways
+     scroller. The pinch gets you closer still.
+     It used to be the room's "native" width in 900ths (--fl-w). That held
+     while the till drew its room on a 900x560 canvas. In Sep '26 the till
+     drew the room FOUR TIMES BIGGER (FLOOR_ROOM) and the tables stayed the
+     same size, so a real venue's furniture now fills a quarter of the canvas
+     — and "native" came out 230 wide on a 390 phone: thirty tables eleven
+     pixels across. Sizing off the height has no native number in it, so it
+     does not care how big the till's canvas is; it is the same answer the
+     till gives, so one room is one size on both machines.
      JUSTIFY-CONTENT MUST BE SAFE. A flex child wider than its box, centred,
      overflows BOTH ways and the left overflow cannot be scrolled to: tables
      1, 21, 22 and 24 were off the left edge of a phone with no way to reach
      them. `safe` falls back to flex-start the moment it would overflow. */
   .desk-main > .fl-wrap{overflow:auto;align-items:safe flex-start;justify-content:safe flex-start;}
-  .desk-main .fl-room{height:auto;width:var(--fl-w, 900px);min-width:var(--fl-w, 900px);max-width:none;}
+  .desk-main .fl-room{height:auto;width:calc(100cqh * var(--fl-arw, 1.6071));min-width:0;max-width:none;}
   .fl-stage{width:auto;height:auto;}
 }
 /* A TABLET STACKS, A PHONE CHOOSES. From 761 to 900 the desk is one column
@@ -10194,12 +10196,12 @@ function hugObject(t, hug) {
     width: (t.width || 0) / hug.w * 100, height: (t.height || 0) / hug.h * 100 });
 }
 // The shape of the hugged room, and the two lengths the layout needs off it:
-// how wide it is per unit of height (for the width the pane's HEIGHT allows)
-// and how wide it is at the native scale (for the phone, which never shrinks).
+// how wide it is per unit of height — the width the pane's HEIGHT allows,
+// which is what the desk fits to and what a phone scrolls sideways.
 function roomStyle(fp) {
   const hug = floorHug(fp);
   const w = 900 * hug.w / 100, h = 560 * hug.h / 100;
-  return `--fl-arw:${(w / h).toFixed(4)};--fl-w:${w.toFixed(2)}px;aspect-ratio:${w.toFixed(2)} / ${h.toFixed(2)};`;
+  return `--fl-arw:${(w / h).toFixed(4)};aspect-ratio:${w.toFixed(2)} / ${h.toFixed(2)};`;
 }
 // The venue paints its own floor in the till's layout editor. When it has,
 // that colour is the ground here too — it is the same room.
