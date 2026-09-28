@@ -3267,8 +3267,8 @@ function posStatus(status) {
 }
 
 // The fields the POS stores — and therefore the only ones that can differ.
-function toPos(r) {
-  return {
+function toPos(r, settings) {
+  const out = {
     name: r.name,
     phone: r.phone || '',
     partySize: r.partySize,
@@ -3277,6 +3277,14 @@ function toPos(r) {
     notes: posNotes(r),
     status: posStatus(r.status),
   };
+  // HOW LONG THE TABLE IS HELD, SO THE TILL CAN DRAW THE SITTING'S END (owner,
+  // Sep '26: "i want the pos to get that from the desk"). The booking's own
+  // length, else the venue's for its party size — what this desk holds the
+  // table for. Sent, never fingerprinted: a till too old to keep the field
+  // hands back a row without it, and hashing it would re-send every pass.
+  // sync.js compares it on its own, only against a till that keeps it.
+  if (settings) out.durationMin = require('./availability').durationFor(settings, r.partySize, r.durationMin);
+  return out;
 }
 
 // The characters the notes grammar below is built out of. They are NOT
@@ -3564,6 +3572,11 @@ const DEFAULT_SETTINGS = {
   // `useMenus` off means the desk's set menus are the local `setMenus` list
   // below, even while the POS is linked.
   pos: { enabled: false, baseUrl: '', pushBookings: true, pullStatus: true, useFloor: true, useOrders: true, useMenus: true, useCustomers: true },
+  // The booking relay (cloud/, CLOUD-LINK.md): where guests book when they are
+  // not on the venue's wifi. baseUrl like https://book.example.com; the token
+  // is the one the relay showed once when the venue was created. It lives in
+  // store.local.json, which is gitignored, and is never sent back to a screen.
+  relay: { enabled: false, baseUrl: '', token: '' },
 };
 
 const DEFAULT_DATA = {
@@ -3594,6 +3607,9 @@ const DEFAULT_DATA = {
   guests: [],
   auditLog: [],
   posState: { lastSyncAt: 0, lastError: '', version: null, connected: false },
+  // The relay link's last word: whether it answered, the booking page's
+  // address it reported, and when the desk last told it what it may sell.
+  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0 },
 };
 
 function ensureStore() {
@@ -3650,6 +3666,8 @@ function migrate(data) {
   }
   for (const k of Object.keys(DEFAULT_SETTINGS.online)) if (s.online[k] === undefined) s.online[k] = DEFAULT_SETTINGS.online[k];
   for (const k of Object.keys(DEFAULT_SETTINGS.pos)) if (s.pos[k] === undefined) s.pos[k] = DEFAULT_SETTINGS.pos[k];
+  for (const k of Object.keys(DEFAULT_SETTINGS.relay)) if (s.relay[k] === undefined) s.relay[k] = DEFAULT_SETTINGS.relay[k];
+  for (const k of Object.keys(DEFAULT_DATA.relayState)) if (data.relayState[k] === undefined) data.relayState[k] = DEFAULT_DATA.relayState[k];
   for (const k of Object.keys(DEFAULT_SETTINGS.pacing)) if (s.pacing[k] === undefined) s.pacing[k] = DEFAULT_SETTINGS.pacing[k];
   // The loop above already gives an older store `exceptions: []`; this catches
   // a hand-edited or half-written file that has the key but not an array.
@@ -4069,7 +4087,14 @@ function tillSitting(r, tables) {
   if (!r || SITTING_ORDER.indexOf(r.status) < 0) return null;
   const ids = heldTables(r);
   if (!ids.length) return null;
-  const marks = (tables || []).filter(t => t && ids.includes(t.id)).map(tableBill);
+  // A payment the till took BEFORE this party sat down belongs to the party
+  // before them — the till keeps a table "paid" until the next order opens,
+  // and a desk that seats the next booking first must not read it as theirs.
+  const sat = Number(r.seatedAt) || 0;
+  const marks = (tables || []).filter(t => t && ids.includes(t.id)).map(t => {
+    const b = tableBill(t);
+    return b === 'paid' && sat && Number(t.paidAt) && Number(t.paidAt) < sat ? null : b;
+  });
   const to = marks.includes('paid') ? 'paid' : marks.includes('bill') ? 'check' : null;
   return to && SITTING_ORDER.indexOf(to) > SITTING_ORDER.indexOf(r.status) ? to : null;
 }
@@ -5963,7 +5988,7 @@ function reconcile(local, remote, opts) {
     const link = r.pos && r.pos.id ? r.pos : null;
     if (!link) {
       // Never pushed. A cancelled booking nobody at the till ever saw stays ours.
-      if (r.status !== 'cancelled' && opts.push !== false) plan.creates.push({ localId: r.id, payload: pos.toPos(r) });
+      if (r.status !== 'cancelled' && opts.push !== false) plan.creates.push({ localId: r.id, payload: pos.toPos(r, opts.settings) });
       continue;
     }
     const p = claim(link);
@@ -5979,16 +6004,19 @@ function reconcile(local, remote, opts) {
         plan.patches.push({ id: r.id, patch, why: 'removed on POS' });
       } else {
         plan.patches.push({ id: r.id, patch: { pos: null }, why: 'relink' });
-        if (r.status !== 'cancelled' && opts.push !== false) plan.creates.push({ localId: r.id, payload: pos.toPos(r) });
+        if (r.status !== 'cancelled' && opts.push !== false) plan.creates.push({ localId: r.id, payload: pos.toPos(r, opts.settings) });
       }
       continue;
     }
     const remoteFields = pos.fieldsOf(p);
     const remoteHash = pos.hashOf(remoteFields);
-    const mine = pos.toPos(r);
+    const mine = pos.toPos(r, opts.settings);
     const mineHash = pos.hashOf(mine);
+    // The sitting length is not in the fingerprint (see toPos): it differs
+    // only when a till that KEEPS it holds a different number from ours.
+    const lengthDiffers = (fields) => fields.durationMin !== undefined && p.durationMin !== undefined && p.durationMin !== fields.durationMin;
     const posChanged = remoteHash !== link.hash;
-    const localChanged = mineHash !== link.hash;
+    const localChanged = mineHash !== link.hash || lengthDiffers(mine);
     let merged = r;
     if (posChanged) {
       const patch = {};
@@ -6029,11 +6057,11 @@ function reconcile(local, remote, opts) {
       // Taken before patch.pos is set, so re-fingerprinting is never a line.
       const evs = history.changeEvents(r, merged, { by: 'POS', at: now }, evOpts);
       if (evs.length) patch.events = history.append(r.events, evs);
-      const mergedFields = pos.toPos(merged);
+      const mergedFields = pos.toPos(merged, opts.settings);
       const mergedHash = pos.hashOf(mergedFields);
       patch.pos = { id: link.id, hash: mergedHash, syncedAt: now };
       if (Object.keys(patch).length > 1 || patch.pos.hash !== link.hash) plan.patches.push({ id: r.id, patch, why: 'from POS' });
-      if (mergedHash !== remoteHash && opts.push !== false) plan.updates.push({ localId: r.id, posId: link.id, payload: quietStatus(mergedFields, remoteFields) });
+      if ((mergedHash !== remoteHash || lengthDiffers(mergedFields)) && opts.push !== false) plan.updates.push({ localId: r.id, posId: link.id, payload: quietStatus(mergedFields, remoteFields) });
     } else if (localChanged) {
       if (opts.push !== false) plan.updates.push({ localId: r.id, posId: link.id, payload: quietStatus(mine, remoteFields) });
       else plan.patches.push({ id: r.id, patch: { pos: { id: link.id, hash: link.hash, syncedAt: now } }, why: 'local only' });
@@ -6068,7 +6096,7 @@ async function run(config, log) {
   let data = db.readData();
   const pending = (data.posState.pendingDeletes || []).slice();
   const tableLabel = history.tableLabeller((data.floorPlans || []).flatMap(fp => fp.tables || []));
-  const plan = reconcile(data.reservations, Array.isArray(remote) ? remote : [], { push: config.pushBookings !== false, pendingDeletes: pending, tableLabel });
+  const plan = reconcile(data.reservations, Array.isArray(remote) ? remote : [], { push: config.pushBookings !== false, pendingDeletes: pending, tableLabel, settings: data.settings || {} });
 
   // Local first — a POS write that fails must not lose a till-side change.
   let dirty = false;
@@ -6283,6 +6311,247 @@ module.exports = { STALE_MS, BEAT_MS, lockPath, alive, readLock, held, describe,
 (function () {
   var module = { exports: {} };
   (function (module, exports, require, __dirname, process) {
+// relay.js
+// The link to the booking relay (cloud/): the always-on service that shows
+// guests the booking page while this computer is somewhere they cannot reach.
+//
+// ONLY THIS SIDE EVER DIALS. The desk calls out to the relay and the relay
+// never calls in, so there is no port to forward and nothing on this
+// computer is ever reachable from the internet — the same shape as the desk
+// polling the till, and the till polling Doshii. The contract is
+// CLOUD-LINK.md; the arithmetic of what is granted is relaysync.js.
+
+const http = require('http');
+const https = require('https');
+
+const TIMEOUT_MS = 10000; // the relay is across the internet, not the room
+
+function request(config, method, path, body) {
+  return new Promise((resolve, reject) => {
+    let base;
+    try { base = new URL(config.baseUrl); } catch (e) { return reject(new Error('The relay address is not a valid URL')); }
+    const payload = body ? JSON.stringify(body) : null;
+    const transport = base.protocol === 'https:' ? https : http;
+    const req = transport.request({
+      host: base.hostname,
+      port: base.port || (base.protocol === 'https:' ? 443 : 80),
+      path: base.pathname.replace(/\/$/, '') + path,
+      method,
+      headers: Object.assign({ 'Content-Type': 'application/json', Authorization: 'Bearer ' + (config.token || '') },
+        payload ? { 'Content-Length': Buffer.byteLength(payload) } : {}),
+      timeout: TIMEOUT_MS,
+    }, (res) => {
+      const chunks = [];
+      res.on('data', (d) => chunks.push(d));
+      res.on('end', () => {
+        let parsed = null;
+        try { parsed = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch (e) {}
+        if (res.statusCode >= 200 && res.statusCode < 300) resolve(parsed || {});
+        else {
+          const err = new Error(res.statusCode === 401 ? 'The relay does not know this venue token'
+            : (parsed && parsed.error) || `The relay returned ${res.statusCode}`);
+          err.status = res.statusCode;
+          reject(err);
+        }
+      });
+    });
+    req.on('timeout', () => { req.destroy(); reject(new Error('The relay did not answer in time')); });
+    req.on('error', (e) => reject(new Error('Could not reach the relay' + (e.code ? ' (' + e.code + ')' : ''))));
+    if (payload) req.write(payload);
+    req.end();
+  });
+}
+
+function ready(config) { return !!(config && config.enabled && config.baseUrl && config.token); }
+
+const ping = (c) => request(c, 'GET', '/api/venue/ping');
+const grant = (c, body) => request(c, 'POST', '/api/venue/grant', body);
+const pull = (c, after) => request(c, 'GET', '/api/venue/pull?after=' + (parseInt(after, 10) || 0));
+const ack = (c, through) => request(c, 'POST', '/api/venue/ack', { through });
+
+module.exports = { ready, ping, grant, pull, ack };
+
+  })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
+  window.__RESV__.modules['./relay'] = module;
+})();
+</script>
+<script>
+(function () {
+  var module = { exports: {} };
+  (function (module, exports, require, __dirname, process) {
+// relaysync.js
+// What the desk tells the booking relay, and what it does with what the relay
+// hands back. Pure — no I/O, no clock of its own, no store — so the two
+// places an online booking could go wrong are both tested (test/relay.test.js):
+// selling a table the diary has already given away, and collecting one
+// booking twice.
+//
+// THE DIARY IS THE TRUTH; THE RELAY HOLDS A PROMISE. The relay never gets the
+// book. It gets, per date, what may still be sold — the slots and their
+// pacing — and the ROOM: every table, its seats, and when somebody is already
+// on it. From that it sells a real table for a whole sitting, the way
+// availability.js does, and it can sell nothing the desk did not hand it. A
+// sale waits on its table until the desk collects it and says so by
+// reference; only then does the relay let go, because by then the diary
+// holds it.
+//
+// No names, no phones, no notes cross in the grant. The room is numbers.
+
+const av = require('./availability');
+
+// Always this many days, from today. The relay only REPLACES the dates it is
+// sent, so a horizon that shortens has to send its far days back EMPTY, or
+// they go on selling. One number both sides can hold (the relay takes 120).
+const GRANT_DAYS = 120;
+const NO_CAP = { covers: 999, bookings: 99 };
+
+// Who the guests are booking with, and the venue's clock — the relay may run
+// in any timezone and "today" and "too soon" are the restaurant's.
+function infoOf(ctx, opts) {
+  const s = ctx.settings, now = opts.now;
+  return {
+    name: s.venueName || 'Our restaurant',
+    address: s.venueAddress || '',
+    phone: s.venuePhone || '',
+    accent: opts.accent || '',
+    notesPrompt: s.online.notesPrompt || '',
+    maxPartySize: s.online.maxPartySize || 8,
+    largerPartyMessage: s.online.largerPartyMessage || '',
+    tzOffsetMinutes: -now.getTimezoneOffset(),
+    minNoticeMinutes: s.online.minNoticeMinutes || 0,
+  };
+}
+
+// The references this date's diary holds, so the relay can let go of those
+// sales. Every one with a reference, whatever its status: a booking the desk
+// has since cancelled is still one the desk has, and the relay must not keep
+// it on the table.
+function collectedOn(ctx, day) {
+  return (ctx.reservations || []).filter(r => r && r.ref && av.dayOf(r.time) === day).map(r => r.ref);
+}
+
+// When somebody is on each table this day. Placed bookings, and the tables
+// autoAssign() has laid the rest out on — a booking nobody has given a table
+// to is still going to sit somewhere, and selling that somewhere online is
+// the double booking this whole file exists to stop.
+function roomOn(ctx, day) {
+  const s = ctx.settings;
+  const auto = av.autoAssign(ctx, day);
+  const busy = {};
+  for (const r of (ctx.reservations || [])) {
+    if (!r || !av.isLive(r) || av.dayOf(r.time) !== day) continue;
+    const ids = av.heldTables(r).length ? av.heldTables(r) : (auto[r.id] || []);
+    const from = av.minsOf(r.time), to = from + av.durationFor(s, r.partySize, r.durationMin);
+    for (const id of ids) (busy[id] = busy[id] || []).push([from, to]);
+  }
+  const most = Math.max(1, s.online.maxPartySize || 8);
+  return {
+    tables: (ctx.tables || []).map(t => ({ id: t.id, seats: t.seats, busy: busy[t.id] || [] })),
+    durations: Array.from({ length: most }, (_, i) => av.durationFor(s, i + 1)),
+    slack: s.seatSlack === undefined ? 2 : s.seatSlack,
+  };
+}
+
+// One date. Empty slots — nothing sold — for a day the online page may not
+// offer: switched off, closed, past the horizon.
+function dayGrant(ctx, day, now) {
+  const s = ctx.settings;
+  const g = { date: day, slots: {}, collected: collectedOn(ctx, day) };
+  if (!s.online.enabled || av.onlineDayReason(s, day, now)) return g;
+  const notice = (s.online.minNoticeMinutes || 0) * 60000;
+  const p = s.pacing || {};
+  for (const hhmm of av.slotTimes(s, day)) {
+    if (av.timeMs(av.joinTime(day, hhmm)) < now.getTime() + notice) continue;
+    // Pacing is the one thing a COUNT is right for: how many walk in at 7:30.
+    const l = av.loadAt(ctx, day, hhmm);
+    const covers = p.maxCoversPer15 > 0 ? p.maxCoversPer15 - l.covers : NO_CAP.covers;
+    const bookings = p.maxBookingsPer15 > 0 ? p.maxBookingsPer15 - l.bookings : NO_CAP.bookings;
+    if (covers > 0 && bookings > 0) g.slots[hhmm] = { covers, bookings };
+  }
+  if (Object.keys(g.slots).length) g.room = roomOn(ctx, day);
+  return g;
+}
+
+// Everything the relay is told on a grant: who the venue is, and every date
+// from today to GRANT_DAYS out.
+function grantsFor(ctx, opts) {
+  opts = opts || {};
+  const now = opts.now || new Date();
+  const today = av.localDay(now);
+  const grants = [];
+  for (let i = 0; i < GRANT_DAYS; i++) grants.push(dayGrant(ctx, av.addDays(today, i), now));
+  return { info: infoOf(ctx, Object.assign({}, opts, { now })), grants };
+}
+
+// ---------- collecting ----------
+
+const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+const HHMM_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+// What to do with one item from the relay's queue, given the diary as it
+// stands NOW — so items are decided one at a time, in order, and a booking
+// and its own cancel in the same pull come out right.
+//
+//   create   a booking the diary does not have
+//   dupe     one it already has, by reference — the relay delivers at least
+//            once, so a repeat is expected and is a no-op, never a second row
+//   cancel   the guest cancelled one the diary holds and nobody has sat
+//   keep     a cancel for one somebody has already sat, or has left: the
+//            floor outranks a guest's phone
+//   notify   a notify-list entry the diary does not have
+//   skip     nothing to do, or nonsense
+function decide(item, diary) {
+  const p = (item && item.payload) || {};
+  const ref = String(p.ref || '').toUpperCase();
+  const rows = (diary && diary.reservations) || [];
+  if (item.kind === 'booking') {
+    if (!ref || !String(p.name || '').trim() || !(parseInt(p.partySize, 10) >= 1) || !DAY_RE.test(p.date) || !HHMM_RE.test(p.time)) return 'skip';
+    return rows.some(r => r.ref === ref) ? 'dupe' : 'create';
+  }
+  if (item.kind === 'cancel') {
+    const r = rows.find(x => x.ref === ref);
+    if (!r || ['cancelled', 'no-show', 'done'].includes(r.status)) return 'skip';
+    return av.isSat(r) || av.isHere(r) ? 'keep' : 'cancel';
+  }
+  if (item.kind === 'notify') {
+    if (!p.id || !String(p.name || '').trim() || !DAY_RE.test(p.date)) return 'skip';
+    return ((diary && diary.notify) || []).some(e => e.relayId === p.id) ? 'skip' : 'notify';
+  }
+  return 'skip';
+}
+
+// The diary row for a booking the relay took. It lands on the table the
+// relay SOLD it against when that table is still free for the sitting —
+// which it is, unless the desk gave it away in the seconds before its next
+// grant reached the relay — and otherwise on the best free table now, or on
+// none, which puts it at the top of the book in red where a host will see it.
+function bookingFrom(payload, ctx, opts) {
+  const day = payload.date, hhmm = payload.time;
+  const party = parseInt(payload.partySize, 10);
+  const dur = av.durationFor(ctx.settings, party);
+  const known = (ctx.tables || []).some(t => t.id === payload.tableId);
+  const stillFree = known && !av.holdersOf(ctx, payload.tableId, day, av.toMin(hhmm), dur).length;
+  const t = stillFree ? { id: payload.tableId } : av.suggestTable(ctx, day, hhmm, party);
+  return {
+    id: opts.id, name: String(payload.name).trim().slice(0, 60),
+    phone: String(payload.phone || '').trim().slice(0, 30), email: String(payload.email || '').trim().slice(0, 80),
+    partySize: party, time: av.joinTime(day, hhmm), durationMin: null,
+    tableId: t ? t.id : null, tableIds: [], notes: String(payload.notes || '').trim().slice(0, 300),
+    tags: [], setMenu: null, status: 'booked', source: 'online',
+    ref: String(payload.ref).toUpperCase(), createdAt: opts.now, updatedAt: opts.now, createdBy: 'Online',
+  };
+}
+
+module.exports = { GRANT_DAYS, grantsFor, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom };
+
+  })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
+  window.__RESV__.modules['./relaysync'] = module;
+})();
+</script>
+<script>
+(function () {
+  var module = { exports: {} };
+  (function (module, exports, require, __dirname, process) {
 // server.js
 // The reservations system's brain. Runs on the same computer as the POS (or
 // any computer on the venue's wifi); tablets and the front-desk PC open it
@@ -6301,6 +6570,9 @@ const pos = require('./pos');
 const sync = require('./sync');
 const spend = require('./spend');
 const history = require('./history');
+const relay = require('./relay');
+const relaysync = require('./relaysync');
+const crypto = require('crypto');
 
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 3001;
@@ -6426,6 +6698,9 @@ function tillColoursOf(raw) {
 function safeSettings(data) {
   const s = effectiveSettings(data);
   s.pos = Object.assign({}, s.pos); // nothing secret in here today, but keep the seam
+  // The relay token never goes back to a screen: whoever has it can collect
+  // this venue's bookings. The card only needs to know one is saved.
+  s.relay = { enabled: !!s.relay.enabled, baseUrl: s.relay.baseUrl || '', hasToken: !!s.relay.token };
   return s;
 }
 app.get('/api/settings', (req, res) => { res.json(safeSettings(readData())); });
@@ -6555,10 +6830,22 @@ app.put('/api/settings', async (req, res) => {
     if (p.enabled !== undefined) s.pos.enabled = !!p.enabled;
     for (const k of ['pushBookings', 'pullStatus', 'useFloor', 'useOrders', 'useMenus', 'useCustomers']) if (p[k] !== undefined) s.pos[k] = !!p[k];
   }
+  if (b.relay) {
+    const q = b.relay;
+    if (q.baseUrl !== undefined) s.relay.baseUrl = String(q.baseUrl || '').trim().replace(/\/+$/, '').slice(0, 200);
+    if (q.enabled !== undefined) s.relay.enabled = !!q.enabled;
+    // Only a token actually typed replaces the saved one: the card never has
+    // it to send back, so an absent or empty field means "keep it".
+    if (typeof q.token === 'string' && q.token.trim()) s.relay.token = q.token.trim().slice(0, 200);
+    if (q.clearToken) s.relay.token = '';
+  }
   logAudit(data, staffFromReq(req), 'Updated settings');
   writeData(data);
   res.json(safeSettings(data));
   if (pos.ready(data.settings.pos)) setTimeout(() => posPass(true), 10);
+  // Anything on this page can change what the relay may sell — the hours,
+  // the notice, the pacing, the switch itself — so it is told straight away.
+  setTimeout(() => relayPass(true), 10);
 });
 
 app.get('/api/theme', (req, res) => { res.json(readData().theme || { accent: '#3692E7', mode: 'auto' }); });
@@ -7790,6 +8077,9 @@ async function posPass(force) {
   return out;
 }
 function kickPos() {
+  // Every call site of this is a booking that changed, and a booking that
+  // changed is something the relay may now sell differently.
+  kickRelay();
   const data = readData();
   if (!pos.ready(data.settings.pos)) return;
   clearTimeout(_posTimer);
@@ -7797,6 +8087,142 @@ function kickPos() {
 }
 setInterval(() => posPass(false), 8000);
 setTimeout(() => posPass(true), 500);
+
+// ---------- the booking relay (CLOUD-LINK.md) ----------
+// Guests who are not on the venue's wifi book on the relay, an always-on
+// service out on the internet. The desk CALLS OUT to it — every half minute,
+// and within a couple of seconds of any booking changing here — collects
+// whatever guests booked or cancelled, writes it into the diary, and only
+// then says "got them". Then it tells the relay what it may sell from here
+// on (relaysync.grantsFor). Nothing ever calls in: no port is forwarded.
+app.get('/api/relay/status', (req, res) => {
+  const data = readData(), c = data.settings.relay, st = data.relayState;
+  res.json({
+    enabled: !!c.enabled, baseUrl: c.baseUrl, hasToken: !!c.token, on: relay.ready(c),
+    connected: !!st.connected, lastSeenAt: st.lastSeenAt, lastError: st.lastError, grantAt: st.grantAt, collected: st.collected,
+    bookingUrl: c.baseUrl && st.bookingPath ? c.baseUrl + st.bookingPath : '',
+  });
+});
+app.post('/api/relay/test', async (req, res) => {
+  const data = readData();
+  const b = req.body || {};
+  const cfg = { baseUrl: String(b.baseUrl || data.settings.relay.baseUrl || '').trim().replace(/\/+$/, ''), token: String(b.token || '').trim() || data.settings.relay.token };
+  if (!cfg.baseUrl) return res.status(400).json({ error: 'Enter the relay address first' });
+  if (!cfg.token) return res.status(400).json({ error: 'Enter the venue token first' });
+  try { const r = await relay.ping(cfg); res.json({ ok: true, venue: r.venue && r.venue.name, bookingUrl: cfg.baseUrl + ((r.venue && r.venue.bookingUrl) || '') }); }
+  catch (e) { res.status(502).json({ error: e.message }); }
+});
+app.post('/api/relay/sync', async (req, res) => {
+  const data = readData();
+  if (!relay.ready(data.settings.relay)) return res.status(400).json({ error: 'The relay link is off' });
+  const out = await relayPass(true);
+  const st = readData().relayState;
+  if (!st.connected) return res.status(502).json({ error: st.lastError || 'The relay did not answer' });
+  res.json(out || { collected: 0, granted: false });
+});
+
+// One item from the relay, written into the diary. Decided against the diary
+// as it stands after the item before it (relaysync.decide), so a booking and
+// its own cancel in one pull come out right, and one delivered twice is one.
+function applyRelayItem(data, item) {
+  const p = item.payload || {};
+  const what = relaysync.decide(item, data);
+  const now = Date.now();
+  if (what === 'create') {
+    const r = relaysync.bookingFrom(Object.assign({}, p, { notes: pos.plainText(p.notes) }), ctxOf(data), { id: newId('rv'), now });
+    const g = touchGuest(data, r);
+    r.events = [history.createdEvent(r, 'Online', now, evOpts(data))];
+    data.reservations.push(r);
+    retireNotify(data, r, '', 'Online');
+    recountGuest(data, g.id);
+    logAudit(data, 'Online', `Online booking: ${r.name} (${r.partySize}, ${r.time})${r.tableId ? '' : ' — no table free'}`);
+  } else if (what === 'cancel') {
+    const r = data.reservations.find(x => x.ref === String(p.ref).toUpperCase());
+    const before = Object.assign({}, r);
+    r.status = 'cancelled'; r.cancelledAt = now; r.cancelReason = 'Cancelled by the guest online'; r.updatedAt = now;
+    r.events = history.append(r.events, history.changeEvents(before, r, { by: 'Online', at: now }, evOpts(data)));
+    raiseOpening(data, r, 'cancelled', 'Online');
+    recountGuest(data, r.guestId);
+    logAudit(data, 'Online', `Guest cancelled online: ${r.name} (${r.time})`);
+  } else if (what === 'keep') {
+    const r = data.reservations.find(x => x.ref === String(p.ref).toUpperCase());
+    logAudit(data, 'Online', `${r.name} tried to cancel online, but they are already here — nothing changed`);
+  } else if (what === 'notify') {
+    const s = effectiveSettings(data), slots = av.slotTimes(s, p.date);
+    const from = HHMM.test(String(p.fromTime || '')) ? p.fromTime : (slots[0] || '17:00');
+    const to = HHMM.test(String(p.toTime || '')) && av.toMin(p.toTime) >= av.toMin(from) ? p.toTime : (slots[slots.length - 1] || from);
+    const e = {
+      id: newId('nt'), ref: notifyRef(), relayId: p.id, name: String(p.name).trim().slice(0, 60), phone: String(p.phone || '').trim().slice(0, 30), email: '',
+      partySize: Math.max(1, parseInt(p.partySize, 10) || 1), date: p.date, from, to, wanted: wantedTime(s, p.date, from, to), notes: '',
+      source: 'online', status: 'waiting', createdAt: now, createdBy: 'Online', notifiedAt: null, bookedAt: null, bookingId: null,
+    };
+    data.notify.push(e);
+    logAudit(data, 'Online', `Notify list: ${e.name} (${e.partySize}) for ${e.date} ${e.from}–${e.to}`);
+  }
+  return what;
+}
+
+let _relayBusy = false, _relayAgain = false, _relayTimer = null;
+async function relayPass(forceGrant) {
+  if (_relayBusy) { _relayAgain = true; return null; }
+  _relayBusy = true;
+  const out = { collected: 0, granted: false };
+  try {
+    let data = readData();
+    const cfg = data.settings.relay;
+    if (!relay.ready(cfg)) { if (data.relayState.connected) { data.relayState.connected = false; writeData(data); } return null; }
+    const ping = await relay.ping(cfg);
+    // COLLECT: pull, write into the diary, and only once that is on disk say
+    // "got them". A pass that dies in between costs a repeat — which decide()
+    // turns into nothing — and never a lost booking.
+    for (let round = 0; round < 20 && ping.waiting > 0; round++) {
+      const got = await relay.pull(cfg, 0);
+      const items = (got && got.items) || [];
+      if (!items.length) break;
+      data = readData();
+      const whats = items.map(it => applyRelayItem(data, it));
+      writeData(data);
+      await relay.ack(cfg, got.cursor);
+      out.changed = (out.changed || 0) + whats.filter(w => !['skip', 'dupe'].includes(w)).length;
+      out.collected += whats.filter(w => w === 'create').length;
+      if (!got.more) break;
+    }
+    if (out.changed) kickPos(); // the till's floor hears about them too
+    // GRANT: what may be sold from here on, when it changed, and at least
+    // hourly so the relay never goes a day thinking the venue has vanished.
+    data = readData();
+    const body = relaysync.grantsFor(ctxOf(data), { now: new Date(), accent: (data.theme && data.theme.accent) || '' });
+    const hash = crypto.createHash('sha1').update(JSON.stringify(body)).digest('hex');
+    const st = data.relayState;
+    if (forceGrant || out.changed || hash !== st.grantHash || Date.now() - (st.grantAt || 0) > 3600000) {
+      await relay.grant(cfg, body);
+      out.granted = true;
+    }
+    data = readData();
+    Object.assign(data.relayState, { connected: true, lastSeenAt: Date.now(), lastError: '', bookingPath: (ping.venue && ping.venue.bookingUrl) || data.relayState.bookingPath },
+      out.granted ? { grantAt: Date.now(), grantHash: hash } : {}, out.collected ? { collected: (data.relayState.collected || 0) + out.collected } : {});
+    writeData(data);
+  } catch (e) {
+    const data = readData();
+    if (data.relayState.connected || data.relayState.lastError !== e.message) {
+      data.relayState.connected = false; data.relayState.lastError = e.message;
+      writeData(data);
+    }
+  } finally {
+    _relayBusy = false;
+    if (_relayAgain) { _relayAgain = false; setTimeout(() => relayPass(false), 50); }
+  }
+  return out;
+}
+// A couple of seconds, not a third of one like the till: a burst of edits at
+// the desk is one grant across the internet, not ten.
+function kickRelay() {
+  if (!relay.ready(readData().settings.relay)) return;
+  clearTimeout(_relayTimer);
+  _relayTimer = setTimeout(() => relayPass(false), 2000);
+}
+setInterval(() => relayPass(false), 30000);
+setTimeout(() => relayPass(true), 1500);
 
 // Bookings whose time came and went with nobody arriving: nothing happens by
 // itself (the no-show mark is a human's call), but the day's list can show a
@@ -7908,7 +8334,7 @@ if (require.main === module) {
   });
 }
 
-module.exports = { app, posPass };
+module.exports = { app, posPass, relayPass };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./server'] = module;
