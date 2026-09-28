@@ -3576,7 +3576,9 @@ const DEFAULT_SETTINGS = {
   // not on the venue's wifi. baseUrl like https://book.example.com; the token
   // is the one the relay showed once when the venue was created. It lives in
   // store.local.json, which is gitignored, and is never sent back to a screen.
-  relay: { enabled: false, baseUrl: '', token: '' },
+  // `office` on means the relay also holds a copy of the book for a phone team
+  // in another building (CLOUD-LINK.md) — switched on and off from the desk.
+  relay: { enabled: false, baseUrl: '', token: '', office: false },
 };
 
 const DEFAULT_DATA = {
@@ -4403,6 +4405,25 @@ function slotsFor(ctx, day, party, opts) {
   return out;
 }
 
+// SERVICE WINS. Whether the office — a phone team in another building,
+// working from a copy of the book (CLOUD-LINK.md) — may change this booking
+// now. null when it may; otherwise the reason, which the office is shown.
+//
+// Somebody in another city does not move a table a host has just walked a
+// party to, and does not rearrange the last hour before one arrives: from an
+// hour before its time the booking is the floor's, and the office rings the
+// restaurant instead. A booking that is over is a record, and a record does
+// not change.
+const OFFICE_HANDS_OFF = 60;
+function officeMayChange(r, now) {
+  if (!r) return 'That booking is not in the book any more';
+  if (!isLive(r)) return 'That booking is finished';
+  if (isSat(r) || isHere(r)) return 'They are already here — call the restaurant';
+  const at = timeMs(r.time), t = (now || new Date()).getTime();
+  if (t >= at - OFFICE_HANDS_OFF * 60000) return 'It is within the hour — call the restaurant';
+  return null;
+}
+
 // Whether an online guest may book this day at all.
 function onlineDayReason(settings, day, now) {
   now = now || new Date();
@@ -4958,7 +4979,7 @@ function runSheet(ctx, day, opts) {
 module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor,
+  freeTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -6367,9 +6388,13 @@ function ready(config) { return !!(config && config.enabled && config.baseUrl &&
 const ping = (c) => request(c, 'GET', '/api/venue/ping');
 const grant = (c, body) => request(c, 'POST', '/api/venue/grant', body);
 const pull = (c, after) => request(c, 'GET', '/api/venue/pull?after=' + (parseInt(after, 10) || 0));
-const ack = (c, through) => request(c, 'POST', '/api/venue/ack', { through });
+const ack = (c, through, refused) => request(c, 'POST', '/api/venue/ack', { through, refused: refused || [] });
+// The office: on hands back a fresh sign-in code, shown once; off takes the
+// code, every session and the relay's copy of the book away with it.
+const officeOn = (c) => request(c, 'POST', '/api/venue/office');
+const officeOff = (c) => request(c, 'DELETE', '/api/venue/office');
 
-module.exports = { ready, ping, grant, pull, ack };
+module.exports = { ready, ping, grant, pull, ack, officeOn, officeOff };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relay'] = module;
@@ -6473,14 +6498,79 @@ function dayGrant(ctx, day, now) {
 }
 
 // Everything the relay is told on a grant: who the venue is, and every date
-// from today to GRANT_DAYS out.
+// from today to GRANT_DAYS out — and, only while the venue has an office
+// switched on, the office's copy of the book.
 function grantsFor(ctx, opts) {
   opts = opts || {};
   const now = opts.now || new Date();
   const today = av.localDay(now);
   const grants = [];
   for (let i = 0; i < GRANT_DAYS; i++) grants.push(dayGrant(ctx, av.addDays(today, i), now));
-  return { info: infoOf(ctx, Object.assign({}, opts, { now })), grants };
+  const out = { info: infoOf(ctx, Object.assign({}, opts, { now })), grants };
+  out.replica = opts.office ? replicaOf(ctx, now, opts.tableLabel) : null;
+  return out;
+}
+
+// ---------- the office's copy ----------
+//
+// THE PRICE OF AN OFFICE IS PAID HERE. Everything else the relay holds is a
+// quota and the bookings it has not handed over; this is the book itself —
+// names, phones, notes — for every day the relay sells, and only for a venue
+// that switched its office on. It goes one way: the desk never reads it back,
+// and if the two disagree the diary is right by definition. `locked` says,
+// in the office's own words, why a booking cannot be changed from there.
+
+// The stamp the office names when it asks for a change, and the one the desk
+// checks it against. One expression on both sides, or they can never agree.
+function stampOf(r) { return Number(r && (r.updatedAt || r.createdAt)) || 0; }
+
+function replicaOf(ctx, now, tableLabel) {
+  const today = av.localDay(now), last = av.addDays(today, GRANT_DAYS - 1);
+  const label = tableLabel || ((id) => id);
+  const rows = [];
+  for (const r of (ctx.reservations || [])) {
+    const day = r && av.dayOf(r.time);
+    if (!day || day < today || day > last) continue;
+    rows.push({
+      id: r.id, ref: r.ref || '', name: r.name || '', phone: r.phone || '', partySize: r.partySize,
+      time: r.time, status: r.status, notes: r.notes || '', table: av.heldTables(r).map(label).join('+'),
+      updatedAt: stampOf(r), source: r.source || '', locked: av.officeMayChange(r, now) || '',
+    });
+  }
+  return { asOf: now.getTime(), bookings: rows };
+}
+
+// Why the desk will not apply this office change, or null when it will.
+// THE VERSION first — the office names the stamp it was looking at, and if
+// the booking has moved since, it is told so and shown the booking as it is,
+// rather than silently overwriting what the desk did thirty seconds ago —
+// and then SERVICE WINS (av.officeMayChange).
+function editRefusal(item, diary, now) {
+  const p = (item && item.payload) || {};
+  const r = ((diary && diary.reservations) || []).find(x => x.id === p.id);
+  if (!r) return 'That booking is not in the book any more';
+  if (stampOf(r) !== Number(p.was)) return 'It changed while you had it open — here it is now';
+  return av.officeMayChange(r, now);
+}
+
+// The booking with the office's change in it. A new time or party size keeps
+// its tables only if they are still free then and still seat everyone;
+// otherwise it gives them up, and autoAssign() lays it out again like any
+// booking nobody has placed — never onto a table somebody else holds.
+function editedBooking(r, patch, ctx) {
+  const n = Object.assign({}, r);
+  for (const k of ['name', 'phone', 'notes']) if (patch[k] !== undefined) n[k] = String(patch[k]);
+  if (patch.partySize >= 1) n.partySize = patch.partySize;
+  if (patch.time && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(patch.time)) n.time = patch.time;
+  if (n.time !== r.time || n.partySize !== r.partySize) {
+    const ids = av.heldTables(n);
+    const day = av.dayOf(n.time), start = av.minsOf(n.time);
+    const dur = av.durationFor(ctx.settings, n.partySize, n.durationMin);
+    const seats = ids.reduce((sum, id) => sum + ((ctx.tables || []).find(t => t.id === id) || { seats: 0 }).seats, 0);
+    const clash = ids.some(id => av.holdersOf(ctx, id, day, start, dur, r.id).length);
+    if (ids.length && (clash || seats < n.partySize)) { n.tableId = null; n.tableIds = []; }
+  }
+  return n;
 }
 
 // ---------- collecting ----------
@@ -6500,7 +6590,7 @@ const HHMM_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 //            floor outranks a guest's phone
 //   notify   a notify-list entry the diary does not have
 //   skip     nothing to do, or nonsense
-function decide(item, diary) {
+function decide(item, diary, now) {
   const p = (item && item.payload) || {};
   const ref = String(p.ref || '').toUpperCase();
   const rows = (diary && diary.reservations) || [];
@@ -6512,6 +6602,11 @@ function decide(item, diary) {
     const r = rows.find(x => x.ref === ref);
     if (!r || ['cancelled', 'no-show', 'done'].includes(r.status)) return 'skip';
     return av.isSat(r) || av.isHere(r) ? 'keep' : 'cancel';
+  }
+  if (item.kind === 'edit') {
+    //   edit     an office change the desk applies
+    //   refuse   one it will not (editRefusal says why)
+    return editRefusal(item, diary, now || new Date()) ? 'refuse' : 'edit';
   }
   if (item.kind === 'notify') {
     if (!p.id || !String(p.name || '').trim() || !DAY_RE.test(p.date)) return 'skip';
@@ -6537,12 +6632,14 @@ function bookingFrom(payload, ctx, opts) {
     phone: String(payload.phone || '').trim().slice(0, 30), email: String(payload.email || '').trim().slice(0, 80),
     partySize: party, time: av.joinTime(day, hhmm), durationMin: null,
     tableId: t ? t.id : null, tableIds: [], notes: String(payload.notes || '').trim().slice(0, 300),
-    tags: [], setMenu: null, status: 'booked', source: 'online',
-    ref: String(payload.ref).toUpperCase(), createdAt: opts.now, updatedAt: opts.now, createdBy: 'Online',
+    // A booking the office took on the phone is the desk's own kind of
+    // booking — a person took it — and says who in createdBy and history.
+    tags: [], setMenu: null, status: 'booked', source: payload.by === 'Office' ? 'staff' : 'online',
+    ref: String(payload.ref).toUpperCase(), createdAt: opts.now, updatedAt: opts.now, createdBy: payload.by === 'Office' ? 'Office' : 'Online',
   };
 }
 
-module.exports = { GRANT_DAYS, grantsFor, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom };
+module.exports = { GRANT_DAYS, grantsFor, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, editedBooking };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relaysync'] = module;
@@ -6700,7 +6797,7 @@ function safeSettings(data) {
   s.pos = Object.assign({}, s.pos); // nothing secret in here today, but keep the seam
   // The relay token never goes back to a screen: whoever has it can collect
   // this venue's bookings. The card only needs to know one is saved.
-  s.relay = { enabled: !!s.relay.enabled, baseUrl: s.relay.baseUrl || '', hasToken: !!s.relay.token };
+  s.relay = { enabled: !!s.relay.enabled, baseUrl: s.relay.baseUrl || '', hasToken: !!s.relay.token, office: !!s.relay.office };
   return s;
 }
 app.get('/api/settings', (req, res) => { res.json(safeSettings(readData())); });
@@ -8101,6 +8198,7 @@ app.get('/api/relay/status', (req, res) => {
     enabled: !!c.enabled, baseUrl: c.baseUrl, hasToken: !!c.token, on: relay.ready(c),
     connected: !!st.connected, lastSeenAt: st.lastSeenAt, lastError: st.lastError, grantAt: st.grantAt, collected: st.collected,
     bookingUrl: c.baseUrl && st.bookingPath ? c.baseUrl + st.bookingPath : '',
+    office: !!c.office, officeUrl: c.office && c.baseUrl && st.bookingPath ? c.baseUrl + st.bookingPath.replace(/^\/book\//, '/office/') : '',
   });
 });
 app.post('/api/relay/test', async (req, res) => {
@@ -8121,21 +8219,66 @@ app.post('/api/relay/sync', async (req, res) => {
   res.json(out || { collected: 0, granted: false });
 });
 
+// THE OFFICE, switched on or off from here. On asks the relay for a fresh
+// sign-in code, which this reply shows ONCE and nothing stores; asking again
+// is how a leaked code is replaced, and it signs everybody out. Off takes the
+// code, the sessions and the relay's copy of the book away.
+app.post('/api/relay/office', async (req, res) => {
+  const data = readData(), cfg = data.settings.relay;
+  if (!relay.ready(cfg)) return res.status(400).json({ error: 'Link the relay first' });
+  try {
+    const r = await relay.officeOn(cfg);
+    const d = readData(); d.settings.relay.office = true;
+    logAudit(d, 'The desk', 'Office switched on, new sign-in code');
+    writeData(d);
+    res.json({ code: r.code, officeUrl: cfg.baseUrl + r.officeUrl });
+    setTimeout(() => relayPass(true), 10);
+  } catch (e) { res.status(502).json({ error: e.message }); }
+});
+app.delete('/api/relay/office', async (req, res) => {
+  const data = readData(), cfg = data.settings.relay;
+  const d = readData(); d.settings.relay.office = false; logAudit(d, 'The desk', 'Office switched off'); writeData(d);
+  if (relay.ready(cfg)) { try { await relay.officeOff(cfg); } catch (e) { return res.status(502).json({ error: 'Switched off here, but the relay did not answer: ' + e.message }); } }
+  res.json({ ok: true });
+});
+
 // One item from the relay, written into the diary. Decided against the diary
 // as it stands after the item before it (relaysync.decide), so a booking and
 // its own cancel in one pull come out right, and one delivered twice is one.
 function applyRelayItem(data, item) {
   const p = item.payload || {};
-  const what = relaysync.decide(item, data);
+  const what = relaysync.decide(item, data, new Date());
   const now = Date.now();
   if (what === 'create') {
     const r = relaysync.bookingFrom(Object.assign({}, p, { notes: pos.plainText(p.notes) }), ctxOf(data), { id: newId('rv'), now });
     const g = touchGuest(data, r);
-    r.events = [history.createdEvent(r, 'Online', now, evOpts(data))];
     data.reservations.push(r);
     retireNotify(data, r, '', 'Online');
     recountGuest(data, g.id);
-    logAudit(data, 'Online', `Online booking: ${r.name} (${r.partySize}, ${r.time})${r.tableId ? '' : ' — no table free'}`);
+    const who = r.createdBy;
+    r.events = [history.createdEvent(r, who, now, evOpts(data))];
+    logAudit(data, who, `${who === 'Office' ? 'Office' : 'Online'} booking: ${r.name} (${r.partySize}, ${r.time})${r.tableId ? '' : ' — no table free'}`);
+  } else if (what === 'edit') {
+    // THE OFFICE'S CHANGE, applied as the desk would apply its own: merged
+    // into the stored booking, history written by 'Office', the till told.
+    const r = data.reservations.find(x => x.id === p.id);
+    const before = Object.assign({}, r);
+    if (p.cancel) {
+      r.status = 'cancelled'; r.cancelledAt = now; r.cancelReason = 'Cancelled by the office';
+    } else {
+      Object.assign(r, relaysync.editedBooking(r, p.patch || {}, ctxOf(data)));
+    }
+    r.updatedAt = now;
+    r.events = history.append(r.events, history.changeEvents(before, r, { by: 'Office', at: now }, evOpts(data)));
+    if (p.cancel) raiseOpening(data, r, 'cancelled', 'Office');
+    const pt = p.patch || {};
+    if (!p.cancel && (pt.phone !== undefined || pt.name !== undefined)) touchGuest(data, r);
+    recountGuest(data, r.guestId);
+    logAudit(data, 'Office', `Office ${p.cancel ? 'cancelled' : 'changed'} ${r.name} (${r.time})`);
+  } else if (what === 'refuse') {
+    const r = data.reservations.find(x => x.id === p.id);
+    logAudit(data, 'Office', `Office change to ${p.name || 'a booking'} not applied: ${relaysync.editRefusal(item, data, new Date())}`);
+    return { what, why: relaysync.editRefusal(item, data, new Date()), now: r ? relaysync.replicaOf(Object.assign(ctxOf(data), { reservations: [r] }), new Date(), evOpts(data).tableLabel).bookings[0] || null : null };
   } else if (what === 'cancel') {
     const r = data.reservations.find(x => x.ref === String(p.ref).toUpperCase());
     const before = Object.assign({}, r);
@@ -8159,7 +8302,7 @@ function applyRelayItem(data, item) {
     data.notify.push(e);
     logAudit(data, 'Online', `Notify list: ${e.name} (${e.partySize}) for ${e.date} ${e.from}–${e.to}`);
   }
-  return what;
+  return { what };
 }
 
 let _relayBusy = false, _relayAgain = false, _relayTimer = null;
@@ -8180,10 +8323,11 @@ async function relayPass(forceGrant) {
       const items = (got && got.items) || [];
       if (!items.length) break;
       data = readData();
-      const whats = items.map(it => applyRelayItem(data, it));
+      const done = items.map(it => Object.assign({ seq: it.seq }, applyRelayItem(data, it)));
+      const whats = done.map(d => d.what);
       writeData(data);
-      await relay.ack(cfg, got.cursor);
-      out.changed = (out.changed || 0) + whats.filter(w => !['skip', 'dupe'].includes(w)).length;
+      await relay.ack(cfg, got.cursor, done.filter(d => d.what === 'refuse').map(d => ({ seq: d.seq, id: (items.find(i => i.seq === d.seq).payload || {}).id, why: d.why, now: d.now })));
+      out.changed = (out.changed || 0) + whats.filter(w => !['skip', 'dupe', 'refuse'].includes(w)).length;
       out.collected += whats.filter(w => w === 'create').length;
       if (!got.more) break;
     }
@@ -8191,7 +8335,7 @@ async function relayPass(forceGrant) {
     // GRANT: what may be sold from here on, when it changed, and at least
     // hourly so the relay never goes a day thinking the venue has vanished.
     data = readData();
-    const body = relaysync.grantsFor(ctxOf(data), { now: new Date(), accent: (data.theme && data.theme.accent) || '' });
+    const body = relaysync.grantsFor(ctxOf(data), { now: new Date(), accent: (data.theme && data.theme.accent) || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel });
     const hash = crypto.createHash('sha1').update(JSON.stringify(body)).digest('hex');
     const st = data.relayState;
     if (forceGrant || out.changed || hash !== st.grantHash || Date.now() - (st.grantAt || 0) > 3600000) {
