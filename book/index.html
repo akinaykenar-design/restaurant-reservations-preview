@@ -346,7 +346,6 @@ h1,h2,h3{margin:0;}
 .tabs{display:flex;gap:var(--deck-gap);overflow-x:auto;min-width:0;}
 .tab-btn{background:var(--deck-chip-bg);border:1px solid var(--deck-chip-line);color:var(--deck-chip-ink);font-weight:600;font-size:var(--fs-md);padding:8px 12px;border-radius:var(--r-control);min-height:var(--tap);min-width:84px;text-align:center;white-space:nowrap;}
 .tab-btn.active{background:var(--deck-chip-on-bg);border-color:var(--deck-chip-on-bg);color:var(--deck-chip-on-ink);}
-.deck-spacer{flex:1;}
 .deck-sq{width:var(--tap);height:var(--tap);min-width:var(--tap);border-radius:var(--r-control);border:1px solid var(--deck-chip-line);background:var(--deck-chip-bg);color:var(--deck-chip-ink);display:inline-flex;align-items:center;justify-content:center;}
 /* Ghost: the target is still 44, but nothing is drawn until a finger is on it.
    A day arrow is not a key you weigh up, it is the way to the night before. */
@@ -1709,9 +1708,22 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    far left, the date centred three inches away with the services stacked
    under it in a second line — three separate things saying one thing: which
    night, and which part of it. One pill now, three segments with a hairline
-   between, and the GROUP is what is centred. */
-.deck-mid{position:absolute;left:50%;transform:translateX(-50%);max-width:66%;
-  display:flex;align-items:center;gap:var(--deck-gap);min-width:0;}
+   between, and the GROUP is what is centred.
+   THE PILL NEVER LIES OVER THE KEYS. It was absolutely positioned at the
+   bar's middle, which is only safe while the bar is wide enough for both:
+   at a tablet's 820 with the till key showing, the service stepper sat on
+   top of the till key. The bar is three columns now — nothing, the pill,
+   the keys — and the two outer ones share what is left equally, so the pill
+   is dead centre whenever there is room. When there is not, the keys'
+   column keeps its full width (max-content) and the pill slides left rather
+   than over them. */
+.deck-mid{display:flex;align-items:center;gap:var(--deck-gap);min-width:0;}
+.deck-keys{display:flex;align-items:center;gap:var(--deck-gap);}
+@media (min-width:761px){
+  .topbar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(max-content,1fr);}
+  .deck-mid{grid-column:2;}
+  .deck-keys{grid-column:3;justify-self:end;}
+}
 .deck-pill{display:flex;align-items:center;gap:4px;min-width:0;height:var(--tap);
   padding:0;border-radius:var(--r-pill);background:var(--deck-pill-bg);
   color:var(--text-primary);}
@@ -1820,7 +1832,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .deck-mid{position:static;transform:none;flex:1;min-width:0;max-width:none;}
   .deck-pill{flex:1;min-width:0;background:none;padding:0;height:auto;}
   .deck-pill .pill-lbl{padding:0;font-size:var(--fs-lg);}
-  .deck-spacer{display:none;}
   .topbar{gap:4px;}
   /* THE BAND IS THE SEGMENTED CONTROL DOWN HERE, not a row of secondary keys.
      38 is the height a secondary chip takes; this one is how a thumb gets
