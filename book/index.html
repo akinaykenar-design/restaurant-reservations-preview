@@ -1988,6 +1988,56 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    picker, because the picker's answer would be a second source. `disabled`
    is what stops the press; the ONE dim says it is not yours to change. */
 .colour-row.from-till .colour-dot-btn{cursor:default;opacity:var(--dim);}
+
+/* §§ THE MOCKUPS' LOOK (owner, Sep '26: "your mockups looked better")
+   The no-rail build kept the old skin, and next to the mockups it was plain
+   which one read better. What the mockups did, as law:
+
+   ONE CONTROL FAMILY. Every control in the bar and at the head of the book is
+   the same object: a WELL of the pill's grey, corner --r-control, four of air
+   inside it, and 44 segments with corner --r-btn. The segment you are on is
+   the paper, lifted out of the well. A key that MAKES something (Walk-in,
+   Book) is the same shape filled with ink and says its word as well as its
+   glyph — a host reads a word across a stand. The bar is the paper, so the
+   wells show on it; it grows to 68 to hold a 52 well at 8 of air.
+
+   THE BOOK IS CARDS, the POS's own Row law: corner 10, one hairline, eight
+   apart, 56 tall, and the group heads are a word and a count on the paper
+   rather than grey bars across it. */
+@media (min-width:761px){
+  .topbar{background:var(--surface);min-height:68px;padding:8px 16px;}
+  .deck-pill,.deck-tabs{height:52px;padding:4px;gap:4px;border-radius:var(--r-control);background:var(--deck-pill-bg);}
+  .deck-pill .pill-arw,.deck-pill .pill-lbl,.deck-tab{border-radius:var(--r-btn);}
+  .deck-pill .pill-lbl[data-act="open-cal"]{background:var(--surface);box-shadow:var(--lift-1);}
+  .deck-pill .pill-sep{display:none;}
+  .deck-keys{gap:8px;}
+  .deck-keys .deck-sq{height:52px;min-width:52px;border:none;border-radius:var(--r-control);background:var(--deck-pill-bg);color:var(--text-primary);}
+  .deck-keys .deck-sq.make{width:auto;padding:0 16px;gap:8px;background:var(--text-primary);color:var(--surface);font-weight:700;}
+  .deck-keys .deck-sq.on{color:var(--orange);}
+  .deck-word{font-size:var(--fs-md);}
+}
+/* Under 1240 the words go and the two keys are squares again: the bar needs
+   the width for the tabs, and the glyphs are learnt in a shift. */
+@media (min-width:761px) and (max-width:1240px){
+  .deck-word{display:none;}
+  .deck-keys .deck-sq.make{width:52px;padding:0;}
+  .topbar{padding:8px 12px;}
+}
+.side-sw{height:52px;padding:4px;border-radius:var(--r-control);}
+.side-seg{border-radius:var(--r-btn);}
+/* The search is a well too, glass and all: the magnifier sits inside it. */
+.desk-col .bl-find{margin:0 8px 8px;padding:0 4px 0 8px;min-height:48px;border-bottom:none;
+  border-radius:var(--r-control);background:var(--deck-pill-bg);}
+.desk-col .bl-find input,.desk-col .bl-find input:focus{min-height:48px;background:none;border:none;box-shadow:none;}
+.desk-col .bl-find:focus-within{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
+.bl-head{background:none;border-bottom:none;padding:0 16px;}
+.bl-rows{padding:0 8px 4px;gap:8px;}
+.bl-row{border:1px solid var(--steel-200);border-radius:var(--r-control);overflow:hidden;}
+.bl-rows > .bl-row:last-child{border-bottom:1px solid var(--steel-200);}
+.bl-main{min-height:56px;}
+.bl-who b{font-weight:800;}
+.bl-pax{font-size:var(--fs-xl);}
+.bl-st{border:none;}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
