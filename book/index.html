@@ -864,7 +864,7 @@ body.book-page #app{display:block;height:auto;}
    what carry the colour. Two apps drawing one floor two ways is the drift
    this repo exists to avoid, so the slab is gone. */
 .fl-room{position:relative;aspect-ratio:900/560;width:100%;min-width:560px;
-  background:var(--floor-bg, var(--steel-100));border:1px solid var(--steel-200);
+  background:var(--steel-100);border:1px solid var(--steel-200);
   border-radius:var(--r-control);overflow:hidden;container-type:inline-size;}
 .desk-main .fl-room{border:none;border-radius:0;}
 /* No geometry from the POS: a plain wrapped row, which keeps the states, the
@@ -1052,9 +1052,12 @@ body.book-page #app{display:block;height:auto;}
 .fl-art{width:86%;height:86%;display:flex;align-items:center;justify-content:center;}
 .fl-art svg{width:100%;height:100%;display:block;}
 .fl-emoji{font-size:clamp(8px,96cqmin,480px);line-height:1;}
+/* A TEXT LABEL is the venue's own words, sized off its own box like the
+   artwork beside it — the till's .fl-text. */
+.fl-text{font-weight:700;font-size:52cqmin;line-height:1;white-space:nowrap;letter-spacing:.04em;color:var(--text-primary);}
 /* A wall is an object the venue never named and never coloured — the pencil
    line itself, lighter still than the furniture. */
-.fl-decor.wall{background:var(--steel-500);border:none;opacity:.5;}
+.fl-decor.wall{border:none;opacity:.5;}
 
 /* §§ Flow — the shape of the night
    Two series on one plot: the bars are covers walking IN, the pale block
@@ -1578,7 +1581,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   font-family:inherit;font-size:var(--fs-lg);font-weight:600;white-space:nowrap;cursor:pointer;}
 .fl-room-chip.on{background:var(--orange);color:#fff;}
 .desk-main > .fl-wrap{position:relative;flex:1 1 auto;min-height:0;padding:0;
-  background:var(--floor-bg, var(--steel-100));
+  background:var(--steel-100);
   display:flex;align-items:safe center;justify-content:safe center;overflow:hidden;
   touch-action:none;overscroll-behavior:contain;container-type:size;}
 .fl-stage{display:flex;align-items:center;justify-content:center;
@@ -7223,12 +7226,11 @@ app.get('/api/tables', (req, res) => {
     // leaving it off meant those came across as a blank box.
     decorType: t.type === 'decor' ? (t.decorType || null) : null,
     icon: t.type === 'decor' ? String(t.icon || '').slice(0, 8) : '',
-    // THE TABLE TOP, and the colour the venue painted it. The till dresses the
-    // room — oak, burgundy cloth, marble — and this is the same room, so it is
-    // dressed the same way: the finish IS the table, and a booking is a wash
-    // over it. Leaving it off drew a different room from the one the floor
-    // staff look at all night.
-    finish: t.finish || null, color: t.color || null,
+    // The colour the venue painted this one table by hand. No FINISH: the
+    // till dropped its table tops in Sep '26 and a saved one is read by
+    // nothing there, so it is read by nothing here. A LABEL's words ride
+    // `label`, which every object already carries.
+    color: t.color || null,
     // WHAT THE TILL KNOWS AND THE BOOK DOES NOT: how many are sitting there
     // right now. A table the desk never booked is a walk-in on the floor,
     // and without this the desk draws it free and offers it to the phone.
@@ -7244,7 +7246,7 @@ app.get('/api/tables', (req, res) => {
   });
   res.json({
     tables: floorTablesOf(data),
-    floorPlans: data.floorPlans.map(fp => ({ id: fp.id, name: fp.name, bgColor: fp.bgColor || null, tables: (fp.tables || []).filter(t => !t.mergedInto).map(shape) })),
+    floorPlans: data.floorPlans.map(fp => ({ id: fp.id, name: fp.name, height: Number(fp.height) || null, tables: (fp.tables || []).filter(t => !t.mergedInto).map(shape) })),
     fromPos: !!(data.posState && data.posState.connected),
     billFromTill: av.tillSendsBill([].concat(...(data.floorPlans || []).map(fp => fp.tables || []))),
   });
@@ -8741,6 +8743,7 @@ module.exports = { app, posPass, relayPass };
 })();
 </script>
 <script>window.__RESV__.boot();</script>
+
 <script>// book.js — the guests' page. One column, four steps, no sign-in:
 // how many, which day, what time, who you are. Everything it knows comes
 // from /api/public/*, which never exposes other guests' bookings.

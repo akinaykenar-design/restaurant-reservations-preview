@@ -879,7 +879,7 @@ body.book-page #app{display:block;height:auto;}
    what carry the colour. Two apps drawing one floor two ways is the drift
    this repo exists to avoid, so the slab is gone. */
 .fl-room{position:relative;aspect-ratio:900/560;width:100%;min-width:560px;
-  background:var(--floor-bg, var(--steel-100));border:1px solid var(--steel-200);
+  background:var(--steel-100);border:1px solid var(--steel-200);
   border-radius:var(--r-control);overflow:hidden;container-type:inline-size;}
 .desk-main .fl-room{border:none;border-radius:0;}
 /* No geometry from the POS: a plain wrapped row, which keeps the states, the
@@ -1067,9 +1067,12 @@ body.book-page #app{display:block;height:auto;}
 .fl-art{width:86%;height:86%;display:flex;align-items:center;justify-content:center;}
 .fl-art svg{width:100%;height:100%;display:block;}
 .fl-emoji{font-size:clamp(8px,96cqmin,480px);line-height:1;}
+/* A TEXT LABEL is the venue's own words, sized off its own box like the
+   artwork beside it — the till's .fl-text. */
+.fl-text{font-weight:700;font-size:52cqmin;line-height:1;white-space:nowrap;letter-spacing:.04em;color:var(--text-primary);}
 /* A wall is an object the venue never named and never coloured — the pencil
    line itself, lighter still than the furniture. */
-.fl-decor.wall{background:var(--steel-500);border:none;opacity:.5;}
+.fl-decor.wall{border:none;opacity:.5;}
 
 /* §§ Flow — the shape of the night
    Two series on one plot: the bars are covers walking IN, the pale block
@@ -1593,7 +1596,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   font-family:inherit;font-size:var(--fs-lg);font-weight:600;white-space:nowrap;cursor:pointer;}
 .fl-room-chip.on{background:var(--orange);color:#fff;}
 .desk-main > .fl-wrap{position:relative;flex:1 1 auto;min-height:0;padding:0;
-  background:var(--floor-bg, var(--steel-100));
+  background:var(--steel-100);
   display:flex;align-items:safe center;justify-content:safe center;overflow:hidden;
   touch-action:none;overscroll-behavior:contain;container-type:size;}
 .fl-stage{display:flex;align-items:center;justify-content:center;
@@ -7237,12 +7240,11 @@ app.get('/api/tables', (req, res) => {
     // leaving it off meant those came across as a blank box.
     decorType: t.type === 'decor' ? (t.decorType || null) : null,
     icon: t.type === 'decor' ? String(t.icon || '').slice(0, 8) : '',
-    // THE TABLE TOP, and the colour the venue painted it. The till dresses the
-    // room — oak, burgundy cloth, marble — and this is the same room, so it is
-    // dressed the same way: the finish IS the table, and a booking is a wash
-    // over it. Leaving it off drew a different room from the one the floor
-    // staff look at all night.
-    finish: t.finish || null, color: t.color || null,
+    // The colour the venue painted this one table by hand. No FINISH: the
+    // till dropped its table tops in Sep '26 and a saved one is read by
+    // nothing there, so it is read by nothing here. A LABEL's words ride
+    // `label`, which every object already carries.
+    color: t.color || null,
     // WHAT THE TILL KNOWS AND THE BOOK DOES NOT: how many are sitting there
     // right now. A table the desk never booked is a walk-in on the floor,
     // and without this the desk draws it free and offers it to the phone.
@@ -7258,7 +7260,7 @@ app.get('/api/tables', (req, res) => {
   });
   res.json({
     tables: floorTablesOf(data),
-    floorPlans: data.floorPlans.map(fp => ({ id: fp.id, name: fp.name, bgColor: fp.bgColor || null, tables: (fp.tables || []).filter(t => !t.mergedInto).map(shape) })),
+    floorPlans: data.floorPlans.map(fp => ({ id: fp.id, name: fp.name, height: Number(fp.height) || null, tables: (fp.tables || []).filter(t => !t.mergedInto).map(shape) })),
     fromPos: !!(data.posState && data.posState.connected),
     billFromTill: av.tillSendsBill([].concat(...(data.floorPlans || []).map(fp => fp.tables || []))),
   });
@@ -8755,6 +8757,105 @@ module.exports = { app, posPass, relayPass };
 })();
 </script>
 <script>window.__RESV__.boot();</script>
+<script>// GENERATED from restaurant-pos e9470ad public/app.js and style.css by tools/pos-floor.js.
+// Do not edit: every line here is the till's own. Run `node tools/pos-floor.js`.
+const FLOOR_ROOM = 4;
+const STD_FLOOR_H = 560;
+const STD_FLOOR_W = 900;
+function tableHalfExtents(w, h, rot, fpHeight) {
+  const rad = ((rot || 0) * Math.PI) / 180;
+  const c = Math.abs(Math.cos(rad)), s = Math.abs(Math.sin(rad));
+  const r = (fpHeight || 500) / 900; // canvas H/W ratio (aspect-ratio 900/fpHeight)
+  return {
+    hw: Math.min(((w || 0) * c + (h || 0) * r * s) / 2, 50),
+    hh: Math.min(((w || 0) / r * s + (h || 0) * c) / 2, 50),
+  };
+}
+function tableRadiusFor(t) {
+  if (!t || t.shape === 'round' || t.shape === 'oval') return '50%';
+  const wpx = (t.width || 10) * 9, hpx = (t.height || 10) * (STD_FLOOR_H / 100);
+  const r = 0.16 * Math.min(wpx, hpx);
+  return `${(r / wpx * 100).toFixed(1)}% / ${(r / hpx * 100).toFixed(1)}%`;
+}
+const LABEL_KEYS = ['text', 'exit', 'arrow'];
+const isLabelType = (k) => LABEL_KEYS.includes(k);
+const DECOR_ART = {
+  'bar-counter': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="6" y="9" width="36" height="13" rx="4" fill="#7a4a24"/><rect x="6" y="9" width="36" height="4.5" rx="4" fill="#9a6238"/><circle cx="14" cy="16" r="1.7" fill="#e6c79a"/><circle cx="21" cy="16" r="1.7" fill="#cf9155"/><circle cx="28" cy="16" r="1.7" fill="#8fce6b"/><circle cx="35" cy="16" r="1.7" fill="#d96b6b"/><circle cx="12" cy="32" r="3.2" fill="#c66a2f"/><circle cx="22" cy="32" r="3.2" fill="#c66a2f"/><circle cx="32" cy="32" r="3.2" fill="#c66a2f"/><circle cx="41" cy="32" r="3.2" fill="#c66a2f"/></svg>`,
+  'host-stand': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="16" y="21" width="16" height="19" rx="2" fill="#8a5a34"/><rect x="20" y="40" width="8" height="2.5" rx="1" fill="#6e4526"/><path d="M12 13 L36 13 L33 23 L15 23 Z" fill="#a06a3c"/><rect x="18" y="15.5" width="12" height="5" rx="1.2" fill="#eadfc6"/><path d="M24 15.5 v5" stroke="#c8bca0" stroke-width="1"/></svg>`,
+  'entrance': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><path d="M34 12 A20 20 0 0 1 34 40" fill="none" stroke="#00000026" stroke-width="1.6" stroke-dasharray="2 2.5"/><rect x="14" y="7" width="19" height="35" rx="2.5" fill="#5f81a6"/><rect x="16.5" y="9.5" width="14" height="30" rx="1.5" fill="#7699bd"/><circle cx="28" cy="25" r="1.9" fill="#f0cf6a"/></svg>`,
+  'restroom': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="6" y="8" width="36" height="32" rx="5" fill="#3f6fb0"/><line x1="24" y1="13" x2="24" y2="35" stroke="#ffffff80" stroke-width="1.4"/><circle cx="15" cy="15" r="3" fill="#fff"/><path d="M11.5 20 h7 v8 h-1.6 v7 h-3.8 v-7 h-1.6 z" fill="#fff"/><circle cx="33" cy="15" r="3" fill="#fff"/><path d="M33 19 l-5.5 10 h11 z" fill="#fff"/><rect x="30.4" y="29" width="1.7" height="6" fill="#fff"/><rect x="33.9" y="29" width="1.7" height="6" fill="#fff"/></svg>`,
+  'stairs': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="5" y="33" width="38" height="9" rx="1.5" fill="#9c7b57"/><rect x="13" y="25" width="30" height="9" rx="1.5" fill="#b58d64"/><rect x="21" y="17" width="22" height="9" rx="1.5" fill="#cba071"/><rect x="29" y="9" width="14" height="9" rx="1.5" fill="#e0b57e"/><rect x="5" y="33" width="38" height="2.3" fill="#0000001f"/><rect x="13" y="25" width="30" height="2.3" fill="#0000001f"/><rect x="21" y="17" width="22" height="2.3" fill="#0000001f"/><rect x="29" y="9" width="14" height="2.3" fill="#0000001f"/></svg>`,
+  // The labels. Text shows what it IS in the palette; on the floor it shows
+  // the venue's own words instead (floorMarkerInner).
+  'text': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="8" y="12" width="32" height="5.5" rx="1.6" fill="#5f6672"/><rect x="21" y="15" width="6" height="21" rx="1.6" fill="#5f6672"/></svg>`,
+  'exit': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="2" y="14" width="44" height="20" rx="3" fill="#2e8b57"/><text x="24" y="28.4" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="13" font-weight="700" letter-spacing="0.5" fill="#fff">EXIT</text></svg>`,
+  'arrow': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><path d="M6 19 H26 V9 L43 24 L26 39 V29 H6 Z" fill="#6E7886"/></svg>`,
+  'plant': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><path d="M24 31 C22 21 14 20 13 12 C21 12 24 20 24 27" fill="#4a9d4a"/><path d="M24 29 C24 19 33 17 35 10 C28 10 24 19 24 26" fill="#5cb85c"/><path d="M24 32 C26 25 32 24 34 19 C29 21 25 26 24 30" fill="#3f8f3f"/><path d="M16 30 h16 l-2.2 12 h-11.6 z" fill="#c8622e"/><rect x="14.5" y="28.5" width="19" height="4" rx="1.5" fill="#dd7c40"/></svg>`,
+};
+const WALL_ARM = 'var(--wall-arm)';
+const WALL_ARM_THIN = 'var(--wall-arm-thin)';
+const armShapes = (a) => ({
+  'corner-cut': { clipPath: `polygon(0 0, calc(100% - ${a}) 0, 100% ${a}, 100% 100%, 0 100%)` },
+  corner:       { clipPath: `polygon(0 0, 100% 0, 100% ${a}, ${a} ${a}, ${a} 100%, 0 100%)` },
+  arch:         { clipPath: `polygon(0 0, 100% 0, 100% 100%, calc(100% - ${a}) 100%, calc(100% - ${a}) ${a}, ${a} ${a}, ${a} 100%, 0 100%)` },
+  tee:          { clipPath: `polygon(0 0, 100% 0, 100% ${a}, calc(50% + ${a} / 2) ${a}, calc(50% + ${a} / 2) 100%, calc(50% - ${a} / 2) 100%, calc(50% - ${a} / 2) ${a}, 0 ${a})` },
+});
+const ARM_THICK = armShapes(WALL_ARM), ARM_THIN = armShapes(WALL_ARM_THIN);
+const STRUCTURE_SHAPES = {
+  rect:        { label: 'Bar',            css: {} },
+  square:      { label: 'Block',          css: {} },
+  // SHARP UNLESS THE SHAPE IS ROUND BY NATURE (owner, Sep '26: "And sharp
+  // corners for non round shapes"). A rounded corner leaves a gap where two
+  // walls meet, which is the same complaint as the borders. Only the circle
+  // and the round end keep a curve — that curve IS what they are for. Soft
+  // block and Round corner went with the curve: sharpened they were the Block
+  // and the Corner exactly, and a palette with the same shape twice tells you
+  // nothing about which to pick. Added this morning, never used.
+  round:       { label: 'Round',          css: { borderRadius: '50%' } },
+  'half-round':{ label: 'Round end',      css: { borderRadius: '999px 999px 0 0' } },
+  // A WALL'S THICKNESS IS A THICKNESS, NOT A SHARE OF ITS LENGTH (owner, Sep
+  // '26: "depth not thin enough for some shapes", then "As thin as
+  // possible"). These arms were a third of the box, so a long corner grew a
+  // fat arm and there was no way to draw a thin one — the very thing a wall
+  // is. WALL_ARM is a real length instead, so every corner, alcove and tee is
+  // the same thickness however long its arms run, exactly like the straight
+  // bar beside it. It rides inside the floor's own scale, so it thickens and
+  // thins with the zoom rather than sitting on top of it.
+  'corner-cut':     { label: 'Cut corner',      css: ARM_THICK['corner-cut'] },
+  'corner-cut-thin':{ label: 'Thin cut corner', css: ARM_THIN['corner-cut'] },
+  corner:           { label: 'Corner',          css: ARM_THICK.corner },
+  'corner-thin':    { label: 'Thin corner',     css: ARM_THIN.corner },
+  arch:             { label: 'Alcove',          css: ARM_THICK.arch },
+  'arch-thin':      { label: 'Thin alcove',     css: ARM_THIN.arch },
+  tee:              { label: 'Tee',             css: ARM_THICK.tee },
+  'tee-thin':       { label: 'Thin tee',        css: ARM_THIN.tee },
+};
+function structureShapeCss(shape) { return (STRUCTURE_SHAPES[shape] || {}).css || {}; }
+function floorHug(fp) {
+  const objs = (fp && fp.tables) || [];
+  if (!objs.length) return { x0: 0, y0: 0, w: 100, h: 100 };
+  const m = 3 / FLOOR_ROOM;   // the same air around the tables as before, in a room four times bigger
+  let x0 = 100, y0 = 100, x1 = 0, y1 = 0;
+  objs.forEach(t => {
+    // A TURNED TABLE IS MEASURED TURNED (owner, Sep '26: "T12 is cut off" — a
+    // long table on an angle, sliced down its left edge). Its corners poke
+    // past its upright box, and the crop used to lean on its own margin to
+    // cover that. The margin got smaller when the room got bigger, and the
+    // corners came through. The app already knows how much room a turned
+    // thing really takes — the clamp and the guides both ask — so the crop
+    // asks the same question, and the margin goes back to being just air.
+    const { hw, hh } = tableHalfExtents(t.width, t.height, t.rotation, fp.height);
+    x0 = Math.min(x0, t.x - hw); x1 = Math.max(x1, t.x + hw);
+    y0 = Math.min(y0, t.y - hh); y1 = Math.max(y1, t.y + hh);
+  });
+  x0 = Math.max(0, x0 - m); y0 = Math.max(0, y0 - m); x1 = Math.min(100, x1 + m); y1 = Math.min(100, y1 + m);
+  return { x0, y0, w: Math.max(10, x1 - x0), h: Math.max(10, y1 - y0) };
+}
+function hugObject(t, hug) {
+  return { ...t, x: (t.x - hug.x0) / hug.w * 100, y: (t.y - hug.y0) / hug.h * 100, width: (t.width || 0) / hug.w * 100, height: (t.height || 0) / hug.h * 100 };
+}
+const WALL_ARM_PX = { '--wall-arm': 14, '--wall-arm-thin': 7 }; // the till's style.css, :root
+</script>
 <script>// app.js — the front desk. One state object, one render(), taps handled by
 // data-act. The same shape as the POS's app.js so a change there is easy to
 // carry here (and the other way).
@@ -10105,7 +10206,7 @@ function renderFloor() {
 
   const tableEl = (t) => {
     if (t.kind === 'decor') {
-      return `<div class="fl-decor${t.decorType || t.color ? '' : ' wall'}" style="${placeStyle(t)}${decorStyle(t)}" aria-hidden="true">${decorInner(t)}</div>`;
+      return decorEl(t);
     }
     const f = by[t.id] || { state: 'free', r: null };
     const r = f.r;
@@ -10205,7 +10306,7 @@ function renderFloor() {
     : ''}${lensChip}</div></div>`;
   return `
   ${fp ? `
-    <div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : ''} style="${floorGround(fp)}"><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
+    <div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : ''}><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
       ${(() => { const hug = placed ? floorHug(fp) : null; return (fp.tables || []).map(t => hug ? hugObject(t, hug) : t).map(tableEl).join(''); })()}
     </div></div>${bar}</div>`
     : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>'}
@@ -10290,7 +10391,7 @@ function renderArrange() {
   if (!list.length) return '<div class="ts">No tables yet.</div>';
   const el = (t) => {
     if (t.type === 'decor' || t.kind === 'decor') {
-      return `<div class="fl-decor${t.decorType || t.color ? '' : ' wall'}" style="${placeStyle(t)}${decorStyle(t)}" aria-hidden="true">${decorInner(t)}</div>`;
+      return decorEl(t);
     }
     return `<button class="fl-table free arr${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}${skinStyle(t)}"
       data-arrange="${esc(t.id)}" title="Table ${esc(t.label)} \u00b7 ${esc(String(t.seats))} seats \u2014 drag to move">
@@ -10301,7 +10402,7 @@ function renderArrange() {
     </button>`;
   };
   const v = arrangeView(plan);
-  return `<div class="fl-wrap arrange"><div class="fl-room" style="aspect-ratio:${(9 * v.w).toFixed(2)} / ${(5.6 * v.h).toFixed(2)};">${list.map(t => el(hugObject(t, v))).join('')}</div></div>`;
+  return `<div class="fl-wrap arrange"><div class="fl-room" style="aspect-ratio:${(9 * v.w).toFixed(2)} / ${(5.6 * v.h).toFixed(2)};${wallArmStyle(v)}">${list.map(t => el(hugObject(t, v))).join('')}</div></div>`;
 }
 // WHAT THE EDITOR SHOWS. The editor does not hug — you drag a table into the
 // empty parts, so it needs room round the furniture — but it cannot draw the
@@ -10389,101 +10490,52 @@ function renderPace() {
 // percent of a 900x560 canvas, and width/height as percentages of each axis —
 // its own layout maths, used verbatim so the room matches the till. A plan
 // with no coordinates falls back to a plain wrapped row.
-// §§ The table top — the POS's own finishes, verbatim
+// §§ THE ROOM IS THE TILL'S ROOM — taken, not copied by hand
 //
-// The till DRESSES the room: every table carries a FINISH the venue picked in
-// the layout editor — oak, walnut, marble, brass, burgundy cloth — and that is
-// what makes a floor read as a room rather than as a diagram. This app drew
-// the same geometry as hollow outlines on a dark slab, and it was a different
-// picture of the same floor: a host looking up from the till saw one room and
-// the desk drew another.
+// The hug, the corner sum, the turned-table extents, the furniture's artwork,
+// the labels and the wall shapes are the till's own code, lifted out of
+// restaurant-pos's public/app.js into public/pos-floor.js by
+// tools/pos-floor.js, and loaded before this file. They were hand-copied
+// here for a year and drifted every season: the till grew its canvas four
+// times, measured a turned table turned, drew labels and walls with corners,
+// and dropped its finishes and its floor colour, and the desk went on
+// drawing the old room. What stays here is only what the desk ADDS — the
+// wash, the rings, the pick — and the glue that puts the till's pieces on
+// the desk's page.
 //
-// So the finishes come across exactly as the POS's own app.js writes them.
-// They are pure CSS — inline SVG tiles and gradient layers, no image files and
-// nothing to fetch — which is why they can be copied rather than linked. A
-// change here is a change to POS-LINK.md in the same commit.
-const texTile = (svg, px) => "url('data:image/svg+xml," + encodeURIComponent(svg).replace(/'/g, '%27') + "') 0 0 / " + (px || 72) + 'px ' + (px || 72) + 'px repeat';
-const TEX_OAK = texTile("<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72'><rect width='72' height='72' fill='#C8935F'/><g fill='none' stroke='#B37E4C' stroke-width='2.5'><path d='M-4 9 Q18 5 36 9 T76 9'/><path d='M-4 27 Q22 33 44 27 T76 29'/><path d='M-4 45 Q16 41 40 46 T76 44'/><path d='M-4 63 Q24 68 48 62 T76 64'/></g><g fill='none' stroke='#9A6337' stroke-width='1'><path d='M-4 18 Q20 15 40 18 T76 18'/><path d='M-4 36 Q18 39 38 35 T76 37'/><path d='M-4 54 Q26 50 46 55 T76 53'/><ellipse cx='52' cy='22' rx='7' ry='3.2'/><ellipse cx='52' cy='22' rx='3.5' ry='1.5'/></g></svg>");
-const TEX_WALNUT = texTile("<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72'><rect width='72' height='72' fill='#6E4A2E'/><g fill='none' stroke='#5C3A20' stroke-width='2.5'><path d='M-4 10 Q20 6 38 10 T76 10'/><path d='M-4 28 Q24 34 46 28 T76 30'/><path d='M-4 46 Q18 42 42 47 T76 45'/><path d='M-4 64 Q26 69 50 63 T76 65'/></g><g fill='none' stroke='#83573A' stroke-width='1'><path d='M-4 19 Q22 16 42 19 T76 19'/><path d='M-4 37 Q20 40 40 36 T76 38'/><path d='M-4 55 Q28 51 48 56 T76 54'/><ellipse cx='24' cy='50' rx='6.5' ry='3'/><ellipse cx='24' cy='50' rx='3' ry='1.3'/></g></svg>");
-const TEX_MARBLE = texTile("<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><defs><filter id='mv' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.013 0.017' numOctaves='5' seed='7' result='n'/><feColorMatrix in='n' type='matrix' values='0 0 0 0 0.44  0 0 0 0 0.43  0 0 0 0 0.39  0.9 0.9 0.9 0 0' result='g'/><feComponentTransfer in='g' result='v'><feFuncA type='gamma' amplitude='1' exponent='5.5' offset='0'/></feComponentTransfer></filter></defs><rect width='200' height='200' fill='#F4F2ED'/><rect width='200' height='200' filter='url(#mv)' opacity='0.5'/></svg>", 200);
-const TEX_MARBLE_DARK = texTile("<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><defs><filter id='mvd' x='0' y='0' width='100%' height='100%'><feTurbulence type='fractalNoise' baseFrequency='0.013 0.017' numOctaves='5' seed='19' result='n'/><feColorMatrix in='n' type='matrix' values='0 0 0 0 0.80  0 0 0 0 0.67  0 0 0 0 0.40  0.9 0.9 0.9 0 0' result='g'/><feComponentTransfer in='g' result='v'><feFuncA type='gamma' amplitude='1' exponent='6' offset='0'/></feComponentTransfer></filter></defs><rect width='200' height='200' fill='#26262B'/><rect width='200' height='200' filter='url(#mvd)' opacity='0.55'/></svg>", 200);
-const TEX_WEAVE_DARK = 'repeating-linear-gradient(45deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 3px), repeating-linear-gradient(-45deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 3px)';
-const TABLE_FINISHES = [
-  { key: 'plain', bg: null, text: null },
-  { key: 'wood', bg: TEX_OAK, text: '#2b1c11' },
-  { key: 'walnut', bg: TEX_WALNUT, text: '#F4E9DD' },
-  { key: 'marble', text: '#24282A',
-    bg: 'linear-gradient(125deg, rgba(255,255,255,0.38) 0%, rgba(255,255,255,0) 30%, rgba(255,255,255,0) 63%, rgba(255,255,255,0.22) 100%), radial-gradient(120% 90% at 22% 16%, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0) 46%), radial-gradient(130% 100% at 84% 88%, rgba(120,116,104,0.16) 0%, rgba(120,116,104,0) 55%), ' + TEX_MARBLE },
-  { key: 'marble-dark', text: '#F0EDE6',
-    bg: 'linear-gradient(125deg, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 32%, rgba(255,255,255,0) 64%, rgba(255,255,255,0.08) 100%), radial-gradient(120% 90% at 24% 16%, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 48%), radial-gradient(130% 100% at 82% 88%, rgba(0,0,0,0.28) 0%, rgba(0,0,0,0) 55%), ' + TEX_MARBLE_DARK },
-  { key: 'brass', bg: 'repeating-linear-gradient(115deg, rgba(255,255,255,0.14) 0 1px, rgba(0,0,0,0.06) 1px 2px, transparent 2px 4px), linear-gradient(115deg, #7D5F22 0%, #C69C3F 26%, #F0D488 46%, #C9A145 58%, #8A6A25 82%, #A8842F 100%)', text: '#3A2C0C' },
-  { key: 'copper', bg: 'repeating-linear-gradient(115deg, rgba(255,255,255,0.12) 0 1px, rgba(0,0,0,0.06) 1px 2px, transparent 2px 4px), linear-gradient(115deg, #7A3D22 0%, #B9683F 28%, #E8A175 46%, #B9683F 60%, #83421F 84%, #9C5530 100%)', text: '#FFF0E4' },
-  { key: 'steel', bg: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.16) 0 1px, rgba(0,0,0,0.05) 1px 2px, transparent 2px 3px), linear-gradient(115deg, #9AA0A5 0%, #DFE4E7 30%, #B9BFC4 48%, #EFF2F4 66%, #8E959A 100%)', text: '#24282A' },
-  { key: 'cloth-white', bg: 'repeating-linear-gradient(45deg, rgba(0,0,0,0.03) 0 1px, transparent 1px 3px), repeating-linear-gradient(-45deg, rgba(0,0,0,0.03) 0 1px, transparent 1px 3px), radial-gradient(ellipse at 50% 40%, #FFFFFF 0%, #F7F4ED 55%, #E4DFD2 100%)', text: '#24282A' },
-  { key: 'cloth-navy', bg: TEX_WEAVE_DARK + ', radial-gradient(ellipse at 50% 40%, #3E5288 0%, #32436F 55%, #232F52 100%)', text: '#FFFFFF' },
-  { key: 'cloth-burgundy', bg: TEX_WEAVE_DARK + ', radial-gradient(ellipse at 50% 40%, #83394D 0%, #6C2C3F 55%, #4E1E2D 100%)', text: '#FFFFFF' },
-  { key: 'cloth-forest', bg: TEX_WEAVE_DARK + ', radial-gradient(ellipse at 50% 40%, #377350 0%, #2B5C3F 55%, #1D422C 100%)', text: '#FFFFFF' },
-];
-function tableFinish(key) { return TABLE_FINISHES.find(f => f.key === key) || TABLE_FINISHES[0]; }
-// §§ THE ROOM'S FURNITURE — the till's own artwork, verbatim
-//
-// The bar, the host stand, the door, the stairs, the plant: the till DRAWS
-// these, and the desk drew an outlined box with the key written in it, so a
-// venue's bar counter was a bar on one screen and the words "bar counter" on
-// the other. That is the drift POS-LINK.md exists to prevent — the desk has
-// to draw the room the floor staff look at all night, not an approximation
-// with captions.
-//
-// Copied rather than fetched, for TABLE_FINISHES' own reason: they are pure
-// inline SVG, no image files, and the alternative is a request per object
-// against a till on the other end of a venue's wifi. A change to the till's
-// list is a change to this one.
-const DECOR_ART = {
-  'bar-counter': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="6" y="9" width="36" height="13" rx="4" fill="#7a4a24"/><rect x="6" y="9" width="36" height="4.5" rx="4" fill="#9a6238"/><circle cx="14" cy="16" r="1.7" fill="#e6c79a"/><circle cx="21" cy="16" r="1.7" fill="#cf9155"/><circle cx="28" cy="16" r="1.7" fill="#8fce6b"/><circle cx="35" cy="16" r="1.7" fill="#d96b6b"/><circle cx="12" cy="32" r="3.2" fill="#c66a2f"/><circle cx="22" cy="32" r="3.2" fill="#c66a2f"/><circle cx="32" cy="32" r="3.2" fill="#c66a2f"/><circle cx="41" cy="32" r="3.2" fill="#c66a2f"/></svg>`,
-  'host-stand': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="16" y="21" width="16" height="19" rx="2" fill="#8a5a34"/><rect x="20" y="40" width="8" height="2.5" rx="1" fill="#6e4526"/><path d="M12 13 L36 13 L33 23 L15 23 Z" fill="#a06a3c"/><rect x="18" y="15.5" width="12" height="5" rx="1.2" fill="#eadfc6"/><path d="M24 15.5 v5" stroke="#c8bca0" stroke-width="1"/></svg>`,
-  'entrance': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><path d="M34 12 A20 20 0 0 1 34 40" fill="none" stroke="#00000026" stroke-width="1.6" stroke-dasharray="2 2.5"/><rect x="14" y="7" width="19" height="35" rx="2.5" fill="#5f81a6"/><rect x="16.5" y="9.5" width="14" height="30" rx="1.5" fill="#7699bd"/><circle cx="28" cy="25" r="1.9" fill="#f0cf6a"/></svg>`,
-  'restroom': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="6" y="8" width="36" height="32" rx="5" fill="#3f6fb0"/><line x1="24" y1="13" x2="24" y2="35" stroke="#ffffff80" stroke-width="1.4"/><circle cx="15" cy="15" r="3" fill="#fff"/><path d="M11.5 20 h7 v8 h-1.6 v7 h-3.8 v-7 h-1.6 z" fill="#fff"/><circle cx="33" cy="15" r="3" fill="#fff"/><path d="M33 19 l-5.5 10 h11 z" fill="#fff"/><rect x="30.4" y="29" width="1.7" height="6" fill="#fff"/><rect x="33.9" y="29" width="1.7" height="6" fill="#fff"/></svg>`,
-  'stairs': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><rect x="5" y="33" width="38" height="9" rx="1.5" fill="#9c7b57"/><rect x="13" y="25" width="30" height="9" rx="1.5" fill="#b58d64"/><rect x="21" y="17" width="22" height="9" rx="1.5" fill="#cba071"/><rect x="29" y="9" width="14" height="9" rx="1.5" fill="#e0b57e"/><rect x="5" y="33" width="38" height="2.3" fill="#0000001f"/><rect x="13" y="25" width="30" height="2.3" fill="#0000001f"/><rect x="21" y="17" width="22" height="2.3" fill="#0000001f"/><rect x="29" y="9" width="14" height="2.3" fill="#0000001f"/></svg>`,
-  'plant': `<svg viewBox="0 0 48 48" style="width:100%;height:100%;display:block"><path d="M24 31 C22 21 14 20 13 12 C21 12 24 20 24 27" fill="#4a9d4a"/><path d="M24 29 C24 19 33 17 35 10 C28 10 24 19 24 26" fill="#5cb85c"/><path d="M24 32 C26 25 32 24 34 19 C29 21 25 26 24 30" fill="#3f8f3f"/><path d="M16 30 h16 l-2.2 12 h-11.6 z" fill="#c8622e"/><rect x="14.5" y="28.5" width="19" height="4" rx="1.5" fill="#dd7c40"/></svg>`,
-};
-// A structure — a wall, a zone, a pillar — has no artwork and no icon: it IS
-// its coloured shape, which is what the till draws too. An OBJECT the till
-// gave an emoji to but no art falls back to the emoji.
+// NO FINISHES AND NO FLOOR COLOUR, because the till has neither any more
+// (owner, Sep '26: "keep it simple like SevenRooms"). A table is the app's
+// own surface and the only colour on it is what it is doing, or the colour
+// the venue painted that one table by hand.
+
+// The till's decor rule, from its shapeStyle(): a STRUCTURE is anything with
+// no drawing and no emoji — a wall, a pillar, a zone — and it is solid, sharp
+// and edgeless so two walls pushed together read as one. An OBJECT keeps the
+// button corner and sits on no ground unless the venue coloured it.
+function isStructure(t) { return !(DECOR_ART[t.decorType] || t.icon); }
 function decorInner(t) {
+  if (t.decorType === 'text') return `<span class="fl-text">${esc(t.label || '')}</span>`;
   const a = DECOR_ART[t.decorType];
   if (a) return `<span class="fl-art">${a}</span>`;
   return t.icon ? `<span class="fl-emoji">${esc(t.icon)}</span>` : '';
 }
-// The till's own decor rule: round is a circle and everything else an 8px
-// box; the colour the venue painted it fills it, and without one it is the
-// artwork alone on no ground at all — never a filled box, never a border it
-// did not ask for.
 function decorStyle(t) {
-  // NOTHING INLINE WITHOUT A COLOUR. An inline background beats a class, and
-  // writing `transparent` here painted out `.fl-decor.wall` — the venue's
-  // unnamed, uncoloured wall, which is the stylesheet's own to draw. With no
-  // colour the object is its artwork on no ground at all, exactly as the till
-  // draws it, and the two classes decide the rest.
+  if (isStructure(t)) {
+    const cs = structureShapeCss(t.shape);
+    return 'background:' + (t.color || 'var(--steel-500)') + ';'
+      + (cs.clipPath ? 'clip-path:' + cs.clipPath + ';' : '')
+      + (t.color ? 'color:' + contrastInk(t.color) + ';' : '');
+  }
   if (!t.color) return '';
   return `background:${t.color};color:${contrastInk(t.color)};border:1px solid var(--steel-200);`;
 }
-
-// The corner is 16% of the table's SHORT side, written as a PAIR of
-// percentages so a long table's corner stays a corner instead of stretching
-// into an oval with the box. The till's own sum, on the till's own 900x560.
-function tableRadiusFor(t) {
-  // THE TILL DRAWS FOUR SHAPES — square, round, rect, oval — and that is the
-  // whole list. A barstool and a half-round were here for one commit, ported
-  // out of a stale clone that still had them; the till had already deleted
-  // both. A shape the till cannot make is a shape no floor plan can carry,
-  // and carrying it here is the drift running the OTHER way.
-  // `circle` is not the till's word, it is ours, kept because the desk's own
-  // loose fallback has always written it.
-  const round = t && (t.shape === 'round' || t.shape === 'oval' || t.shape === 'circle');
-  if (round) return '50%';
-  const wpx = ((t && t.width) || 10) * 9, hpx = ((t && t.height) || 10) * 5.6;
-  const r = 0.16 * Math.min(wpx, hpx);
-  return (r / wpx * 100).toFixed(1) + '% / ' + (r / hpx * 100).toFixed(1) + '%';
+function decorRadius(t) {
+  if (!isStructure(t)) return t.shape === 'round' ? '50%' : '8px';
+  const cs = structureShapeCss(t.shape);
+  return cs.borderRadius !== undefined ? cs.borderRadius : (t.shape === 'round' ? '50%' : '0');
+}
+function decorEl(t) {
+  return `<div class="fl-decor${isStructure(t) ? ' wall' : ''}${isLabelType(t.decorType) ? ' label' : ''}" style="${placeStyle(t)}${decorStyle(t)}" aria-hidden="true">${decorInner(t)}</div>`;
 }
 // Ink that can be read on a colour the venue painted by hand, so a table
 // painted red reads the same here as it does on the till.
@@ -10496,43 +10548,18 @@ function contrastInk(hex) {
   const lum = (0.299 * (n >> 16 & 255) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255;
   return lum > 0.6 ? '#24282A' : '#FFFFFF';
 }
-// THE SKIN: what a table is MADE of, before anything is asked of it. The
-// venue's own colour wins, then the finish, then a plain top. What the table
-// is DOING is a wash over this, never a replacement for it — that is the whole
-// reason the finish is worth carrying.
+// THE SKIN: the venue's own colour, or the plain top. What the table is
+// DOING is a wash over this, never a replacement for it.
 function skinStyle(t) {
-  const fin = tableFinish(t.finish);
-  const bg = t.color ? t.color : (fin.bg || 'var(--table-plain)');
-  const ink = t.color ? contrastInk(t.color) : (fin.text || 'var(--text-primary)');
-  return 'background:' + bg + ';color:' + ink + ';';
+  return t.color ? 'background:' + t.color + ';color:' + contrastInk(t.color) + ';' : 'background:var(--table-plain);color:var(--text-primary);';
 }
-
-// THE ROOM IS HUGGED TO WHAT IS IN IT — the till's own `floorHug`, verbatim.
-// The canvas is 900x560, but almost no venue fills it: this room uses 83% of
-// the width, so a third of the drawing was empty ground on the right and every
-// table was drawn smaller than the till draws it to make room for nothing. The
-// till crops to the bounding box of the furniture plus a 3% margin and draws
-// THAT, which is why its floor is tight and ours was not.
-//
-// Settings → The room does NOT hug: that is the editor, and you drag a table
-// into the empty parts, so it needs the whole canvas. The till splits the same
-// way — its order screen hugs, its layout editor does not.
-function floorHug(fp) {
-  const objs = (fp && fp.tables) || [];
-  if (!objs.length) return { x0: 0, y0: 0, w: 100, h: 100 };
-  const m = 3; // a turned table's corners poke past its box by a little
-  let x0 = 100, y0 = 100, x1 = 0, y1 = 0;
-  objs.forEach(t => {
-    const hw = (t.width || 0) / 2, hh = (t.height || 0) / 2;
-    x0 = Math.min(x0, t.x - hw); x1 = Math.max(x1, t.x + hw);
-    y0 = Math.min(y0, t.y - hh); y1 = Math.max(y1, t.y + hh);
-  });
-  x0 = Math.max(0, x0 - m); y0 = Math.max(0, y0 - m); x1 = Math.min(100, x1 + m); y1 = Math.min(100, y1 + m);
-  return { x0, y0, w: Math.max(10, x1 - x0), h: Math.max(10, y1 - y0) };
-}
-function hugObject(t, hug) {
-  return Object.assign({}, t, { x: (t.x - hug.x0) / hug.w * 100, y: (t.y - hug.y0) / hug.h * 100,
-    width: (t.width || 0) / hug.w * 100, height: (t.height || 0) / hug.h * 100 });
+// A wall's arm is a real LENGTH on the till — pixels on its canvas, 900 ×
+// FLOOR_ROOM wide — so it is the same thickness however long the wall runs.
+// The desk draws the room at the pane's size, so the length is written as its
+// share of the room the way every other length in the drawing is.
+function wallArmStyle(view) {
+  const canvas = STD_FLOOR_W * FLOOR_ROOM;
+  return Object.keys(WALL_ARM_PX).map(k => k + ':' + (WALL_ARM_PX[k] / canvas * 100 / view.w * 100).toFixed(4) + 'cqw;').join('');
 }
 // The shape of the hugged room, and the two lengths the layout needs off it:
 // how wide it is per unit of height — the width the pane's HEIGHT allows,
@@ -10540,11 +10567,8 @@ function hugObject(t, hug) {
 function roomStyle(fp) {
   const hug = floorHug(fp);
   const w = 900 * hug.w / 100, h = 560 * hug.h / 100;
-  return `--fl-arw:${(w / h).toFixed(4)};aspect-ratio:${w.toFixed(2)} / ${h.toFixed(2)};`;
+  return `--fl-arw:${(w / h).toFixed(4)};aspect-ratio:${w.toFixed(2)} / ${h.toFixed(2)};` + wallArmStyle(hug);
 }
-// The venue paints its own floor in the till's layout editor. When it has,
-// that colour is the ground here too — it is the same room.
-function floorGround(fp) { return fp && fp.bgColor ? '--floor-bg:' + fp.bgColor + ';' : ''; }
 function placeStyle(t, picked) {
   if (!Number.isFinite(t.x) || !Number.isFinite(t.y)) return '';
   const rot = Number(t.rotation) || 0;
@@ -10553,7 +10577,8 @@ function placeStyle(t, picked) {
   // foot lands ON its neighbour below rather than under it.
   const decor = t.kind === 'decor' || t.type === 'decor';
   const stack = decor ? '' : 'z-index:' + ((picked ? 300 : 100) - Math.round(t.y || 0)) + ';';
-  const radius = decor ? (t.shape === 'round' || t.shape === 'circle' ? '50%' : '8px') : tableRadiusFor(t);
+  // `circle` is the desk's own seed word for the till's `round`.
+  const radius = decor ? decorRadius(t) : tableRadiusFor(t.shape === 'circle' ? Object.assign({}, t, { shape: 'round' }) : t);
   return 'position:absolute;left:' + t.x + '%;top:' + t.y + '%;width:' + (t.width || 6) + '%;height:' + (t.height || 9.8) + '%;'
     + 'transform:translate(-50%,-50%)' + (rot ? ' rotate(' + rot + 'deg)' : '') + ';'
     + 'border-radius:' + radius + ';' + stack;
