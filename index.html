@@ -2076,6 +2076,17 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--st-ink, var(--steel-300));}
 .bl-main{padding-left:12px;}
 .bl-table{border:none;background:var(--deck-pill-bg);font-weight:800;}
+
+/* §§ THE VIEWS STAND ON THE ROOM, the till's way (v10). Floor · Timeline ·
+   Flow float at the foot LEFT of whatever the pane is showing, the rooms at
+   the foot RIGHT, both the till's floor-band chip on the paper. On the floor
+   they ride the room's own wrap, level with the room bar; on the timeline and
+   the flow they ride the pane, and the timeline's last lane gets the dock's
+   height again below it so nothing is ever left under the keys. */
+.desk-main{position:relative;}
+.vdock{position:absolute;left:12px;bottom:12px;z-index:3;display:flex;gap:4px;padding:4px;
+  border-radius:var(--r-control);background:var(--surface);box-shadow:var(--lift-1);}
+.desk-main .tl-grid{margin-bottom:72px;}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "86aa30189a86abd0325d2a86873f2544272dc4d0";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -9870,12 +9881,31 @@ function renderDeck() {
 // tab; the waitlist and the notify list are switches at the head of that
 // column rather than places. A phone keeps its thumb bar at the foot — the
 // rail lying down — because 390 pixels have no bar to put tabs in.
+// THE VIEWS STAND ON THE ROOM, THE TILL'S WAY (owner, Sep '26, from the v10
+// mockup: "yes build it"). The till floats Map · Pass · Timeline · Bills at
+// the foot LEFT of its floor and the rooms at the foot RIGHT, so "which view"
+// and "which room" are read where the thumb already is. Floor, Timeline and
+// Flow are three ways of looking at the one room, so they do the same here —
+// `renderViewDock()` — and the top bar keeps the PLACES: Service (the room,
+// on whichever of its three views you left it), the run sheet and the guest
+// book. Service is lit on all three views, so exactly one tab is always lit.
+const ROOM_VIEWS = [['floor', 'Floor'], ['timeline', 'Timeline'], ['flow', 'Flow']];
+const isRoomView = (m) => ROOM_VIEWS.some(([k]) => k === m);
 function renderTabs() {
-  const tab = (k, label, act) => {
-    const on = act === 'mode' ? state.view === 'today' && state.todayMode === k : state.view === k;
-    return `<button class="deck-tab${on ? ' on' : ''}" data-act="${act}" data-val="${k}" aria-current="${on ? 'page' : 'false'}">${esc(label)}</button>`;
-  };
-  return `<nav class="deck-tabs wide-only" aria-label="Views">${tab('floor', 'Floor', 'mode')}${tab('timeline', 'Timeline', 'mode')}${tab('flow', 'Flow', 'mode')}${tab('sheet', 'Run sheet', 'mode')}${tab('guests', 'Guests', 'view')}</nav>`;
+  const inRoom = state.view === 'today' && isRoomView(state.todayMode);
+  if (inRoom) state.roomMode = state.todayMode;
+  const tab = (k, label, act, on) =>
+    `<button class="deck-tab${on ? ' on' : ''}" data-act="${act}" data-val="${k}" aria-current="${on ? 'page' : 'false'}">${esc(label)}</button>`;
+  return `<nav class="deck-tabs wide-only" aria-label="Places">${tab(state.roomMode || 'floor', 'Service', 'mode', inRoom)}${tab('sheet', 'Run sheet', 'mode', state.view === 'today' && state.todayMode === 'sheet')}${tab('guests', 'Guests', 'view', state.view === 'guests')}</nav>`;
+}
+// The dock is the till's floor-band chip, the same key the rooms wear beside
+// it, so the two floating boxes at the room's foot are one family. It stands
+// down while the room IS the table picker — the till's move flows get no
+// switch either — and on a phone, whose bar at the foot already carries them.
+function renderViewDock() {
+  if (state.picking) return '';
+  return `<nav class="vdock wide-only" aria-label="Views">${ROOM_VIEWS.map(([k, l]) =>
+    `<button class="fl-room-chip${state.todayMode === k ? ' on' : ''}" data-act="mode" data-val="${k}" aria-current="${state.todayMode === k ? 'page' : 'false'}">${l}</button>`).join('')}</nav>`;
 }
 // THE COLUMN DOWN THE LEFT, and what is in it: the night's book, or the
 // people waiting at the door, or the people waiting for a cancellation. Three
@@ -10308,8 +10338,8 @@ function renderFloor() {
   ${fp ? `
     <div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : ''}><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
       ${(() => { const hug = placed ? floorHug(fp) : null; return (fp.tables || []).map(t => hug ? hugObject(t, hug) : t).map(tableEl).join(''); })()}
-    </div></div>${bar}</div>`
-    : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>'}
+    </div></div>${renderViewDock()}${bar}</div>`
+    : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>' + renderViewDock()}
   ${placed ? renderPace() : ''}`;
 }
 
@@ -10748,7 +10778,7 @@ function renderToday() {
   // is right on the first frame.
   return `${notice}<div class="desk mode-${esc(state.todayMode)}">
     <div class="desk-col" data-keep="desk-col">${renderSide()}</div>
-    <div class="desk-main">${side}</div>
+    <div class="desk-main">${side}${state.todayMode === 'floor' ? '' : renderViewDock()}</div>
   </div>`;
 }
 // THE RULER STRETCHES TO THE PANE. Two pixels a minute is the FLOOR, not the
