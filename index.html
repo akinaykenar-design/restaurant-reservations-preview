@@ -1526,7 +1526,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    a tablet turned sideways is right on the first frame with nothing listening
    for a resize. BOOKINGS is the exception the rule needed: the list is that
    section's whole reason, so it is the one other mode the column survives. */
-@media (min-width:761px){ .desk:not(.mode-floor):not(.mode-book) > .desk-col{display:none;} }
+/* AND NOW IT STANDS BESIDE EVERY VIEW (owner, Sep '26: the list on the
+   left, like SevenRooms). With the rail gone the column is the ONLY thing
+   down the left, and a book that comes and goes as you change view is the
+   shuffle the rail law was written against. So the rule above is repealed:
+   floor, timeline and flow all keep it; the run sheet is a page for paper
+   and is not a desk at all. */
 /* AND ON A PHONE THE FLOOR TAKES THE WHOLE PANE TOO. The book was stacked
    over the room down there for one reason: it had nowhere else to be, so it
    bought its way onto the floor with 38vh off the top of the drawing — a
@@ -1765,11 +1770,49 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    than over them. */
 .deck-mid{display:flex;align-items:center;gap:var(--deck-gap);min-width:0;}
 .deck-keys{display:flex;align-items:center;gap:var(--deck-gap);}
+/* NO RAIL ON A TABLET OR A DESK. The views are a well of tabs in the bar's
+   middle column, the night's pill stands at its start and the keys at its
+   end — three columns, so nothing is ever laid over anything else. */
 @media (min-width:761px){
-  .topbar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(max-content,1fr);}
-  .deck-mid{grid-column:2;}
+  .rail{display:none;}
+  .topbar{display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;}
+  .deck-mid{grid-column:1;justify-self:start;}
+  .deck-tabs{grid-column:2;justify-self:center;}
   .deck-keys{grid-column:3;justify-self:end;}
 }
+/* The tabs are the pill's own grammar: the same well, the same round
+   segments, the same 44. The one you are on is the paper, lifted out of the
+   well; the others are its ink on nothing. */
+.deck-tabs{display:flex;align-items:center;gap:4px;height:var(--tap);min-width:0;
+  border-radius:var(--r-pill);background:var(--deck-pill-bg);}
+.deck-tab{min-height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-pill);background:none;
+  color:var(--charcoal-soft);font-weight:600;font-size:var(--fs-md);white-space:nowrap;}
+.deck-tab.on{background:var(--surface);color:var(--text-primary);box-shadow:var(--lift-1);}
+.deck-sq.on{color:var(--orange);border-color:var(--orange);}
+/* A tablet has the width for the three and not for the service stepper as
+   well: the night's pill keeps the day and Now, and the service is walked
+   from the timeline's own window. */
+@media (min-width:761px) and (max-width:1100px){
+  .deck-pill .pill-svc,.deck-pill [data-act="svc-step"],.deck-pill .pill-sep:last-of-type{display:none;}
+  .deck-tab{padding:0 12px;}
+}
+/* And a tablet on its end, or a phone on its side, is narrower again: the
+   till's own key goes (the till is a tap away on the till), and the tabs
+   close up, so the three columns always fit the bar they share. */
+@media (min-width:761px) and (max-width:900px){
+  .deck-keys [data-act="to-till"]{display:none;}
+  .deck-tab{padding:0 8px;}
+}
+/* THE COLUMN'S SWITCH. Bookings, the waitlist and the notify list are three
+   lists of people a host works through, so they share the column and a
+   switch at its head, drawn as the bar's tabs are. */
+.side-sw{display:flex;gap:4px;margin:8px;height:var(--tap);border-radius:var(--r-pill);background:var(--deck-pill-bg);}
+.side-seg{flex:1;min-height:var(--tap);border:none;border-radius:var(--r-pill);background:none;color:var(--charcoal-soft);font-weight:600;font-size:var(--fs-md);white-space:nowrap;}
+.side-seg.on{background:var(--surface);color:var(--text-primary);box-shadow:var(--lift-1);}
+.side-seg .sub{font-family:var(--font-mono);font-size:var(--fs-chip);color:var(--charcoal-soft);}
+.side-body > .settings-card{margin:0 8px 8px;}
+.side-body > .rows{padding:0 8px 8px;}
+.side-body > .empty{padding:24px 12px;}
 .deck-pill{display:flex;align-items:center;gap:4px;min-width:0;height:var(--tap);
   padding:0;border-radius:var(--r-pill);background:var(--deck-pill-bg);
   color:var(--text-primary);}
@@ -8780,7 +8823,7 @@ const state = {
   // The set menus the desk can pick from, and whether they are the POS's own
   // combos (which makes the Settings card read-only, as the Staff card is).
   setMenus: [], setMenusFromPos: false,
-  view: 'today', date: localDay(new Date()), todayMode: 'floor',
+  view: 'today', date: localDay(new Date()), todayMode: 'floor', side: 'book',
   // How far into the room you have pushed. 1 is the whole room on the screen;
   // the pan is in pixels of the SCALED stage, clamped so the room can never be
   // shoved off the edge and lost.
@@ -9353,11 +9396,17 @@ async function loadGuests() {
   state.guestFromTill = got.fromTill || 0;
 }
 async function loadView() {
-  if (state.view === 'today') await loadDay();
+  if (state.view === 'today') { await loadDay(); await loadSide(); }
   else if (state.view === 'waitlist') { state.waitlist = await api('/api/waitlist'); state.today = await api('/api/today'); }
   else if (state.view === 'notify') { state.notify = await api('/api/notify'); state.today = await api('/api/today'); }
   else if (state.view === 'guests') await loadGuests();
   else if (state.view === 'settings') { state.posStatus = await api('/api/pos/status'); state.relayStatus = await api('/api/relay/status'); state.audit = await api('/api/audit'); }
+}
+// The list down the left can be the waitlist or the notify list instead of
+// the book, and each keeps its own data: fetched when it is on screen.
+async function loadSide() {
+  if (state.side === 'waitlist') state.waitlist = await api('/api/waitlist');
+  else if (state.side === 'notify') state.notify = await api('/api/notify');
 }
 // The month behind the calendar popup. Its own loader, because the calendar
 // is no longer a view — it opens over whatever you were looking at.
@@ -9631,12 +9680,42 @@ function renderDeck() {
         ${step ? `<button class="pill-arw wide-only" data-act="svc-step" data-val="1" aria-label="The service after">${I.right}</button>` : ''}
       </div>
     </div>
+    ${renderTabs()}
     <div class="deck-keys">
       ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
       <button class="deck-sq" data-act="new-walkin" aria-label="Seat a walk-in" title="Somebody is at the door — seat them now">${I.srcWalkIn}</button>
       <button class="deck-sq" data-act="new-booking" aria-label="New booking" title="Take a booking">${I.book}</button>
+      <button class="deck-sq wide-only${state.view === 'settings' ? ' on' : ''}" data-act="view" data-val="settings" aria-label="Settings" aria-current="${state.view === 'settings' ? 'page' : 'false'}" title="Settings">${I.settings}</button>
     </div>
   </div>`;
+}
+
+// THE VIEWS ARE TABS IN THE BAR, AND THERE IS NO RAIL. The owner, Sep '26:
+// "I hate stacked rails" — a column of icons down the left, with the book
+// beside it, was two columns of chrome before the first booking. On a
+// tablet and a desk the views are one well of tabs in the middle of the bar,
+// the pill's own grammar, and Settings is the cog at the end of the keys.
+// The book is always the column down the left (renderSide), so it has no
+// tab; the waitlist and the notify list are switches at the head of that
+// column rather than places. A phone keeps its thumb bar at the foot — the
+// rail lying down — because 390 pixels have no bar to put tabs in.
+function renderTabs() {
+  const tab = (k, label, act) => {
+    const on = act === 'mode' ? state.view === 'today' && state.todayMode === k : state.view === k;
+    return `<button class="deck-tab${on ? ' on' : ''}" data-act="${act}" data-val="${k}" aria-current="${on ? 'page' : 'false'}">${esc(label)}</button>`;
+  };
+  return `<nav class="deck-tabs wide-only" aria-label="Views">${tab('floor', 'Floor', 'mode')}${tab('timeline', 'Timeline', 'mode')}${tab('flow', 'Flow', 'mode')}${tab('sheet', 'Run sheet', 'mode')}${tab('guests', 'Guests', 'view')}</nav>`;
+}
+// THE COLUMN DOWN THE LEFT, and what is in it: the night's book, or the
+// people waiting at the door, or the people waiting for a cancellation. Three
+// lists of people a host works through, so they share one column and a
+// switch at its head — the SevenRooms shape the owner asked for.
+function renderSide() {
+  const t = state.today || {};
+  const seg = (k, label, n) => `<button class="side-seg${state.side === k ? ' on' : ''}" data-act="side" data-val="${k}" aria-pressed="${state.side === k}">${esc(label)}${n ? ` <span class="sub">${n}</span>` : ''}</button>`;
+  const head = `<div class="side-sw">${seg('book', 'Bookings', state.reservations.filter(isLive).filter(inPickedService).length)}${seg('waitlist', 'Waitlist', t.waiting || 0)}${seg('notify', 'Notify', t.openings || 0)}</div>`;
+  const body = state.side === 'waitlist' ? renderWaitlist() : state.side === 'notify' ? renderNotify() : renderDayList();
+  return head + `<div class="side-body">${body}</div>`;
 }
 
 // The band of chips at the top of the pane. It carries the sections of the
@@ -10556,7 +10635,7 @@ function renderToday() {
   // for a resize to catch out. (The desk/phone split stays in CSS, because
   // that one must be right on the first frame with nothing listening.)
   if (state.todayMode === 'book') return `${notice}<div class="desk mode-book">
-    <div class="desk-col" data-keep="desk-col">${renderDayList()}</div>
+    <div class="desk-col" data-keep="desk-col">${renderSide()}</div>
   </div>`;
   const whole = state.todayMode === 'sheet';
   const side = state.todayMode === 'floor' ? renderFloor()
@@ -10570,7 +10649,7 @@ function renderToday() {
   // in JS, so nothing has to listen for a resize and a tablet turned sideways
   // is right on the first frame.
   return `${notice}<div class="desk mode-${esc(state.todayMode)}">
-    <div class="desk-col" data-keep="desk-col">${renderDayList()}</div>
+    <div class="desk-col" data-keep="desk-col">${renderSide()}</div>
     <div class="desk-main">${side}</div>
   </div>`;
 }
@@ -10592,7 +10671,10 @@ let PX_PER_MIN = PX_PER_MIN_FLOOR;
 function tlScale(mins) {
   const pane = document.querySelector('.pane');
   const edge = 12, border = 2, scrollbar = 2;
-  const room = (pane ? pane.clientWidth : window.innerWidth - 88) - edge * 2 - border - TL_LABEL_W - scrollbar;
+  // The book stands beside the timeline now, so its column comes off too.
+  const col = document.querySelector('.desk > .desk-col');
+  const colW = col && col.offsetParent && getComputedStyle(col.parentNode).flexDirection === 'row' ? col.offsetWidth : 0;
+  const room = (pane ? pane.clientWidth : window.innerWidth) - colW - edge * 2 - border - TL_LABEL_W - scrollbar;
   if (!(mins > 0) || !(room > 0)) return PX_PER_MIN_FLOOR;
   return Math.max(PX_PER_MIN_FLOOR, Math.floor((room / mins) * 100) / 100);
 }
@@ -12304,6 +12386,7 @@ document.addEventListener('click', async (ev) => {
         else if (val === 'sheet') { await loadDay(); render(); }
         break;
       }
+      case 'side': state.side = val; render(); try { await loadSide(); state.today = await api('/api/today'); } catch (e) {} render(); break;
       case 'print-sheet': window.print(); break;
       case 'month': { if (val === '0') state.month = localDay(new Date()).slice(0, 7); else { const [y, m] = state.month.split('-').map(Number); const d = new Date(y, m - 1 + parseInt(val), 1); state.month = localDay(d).slice(0, 7); } render(); try { await loadMonth(); } catch (e) {} render(); break; }
       case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.service = defaultService(val); render(); await loadDay(); render(); break;

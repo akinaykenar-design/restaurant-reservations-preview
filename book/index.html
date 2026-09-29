@@ -1511,7 +1511,12 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    a tablet turned sideways is right on the first frame with nothing listening
    for a resize. BOOKINGS is the exception the rule needed: the list is that
    section's whole reason, so it is the one other mode the column survives. */
-@media (min-width:761px){ .desk:not(.mode-floor):not(.mode-book) > .desk-col{display:none;} }
+/* AND NOW IT STANDS BESIDE EVERY VIEW (owner, Sep '26: the list on the
+   left, like SevenRooms). With the rail gone the column is the ONLY thing
+   down the left, and a book that comes and goes as you change view is the
+   shuffle the rail law was written against. So the rule above is repealed:
+   floor, timeline and flow all keep it; the run sheet is a page for paper
+   and is not a desk at all. */
 /* AND ON A PHONE THE FLOOR TAKES THE WHOLE PANE TOO. The book was stacked
    over the room down there for one reason: it had nowhere else to be, so it
    bought its way onto the floor with 38vh off the top of the drawing — a
@@ -1750,11 +1755,49 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    than over them. */
 .deck-mid{display:flex;align-items:center;gap:var(--deck-gap);min-width:0;}
 .deck-keys{display:flex;align-items:center;gap:var(--deck-gap);}
+/* NO RAIL ON A TABLET OR A DESK. The views are a well of tabs in the bar's
+   middle column, the night's pill stands at its start and the keys at its
+   end — three columns, so nothing is ever laid over anything else. */
 @media (min-width:761px){
-  .topbar{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(max-content,1fr);}
-  .deck-mid{grid-column:2;}
+  .rail{display:none;}
+  .topbar{display:grid;grid-template-columns:max-content minmax(0,1fr) max-content;}
+  .deck-mid{grid-column:1;justify-self:start;}
+  .deck-tabs{grid-column:2;justify-self:center;}
   .deck-keys{grid-column:3;justify-self:end;}
 }
+/* The tabs are the pill's own grammar: the same well, the same round
+   segments, the same 44. The one you are on is the paper, lifted out of the
+   well; the others are its ink on nothing. */
+.deck-tabs{display:flex;align-items:center;gap:4px;height:var(--tap);min-width:0;
+  border-radius:var(--r-pill);background:var(--deck-pill-bg);}
+.deck-tab{min-height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-pill);background:none;
+  color:var(--charcoal-soft);font-weight:600;font-size:var(--fs-md);white-space:nowrap;}
+.deck-tab.on{background:var(--surface);color:var(--text-primary);box-shadow:var(--lift-1);}
+.deck-sq.on{color:var(--orange);border-color:var(--orange);}
+/* A tablet has the width for the three and not for the service stepper as
+   well: the night's pill keeps the day and Now, and the service is walked
+   from the timeline's own window. */
+@media (min-width:761px) and (max-width:1100px){
+  .deck-pill .pill-svc,.deck-pill [data-act="svc-step"],.deck-pill .pill-sep:last-of-type{display:none;}
+  .deck-tab{padding:0 12px;}
+}
+/* And a tablet on its end, or a phone on its side, is narrower again: the
+   till's own key goes (the till is a tap away on the till), and the tabs
+   close up, so the three columns always fit the bar they share. */
+@media (min-width:761px) and (max-width:900px){
+  .deck-keys [data-act="to-till"]{display:none;}
+  .deck-tab{padding:0 8px;}
+}
+/* THE COLUMN'S SWITCH. Bookings, the waitlist and the notify list are three
+   lists of people a host works through, so they share the column and a
+   switch at its head, drawn as the bar's tabs are. */
+.side-sw{display:flex;gap:4px;margin:8px;height:var(--tap);border-radius:var(--r-pill);background:var(--deck-pill-bg);}
+.side-seg{flex:1;min-height:var(--tap);border:none;border-radius:var(--r-pill);background:none;color:var(--charcoal-soft);font-weight:600;font-size:var(--fs-md);white-space:nowrap;}
+.side-seg.on{background:var(--surface);color:var(--text-primary);box-shadow:var(--lift-1);}
+.side-seg .sub{font-family:var(--font-mono);font-size:var(--fs-chip);color:var(--charcoal-soft);}
+.side-body > .settings-card{margin:0 8px 8px;}
+.side-body > .rows{padding:0 8px 8px;}
+.side-body > .empty{padding:24px 12px;}
 .deck-pill{display:flex;align-items:center;gap:4px;min-width:0;height:var(--tap);
   padding:0;border-radius:var(--r-pill);background:var(--deck-pill-bg);
   color:var(--text-primary);}
