@@ -2140,6 +2140,16 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .wk-menu.folded{padding:4px 4px 4px 12px;}
 .wk-chg{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-weight:700;font-size:var(--fs-md);}
+
+/* Daily round, 29 Sep. The app's one <a> key ("Download everything") wore the
+   browser's own blue underline — navy on near-black in dark — because .btn
+   sets no ink of its own. A key is a key whatever element it is. */
+a.btn{color:var(--text-primary);text-decoration:none;}
+/* The flow scrolls, and stops short of the Floor · Timeline · Flow keys that
+   float at the pane's foot: on a phone held sideways they sat over the covers
+   row and the last squares could not be reached. */
+.desk-main > .dm-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding-bottom:72px;}
+.dm-scroll > .grid3,.dm-scroll > .flow{margin:var(--hub-edge);}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
@@ -4432,23 +4442,49 @@ function autoAssign(ctx, day) {
 // 8:15 was going to get strands the nine, and the whole point of the answer is
 // not to offer what the night has already spent. Largest-to-smallest is not
 // the order: the tightest fit comes first, as suggestTable() orders it.
+//
+// AFTER MIDNIGHT the question is asked on the date the clock is on, and the
+// night before's SAT parties are still in their chairs: a diary keyed on
+// calendar dates does not see a 22:00 sitting reach 00:30, so they are made
+// to hold their tables from the start of this date (daily round, 29 Sep: a
+// walk-in at 00:30 was offered four tables people were eating at).
+//
+// AND A PARTY NO ONE TABLE SEATS is offered a STATED combination, the way
+// autoAssign() and the booking page already do — a five told "nothing free"
+// while two pushed-together tables stood empty was the desk contradicting its
+// own booking page. Each table of the tightest free combination is a key, and
+// carries `combo`, the whole set, so a tap on any of them seats the party on
+// all of them.
 function walkinTables(ctx, day, hhmm, party) {
   const size = Math.max(1, Number(party) || 1);
   const auto = autoAssign(ctx, day);
-  const placed = (ctx.reservations || []).map(r => (auto[r.id] && auto[r.id].length && !heldTables(r).length)
-    ? Object.assign({}, r, { tableId: auto[r.id][0], tableIds: auto[r.id].slice(1) }) : r);
+  const prev = addDays(day, -1);
+  const placed = (ctx.reservations || []).map(r => {
+    if (r && dayOf(r.time) === prev && isSat(r)) return Object.assign({}, r, { time: joinTime(day, '00:00'), durationMin: toMin(hhmm) + 1 });
+    return (auto[r.id] && auto[r.id].length && !heldTables(r).length)
+      ? Object.assign({}, r, { tableId: auto[r.id][0], tableIds: auto[r.id].slice(1) }) : r;
+  });
   const sub = Object.assign({}, ctx, { reservations: placed });
   const start = toMin(hhmm);
   const whole = new Set(freeTables(sub, day, hhmm, size).map(t => t.id));
   const now = new Set(freeTables(sub, day, hhmm, size, { duration: 1 }).map(t => t.id));
-  return (ctx.tables || []).filter(t => (t.seats || 0) >= size && now.has(t.id))
+  const singles = (ctx.tables || []).filter(t => (t.seats || 0) >= size && now.has(t.id));
+  if (!singles.some(t => whole.has(t.id)) && combosOf(ctx).length) {
+    const c = freeCombos(sub, day, hhmm, size)[0];
+    if (c) {
+      const inCombo = c.tables.map(id => ({ id, until: null, combo: c.tables.slice() }));
+      return inCombo.concat(singles.filter(t => !c.tables.includes(t.id)).map(t => ({ id: t.id, until: untilOn(t) })));
+    }
+  }
+  function untilOn(t) {
+    if (whole.has(t.id)) return null;
+    const next = placed.filter(r => isLive(r) && dayOf(r.time) === day && heldTables(r).includes(t.id) && minsOf(r.time) > start)
+      .map(r => minsOf(r.time)).sort((a, b) => a - b)[0];
+    return next === undefined ? null : fromMin(next);
+  }
+  return singles
     .sort((a, b) => (a.seats - b.seats) || (parseInt(a.label) - parseInt(b.label)) || String(a.label).localeCompare(String(b.label)))
-    .map(t => {
-      if (whole.has(t.id)) return { id: t.id, until: null };
-      const next = placed.filter(r => isLive(r) && dayOf(r.time) === day && heldTables(r).includes(t.id) && minsOf(r.time) > start)
-        .map(r => minsOf(r.time)).sort((a, b) => a - b)[0];
-      return { id: t.id, until: next === undefined ? null : fromMin(next) };
-    });
+    .map(t => ({ id: t.id, until: untilOn(t) }));
 }
 
 // §§ What a table is doing
@@ -5196,7 +5232,11 @@ function sheetRow(ctx, r, guest) {
   const many = tables.some(t => t.floor && String(t.name || '').startsWith(t.floor + ' · '));
   // A table that has left the POS floor is dropped silently, the way
   // pruneTables() does on a save — never printed as a phantom.
-  const ids = heldTables(r).filter(id => tables.some(t => t.id === id));
+  // What a PERSON placed, else what the desk laid it on (autoAssign, passed in
+  // as autoTables by runSheet) — the book, the floor and the timeline all
+  // show the desk's pick, and a sheet printing "—" beside them is the paper
+  // disagreeing with the screen.
+  const ids = (heldTables(r).length ? heldTables(r) : (r.autoTables || [])).filter(id => tables.some(t => t.id === id));
   // No "T" here either. The run sheet is printed and read beside the screens,
   // and a sheet saying T21 next to a floor saying 21 is the app calling one
   // table two things.
@@ -5234,9 +5274,10 @@ function runSheet(ctx, day, opts) {
   // one print and the next.
   const order = (a, b) => (a.mins - b.mins) || String(a.name).localeCompare(String(b.name)) || String(a.id).localeCompare(String(b.id));
   const rows = [], dropped = [];
+  const auto = autoAssign(ctx, day);
   for (const r of (ctx.reservations || [])) {
     if (!r || dayOf(r.time) !== day) continue;
-    const row = sheetRow(ctx, r, byId.get(r.guestId) || null);
+    const row = sheetRow(ctx, auto[r.id] ? Object.assign({}, r, { autoTables: auto[r.id] }) : r, byId.get(r.guestId) || null);
     if (isCounted(r)) rows.push(row);
     else if (r.status === 'cancelled' || r.status === 'no-show') dropped.push(row);
   }
@@ -6792,6 +6833,15 @@ function roomOn(ctx, day) {
     const from = av.minsOf(r.time), to = from + av.durationFor(s, r.partySize, r.durationMin);
     for (const id of ids) (busy[id] = busy[id] || []).push([from, to]);
   }
+  // THE TILL'S WALK-INS ARE IN THOSE CHAIRS NOW (daily round, 29 Sep: the
+  // relay sold a table four walk-ins were eating at). Today, with the clock
+  // known, covers on a table no booking holds right now hold it from now for
+  // a sitting of their size — the rule av.freeTables() already keeps.
+  const now = ctx.now instanceof Date && av.localDay(ctx.now) === day ? ctx.now.getHours() * 60 + ctx.now.getMinutes() : null;
+  if (now !== null) for (const t of (ctx.tables || [])) {
+    if (!(Number(t.covers) > 0) || av.holdersOf(ctx, t.id, day, now, 1, null).length) continue;
+    (busy[t.id] = busy[t.id] || []).push([now, now + av.durationFor(s, Number(t.covers))]);
+  }
   const most = Math.max(1, s.online.maxPartySize || 8);
   return {
     tables: (ctx.tables || []).map(t => ({ id: t.id, seats: t.seats, busy: busy[t.id] || [] })),
@@ -6884,7 +6934,15 @@ function editRefusal(item, diary, now) {
   const p = (item && item.payload) || {};
   const r = ((diary && diary.reservations) || []).find(x => x.id === p.id);
   if (!r) return 'That booking is not in the book any more';
-  if (stampOf(r) !== Number(p.was)) return 'It changed while you had it open — here it is now';
+  // Switched off HERE outranks whatever the relay still believes: an office
+  // switched off while the relay could not be reached kept booking for good.
+  if (diary.settings && !(diary.settings.relay && diary.settings.relay.office)) return 'The office is switched off at the restaurant';
+  // The office's OWN earlier change does not count as "changed since": a
+  // second edit sent before the desk collected the first carries the stamp
+  // the first one had, and was refused over it.
+  const own = ((diary.relayState && diary.relayState.officeStamps) || {})[r.id];
+  const was = Number(p.was);
+  if (stampOf(r) !== was && !(own && own.from === was && own.to === stampOf(r))) return 'It changed while you had it open — here it is now';
   const here = av.officeMayChange(r, now);
   if (here || p.cancel) return here;
   // SERVICE WINS AT THE NEW TIME TOO. Checking only where the booking is now
@@ -6948,6 +7006,7 @@ function decide(item, diary, now) {
   const ref = String(p.ref || '').toUpperCase();
   const rows = (diary && diary.reservations) || [];
   if (item.kind === 'booking') {
+    if (p.by === 'Office' && diary && diary.settings && !(diary.settings.relay && diary.settings.relay.office)) return 'skip';
     if (!ref || !String(p.name || '').trim() || !(parseInt(p.partySize, 10) >= 1) || !DAY_RE.test(p.date) || !HHMM_RE.test(p.time)) return 'skip';
     return rows.some(r => r.ref === ref) ? 'dupe' : 'create';
   }
@@ -6964,7 +7023,18 @@ function decide(item, diary, now) {
   if (item.kind === 'notify') {
     if (diary && diary.settings && diary.settings.online && diary.settings.online.notifyList === false) return 'skip';
     if (!p.id || !String(p.name || '').trim() || !DAY_RE.test(p.date)) return 'skip';
-    return ((diary && diary.notify) || []).some(e => e.relayId === p.id) ? 'skip' : 'notify';
+    if (((diary && diary.notify) || []).some(e => e.relayId === p.id)) return 'skip';
+    // THE DESK'S OWN NOTIFY RULES, which the relay's page skipped: a party of
+    // forty eight months out, three times over, reached the list.
+    const s = diary && diary.settings;
+    if (s && s.online) {
+      if (parseInt(p.partySize, 10) > (s.online.maxPartySize || 8)) return 'skip';
+      if (av.onlineDayReason(s, p.date, now || new Date())) return 'skip';
+    }
+    const key = String(p.phone || '').replace(/\D/g, '');
+    const today = av.localDay(now || new Date());
+    if (key && ((diary && diary.notify) || []).some(e => e.date === p.date && String(e.phone || '').replace(/\D/g, '') === key && av.notifyLive(e, today))) return 'skip';
+    return 'notify';
   }
   return 'skip';
 }
@@ -6973,6 +7043,16 @@ function decide(item, diary, now) {
 // repeat delivery is recognised (decide → 'dupe'). Bounded: the relay drops
 // an item for good once it is acknowledged, so only the last few matter.
 const DONE_KEEP = 500;
+// The office's own change, stamp before and after, so its NEXT change sent
+// on the stamp it saw is not refused over the first (editRefusal).
+function noteOfficeEdit(diary, id, from, to) {
+  diary.relayState = diary.relayState || {};
+  const m = Object.assign({}, diary.relayState.officeStamps || {});
+  m[id] = { from: Number(from), to: Number(to) };
+  const keys = Object.keys(m);
+  for (const k of keys.slice(0, Math.max(0, keys.length - DONE_KEEP))) delete m[k];
+  diary.relayState.officeStamps = m;
+}
 function remember(diary, item, what) {
   if (!item || !item.id || ['skip', 'dupe', 'refuse'].includes(what)) return;
   diary.relayState = diary.relayState || {};
@@ -6990,13 +7070,15 @@ function bookingFrom(payload, ctx, opts) {
   const party = parseInt(payload.partySize, 10);
   const dur = av.durationFor(ctx.settings, party);
   const known = (ctx.tables || []).some(t => t.id === payload.tableId);
-  const stillFree = known && !av.holdersOf(ctx, payload.tableId, day, av.toMin(hhmm), dur).length;
+  // FREE the way the desk means it — av.freeTables(), which counts the till's
+  // walk-ins and a party running over — not merely unbooked.
+  const stillFree = known && av.freeTables(ctx, day, hhmm, party).some(t => t.id === payload.tableId);
   const t = stillFree ? { id: payload.tableId } : av.suggestTable(ctx, day, hhmm, party);
   return {
     id: opts.id, name: String(payload.name).trim().slice(0, 60),
     phone: String(payload.phone || '').trim().slice(0, 30), email: String(payload.email || '').trim().slice(0, 80),
     partySize: party, time: av.joinTime(day, hhmm), durationMin: null,
-    tableId: t ? t.id : null, tableIds: [], notes: String(payload.notes || '').trim().slice(0, 300),
+    tableId: t ? t.id : null, tableIds: [], notes: String(payload.notes || '').trim().slice(0, 500),
     // A booking the office took on the phone is the desk's own kind of
     // booking — a person took it — and says who in createdBy and history.
     tags: [], setMenu: null, status: 'booked', source: payload.by === 'Office' ? 'staff' : 'online',
@@ -7004,7 +7086,7 @@ function bookingFrom(payload, ctx, opts) {
   };
 }
 
-module.exports = { GRANT_DAYS, grantsFor, guestsOf, remember, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, editedBooking };
+module.exports = { GRANT_DAYS, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, editedBooking };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relaysync'] = module;
@@ -7332,7 +7414,10 @@ app.get('/api/walkin', (req, res) => {
   const ctx = ctxOf(data);
   const n = ctx.now;
   const at = av.pad2(n.getHours()) + ':' + av.pad2(n.getMinutes());
-  const day = tradingDay(data, n);
+  // The clock's own date, not the trading day: after midnight the trading day
+  // is yesterday, and a walk-in at 00:30 on it was stored 24 hours early.
+  // walkinTables() carries the night before's sat parties into this date.
+  const day = av.localDay(n);
   res.json({ size, minutes: av.durationFor(ctx.settings, size), day, at, tables: av.walkinTables(ctx, day, at, size) });
 });
 app.get('/api/tables', (req, res) => {
@@ -8644,12 +8729,14 @@ function applyRelayItem(data, item) {
     // into the stored booking, history written by 'Office', the till told.
     const r = data.reservations.find(x => x.id === p.id);
     const before = Object.assign({}, r);
+    const stampWas = relaysync.stampOf(r);
     if (p.cancel) {
       r.status = 'cancelled'; r.cancelledAt = now; r.cancelReason = 'Cancelled by the office';
     } else {
       Object.assign(r, relaysync.editedBooking(r, p.patch || {}, ctxOf(data)));
     }
     r.updatedAt = now;
+    relaysync.noteOfficeEdit(data, r.id, stampWas, relaysync.stampOf(r));
     r.events = history.append(r.events, history.changeEvents(before, r, { by: 'Office', at: now }, evOpts(data)));
     if (p.cancel) raiseOpening(data, r, 'cancelled', 'Office');
     const pt = p.patch || {};

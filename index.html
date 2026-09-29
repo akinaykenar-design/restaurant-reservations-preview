@@ -2155,6 +2155,16 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .wk-menu.folded{padding:4px 4px 4px 12px;}
 .wk-chg{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-weight:700;font-size:var(--fs-md);}
+
+/* Daily round, 29 Sep. The app's one <a> key ("Download everything") wore the
+   browser's own blue underline — navy on near-black in dark — because .btn
+   sets no ink of its own. A key is a key whatever element it is. */
+a.btn{color:var(--text-primary);text-decoration:none;}
+/* The flow scrolls, and stops short of the Floor · Timeline · Flow keys that
+   float at the pane's foot: on a phone held sideways they sat over the covers
+   row and the last squares could not be reached. */
+.desk-main > .dm-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding-bottom:72px;}
+.dm-scroll > .grid3,.dm-scroll > .flow{margin:var(--hub-edge);}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "86aa30189a86abd0325d2a86873f2544272dc4d0";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -4446,23 +4456,49 @@ function autoAssign(ctx, day) {
 // 8:15 was going to get strands the nine, and the whole point of the answer is
 // not to offer what the night has already spent. Largest-to-smallest is not
 // the order: the tightest fit comes first, as suggestTable() orders it.
+//
+// AFTER MIDNIGHT the question is asked on the date the clock is on, and the
+// night before's SAT parties are still in their chairs: a diary keyed on
+// calendar dates does not see a 22:00 sitting reach 00:30, so they are made
+// to hold their tables from the start of this date (daily round, 29 Sep: a
+// walk-in at 00:30 was offered four tables people were eating at).
+//
+// AND A PARTY NO ONE TABLE SEATS is offered a STATED combination, the way
+// autoAssign() and the booking page already do — a five told "nothing free"
+// while two pushed-together tables stood empty was the desk contradicting its
+// own booking page. Each table of the tightest free combination is a key, and
+// carries `combo`, the whole set, so a tap on any of them seats the party on
+// all of them.
 function walkinTables(ctx, day, hhmm, party) {
   const size = Math.max(1, Number(party) || 1);
   const auto = autoAssign(ctx, day);
-  const placed = (ctx.reservations || []).map(r => (auto[r.id] && auto[r.id].length && !heldTables(r).length)
-    ? Object.assign({}, r, { tableId: auto[r.id][0], tableIds: auto[r.id].slice(1) }) : r);
+  const prev = addDays(day, -1);
+  const placed = (ctx.reservations || []).map(r => {
+    if (r && dayOf(r.time) === prev && isSat(r)) return Object.assign({}, r, { time: joinTime(day, '00:00'), durationMin: toMin(hhmm) + 1 });
+    return (auto[r.id] && auto[r.id].length && !heldTables(r).length)
+      ? Object.assign({}, r, { tableId: auto[r.id][0], tableIds: auto[r.id].slice(1) }) : r;
+  });
   const sub = Object.assign({}, ctx, { reservations: placed });
   const start = toMin(hhmm);
   const whole = new Set(freeTables(sub, day, hhmm, size).map(t => t.id));
   const now = new Set(freeTables(sub, day, hhmm, size, { duration: 1 }).map(t => t.id));
-  return (ctx.tables || []).filter(t => (t.seats || 0) >= size && now.has(t.id))
+  const singles = (ctx.tables || []).filter(t => (t.seats || 0) >= size && now.has(t.id));
+  if (!singles.some(t => whole.has(t.id)) && combosOf(ctx).length) {
+    const c = freeCombos(sub, day, hhmm, size)[0];
+    if (c) {
+      const inCombo = c.tables.map(id => ({ id, until: null, combo: c.tables.slice() }));
+      return inCombo.concat(singles.filter(t => !c.tables.includes(t.id)).map(t => ({ id: t.id, until: untilOn(t) })));
+    }
+  }
+  function untilOn(t) {
+    if (whole.has(t.id)) return null;
+    const next = placed.filter(r => isLive(r) && dayOf(r.time) === day && heldTables(r).includes(t.id) && minsOf(r.time) > start)
+      .map(r => minsOf(r.time)).sort((a, b) => a - b)[0];
+    return next === undefined ? null : fromMin(next);
+  }
+  return singles
     .sort((a, b) => (a.seats - b.seats) || (parseInt(a.label) - parseInt(b.label)) || String(a.label).localeCompare(String(b.label)))
-    .map(t => {
-      if (whole.has(t.id)) return { id: t.id, until: null };
-      const next = placed.filter(r => isLive(r) && dayOf(r.time) === day && heldTables(r).includes(t.id) && minsOf(r.time) > start)
-        .map(r => minsOf(r.time)).sort((a, b) => a - b)[0];
-      return { id: t.id, until: next === undefined ? null : fromMin(next) };
-    });
+    .map(t => ({ id: t.id, until: untilOn(t) }));
 }
 
 // §§ What a table is doing
@@ -5210,7 +5246,11 @@ function sheetRow(ctx, r, guest) {
   const many = tables.some(t => t.floor && String(t.name || '').startsWith(t.floor + ' · '));
   // A table that has left the POS floor is dropped silently, the way
   // pruneTables() does on a save — never printed as a phantom.
-  const ids = heldTables(r).filter(id => tables.some(t => t.id === id));
+  // What a PERSON placed, else what the desk laid it on (autoAssign, passed in
+  // as autoTables by runSheet) — the book, the floor and the timeline all
+  // show the desk's pick, and a sheet printing "—" beside them is the paper
+  // disagreeing with the screen.
+  const ids = (heldTables(r).length ? heldTables(r) : (r.autoTables || [])).filter(id => tables.some(t => t.id === id));
   // No "T" here either. The run sheet is printed and read beside the screens,
   // and a sheet saying T21 next to a floor saying 21 is the app calling one
   // table two things.
@@ -5248,9 +5288,10 @@ function runSheet(ctx, day, opts) {
   // one print and the next.
   const order = (a, b) => (a.mins - b.mins) || String(a.name).localeCompare(String(b.name)) || String(a.id).localeCompare(String(b.id));
   const rows = [], dropped = [];
+  const auto = autoAssign(ctx, day);
   for (const r of (ctx.reservations || [])) {
     if (!r || dayOf(r.time) !== day) continue;
-    const row = sheetRow(ctx, r, byId.get(r.guestId) || null);
+    const row = sheetRow(ctx, auto[r.id] ? Object.assign({}, r, { autoTables: auto[r.id] }) : r, byId.get(r.guestId) || null);
     if (isCounted(r)) rows.push(row);
     else if (r.status === 'cancelled' || r.status === 'no-show') dropped.push(row);
   }
@@ -6806,6 +6847,15 @@ function roomOn(ctx, day) {
     const from = av.minsOf(r.time), to = from + av.durationFor(s, r.partySize, r.durationMin);
     for (const id of ids) (busy[id] = busy[id] || []).push([from, to]);
   }
+  // THE TILL'S WALK-INS ARE IN THOSE CHAIRS NOW (daily round, 29 Sep: the
+  // relay sold a table four walk-ins were eating at). Today, with the clock
+  // known, covers on a table no booking holds right now hold it from now for
+  // a sitting of their size — the rule av.freeTables() already keeps.
+  const now = ctx.now instanceof Date && av.localDay(ctx.now) === day ? ctx.now.getHours() * 60 + ctx.now.getMinutes() : null;
+  if (now !== null) for (const t of (ctx.tables || [])) {
+    if (!(Number(t.covers) > 0) || av.holdersOf(ctx, t.id, day, now, 1, null).length) continue;
+    (busy[t.id] = busy[t.id] || []).push([now, now + av.durationFor(s, Number(t.covers))]);
+  }
   const most = Math.max(1, s.online.maxPartySize || 8);
   return {
     tables: (ctx.tables || []).map(t => ({ id: t.id, seats: t.seats, busy: busy[t.id] || [] })),
@@ -6898,7 +6948,15 @@ function editRefusal(item, diary, now) {
   const p = (item && item.payload) || {};
   const r = ((diary && diary.reservations) || []).find(x => x.id === p.id);
   if (!r) return 'That booking is not in the book any more';
-  if (stampOf(r) !== Number(p.was)) return 'It changed while you had it open — here it is now';
+  // Switched off HERE outranks whatever the relay still believes: an office
+  // switched off while the relay could not be reached kept booking for good.
+  if (diary.settings && !(diary.settings.relay && diary.settings.relay.office)) return 'The office is switched off at the restaurant';
+  // The office's OWN earlier change does not count as "changed since": a
+  // second edit sent before the desk collected the first carries the stamp
+  // the first one had, and was refused over it.
+  const own = ((diary.relayState && diary.relayState.officeStamps) || {})[r.id];
+  const was = Number(p.was);
+  if (stampOf(r) !== was && !(own && own.from === was && own.to === stampOf(r))) return 'It changed while you had it open — here it is now';
   const here = av.officeMayChange(r, now);
   if (here || p.cancel) return here;
   // SERVICE WINS AT THE NEW TIME TOO. Checking only where the booking is now
@@ -6962,6 +7020,7 @@ function decide(item, diary, now) {
   const ref = String(p.ref || '').toUpperCase();
   const rows = (diary && diary.reservations) || [];
   if (item.kind === 'booking') {
+    if (p.by === 'Office' && diary && diary.settings && !(diary.settings.relay && diary.settings.relay.office)) return 'skip';
     if (!ref || !String(p.name || '').trim() || !(parseInt(p.partySize, 10) >= 1) || !DAY_RE.test(p.date) || !HHMM_RE.test(p.time)) return 'skip';
     return rows.some(r => r.ref === ref) ? 'dupe' : 'create';
   }
@@ -6978,7 +7037,18 @@ function decide(item, diary, now) {
   if (item.kind === 'notify') {
     if (diary && diary.settings && diary.settings.online && diary.settings.online.notifyList === false) return 'skip';
     if (!p.id || !String(p.name || '').trim() || !DAY_RE.test(p.date)) return 'skip';
-    return ((diary && diary.notify) || []).some(e => e.relayId === p.id) ? 'skip' : 'notify';
+    if (((diary && diary.notify) || []).some(e => e.relayId === p.id)) return 'skip';
+    // THE DESK'S OWN NOTIFY RULES, which the relay's page skipped: a party of
+    // forty eight months out, three times over, reached the list.
+    const s = diary && diary.settings;
+    if (s && s.online) {
+      if (parseInt(p.partySize, 10) > (s.online.maxPartySize || 8)) return 'skip';
+      if (av.onlineDayReason(s, p.date, now || new Date())) return 'skip';
+    }
+    const key = String(p.phone || '').replace(/\D/g, '');
+    const today = av.localDay(now || new Date());
+    if (key && ((diary && diary.notify) || []).some(e => e.date === p.date && String(e.phone || '').replace(/\D/g, '') === key && av.notifyLive(e, today))) return 'skip';
+    return 'notify';
   }
   return 'skip';
 }
@@ -6987,6 +7057,16 @@ function decide(item, diary, now) {
 // repeat delivery is recognised (decide → 'dupe'). Bounded: the relay drops
 // an item for good once it is acknowledged, so only the last few matter.
 const DONE_KEEP = 500;
+// The office's own change, stamp before and after, so its NEXT change sent
+// on the stamp it saw is not refused over the first (editRefusal).
+function noteOfficeEdit(diary, id, from, to) {
+  diary.relayState = diary.relayState || {};
+  const m = Object.assign({}, diary.relayState.officeStamps || {});
+  m[id] = { from: Number(from), to: Number(to) };
+  const keys = Object.keys(m);
+  for (const k of keys.slice(0, Math.max(0, keys.length - DONE_KEEP))) delete m[k];
+  diary.relayState.officeStamps = m;
+}
 function remember(diary, item, what) {
   if (!item || !item.id || ['skip', 'dupe', 'refuse'].includes(what)) return;
   diary.relayState = diary.relayState || {};
@@ -7004,13 +7084,15 @@ function bookingFrom(payload, ctx, opts) {
   const party = parseInt(payload.partySize, 10);
   const dur = av.durationFor(ctx.settings, party);
   const known = (ctx.tables || []).some(t => t.id === payload.tableId);
-  const stillFree = known && !av.holdersOf(ctx, payload.tableId, day, av.toMin(hhmm), dur).length;
+  // FREE the way the desk means it — av.freeTables(), which counts the till's
+  // walk-ins and a party running over — not merely unbooked.
+  const stillFree = known && av.freeTables(ctx, day, hhmm, party).some(t => t.id === payload.tableId);
   const t = stillFree ? { id: payload.tableId } : av.suggestTable(ctx, day, hhmm, party);
   return {
     id: opts.id, name: String(payload.name).trim().slice(0, 60),
     phone: String(payload.phone || '').trim().slice(0, 30), email: String(payload.email || '').trim().slice(0, 80),
     partySize: party, time: av.joinTime(day, hhmm), durationMin: null,
-    tableId: t ? t.id : null, tableIds: [], notes: String(payload.notes || '').trim().slice(0, 300),
+    tableId: t ? t.id : null, tableIds: [], notes: String(payload.notes || '').trim().slice(0, 500),
     // A booking the office took on the phone is the desk's own kind of
     // booking — a person took it — and says who in createdBy and history.
     tags: [], setMenu: null, status: 'booked', source: payload.by === 'Office' ? 'staff' : 'online',
@@ -7018,7 +7100,7 @@ function bookingFrom(payload, ctx, opts) {
   };
 }
 
-module.exports = { GRANT_DAYS, grantsFor, guestsOf, remember, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, editedBooking };
+module.exports = { GRANT_DAYS, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, editedBooking };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relaysync'] = module;
@@ -7346,7 +7428,10 @@ app.get('/api/walkin', (req, res) => {
   const ctx = ctxOf(data);
   const n = ctx.now;
   const at = av.pad2(n.getHours()) + ':' + av.pad2(n.getMinutes());
-  const day = tradingDay(data, n);
+  // The clock's own date, not the trading day: after midnight the trading day
+  // is yesterday, and a walk-in at 00:30 on it was stored 24 hours early.
+  // walkinTables() carries the night before's sat parties into this date.
+  const day = av.localDay(n);
   res.json({ size, minutes: av.durationFor(ctx.settings, size), day, at, tables: av.walkinTables(ctx, day, at, size) });
 });
 app.get('/api/tables', (req, res) => {
@@ -8658,12 +8743,14 @@ function applyRelayItem(data, item) {
     // into the stored booking, history written by 'Office', the till told.
     const r = data.reservations.find(x => x.id === p.id);
     const before = Object.assign({}, r);
+    const stampWas = relaysync.stampOf(r);
     if (p.cancel) {
       r.status = 'cancelled'; r.cancelledAt = now; r.cancelReason = 'Cancelled by the office';
     } else {
       Object.assign(r, relaysync.editedBooking(r, p.patch || {}, ctxOf(data)));
     }
     r.updatedAt = now;
+    relaysync.noteOfficeEdit(data, r.id, stampWas, relaysync.stampOf(r));
     r.events = history.append(r.events, history.changeEvents(before, r, { by: 'Office', at: now }, evOpts(data)));
     if (p.cancel) raiseOpening(data, r, 'cancelled', 'Office');
     const pt = p.patch || {};
@@ -10930,7 +11017,7 @@ function renderToday() {
   // is right on the first frame.
   return `${notice}<div class="desk mode-${esc(state.todayMode)}">
     <div class="desk-col" data-keep="desk-col">${renderSide()}</div>
-    <div class="desk-main">${side}${state.todayMode === 'floor' ? '' : renderViewDock()}</div>
+    <div class="desk-main">${state.todayMode === 'flow' ? `<div class="dm-scroll" data-keep="dm-scroll">${side}</div>` : side}${state.todayMode === 'floor' ? '' : renderViewDock()}</div>
   </div>`;
 }
 // THE RULER STRETCHES TO THE PANE. Two pixels a minute is the FLOOR, not the
@@ -11872,11 +11959,11 @@ function renderComboModal() {
         <input id="combo-seats" type="number" min="0" max="200" placeholder="${sum}" value="${c.seats || ''}" data-field="modal.c.seats"></div>
     </div>
     <label>Tables</label>
-    <div class="bk-pick">${state.tables.map(t => {
+    <div class="bk-pick">${state.tables.slice().sort(tableLabelCompare).map(t => {
     const on = picked.includes(t.id);
     return `<button class="bk-opt${on ? ' on' : ''}" data-act="combo-table" data-val="${esc(t.id)}">
         <span class="bk-opt-mark"><i class="fl-dot"></i></span>
-        <span class="bk-opt-text"><b>${esc(t.name || String(t.label))} <span class="bk-seats">${t.seats} seats</span></b></span>
+        <span class="bk-opt-text"><b>${esc(t.name || String(t.label))} <span class="bk-seats">${t.seats} ${t.seats === 1 ? 'seat' : 'seats'}</span></b></span>
         ${on ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
       </button>`;
   }).join('')}</div>
@@ -12498,11 +12585,11 @@ function renderGuestPage(page) {
 function openBooking(r, preset, opts) {
   const now = new Date();
   const b = r ? Object.assign({}, r, { date: dayOf(r.time), time: hhmmOf(r.time) }) : Object.assign({ name: '', phone: '', email: '', partySize: 2, date: state.date, time: '', durationMin: null, tableId: null, tableIds: [], notes: '', tags: [], status: 'booked', source: 'staff' }, preset || {});
-  if (!r && !b.time) {
-    // Default to the next slot from now on today; on another day, the first dinner slot.
-    const step = state.settings.slotMinutes || 15;
-    if (b.date === localDay(now)) b.time = fromMin(Math.ceil((now.getHours() * 60 + now.getMinutes()) / step) * step);
-  }
+  // NO TIME IS GUESSED FROM THE CLOCK. It used to preset the next quarter
+  // hour, which at 21:50 was 22:00 and at 15:02 was 15:15 — times no slot
+  // offered, lit nowhere and booked anyway (daily round, 29 Sep). Left empty,
+  // loadAvailability() picks the first time the day actually has open ahead
+  // of the clock, or none.
   state.modal = { kind: 'booking', page: '', b, slots: null, free: null, conflicts: (r && r.conflicts) || [], error: '', notifyId: (opts && opts.notifyId) || null, from: (opts && opts.from) || null, spend: null, openedAt: Date.now() };
   render();
   loadAvailability(true);
@@ -12544,8 +12631,8 @@ async function loadAvailability(withSlots) {
       if (!b.time && m.slots.length) {
         const n = new Date(), nowHHMM = pad2(n.getHours()) + ':' + pad2(n.getMinutes());
         const ahead = m.slots.filter(x => b.date !== tradingDay() || x.time >= nowHHMM);
-        const first = ahead.find(x => x.ok) || ahead[0] || m.slots[0];
-        b.time = first.time; render(); return loadAvailability(false);
+        const first = ahead.find(x => x.ok) || ahead[0];
+        if (first) { b.time = first.time; render(); return loadAvailability(false); }
       }
     }
     if (free) m.free = free;
@@ -12656,6 +12743,14 @@ function queueSave(group) {
 }
 async function flushSaves() {
   const groups = Object.keys(_savePending); _savePending = {};
+  // THE FIELD UNDER A TYPING FINGER IS NOT REPAINTED. Every save used to
+  // render(), which rebuilt the input — and a number or time field cannot be
+  // given its caret back, so it landed at the start: 14 typed with a pause
+  // saved 41, and 06:30 PM saved 12:00 (daily round, 29 Sep). The save still
+  // happens on the keystroke; the repaint waits for the next one that is not
+  // mid-word, and the field's own value wins over an answer that crossed it.
+  const act = document.activeElement;
+  const typing = act && act.dataset && act.dataset.field && act.dataset.save && /^(INPUT|TEXTAREA)$/.test(act.tagName) ? act : null;
   const s = state.settings;
   for (const g of groups) {
     try {
@@ -12684,6 +12779,7 @@ async function flushSaves() {
       try { state.settings = await api('/api/settings'); applyStatusColours(); } catch (e2) {}
     }
   }
+  if (typing && document.activeElement === typing) { setPath(state, typing.dataset.field, typing.type === 'number' ? (typing.value === '' ? null : parseFloat(typing.value)) : typing.value); return; }
   render();
 }
 
@@ -12703,8 +12799,10 @@ document.addEventListener('click', async (ev) => {
       case 'to-till-table': openTill(el.dataset.table || null); break;
       // Settings is the one place that still asks for a code — and it asks
       // once, then holds it for as long as this tab is open.
-      case 'view': setView(val); break;
-      case 'day': state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.picking = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
+      // Leaving the room puts a walk-in away: its lit tables are about THIS
+      // room, now, and nowhere else.
+      case 'view': state.walkin = null; setView(val); break;
+      case 'day': state.walkin = null; state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.picking = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'mode': {
         // A section carries its own place. The rail shows Service's five from
@@ -12713,6 +12811,7 @@ document.addEventListener('click', async (ev) => {
         const view = railOf(val) || state.view;
         const rail = RAILS[view];
         if (!rail) break;
+        if (val !== 'floor') state.walkin = null;
         state[rail.key] = val;
         const moved = state.view !== view;
         state.view = view;
@@ -12727,7 +12826,7 @@ document.addEventListener('click', async (ev) => {
       case 'side': state.side = val; render(); try { await loadSide(); state.today = await api('/api/today'); } catch (e) {} render(); break;
       case 'print-sheet': window.print(); break;
       case 'month': { if (val === '0') state.month = localDay(new Date()).slice(0, 7); else { const [y, m] = state.month.split('-').map(Number); const d = new Date(y, m - 1 + parseInt(val), 1); state.month = localDay(d).slice(0, 7); } render(); try { await loadMonth(); } catch (e) {} render(); break; }
-      case 'open-day': state.date = val; state.view = 'today'; state.modal = null; state.service = defaultService(val); render(); await loadDay(); render(); break;
+      case 'open-day': state.walkin = null; state.date = val; state.view = 'today'; state.modal = null; state.service = defaultService(val); render(); await loadDay(); render(); break;
       // Point at a table in the book and the room answers. A second tap puts
       // it back, so it is a question and not a mode you can get stuck in.
       // §§ THE ROW'S TWO KEYS
@@ -12817,7 +12916,7 @@ document.addEventListener('click', async (ev) => {
         render(); showRinged();
         break;
       }
-      case 'new-booking': openBooking(null); break;
+      case 'new-booking': state.walkin = null; openBooking(null); break;
       // A walk-in is not a booking with the boxes left empty: it is always
       // NOW, always on the trading day whatever night is on screen, and it is
       // already seated by the time anybody types. The popup opens on the same
@@ -12831,7 +12930,10 @@ document.addEventListener('click', async (ev) => {
         state.picking = null; state.modal = null;
         const moved = state.view !== 'today' || state.todayMode !== 'floor' || state.date !== tradingDay();
         state.view = 'today'; state.todayMode = 'floor';
-        if (state.date !== tradingDay()) { state.date = tradingDay(); state.service = defaultService(state.date); }
+        // On tonight AND on the service the clock is in: a desk left on Lunch
+        // drew the room at lunch under tables lit for now.
+        if (state.date !== tradingDay()) state.date = tradingDay();
+        state.service = defaultService(state.date);
         render();
         if (moved) { await loadDay(); render(); }
         break;
@@ -12839,7 +12941,9 @@ document.addEventListener('click', async (ev) => {
       case 'walkin-size': {
         const w = state.walkin; if (!w) break;
         w.size = parseInt(val, 10) || 1; w.data = null; w.expand = false; render();
-        try { const d = await api('/api/walkin?size=' + w.size); if (state.walkin === w) { w.data = d; render(); } }
+        // The answer for the size ASKED, not the size picked: tap 2, Change, 4
+        // with the 2's answer arriving last lit two-tops for a four.
+        try { const d = await api('/api/walkin?size=' + w.size); if (state.walkin === w && d.size === w.size) { w.data = d; render(); } }
         catch (e) { toastBad(e.message); }
         break;
       }
@@ -12847,9 +12951,12 @@ document.addEventListener('click', async (ev) => {
       case 'walkin-seat': {
         const w = state.walkin; if (!w || !w.data) break;
         const tid = el.dataset.table, d = w.data;
+        // A party no one table seats is offered a stated combination: a tap on
+        // any of its tables seats them on all of them.
+        const hit = d.tables.find(x => x.id === tid);
         state.walkin = null; render();
         try {
-          await post('/api/reservations', { name: 'Walk-in', partySize: w.size, time: d.day + 'T' + d.at, tableId: tid, tableIds: [],
+          await post('/api/reservations', { name: 'Walk-in', partySize: w.size, time: d.day + 'T' + d.at, tableId: tid, tableIds: (hit && hit.combo ? hit.combo.filter(x => x !== tid) : []),
             status: 'seated', source: 'walk-in', autoTable: false, tags: [], notes: '' });
           await loadView(); render();
           toast(`${tableName(tid)} · ${w.size} seated`);
@@ -12859,7 +12966,9 @@ document.addEventListener('click', async (ev) => {
       case 'new-walkin': {
         state.walkin = null;
         const n = new Date();
-        openBooking(null, { status: 'seated', source: 'walk-in', date: tradingDay(),
+        // The clock's own date, not the trading day: after midnight the trading
+        // day is yesterday, and 00:30 on it is 24 hours in the past.
+        openBooking(null, { status: 'seated', source: 'walk-in', date: localDay(n),
           time: pad2(n.getHours()) + ':' + pad2(n.getMinutes()) });
         break;
       }
@@ -12956,6 +13065,7 @@ document.addEventListener('click', async (ev) => {
       case 'lens-open': state.lensOpen = !state.lensOpen; render(); break;
       case 'lens-pick': state.floorLens = val || ''; state.lensOpen = false; render(); break;
       case 'plan':
+        state.walkin = null;
         state.plan = el.dataset.id || '';
         state.highlightTable = null;
         state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0;
@@ -13254,7 +13364,7 @@ document.addEventListener('pointerdown', (e) => {
   if (!el) return;
   const r = state.reservations.find(x => x.id === el.dataset.id);
   if (!r) return;
-  if (!el.classList.contains('movable')) { tlRefuse(e); return; }
+  if (!el.classList.contains('movable')) { tlRefuse(e, r, el); return; }
   startTlDrag(e, el, r);
 });
 document.addEventListener('pointermove', moveArrange);
@@ -13394,10 +13504,16 @@ let flWheelEnd = null;
 // feeling broken. The drop
 // guard is set too, so the same hold does not also open the popup — a TAP
 // still opens it, which is the gesture that meant to.
-function tlRefuse(e) {
+// It says WHY. One sentence for every block that cannot move told a host
+// holding a live nine by its second lane that the booking was over.
+function tlRefuse(e, r, el) {
+  const why = !isLive(r) ? 'A booking that is over stays put'
+    : !tlRules().drag ? 'Dragging is switched off in Settings'
+      : el && el.classList.contains('extra') ? 'Drag it by its first table'
+        : 'This booking stays put';
   const t = setTimeout(() => {
     _tlDropAt = Date.now();
-    toast('A booking that is over stays put');
+    toast(why);
     stand();
   }, tlHold());
   const mv = (ev) => { if (Math.abs(ev.clientX - e.clientX) > TL_SLOP || Math.abs(ev.clientY - e.clientY) > TL_SLOP) stand(); };
