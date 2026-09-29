@@ -2038,6 +2038,26 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-who b{font-weight:800;}
 .bl-pax{font-size:var(--fs-xl);}
 .bl-st{border:none;}
+
+/* §§ FEWER LINES (owner, Sep '26: "too many lines" — design C)
+   Nothing separates the bar, the book and the room but their grounds: no
+   rule under the bar, no seam down the book, none over the pacing, no frame
+   round the room bar. The book is white cards on the pill's grey with no
+   outline — the ground between them is the line — and a card carries no
+   icon: its status is a stripe of the status's own colour down its left
+   edge (--st-ink, the colour Settings gives it and the floor paints the
+   table), drawn as a block and not a border so it follows the card's corner.
+   A table number sits on a grey pad rather than inside a hairline. */
+.topbar{border-bottom:none;}
+.desk-col{border-right:none;background:var(--deck-pill-bg);}
+.desk-col .side-sw,.desk-col .bl-find{background:var(--surface);}
+.pace{border-top:none;}
+.fl-rooms{border:none;}
+.bl-row{position:relative;border:none;background:var(--surface);padding-left:8px;}
+.bl-rows > .bl-row:last-child{border-bottom:none;}
+.bl-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--st-ink, var(--steel-300));}
+.bl-main{padding-left:12px;}
+.bl-table{border:none;background:var(--deck-pill-bg);font-weight:800;}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
