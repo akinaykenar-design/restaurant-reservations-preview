@@ -2107,6 +2107,39 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .wk-menu{left:8px;right:8px;width:auto;top:calc(100% + 4px);}
   .wk-sizes{grid-template-columns:repeat(4,1fr);}
 }
+
+/* §§ A NEW BOOKING IS ONE PAGE (v13): how many, which day, what time, who.
+   Each question is the top bar's own well of 44 keys; the one picked is the
+   accent; a time that cannot be sat is struck and dimmed and still says why
+   on it. On a phone the wells become even grids so no key is a sliver. */
+.bkq{display:grid;gap:20px;}
+.bkq-q{display:grid;gap:8px;justify-items:start;}
+.bkq-l{font-weight:800;font-size:var(--fs-md);color:var(--text-primary);}
+.bkq-well{display:flex;flex-wrap:wrap;gap:4px;padding:4px;border-radius:var(--r-control);background:var(--deck-pill-bg);max-width:100%;}
+.bkq-well > button{min-width:var(--tap);height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);background:transparent;
+  color:var(--text-primary);font:inherit;font-weight:800;font-size:var(--fs-md);}
+.bkq-well > button.on{background:var(--orange);color:#fff;}
+.bkq-well > button.full{color:var(--charcoal-soft);text-decoration:line-through;opacity:var(--dim);}
+.bkq-well > .ts{padding:12px;}
+.bkq-table{border:none;background:none;padding:4px 0;color:var(--charcoal-soft);font:inherit;font-size:var(--fs-md);text-align:left;min-height:var(--tap);}
+.bkq-table b{color:var(--text-primary);}
+.bkq-who{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;}
+.bkq-f{display:grid;gap:4px;align-content:start;}
+.bkq-f input{height:52px;font-size:var(--fs-lg);font-weight:700;}
+.bkq-more{display:flex;flex-wrap:wrap;gap:8px;}
+.bkq-more > button{display:flex;align-items:center;gap:8px;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);
+  background:var(--deck-pill-bg);color:var(--text-primary);font:inherit;font-weight:700;font-size:var(--fs-md);}
+.bkq-more > button svg{width:16px;height:16px;}
+.bkq-more > button.on{color:var(--orange);}
+@media (max-width:760px){
+  .bkq-q{justify-items:stretch;}
+  .bkq-well{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));}
+  .bkq-well > button{padding:0 4px;min-width:0;}
+  .bkq-who{grid-template-columns:1fr;}
+}
+.wk-menu.folded{padding:4px 4px 4px 12px;}
+.wk-chg{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
+  color:var(--text-primary);font:inherit;font-weight:700;font-size:var(--fs-md);}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
