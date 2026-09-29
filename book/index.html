@@ -7226,11 +7226,11 @@ app.get('/api/tables', (req, res) => {
     // leaving it off meant those came across as a blank box.
     decorType: t.type === 'decor' ? (t.decorType || null) : null,
     icon: t.type === 'decor' ? String(t.icon || '').slice(0, 8) : '',
-    // The colour the venue painted this one table by hand. No FINISH: the
-    // till dropped its table tops in Sep '26 and a saved one is read by
-    // nothing there, so it is read by nothing here. A LABEL's words ride
-    // `label`, which every object already carries.
-    color: t.color || null,
+    // The colour of a WALL or an OBJECT, which is the room. Never a table's:
+    // the till dropped table finishes and then table colours in Sep '26, and a
+    // saved one is read by nothing there, so it is not sent here. A LABEL's
+    // words ride `label`, which every object already carries.
+    color: t.type === 'decor' ? (t.color || null) : null,
     // WHAT THE TILL KNOWS AND THE BOOK DOES NOT: how many are sitting there
     // right now. A table the desk never booked is a walk-in on the floor,
     // and without this the desk draws it free and offers it to the phone.

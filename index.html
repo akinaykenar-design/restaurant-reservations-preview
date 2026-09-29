@@ -7240,11 +7240,11 @@ app.get('/api/tables', (req, res) => {
     // leaving it off meant those came across as a blank box.
     decorType: t.type === 'decor' ? (t.decorType || null) : null,
     icon: t.type === 'decor' ? String(t.icon || '').slice(0, 8) : '',
-    // The colour the venue painted this one table by hand. No FINISH: the
-    // till dropped its table tops in Sep '26 and a saved one is read by
-    // nothing there, so it is read by nothing here. A LABEL's words ride
-    // `label`, which every object already carries.
-    color: t.color || null,
+    // The colour of a WALL or an OBJECT, which is the room. Never a table's:
+    // the till dropped table finishes and then table colours in Sep '26, and a
+    // saved one is read by nothing there, so it is not sent here. A LABEL's
+    // words ride `label`, which every object already carries.
+    color: t.type === 'decor' ? (t.color || null) : null,
     // WHAT THE TILL KNOWS AND THE BOOK DOES NOT: how many are sitting there
     // right now. A table the desk never booked is a walk-in on the floor,
     // and without this the desk draws it free and offers it to the phone.
@@ -10503,10 +10503,10 @@ function renderPace() {
 // wash, the rings, the pick — and the glue that puts the till's pieces on
 // the desk's page.
 //
-// NO FINISHES AND NO FLOOR COLOUR, because the till has neither any more
-// (owner, Sep '26: "keep it simple like SevenRooms"). A table is the app's
-// own surface and the only colour on it is what it is doing, or the colour
-// the venue painted that one table by hand.
+// NO FINISHES, NO TABLE COLOUR AND NO FLOOR COLOUR, because the till has
+// none of them any more (owner, Sep '26: "keep it simple like SevenRooms").
+// A table is the app's own surface and the only colour on it is what it is
+// doing.
 
 // The till's decor rule, from its shapeStyle(): a STRUCTURE is anything with
 // no drawing and no emoji — a wall, a pillar, a zone — and it is solid, sharp
@@ -10548,10 +10548,13 @@ function contrastInk(hex) {
   const lum = (0.299 * (n >> 16 & 255) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) / 255;
   return lum > 0.6 ? '#24282A' : '#FFFFFF';
 }
-// THE SKIN: the venue's own colour, or the plain top. What the table is
-// DOING is a wash over this, never a replacement for it.
-function skinStyle(t) {
-  return t.color ? 'background:' + t.color + ';color:' + contrastInk(t.color) + ';' : 'background:var(--table-plain);color:var(--text-primary);';
+// THE SKIN is the plain top, always. The till took the hand-painted colour
+// off its tables after the finishes (owner, Sep '26: "colour still in floor
+// editor remove it"), so a colour saved before then is read by nothing there
+// and nothing here: the only colour on a table is what it is DOING, the wash.
+// Walls and objects keep theirs — decorStyle — because that is the room.
+function skinStyle() {
+  return 'background:var(--table-plain);color:var(--text-primary);';
 }
 // A wall's arm is a real LENGTH on the till — pixels on its canvas, 900 ×
 // FLOOR_ROOM wide — so it is the same thickness however long the wall runs.
