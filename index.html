@@ -2087,6 +2087,41 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .vdock{position:absolute;left:12px;bottom:12px;z-index:3;display:flex;gap:4px;padding:4px;
   border-radius:var(--r-control);background:var(--surface);box-shadow:var(--lift-1);}
 .desk-main .tl-grid{margin-bottom:72px;}
+
+/* §§ A WALK-IN, FROM THE KEY THAT WAS PRESSED (v12). The sizes drop down from
+   the Walk-in key itself, right-aligned to it, on the paper with the lift —
+   the top bar's own well of 44 keys inside. On the floor, a table that seats
+   them for their whole sitting wears the accent ring; one booked sooner keeps
+   its key and says till when on the floor's own pill; the rest are the
+   picker's quiet (`[disabled]`, the one dim). */
+.wk-anchor{position:relative;display:flex;}
+.wk-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:40;width:max-content;max-width:calc(100vw - 16px);
+  display:grid;gap:8px;padding:12px;border-radius:var(--r-surface);background:var(--surface);box-shadow:var(--lift-2);}
+.wk-head{display:flex;align-items:center;gap:12px;padding-left:4px;}
+.wk-head b{font-size:var(--fs-md);color:var(--text-primary);}
+.wk-head span{flex:1;font-size:var(--fs-md);color:var(--charcoal-soft);}
+.wk-x{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
+  border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);}
+.wk-x svg{width:20px;height:20px;}
+.wk-sizes{display:grid;grid-template-columns:repeat(8,var(--tap));gap:4px;padding:4px;border-radius:var(--r-control);background:var(--deck-pill-bg);}
+.wk-size{height:var(--tap);border:none;border-radius:var(--r-btn);background:transparent;color:var(--text-primary);
+  font:inherit;font-weight:800;font-size:var(--fs-lg);}
+.wk-size.on{background:var(--orange);color:#fff;}
+.wk-more{height:var(--tap);border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);
+  font:inherit;font-weight:700;font-size:var(--fs-md);}
+.deck-sq.make.on{outline:var(--tbl-sel-ring) solid var(--orange);outline-offset:2px;}
+.fl-table.wk-ok::after{content:'';position:absolute;inset:-1px;z-index:4;pointer-events:none;
+  border-radius:inherit;box-shadow:inset 0 0 0 var(--tbl-sel-ring) var(--orange);}
+@media (max-width:760px){
+  .wk-sizes{grid-template-columns:repeat(4,var(--tap));}
+}
+@media (max-width:760px){
+  /* A phone's key sits at the screen's edge: the sizes hang from the whole
+     bar instead, edge to edge, still straight under the finger. */
+  .wk-anchor{position:static;}
+  .wk-menu{left:8px;right:8px;width:auto;top:calc(100% + 4px);}
+  .wk-sizes{grid-template-columns:repeat(4,1fr);}
+}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "86aa30189a86abd0325d2a86873f2544272dc4d0";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -4362,6 +4397,41 @@ function autoAssign(ctx, day) {
   return out;
 }
 
+// §§ A walk-in: which tables can take them NOW
+//
+// Owner, Sep '26 (v12): "show me the tables that are free for the standard
+// booking time". The sitting here is set per party size, so the size is asked
+// first, and then every table that seats them answers one of two ways:
+//
+//   until: null     free now and for their whole sitting — seat them
+//   until: "20:00"  free now, but somebody is booked on it before their
+//                   sitting ends — seatable, and the floor says till when
+//
+// A table that is not free NOW is not in the list at all. The desk's own
+// picks for bookings nobody has placed (autoAssign) HOLD their tables here as
+// if a person had placed them: a walk-in sat on the three tables the nine at
+// 8:15 was going to get strands the nine, and the whole point of the answer is
+// not to offer what the night has already spent. Largest-to-smallest is not
+// the order: the tightest fit comes first, as suggestTable() orders it.
+function walkinTables(ctx, day, hhmm, party) {
+  const size = Math.max(1, Number(party) || 1);
+  const auto = autoAssign(ctx, day);
+  const placed = (ctx.reservations || []).map(r => (auto[r.id] && auto[r.id].length && !heldTables(r).length)
+    ? Object.assign({}, r, { tableId: auto[r.id][0], tableIds: auto[r.id].slice(1) }) : r);
+  const sub = Object.assign({}, ctx, { reservations: placed });
+  const start = toMin(hhmm);
+  const whole = new Set(freeTables(sub, day, hhmm, size).map(t => t.id));
+  const now = new Set(freeTables(sub, day, hhmm, size, { duration: 1 }).map(t => t.id));
+  return (ctx.tables || []).filter(t => (t.seats || 0) >= size && now.has(t.id))
+    .sort((a, b) => (a.seats - b.seats) || (parseInt(a.label) - parseInt(b.label)) || String(a.label).localeCompare(String(b.label)))
+    .map(t => {
+      if (whole.has(t.id)) return { id: t.id, until: null };
+      const next = placed.filter(r => isLive(r) && dayOf(r.time) === day && heldTables(r).includes(t.id) && minsOf(r.time) > start)
+        .map(r => minsOf(r.time)).sort((a, b) => a - b)[0];
+      return { id: t.id, until: next === undefined ? null : fromMin(next) };
+    });
+}
+
 // §§ What a table is doing
 //
 // Four states became seven, because four of them answered "is somebody on
@@ -5212,7 +5282,7 @@ function runSheet(ctx, day, opts) {
 module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkinTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -7233,6 +7303,19 @@ app.put('/api/theme', (req, res) => {
   res.json(data.theme);
 });
 
+// A WALK-IN, NOW: which tables can take a party of this size this minute,
+// and till when (av.walkinTables). Always the trading day and the clock — a
+// walk-in is somebody at the door, never a plan for another night. Asked once
+// per size tapped, never on the pass.
+app.get('/api/walkin', (req, res) => {
+  const data = readData();
+  const size = Math.max(1, Math.min(99, parseInt(req.query.size, 10) || 1));
+  const ctx = ctxOf(data);
+  const n = ctx.now;
+  const at = av.pad2(n.getHours()) + ':' + av.pad2(n.getMinutes());
+  const day = tradingDay(data, n);
+  res.json({ size, minutes: av.durationFor(ctx.settings, size), day, at, tables: av.walkinTables(ctx, day, at, size) });
+});
 app.get('/api/tables', (req, res) => {
   const data = readData();
   // The floor plan carries the POS's own geometry — x/y are the CENTRE of a
@@ -9865,7 +9948,7 @@ function renderDeck() {
     ${renderTabs()}
     <div class="deck-keys">
       ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
-      <button class="deck-sq make" data-act="new-walkin" aria-label="Seat a walk-in" title="Somebody is at the door — seat them now">${I.srcWalkIn}<span class="deck-word wide-only">Walk-in</span></button>
+      <span class="wk-anchor"><button class="deck-sq make${state.walkin ? ' on' : ''}" data-act="walkin" aria-label="Seat a walk-in" aria-expanded="${state.walkin ? 'true' : 'false'}" title="Somebody is at the door — seat them now">${I.srcWalkIn}<span class="deck-word wide-only">Walk-in</span></button>${renderWalkinMenu()}</span>
       <button class="deck-sq make" data-act="new-booking" aria-label="New booking" title="Take a booking">${I.book}<span class="deck-word wide-only">Book</span></button>
       <button class="deck-sq wide-only${state.view === 'settings' ? ' on' : ''}" data-act="view" data-val="settings" aria-label="Settings" aria-current="${state.view === 'settings' ? 'page' : 'false'}" title="Settings">${I.settings}</button>
     </div>
@@ -9881,6 +9964,30 @@ function renderDeck() {
 // tab; the waitlist and the notify list are switches at the head of that
 // column rather than places. A phone keeps its thumb bar at the foot — the
 // rail lying down — because 390 pixels have no bar to put tabs in.
+// §§ A WALK-IN, FROM THE KEY THAT WAS PRESSED (owner, Sep '26, v12: "yes",
+// and "clicking walkin brings up a menu far away"). The sizes drop down from
+// the Walk-in key itself, where the finger already is. Tap how many, and the
+// floor lights the tables that seat them AND are free for their whole sitting
+// (av.walkinTables via GET /api/walkin — Settings' sitting for that size); a
+// table that seats them but is booked sooner says till when; the rest go
+// quiet. Tap a lit table and they are sat. "9+ or a name" is the old form,
+// for the walk-in that needs more than a number.
+function renderWalkinMenu() {
+  const w = state.walkin;
+  if (!w) return '';
+  const sizes = [1, 2, 3, 4, 5, 6, 7, 8].map(n =>
+    `<button class="wk-size${w.size === n ? ' on' : ''}" data-act="walkin-size" data-val="${n}" aria-pressed="${w.size === n}">${n}</button>`).join('');
+  const d = w.data;
+  const hint = !w.size ? 'How many people?'
+    : !d ? 'Finding tables…'
+      : !d.tables.length ? `Nothing free for ${w.size} right now`
+        : `${w.size} ${w.size === 1 ? 'person' : 'people'} · ${d.minutes} min · tap a lit table`;
+  return `<div class="wk-menu" role="dialog" aria-label="Walk-in">
+    <div class="wk-head"><b>Walk-in</b><span>${esc(hint)}</span><button class="wk-x" data-act="walkin" aria-label="Close">${I.cross}</button></div>
+    <div class="wk-sizes">${sizes}</div>
+    <button class="wk-more" data-act="new-walkin">9+ or a name</button>
+  </div>`;
+}
 // THE VIEWS STAND ON THE ROOM, THE TILL'S WAY (owner, Sep '26, from the v10
 // mockup: "yes build it"). The till floats Map · Pass · Timeline · Bills at
 // the foot LEFT of its floor and the rooms at the foot RIGHT, so "which view"
@@ -10284,21 +10391,29 @@ function renderFloor() {
     const mine = pk ? pkMine.includes(t.id) : false;
     const canPick = pk ? (mine || pkFree.has(t.id)) : false;
     const ring = pk ? mine : state.highlightTable === t.id;
+    // A WALK-IN IS BEING SEATED: the tables that can take them are the only
+    // keys, the rest go quiet — the picker's own grammar, asked of the door.
+    const wk = !pk && state.walkin && state.walkin.data ? state.walkin.data.tables.find(x => x.id === t.id) : null;
+    const wkOn = !pk && !!(state.walkin && state.walkin.data);
     const act = pk ? (canPick ? `data-act="pick-seat" data-id="${esc(pk.id)}" data-table="${esc(t.id)}"` : 'disabled')
+      : wkOn ? (wk ? `data-act="walkin-seat" data-table="${esc(t.id)}"` : 'disabled')
       : `data-act="${r ? 'edit-booking' : 'new-at'}" ${r ? `data-id="${esc(r.id)}"` : `data-time="${esc(at)}" data-table="${esc(t.id)}"`}`;
     const pkWhy = !pk ? why
       : mine ? `Table ${t.label} — theirs already`
         : canPick ? `Put ${pkBook.name || 'them'} on table ${t.label} · ${t.seats} seats${pk.free.suggested === t.id ? ' · best fit' : ''}`
           : `Table ${t.label} — taken at ${hhmmOf(pkBook.time)}`;
-    return `<button class="fl-table ${f.state}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
+    const wkCls = !wkOn ? '' : wk ? (wk.until ? ' wk-short' : ' wk-ok') : ' wk-no';
+    const wkPill = wk && wk.until ? pillHtml(t, '', 'till ' + esc(fmtHHMM(wk.until)), `Table ${t.label} — booked at ${fmtHHMM(wk.until)}`) : '';
+    const pill = wkOn ? wkPill : floorPill(t, f, at);
+    return `<button class="fl-table ${f.state}${wkCls}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
       ${act}
       title="${esc(pkWhy)}">
       ${f.state === 'free' ? '' : `<span class="fl-wash ${esc(r ? r.status : f.state)}"></span>`}
       ${marks ? `<span class="fl-marks">${marks}</span>` : ''}
       <span class="fl-in" style="${up}">
         <span class="fl-no">${esc(t.label)}</span>
-      </span>${placed ? '' : floorPill(t, f, at)}
-    </button>${placed ? floorPill(t, f, at) : ''}`;
+      </span>${placed ? '' : pill}
+    </button>${placed ? pill : ''}`;
   };
 
   // NOTHING ABOVE THE ROOM. There was a line here counting seated, over, due
@@ -12613,7 +12728,41 @@ document.addEventListener('click', async (ev) => {
       // NOW, always on the trading day whatever night is on screen, and it is
       // already seated by the time anybody types. The popup opens on the same
       // page of rows — the only thing left to say is who, how many and where.
+      // The key opens the sizes under itself and puts you in the room, on
+      // tonight — a walk-in is somebody at the door now. Pressed again, or
+      // its ✕, it goes away.
+      case 'walkin': {
+        if (state.walkin) { state.walkin = null; render(); break; }
+        state.walkin = { size: null, data: null };
+        state.picking = null; state.modal = null;
+        const moved = state.view !== 'today' || state.todayMode !== 'floor' || state.date !== tradingDay();
+        state.view = 'today'; state.todayMode = 'floor';
+        if (state.date !== tradingDay()) { state.date = tradingDay(); state.service = defaultService(state.date); }
+        render();
+        if (moved) { await loadDay(); render(); }
+        break;
+      }
+      case 'walkin-size': {
+        const w = state.walkin; if (!w) break;
+        w.size = parseInt(val, 10) || 1; w.data = null; render();
+        try { const d = await api('/api/walkin?size=' + w.size); if (state.walkin === w) { w.data = d; render(); } }
+        catch (e) { toastBad(e.message); }
+        break;
+      }
+      case 'walkin-seat': {
+        const w = state.walkin; if (!w || !w.data) break;
+        const tid = el.dataset.table, d = w.data;
+        state.walkin = null; render();
+        try {
+          await post('/api/reservations', { name: 'Walk-in', partySize: w.size, time: d.day + 'T' + d.at, tableId: tid, tableIds: [],
+            status: 'seated', source: 'walk-in', autoTable: false, tags: [], notes: '' });
+          await loadView(); render();
+          toast(`${tableName(tid)} · ${w.size} seated`);
+        } catch (e) { toastBad(e.message); }
+        break;
+      }
       case 'new-walkin': {
+        state.walkin = null;
         const n = new Date();
         openBooking(null, { status: 'seated', source: 'walk-in', date: tradingDay(),
           time: pad2(n.getHours()) + ':' + pad2(n.getMinutes()) });
@@ -13450,6 +13599,7 @@ document.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape' && state.modal) { closeModal(); return; }
   if (ev.key === 'Escape' && state.lensOpen) { state.lensOpen = false; render(); return; }
   if (ev.key === 'Escape' && state.picking) { state.picking = null; render(); return; }
+  if (ev.key === 'Escape' && state.walkin) { state.walkin = null; render(); return; }
   if (!state.modal && !typingInField() && (ev.key === '/' || ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k'))) { ev.preventDefault(); openFind(true); }
 });
 
