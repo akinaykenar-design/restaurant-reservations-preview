@@ -762,6 +762,31 @@ body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, v
 }
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--charcoal);color:#fff;padding:12px 20px;border-radius:var(--r-pill);font-weight:600;font-size:var(--fs-md);z-index:var(--z-toast);display:flex;align-items:center;gap:8px;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:var(--lift-1);}
 body[data-theme="dark"] .toast{background:#EDE6D6;color:#26231F;}
+/* Undo rides the toast it takes back: the accent word, the full finger of
+   height, the toast's own padding given back so the pill does not grow. */
+.toast-undo{flex:none;height:var(--tap);margin:-12px -12px -12px 4px;padding:0 16px;border:none;border-radius:var(--r-pill);
+  background:none;color:var(--orange);font:inherit;font-weight:800;}
+
+/* A LATE PARTY IS TWO KEYS (v20). The lateness is the headline, on the
+   number rung in the late red the floor already spends on exactly this;
+   the paper under it takes a breath of that red — no outline, the ground is
+   the line — and in dark less, because a colour mixed into slate goes to mud. Call is the one reached for
+   first, so it is the ink key; No-show is the pill's grey. */
+.bk-late{display:grid;gap:12px;margin-bottom:16px;padding:16px;border-radius:var(--r-surface);
+  background:color-mix(in srgb,var(--st-late) 10%,var(--surface));}
+[data-theme="dark"] .bk-late{background:color-mix(in srgb,var(--st-late) 6%,var(--surface));}
+.bk-late-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;}
+.bk-late-head b{font-size:var(--fs-num);font-weight:800;line-height:1;color:var(--st-late);}
+.bk-late-head span{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.bk-late-keys{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.bk-late-keys.one{grid-template-columns:1fr;}
+.bk-late-go{display:grid;justify-items:center;align-content:center;gap:4px;min-height:56px;padding:8px 16px;border:none;
+  border-radius:var(--r-control);background:var(--deck-pill-bg);color:var(--text-primary);
+  font:inherit;font-weight:800;font-size:var(--fs-md);text-decoration:none;}
+.bk-late-go small{font-weight:600;font-size:var(--fs-chip);color:var(--charcoal-soft);font-variant-numeric:tabular-nums;}
+.bk-late-go.ink{background:var(--text-primary);color:var(--surface);}
+.bk-late-go.ink small{color:inherit;}
+@media (max-width:760px){ .bk-late-keys{grid-template-columns:1fr;} }
 
 /* §§ The guests' booking page — one column, the same tokens */
 body.book-page{overflow:auto;height:auto;min-height:100%;touch-action:auto;}
@@ -9741,6 +9766,10 @@ function toastFail(msg) { state.toastFailed = msg; return msg; }
 function toast(msg, ms) { state.toast = msg; render(); clearTimeout(_toastTimer); _toastTimer = setTimeout(() => { state.toast = ''; render(); }, ms || 2600); }
 // A refusal is a failure: the action did not happen, so the dot says so.
 function toastBad(msg, ms) { toast(toastFail(msg), ms); }
+// A toast that can be taken back, for ten seconds. The Undo belongs to this
+// one message by name, the way the red dot does, so a later toast never
+// inherits a way to undo something it did not do.
+function toastUndo(msg, undo) { state.toastUndo = { msg, undo }; toast(msg, 10000); }
 function typingInField() { const el = document.activeElement; return !!el && (el.tagName === 'TEXTAREA' || (el.tagName === 'INPUT' && !['checkbox', 'radio', 'date'].includes(el.type))); }
 
 // §§ API — one wrapper, offline flag on failure
@@ -9872,7 +9901,7 @@ function render() {
   const focus = document.activeElement, focusId = focus && focus.id, selStart = focus && focus.selectionStart;
   const focusField = !focusId && focus && focus.dataset && focus.dataset.field;
   const scrolls = {}; document.querySelectorAll('[data-keep]').forEach(el => { scrolls[el.dataset.keep] = [el.scrollTop, el.scrollLeft]; });
-  app.innerHTML = `<div class="shell">${renderRail()}<div class="main">${renderDeck()}<div class="pane" data-keep="pane">${renderSecBand()}${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.welcome ? renderWelcome() : ''}${state.toast ? `<div class="toast"><i class="dot${state.toastFailed === state.toast ? ' bad' : ''}"></i>${esc(state.toast)}</div>` : ''}</div>`;
+  app.innerHTML = `<div class="shell">${renderRail()}<div class="main">${renderDeck()}<div class="pane" data-keep="pane">${renderSecBand()}${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.welcome ? renderWelcome() : ''}${state.toast ? `<div class="toast"><i class="dot${state.toastFailed === state.toast ? ' bad' : ''}"></i>${esc(state.toast)}${state.toastUndo && state.toastUndo.msg === state.toast ? '<button class="toast-undo" data-act="toast-undo">Undo</button>' : ''}</div>` : ''}</div>`;
   document.querySelectorAll('[data-keep]').forEach(el => { const s = scrolls[el.dataset.keep]; if (s) { el.scrollTop = s[0]; el.scrollLeft = s[1]; } });
   // A day drawn for the first time opens where the work is; after that the
   // line above has already put the desk's own scroll back and this does
@@ -12157,6 +12186,35 @@ function bkRow(page, label, value, opts) {
   </button>`;
 }
 
+// A LATE PARTY IS TWO KEYS (owner, Sep '26, v20: "Build it beautiful").
+// The floor rings a late table red and the host's next move is one of two:
+// ring them, or give the table away. Both were buried — the number inside
+// Guest, a no-show behind Status, eleven rows and Save — so a late booking
+// opens with its lateness as the headline and those two keys under it.
+// Late is the floor's own word for it: not here, not sat, on the trading
+// day, and DESK_LATE_AFTER past its time. Read from the STORED booking, not
+// the popup's copy, so a time being edited cannot make it say otherwise.
+function lateBy(r, now) {
+  if (!r || !isLive(r) || isSat(r) || isHere(r) || dayOf(r.time) !== tradingDay()) return 0;
+  const m = Math.floor((now - new Date(r.time).getTime()) / 60000);
+  return m >= DESK_LATE_AFTER ? m : 0;
+}
+// "0459 202 434": a number read out across a stand is read in threes.
+function phoneSpaced(p) {
+  const d = String(p || '').replace(/\D/g, '');
+  return d.length === 10 ? d.replace(/^(\d{4})(\d{3})(\d{3})$/, '$1 $2 $3') : String(p || '').trim();
+}
+function renderLateBanner(r) {
+  const late = lateBy(r, Date.now());
+  if (!late) return '';
+  const t = heldTables(r).map(tableName).join(' + ');
+  const phone = String(r.phone || '').trim();
+  const call = phone ? `<a class="bk-late-go ink" href="tel:${esc(phone.replace(/[^\d+]/g, ''))}">Call<small>${esc(phoneSpaced(phone))}</small></a>` : '';
+  return `<div class="bk-late" role="status">
+    <div class="bk-late-head"><b>${esc(waitWords(late))} late</b><span>booked ${esc(fmtHHMM(hhmmOf(r.time)))} · ${r.partySize} ${r.partySize === 1 ? 'person' : 'people'}${t ? ' · table ' + esc(t) : ''}</span></div>
+    <div class="bk-late-keys${call ? '' : ' one'}">${call}<button class="bk-late-go" data-act="late-noshow" data-id="${esc(r.id)}">No-show<small>${t ? 'frees table ' + esc(t) : 'marks them not coming'}</small></button></div>
+  </div>`;
+}
 function renderBookingModal() {
   const m = state.modal, b = m.b, isEdit = !!b.id;
   // A walk-in is not a booking with the boxes left empty — it is already at
@@ -12171,6 +12229,7 @@ function renderBookingModal() {
     ${m.error ? `<div class="err">${esc(m.error)}</div>` : ''}
     ${(m.conflicts || []).length ? `<div class="warnbox">${esc(conflictLine(m.conflicts))}</div>` : ''}
     ${m.closed ? `<div class="warnbox">${m.note ? 'Closed — ' + esc(m.note) : 'Closed that day'}. A time can still be set by hand under Date &amp; time.</div>` : ''}
+    ${isEdit ? renderLateBanner((state.reservations || []).find(x => x.id === b.id)) : ''}
     <div class="bk-rows">
       ${isEdit ? bkRow('status', 'Status', '', { html: statusDot(b.status) + esc(statusLabel(b.status)) }) : ''}
       ${bkRow('guest', 'Guest', b.name || 'No name yet', { none: !b.name })}
@@ -12930,6 +12989,31 @@ document.addEventListener('click', async (ev) => {
           await loadView(); render();
           if (!await greet(id, r.status, val)) toast(`${r.name || 'Booking'} · ${statusLabel(val)}`);
         } catch (e) { toastBad(e.message); }
+        break;
+      }
+      // No-show from the late banner: one PUT carrying only the status, the
+      // row key's own rule, and Undo puts back what it was.
+      case 'late-noshow': {
+        const r = (state.reservations || []).find(x => x.id === id);
+        if (!r) { toastBad('That booking has gone'); break; }
+        const was = r.status, t = heldTables(r).map(tableName).join(' + ');
+        state.modal = null; render();
+        try {
+          await put('/api/reservations/' + id, { status: 'no-show' });
+          await loadView(); render();
+          toastUndo(`${r.name || 'Booking'} · no-show${t ? ' · table ' + t + ' is free' : ''}`, async () => {
+            await put('/api/reservations/' + id, { status: was });
+            await loadView(); toast(`${r.name || 'Booking'} · ${statusLabel(was)} again`);
+          });
+        } catch (e) { toastBad(e.message); }
+        break;
+      }
+      case 'toast-undo': {
+        const u = state.toastUndo; state.toastUndo = null;
+        if (!u || u.msg !== state.toast) break;
+        state.toast = ''; render();
+        try { await u.undo(); } catch (e) { toastBad(e.message); }
+        render();
         break;
       }
       case 'row-table': {

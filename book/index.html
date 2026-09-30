@@ -747,6 +747,31 @@ body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, v
 }
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--charcoal);color:#fff;padding:12px 20px;border-radius:var(--r-pill);font-weight:600;font-size:var(--fs-md);z-index:var(--z-toast);display:flex;align-items:center;gap:8px;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:var(--lift-1);}
 body[data-theme="dark"] .toast{background:#EDE6D6;color:#26231F;}
+/* Undo rides the toast it takes back: the accent word, the full finger of
+   height, the toast's own padding given back so the pill does not grow. */
+.toast-undo{flex:none;height:var(--tap);margin:-12px -12px -12px 4px;padding:0 16px;border:none;border-radius:var(--r-pill);
+  background:none;color:var(--orange);font:inherit;font-weight:800;}
+
+/* A LATE PARTY IS TWO KEYS (v20). The lateness is the headline, on the
+   number rung in the late red the floor already spends on exactly this;
+   the paper under it takes a breath of that red — no outline, the ground is
+   the line — and in dark less, because a colour mixed into slate goes to mud. Call is the one reached for
+   first, so it is the ink key; No-show is the pill's grey. */
+.bk-late{display:grid;gap:12px;margin-bottom:16px;padding:16px;border-radius:var(--r-surface);
+  background:color-mix(in srgb,var(--st-late) 10%,var(--surface));}
+[data-theme="dark"] .bk-late{background:color-mix(in srgb,var(--st-late) 6%,var(--surface));}
+.bk-late-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;}
+.bk-late-head b{font-size:var(--fs-num);font-weight:800;line-height:1;color:var(--st-late);}
+.bk-late-head span{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.bk-late-keys{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.bk-late-keys.one{grid-template-columns:1fr;}
+.bk-late-go{display:grid;justify-items:center;align-content:center;gap:4px;min-height:56px;padding:8px 16px;border:none;
+  border-radius:var(--r-control);background:var(--deck-pill-bg);color:var(--text-primary);
+  font:inherit;font-weight:800;font-size:var(--fs-md);text-decoration:none;}
+.bk-late-go small{font-weight:600;font-size:var(--fs-chip);color:var(--charcoal-soft);font-variant-numeric:tabular-nums;}
+.bk-late-go.ink{background:var(--text-primary);color:var(--surface);}
+.bk-late-go.ink small{color:inherit;}
+@media (max-width:760px){ .bk-late-keys{grid-template-columns:1fr;} }
 
 /* §§ The guests' booking page — one column, the same tokens */
 body.book-page{overflow:auto;height:auto;min-height:100%;touch-action:auto;}
