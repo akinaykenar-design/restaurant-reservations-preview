@@ -2138,6 +2138,21 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   .bkq-who{grid-template-columns:1fr;}
 }
 .wk-menu.folded{padding:4px 4px 4px 12px;}
+/* NOTHING FREE, AND WHEN (v19). The time is the answer, so it is the biggest
+   thing in the menu, on the POS's number rung; where and how long sit beside
+   it; the two next steps are the make keys' own shape, the one a host
+   reaches for first in ink. No rule above it: the air is the seam. */
+.wk-next{display:grid;gap:12px;padding:4px 4px 0;}
+.wk-menu.folded .wk-next{padding:4px 8px 8px 4px;}
+.wk-when{display:grid;grid-template-columns:auto 1fr;align-items:baseline;column-gap:12px;row-gap:4px;}
+.wk-when-l{grid-column:1 / -1;font-size:var(--fs-chip);font-weight:700;text-transform:uppercase;color:var(--charcoal-soft);}
+.wk-when b{font-size:var(--fs-num);font-weight:800;line-height:1;color:var(--text-primary);font-variant-numeric:tabular-nums;}
+.wk-when span:last-child{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.wk-go{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.wk-go.one{grid-template-columns:1fr;}
+.wk-go button{height:48px;padding:0 16px;border:none;border-radius:var(--r-control);background:var(--deck-pill-bg);
+  color:var(--text-primary);font:inherit;font-weight:800;font-size:var(--fs-md);}
+.wk-go .wk-go-ink{background:var(--text-primary);color:var(--surface);}
 .wk-chg{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-weight:700;font-size:var(--fs-md);}
 
@@ -4455,8 +4470,9 @@ function autoAssign(ctx, day) {
 // own booking page. Each table of the tightest free combination is a key, and
 // carries `combo`, the whole set, so a tap on any of them seats the party on
 // all of them.
-function walkinTables(ctx, day, hhmm, party) {
-  const size = Math.max(1, Number(party) || 1);
+// The book as a walk-in meets it: the desk's own picks placed as if a person
+// had placed them, and the night before's sat parties still in their chairs.
+function walkinBook(ctx, day, hhmm) {
   const auto = autoAssign(ctx, day);
   const prev = addDays(day, -1);
   const placed = (ctx.reservations || []).map(r => {
@@ -4464,7 +4480,12 @@ function walkinTables(ctx, day, hhmm, party) {
     return (auto[r.id] && auto[r.id].length && !heldTables(r).length)
       ? Object.assign({}, r, { tableId: auto[r.id][0], tableIds: auto[r.id].slice(1) }) : r;
   });
-  const sub = Object.assign({}, ctx, { reservations: placed });
+  return Object.assign({}, ctx, { reservations: placed });
+}
+function walkinTables(ctx, day, hhmm, party) {
+  const size = Math.max(1, Number(party) || 1);
+  const sub = walkinBook(ctx, day, hhmm);
+  const placed = sub.reservations;
   const start = toMin(hhmm);
   const whole = new Set(freeTables(sub, day, hhmm, size).map(t => t.id));
   const now = new Set(freeTables(sub, day, hhmm, size, { duration: 1 }).map(t => t.id));
@@ -4485,6 +4506,32 @@ function walkinTables(ctx, day, hhmm, party) {
   return singles
     .sort((a, b) => (a.seats - b.seats) || (parseInt(a.label) - parseInt(b.label)) || String(a.label).localeCompare(String(b.label)))
     .map(t => ({ id: t.id, until: untilOn(t) }));
+}
+
+// §§ A walk-in nothing can take now: WHEN
+//
+// Owner, Sep '26 (v19: "Build it beautiful"). Walk-in, 6, and the menu used
+// to say "Nothing free for 6 right now" and stop — at the one moment the
+// host most needs an answer, because six people at the door have just asked
+// "how long?". The book knows: the first of the day's times at which a table
+// seats them for their WHOLE sitting, asked of the same book walkinTables()
+// reads (the desk's own picks hold, the till's covers hold, a party running
+// over holds). One table first, the tightest; a stated combination only when
+// no one table will do, as everywhere else. The day's own times are the
+// steps, so the answer is a time the booking page would offer too, and
+// "Book 8:45" lands on a time that exists. null when nothing frees tonight.
+function walkinNext(ctx, day, hhmm, party) {
+  const size = Math.max(1, Number(party) || 1);
+  const sub = walkinBook(ctx, day, hhmm);
+  const start = toMin(hhmm);
+  for (const t of slotTimes(ctx.settings, day)) {
+    if (toMin(t) <= start) continue;
+    const one = freeTables(sub, day, t, size).filter(x => (x.seats || 0) >= size)
+      .sort((a, b) => (a.seats - b.seats) || (parseInt(a.label) - parseInt(b.label)) || String(a.label).localeCompare(String(b.label)))[0];
+    const tablesAt = one ? [one.id] : ((combosOf(ctx).length && freeCombos(sub, day, t, size)[0]) || {}).tables;
+    if (tablesAt && tablesAt.length) return { time: t, wait: toMin(t) - start, tables: tablesAt.slice() };
+  }
+  return null;
 }
 
 // §§ What a table is doing
@@ -5342,7 +5389,7 @@ function runSheet(ctx, day, opts) {
 module.exports = {
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkinTables, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkinTables, walkinNext, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -7418,7 +7465,11 @@ app.get('/api/walkin', (req, res) => {
   // is yesterday, and a walk-in at 00:30 on it was stored 24 hours early.
   // walkinTables() carries the night before's sat parties into this date.
   const day = av.localDay(n);
-  res.json({ size, minutes: av.durationFor(ctx.settings, size), day, at, tables: av.walkinTables(ctx, day, at, size) });
+  const tables = av.walkinTables(ctx, day, at, size);
+  // Nothing takes them now: say WHEN something will (v19), so the menu can
+  // offer the waitlist with that wait and a booking for that time.
+  const next = tables.length ? null : av.walkinNext(ctx, day, at, size);
+  res.json({ size, minutes: av.durationFor(ctx.settings, size), day, at, tables, next });
 });
 app.get('/api/tables', (req, res) => {
   const data = readData();
