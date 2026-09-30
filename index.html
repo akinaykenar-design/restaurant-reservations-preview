@@ -1055,6 +1055,26 @@ body.book-page #app{display:block;height:auto;}
 /* Outside only, even on a join: the shadow law allows a ring inside or out,
    never both, and picked outranks joined because it is what was just asked. */
 .fl-table.picked.joined{box-shadow:none;}
+/* MOVING A PARTY BY ITS TABLE (v18). The room is the table key's picker, so
+   the lit and the quiet tables are the ones it already draws; what the drag
+   adds is three things. The table they are LEAVING stays ringed and goes to
+   the one dim. The table under the finger takes the same accent ring and
+   swells a little, so the landing is seen before it is made. And the party
+   itself rides above the finger — the name, the size, the time, and where
+   they are going — so the table under the finger is never hidden by it. */
+.fl-table.fl-src{opacity:var(--dim);}
+.fl-table.fl-over{scale:1.12;z-index:6;}
+.fl-table.fl-over::after{content:'';position:absolute;inset:-1px;z-index:4;pointer-events:none;
+  border-radius:inherit;box-shadow:inset 0 0 0 var(--tbl-sel-ring) var(--orange);}
+.fl-move-ghost{position:fixed;left:0;top:0;z-index:var(--z-menu);pointer-events:none;
+  display:grid;justify-items:center;gap:4px;min-width:120px;padding:8px 16px;border-radius:var(--r-control);
+  background:var(--surface);color:var(--text-primary);box-shadow:var(--lift-2);
+  transform:translate(-50%, calc(-100% - 28px));will-change:translate;}
+.fl-move-ghost b{font-size:var(--fs-lg);font-weight:800;}
+.fl-move-ghost span{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);font-variant-numeric:tabular-nums;}
+.fl-move-ghost i{font-style:normal;font-size:var(--fs-md);font-weight:800;color:var(--orange);}
+.fl-move-ghost i:empty{display:none;}
+.fl-move-ghost.on{outline:var(--tbl-sel-ring) solid var(--orange);}
 /* Nothing clips: the pill hangs below the table and a turned table's label
    spills past its corners. The LABEL keeps its own clip, inside .fl-in. */
 .fl-table{overflow:visible;}
@@ -13535,6 +13555,9 @@ document.addEventListener('pointerdown', (e) => {
   // alone, so a tap still books a table.
   if (!tlDrag && !arrDrag && !state.modal && state.settings && !flTouching) {
     const fw = e.target.closest && e.target.closest('.desk-main .fl-wrap');
+    // A SECOND finger is a pinch, never a move: it stands a pending one down.
+    if (flMove && e.pointerId !== flMove.pointerId) cancelFlMove();
+    else if (fw && e.isPrimary !== false) armFlMove(e);
     if (fw && flDown(e, fw)) return;
   }
   if (e.isPrimary === false) return;                                   // a pinch is never a drag
@@ -13671,6 +13694,169 @@ const flTouchEnd = (e) => {
 };
 document.addEventListener('touchend', flTouchEnd);
 document.addEventListener('touchcancel', flTouchEnd);
+// ---------- move a party by dragging their table (owner, v18: "Build the
+// drag to move beautiful") ----------
+//
+// A host sees the need to move a party ON THE FLOOR — the till has five
+// walk-ins on 16 and Abara is booked there at 7:45 — and the floor could not
+// move anybody: find them in the book, press the table key, press 17. So the
+// table IS the handle. Hold a table with a booking on it and it lifts; the
+// room becomes the table key's own picker for that party (the same
+// /api/free-tables answer, the same lit and quiet tables, `state.picking`),
+// and letting go on a lit table moves them, with Undo on the message.
+//
+// The timeline drag's laws, because it is the same gesture: a finger HOLDS
+// (tlHold(), the venue's own number) inside TL_SLOP before anything lifts,
+// and a finger that moves first is a push or a scroll, never a move; a mouse
+// lifts on its first TL_PULL. The touchmove blocker exists from the press,
+// because a touch's cancelability is fixed at touchstart. render() is frozen
+// from the lift, every mid-drag visual is hand-applied, and every exit goes
+// through flMoveStandDown(), which clears state.dragging FIRST. The venue's
+// "drag" rule turns this off with the timeline's.
+let flMove = null;
+function armFlMove(e) {
+  if (flMove || state.picking || state.walkin || !tlRules().drag) return;
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  const el = e.target.closest && e.target.closest('.fl-table[data-act="edit-booking"]');
+  const r = el && (state.reservations || []).find(x => x.id === el.dataset.id);
+  if (!r || !isLive(r)) return;
+  const q = `date=${dayOf(r.time)}&time=${hhmmOf(r.time)}&party=${r.partySize}&ignore=${encodeURIComponent(r.id)}`
+    + (r.durationMin ? `&duration=${r.durationMin}` : '');
+  const g = flMove = { id: r.id, pointerId: e.pointerId, touch: e.pointerType !== 'mouse', x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY,
+    lifted: false, holdTimer: 0, raf: 0, ghost: null, over: null,
+    // Asked at the PRESS, so the answer is usually home before the hold is up.
+    free: api('/api/free-tables?' + q).catch(() => null) };
+  g.blockTouch = (te) => { if (flMove === g && g.lifted && te.cancelable) te.preventDefault(); };
+  document.addEventListener('touchmove', g.blockTouch, { passive: false });
+  g.mv = (ev) => moveFlMove(ev); g.up = (ev) => endFlMove(ev); g.pc = () => cancelFlMove();
+  document.addEventListener('pointermove', g.mv, { passive: true });
+  document.addEventListener('pointerup', g.up);
+  document.addEventListener('pointercancel', g.pc);
+  if (g.touch) g.holdTimer = setTimeout(() => { if (flMove === g) liftFlMove(); }, tlHold());
+}
+async function liftFlMove() {
+  const g = flMove;
+  if (!g || g.lifted || g.lifting) return;
+  // A push that has already moved the room is a push: it keeps the finger.
+  if (flGest && flGest.moved) { cancelFlMove(); return; }
+  g.lifting = true;
+  const free = await g.free;
+  if (flMove !== g) return;
+  const r = (state.reservations || []).find(x => x.id === g.id);
+  if (!r || !free) { cancelFlMove(); if (r) toastBad('Could not ask which tables are free'); return; }
+  // The push stands down: from here the finger carries a party, not the room.
+  flGest = null; flPts.clear(); flTouching = false;
+  // One paint in picker mode BEFORE the freeze: the lit and the quiet tables
+  // are the table key's own, so the drop can only land where a press could.
+  state.picking = { id: r.id, free };
+  render();
+  g.lifted = true;
+  state.dragging = true;
+  document.querySelectorAll('.desk-main .fl-table.picked').forEach(t => t.classList.add('fl-src'));
+  const gh = document.createElement('div');
+  gh.className = 'fl-move-ghost';
+  gh.innerHTML = `<b>${esc(r.name || 'Booking')}</b><span>${r.partySize} · ${esc(fmtHHMM(hhmmOf(r.time)))}</span>`;
+  document.body.appendChild(gh);
+  g.ghost = gh;
+  paintFlMove();
+}
+function moveFlMove(ev) {
+  const g = flMove;
+  if (!g || ev.pointerId !== g.pointerId) return;
+  g.x = ev.clientX; g.y = ev.clientY;
+  if (!g.lifted) {
+    const pull = g.touch ? TL_SLOP : TL_PULL;
+    if (Math.abs(g.x - g.x0) <= pull && Math.abs(g.y - g.y0) <= pull) return;
+    if (g.touch) { cancelFlMove(); return; }        // a finger that moves first is a push
+    liftFlMove();
+    return;
+  }
+  if (g.raf) return;
+  g.raf = requestAnimationFrame(() => { g.raf = 0; if (flMove === g && g.lifted) paintFlMove(); });
+}
+// The table under the FINGER, not under the ghost: the ghost is held above
+// the finger so the table it is going to land on stays in sight.
+function flMoveTarget(x, y) {
+  const el = (document.elementsFromPoint(x, y) || []).map(n => n.closest && n.closest('.desk-main .fl-table')).find(Boolean);
+  return el && el.dataset.act === 'pick-seat' && !el.classList.contains('picked') ? el : null;
+}
+function paintFlMove() {
+  const g = flMove;
+  if (!g || !g.ghost) return;
+  g.ghost.style.translate = `${g.x}px ${g.y}px`;
+  const t = flMoveTarget(g.x, g.y);
+  if (t !== g.over) {
+    if (g.over) g.over.classList.remove('fl-over');
+    if (t) t.classList.add('fl-over');
+    g.over = t;
+    g.ghost.classList.toggle('on', !!t);
+    const to = g.ghost.querySelector('i') || g.ghost.appendChild(document.createElement('i'));
+    to.textContent = t ? '→ ' + tableName(t.dataset.table) : '';
+  }
+}
+function endFlMove(ev) {
+  const g = flMove;
+  if (!g || (ev && ev.pointerId !== g.pointerId)) return;
+  if (!g.lifted) { flMoveStandDown(g); return; }  // never lifted: a tap, left alone
+  const t = g.over && g.over.isConnected ? g.over.dataset.table : null;
+  const r = (state.reservations || []).find(x => x.id === g.id);
+  // The click the browser fires after a drag would open the booking under
+  // the finger.
+  const eat = (c) => { c.preventDefault(); c.stopImmediatePropagation(); };
+  document.addEventListener('click', eat, { capture: true, once: true });
+  setTimeout(() => document.removeEventListener('click', eat, true), 350);
+  // Let go on a table that cannot take them: say why, in the picker's own
+  // words, rather than letting the party float home with no reason given.
+  const under = !t && (document.elementsFromPoint(g.x, g.y) || []).map(n => n.closest && n.closest('.desk-main .fl-table')).find(Boolean);
+  const info = under && state.picking && state.picking.free && state.picking.free.tables.find(x => under.dataset.act !== 'pick-seat' && x.label === (under.querySelector('.fl-no') || {}).textContent);
+  flMoveStandDown(g);
+  state.picking = null;
+  render();
+  if (t && r) moveToTable(r, t);
+  else if (info && r) toastBad(info.seats < r.partySize ? `Table ${info.label} seats ${info.seats}` : `Table ${info.label} is taken at ${fmtHHMM(hhmmOf(r.time))}`);
+}
+function cancelFlMove() {
+  const g = flMove;
+  if (!g) return;
+  const lifted = g.lifted;
+  flMoveStandDown(g);
+  if (lifted) { state.picking = null; render(); }
+}
+function flMoveStandDown(g) {
+  if (!g || flMove !== g) return;
+  flMove = null;
+  const wasFrozen = g.lifted && state.dragging;
+  if (g.lifted) state.dragging = false;
+  clearTimeout(g.holdTimer);
+  if (g.raf) cancelAnimationFrame(g.raf);
+  document.removeEventListener('pointermove', g.mv);
+  document.removeEventListener('pointerup', g.up);
+  document.removeEventListener('pointercancel', g.pc);
+  document.removeEventListener('touchmove', g.blockTouch);
+  if (g.ghost) g.ghost.remove();
+  if (g.over) g.over.classList.remove('fl-over');
+  const queued = _renderQueuedDuringDrag;
+  _renderQueuedDuringDrag = false;
+  if (wasFrozen && queued) render();
+}
+window.addEventListener('blur', cancelFlMove);
+// One table, the pick's own PUT, and Undo puts back exactly what was stored —
+// a table the DESK had chosen was never stored, so it goes back to none and
+// autoAssign() lays it out again.
+async function moveToTable(r, tid) {
+  const from = heldTables(r).map(tableName).join(' + ');
+  const was = { tableId: r.tableId || null, tableIds: (r.tableIds || []).slice() };
+  try {
+    await put('/api/reservations/' + r.id, { tableId: tid, tableIds: [] });
+    await loadView(); render();
+    const name = r.name || 'Booking';
+    toastUndo(`${name} moved ${from ? 'from ' + from + ' ' : ''}to ${tableName(tid)}`, async () => {
+      await put('/api/reservations/' + r.id, was);
+      await loadView(); toast(`${name} · back on ${from || 'no table'}`);
+    });
+  } catch (e) { toastBad(e.message); }
+}
+
 // A trackpad's pinch arrives as ctrl+wheel. Plain wheel is left alone so the
 // pane still scrolls under a mouse.
 document.addEventListener('wheel', (e) => {
@@ -13996,6 +14182,7 @@ document.addEventListener('keydown', (ev) => {
 
   // A live drag owns Escape first: the block goes back where it was.
   if (ev.key === 'Escape' && tlDrag) { cancelTlDrag(); return; }
+  if (ev.key === 'Escape' && flMove) { cancelFlMove(); return; }
   if (state.modal && state.modal.kind === 'find' && ev.key === 'Enter') { clearTimeout(_findTimer); runFind(); return; }
   if (ev.key === 'Escape' && state.modal && state.modal.page) { state.modal.page = ''; render(); return; }
   if (ev.key === 'Escape' && state.modal) { closeModal(); return; }
