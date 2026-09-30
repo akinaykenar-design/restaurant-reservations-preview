@@ -41,6 +41,7 @@
 /* §§ Palette — :root is LIGHT, body[data-theme="dark"] is DARK. Literals on
    purpose (see the POS: a var() inside a token resolves where declared). */
 :root{
+  color-scheme:light;
   --font-body:'Noto Sans',-apple-system,system-ui,sans-serif;
   --font-mono:'IBM Plex Mono','Noto Sans',monospace;
   /* A SEAM IS DARKER THAN WHAT IT SEPARATES. These three were all LIGHTER
@@ -209,6 +210,9 @@
    override on the body (applyStatusColours) still wins inside the app. */
 html[data-theme="dark"],
 body[data-theme="dark"]{
+  /* The browser's own controls follow: a time field's clock and a date
+     field's calendar were drawn black on slate (daily round, 30 Sep). */
+  color-scheme:dark;
   /* THE SAME LAW, THE OTHER WAY UP. A seam that is LIGHTER than the panels
      beside it is a scratch here too — it just glows instead of scuffing. So
      the hairline and the seam both drop BELOW the paper, and a line is a
@@ -469,7 +473,13 @@ h1,h2,h3{margin:0;}
 .row .t1{font-weight:700;font-size:var(--fs-md);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:8px;}
 .row .t2{font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .row .actions{display:flex;gap:6px;flex:none;}
-.row .actions .chip{min-height:38px;padding:7px 10px;}
+.row .actions .chip{min-height:var(--tap);padding:8px 12px;}
+/* The row's keys are the finger's (44), and an icon key is square: the
+   waitlist's remove key drew nothing at 22x38 (daily round, 30 Sep). */
+.row .actions .chip.sq{width:var(--tap);padding:0;}
+.row .cell.over{background:var(--violet);color:#fff;}
+.row .t1 .wl-name{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+.row .t1 .tag{flex:none;}
 /* A row whose only action is one icon key gives it the whole finger (44). */
 .row.dim{opacity:var(--dim);}
 .section-h{font-weight:800;font-size:var(--fs-lg);margin:16px 0 8px;display:flex;align-items:center;gap:8px;}
@@ -607,6 +617,11 @@ label.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;font-si
 .switch{width:52px;height:30px;border-radius:var(--r-pill);border:1px solid var(--steel-300);background:var(--steel-200);position:relative;flex:none;transition:background var(--t-state);}
 .switch .knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:var(--lift-1);transition:left var(--t-state);}
 .switch.on{background:var(--green);border-color:var(--green);}
+/* Dark drops the steels below the paper, so an off switch was a black hole
+   with a knob the colour of the card: the track takes the seam and the knob
+   the soft ink, and off reads as off. */
+body[data-theme="dark"] .switch:not(.on){background:var(--steel-300);}
+body[data-theme="dark"] .switch:not(.on) .knob{background:var(--charcoal-soft);}
 .switch.on .knob{left:25px;}
 /* white-space: a button's label is one line. Without it the Notify form's
    "Add to list" broke onto three when the row got tight, which reads as a
@@ -787,6 +802,12 @@ body[data-theme="dark"] .toast{background:#EDE6D6;color:#26231F;}
 .bk-late-go.ink{background:var(--text-primary);color:var(--surface);}
 .bk-late-go.ink small{color:inherit;}
 @media (max-width:760px){ .bk-late-keys{grid-template-columns:1fr;} }
+/* On a phone the toast stands above the bar, not on it: Undo lay on the
+   Settings tile for ten seconds, where a thumb going for Settings took the
+   no-show back (daily round, 30 Sep). */
+@media (max-width:760px){ .toast{bottom:calc(var(--rail-w) + var(--ring) + env(safe-area-inset-bottom, 0px) + 12px);} }
+/* Where a keyboard is: the one ring, the accent's. */
+:focus-visible{outline:var(--tbl-sel-ring) solid var(--orange);outline-offset:2px;}
 
 /* §§ The guests' booking page — one column, the same tokens */
 body.book-page{overflow:auto;height:auto;min-height:100%;touch-action:auto;}
@@ -1710,6 +1731,11 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    top and a 64 at the foot would eat a third of the screen. So it keeps the
    desktop shape — rail down the left, where vertical space is not spent — and
    everything gets shorter. */
+/* THE ROOM BAR AND THE VIEWS NEVER LIE OVER A TABLE, at any height. The
+   strip was only kept on a short screen, and at 1024x600 table 26 sat three
+   quarters under Flow and a tap on it pressed Flow (daily round, 30 Sep). The
+   foot of the room is the two floating bars' own. */
+@media (min-width:761px){ .desk-main > .fl-wrap{padding-bottom:calc(var(--tap) + 24px);} }
 @media (min-width:761px) and (max-height:520px){
   /* THE ROOM BAR NEVER LIES OVER A TABLE. Turned sideways the room fills
      the column's height, so the bar floating in its corner sat on 45, 46,
@@ -3934,7 +3960,7 @@ const DEFAULT_DATA = {
   posState: { lastSyncAt: 0, lastError: '', version: null, connected: false },
   // The relay link's last word: whether it answered, the booking page's
   // address it reported, and when the desk last told it what it may sell.
-  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0 },
+  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0, released: [], gone: [], officeOffOwed: false },
 };
 
 function ensureStore() {
@@ -4579,8 +4605,15 @@ function walkinTables(ctx, day, hhmm, party) {
 // no one table will do, as everywhere else. The day's own times are the
 // steps, so the answer is a time the booking page would offer too, and
 // "Book 8:45" lands on a time that exists. null when nothing frees tonight.
+//
+// AFTER MIDNIGHT THE NIGHT IS OVER: before the trading day rolls
+// (dayStartsAt) the calendar date's times are TOMORROW's, and "First table
+// 11:30 AM · about 11 hr" is not an answer to six people at the door at half
+// past twelve (daily round, 30 Sep). Nothing frees tonight is.
 function walkinNext(ctx, day, hhmm, party) {
   const size = Math.max(1, Number(party) || 1);
+  const rolls = (ctx.settings && Number.isFinite(Number(ctx.settings.dayStartsAt)) ? Number(ctx.settings.dayStartsAt) : 4) * 60;
+  if (toMin(hhmm) < rolls) return null;
   const sub = walkinBook(ctx, day, hhmm);
   const start = toMin(hhmm);
   for (const t of slotTimes(ctx.settings, day)) {
@@ -5539,6 +5572,19 @@ function tableLabeller(tables) {
   return (id) => (id ? (by.get(String(id)) || 'a table') : '');
 }
 
+// THE ACTIVITY LOG IS READ BY A PERSON. It printed "on t1786359453929" and
+// "(4, 2026-09-29T14:00)" (daily round, 30 Sep): a table is its number and a
+// time is words, whichever line wrote it — so it is said once, here, over
+// the whole line, and a line added tomorrow is readable without remembering.
+function auditWords(text, tables) {
+  const ids = new Map();
+  for (const t of (tables || [])) if (t && t.id) ids.set(String(t.id), String(t.label));
+  return String(text)
+    .replace(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/g, (m, y, mo, d, h, mi) =>
+      `${+d} ${MON[+mo - 1] || mo} ${(+h % 12) || 12}:${mi} ${+h < 12 ? 'AM' : 'PM'}`)
+    .replace(/[A-Za-z0-9_-]+/g, (w) => ids.has(w) ? 'table ' + ids.get(w) : w);
+}
+
 // ---------- the diff ----------
 
 function statusEvent(before, after) {
@@ -5710,7 +5756,7 @@ function append(list, events, max) {
   return out.length > cap ? out.slice(-cap) : out;
 }
 
-module.exports = { MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, diffReservation, changeEvents, createdEvent, noteEvent, append };
+module.exports = { MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, auditWords, diffReservation, changeEvents, createdEvent, noteEvent, append };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./history'] = module;
@@ -6912,6 +6958,9 @@ function infoOf(ctx, opts) {
     maxPartySize: s.online.maxPartySize || 8,
     largerPartyMessage: s.online.largerPartyMessage || '',
     tzOffsetMinutes: -now.getTimezoneOffset(),
+    // The zone by NAME too, so the relay keeps the venue's clock across a
+    // clock change while the desk is off.
+    timeZone: (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } })(),
     minNoticeMinutes: s.online.minNoticeMinutes || 0,
     notifyList: s.online.notifyList !== false,
   };
@@ -6921,8 +6970,14 @@ function infoOf(ctx, opts) {
 // sales. Every one with a reference, whatever its status: a booking the desk
 // has since cancelled is still one the desk has, and the relay must not keep
 // it on the table.
+//
+// And the ones the desk REFUSED: an office booking taken while the office was
+// off here never reaches the diary, so without this the relay went on holding
+// its table until the date passed (daily round, 30 Sep). `ctx.released` is
+// the desk's own short list of them.
 function collectedOn(ctx, day) {
-  return (ctx.reservations || []).filter(r => r && r.ref && av.dayOf(r.time) === day).map(r => r.ref);
+  return (ctx.reservations || []).filter(r => r && r.ref && av.dayOf(r.time) === day).map(r => r.ref)
+    .concat((ctx.released || []).filter(x => x && x.ref && x.date === day).map(x => x.ref));
 }
 
 // When somebody is on each table this day. Placed bookings, and the tables
@@ -6995,11 +7050,21 @@ function grantsFor(ctx, opts) {
 // checking "Already booked?" is told half past eight, or cancelled, rather
 // than the seven o'clock the relay sold them. Only what came through the
 // relay: the relay knows no other reference and would ignore it anyway.
-const GUEST_STATUS = { cancelled: 'cancelled', 'no-show': 'cancelled', done: 'finished' };
+//
+// A party in the room is HERE, not booked: "booked" put a Cancel key on the
+// guest's page, the relay said "cancelled", the desk rightly kept them, and
+// the next grant flipped the guest back — a loop the guest could run all
+// night. And a booking the desk DELETED is cancelled to the guest: it is no
+// longer in the diary to report, so the desk keeps a short list of them
+// (`ctx.gone`), or the guest was told "booked" and turned up.
+const GUEST_STATUS = { cancelled: 'cancelled', 'no-show': 'cancelled', done: 'finished',
+  'part-arrived': 'here', arrived: 'here', 'part-seated': 'here', seated: 'here', check: 'here', paid: 'here' };
 function guestsOf(ctx, today) {
   return (ctx.reservations || [])
     .filter(r => r && r.ref && (r.source === 'online' || r.createdBy === 'Online' || r.createdBy === 'Office') && av.dayOf(r.time) >= today)
-    .map(r => ({ ref: r.ref, date: av.dayOf(r.time), time: String(r.time).slice(11, 16), status: GUEST_STATUS[r.status] || 'booked' }));
+    .map(r => ({ ref: r.ref, date: av.dayOf(r.time), time: String(r.time).slice(11, 16), status: GUEST_STATUS[r.status] || 'booked' }))
+    .concat((ctx.gone || []).filter(x => x && x.ref && x.date >= today)
+      .map(x => ({ ref: x.ref, date: x.date, time: x.time || '', status: 'cancelled' })));
 }
 
 // ---------- the office's copy ----------
@@ -7048,7 +7113,8 @@ function editRefusal(item, diary, now) {
   // the first one had, and was refused over it.
   const own = ((diary.relayState && diary.relayState.officeStamps) || {})[r.id];
   const was = Number(p.was);
-  if (stampOf(r) !== was && !(own && own.from === was && own.to === stampOf(r))) return 'It changed while you had it open — here it is now';
+  const mine = own ? (own.chain || [own.from]) : [];
+  if (stampOf(r) !== was && !(own && own.to === stampOf(r) && mine.includes(was))) return 'It changed while you had it open — here it is now';
   const here = av.officeMayChange(r, now);
   if (here || p.cancel) return here;
   // SERVICE WINS AT THE NEW TIME TOO. Checking only where the booking is now
@@ -7065,6 +7131,12 @@ function editRefusal(item, diary, now) {
   const s = diary && diary.settings;
   if (s && !av.slotTimes(s, av.dayOf(t)).includes(t.slice(11, 16))) return 'The restaurant does not take bookings then';
   return null;
+}
+
+// Why an item is refused, whichever kind it is.
+function refusalOf(item, diary, now) {
+  if (item && item.kind === 'booking') return 'The office is switched off at the restaurant';
+  return editRefusal(item, diary, now);
 }
 
 // The booking with the office's change in it. A new time or party size keeps
@@ -7112,7 +7184,9 @@ function decide(item, diary, now) {
   const ref = String(p.ref || '').toUpperCase();
   const rows = (diary && diary.reservations) || [];
   if (item.kind === 'booking') {
-    if (p.by === 'Office' && diary && diary.settings && !(diary.settings.relay && diary.settings.relay.office)) return 'skip';
+    // Refused, not skipped: a skip was acknowledged as "done" to the office
+    // and the booking never existed.
+    if (p.by === 'Office' && diary && diary.settings && !(diary.settings.relay && diary.settings.relay.office)) return 'refuse';
     if (!ref || !String(p.name || '').trim() || !(parseInt(p.partySize, 10) >= 1) || !DAY_RE.test(p.date) || !HHMM_RE.test(p.time)) return 'skip';
     return rows.some(r => r.ref === ref) ? 'dupe' : 'create';
   }
@@ -7154,7 +7228,12 @@ const DONE_KEEP = 500;
 function noteOfficeEdit(diary, id, from, to) {
   diary.relayState = diary.relayState || {};
   const m = Object.assign({}, diary.relayState.officeStamps || {});
-  m[id] = { from: Number(from), to: Number(to) };
+  // A CHAIN, not a pair: every stamp the office's own changes passed through,
+  // so its THIRD quick change, sent on the stamp it first saw, is still its
+  // own (daily round, 30 Sep: it was refused as "changed while you had it").
+  const prev = m[id];
+  const chain = prev && prev.to === Number(from) ? (prev.chain || [prev.from]).concat(Number(from)) : [Number(from)];
+  m[id] = { from: Number(from), to: Number(to), chain: chain.slice(-20) };
   const keys = Object.keys(m);
   for (const k of keys.slice(0, Math.max(0, keys.length - DONE_KEEP))) delete m[k];
   diary.relayState.officeStamps = m;
@@ -7192,7 +7271,7 @@ function bookingFrom(payload, ctx, opts) {
   };
 }
 
-module.exports = { GRANT_DAYS, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, editedBooking };
+module.exports = { GRANT_DAYS, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relaysync'] = module;
@@ -7280,7 +7359,7 @@ app.get('/book', (req, res) => res.sendFile(path.join(__dirname, 'public', 'book
 function staffFromReq() { return 'The desk'; }
 function logAudit(data, staffName, action) {
   if (!data.auditLog) data.auditLog = [];
-  data.auditLog.unshift({ id: newId('a'), timestamp: Date.now(), staffName, action });
+  data.auditLog.unshift({ id: newId('a'), timestamp: Date.now(), staffName, action: history.auditWords(action, tablesOf(data)) });
   if (data.auditLog.length > 2000) data.auditLog.length = 2000;
 }
 
@@ -7921,6 +8000,13 @@ app.delete('/api/reservations/:id', (req, res) => {
   if (!r) return res.status(404).json({ error: 'Booking not found' });
   if (av.isLive(r)) raiseOpening(data, r, 'deleted', staffFromReq(req));
   data.reservations = data.reservations.filter(x => x.id !== r.id);
+  // A guest who booked online is told it is gone: the relay only hears about
+  // references still in the diary, so a deleted one stayed "booked" to them.
+  if (r.ref && (r.source === 'online' || r.createdBy === 'Online' || r.createdBy === 'Office')) {
+    data.relayState = data.relayState || {};
+    data.relayState.gone = keepRecent((data.relayState.gone || []).concat({ ref: r.ref, date: String(r.time).slice(0, 10), time: String(r.time).slice(11, 16) }));
+    kickRelay();
+  }
   if (r.pos && r.pos.id) { data.posState.pendingDeletes = [...(data.posState.pendingDeletes || []), r.pos.id]; }
   recountGuest(data, r.guestId);
   logAudit(data, staffFromReq(req), `Deleted booking for ${r.name} (${r.time})`);
@@ -8804,7 +8890,7 @@ app.post('/api/relay/office', async (req, res) => {
   if (!relay.ready(cfg)) return res.status(400).json({ error: 'Link the relay first' });
   try {
     const r = await relay.officeOn(cfg);
-    const d = readData(); d.settings.relay.office = true;
+    const d = readData(); d.settings.relay.office = true; d.relayState.officeOffOwed = false;
     logAudit(d, 'The desk', 'Office switched on, new sign-in code');
     writeData(d);
     res.json({ code: r.code, officeUrl: cfg.baseUrl + r.officeUrl });
@@ -8814,10 +8900,24 @@ app.post('/api/relay/office', async (req, res) => {
 app.delete('/api/relay/office', async (req, res) => {
   const data = readData(), cfg = data.settings.relay;
   const d = readData(); d.settings.relay.office = false; logAudit(d, 'The desk', 'Office switched off'); writeData(d);
-  if (relay.ready(cfg)) { try { await relay.officeOff(cfg); } catch (e) { return res.status(502).json({ error: 'Switched off here, but the relay did not answer: ' + e.message }); } }
+  if (relay.ready(cfg)) {
+    try { await relay.officeOff(cfg); }
+    catch (e) {
+      // Kept as owed: every pass asks the relay again until it agrees, so the
+      // office's code and sessions do not outlive the switch (daily round, 30 Sep).
+      const o = readData(); o.relayState.officeOffOwed = true; writeData(o);
+      return res.status(502).json({ error: 'Switched off here, but the relay did not answer: ' + e.message });
+    }
+  }
   res.json({ ok: true });
 });
 
+// The desk's short lists for the relay — bookings it refused and bookings it
+// deleted — kept only while their date is still to come, and never many.
+function keepRecent(list) {
+  const today = av.localDay(new Date());
+  return (list || []).filter(x => x && x.ref && x.date >= today).slice(-300);
+}
 // One item from the relay, written into the diary. Decided against the diary
 // as it stands after the item before it (relaysync.decide), so a booking and
 // its own cancel in one pull come out right, and one delivered twice is one.
@@ -8853,6 +8953,13 @@ function applyRelayItem(data, item) {
     if (!p.cancel && (pt.phone !== undefined || pt.name !== undefined)) touchGuest(data, r);
     recountGuest(data, r.guestId);
     logAudit(data, 'Office', `Office ${p.cancel ? 'cancelled' : 'changed'} ${r.name} (${r.time})`);
+  } else if (what === 'refuse' && item.kind === 'booking') {
+    // An office booking taken while the office was off here: refused to the
+    // office by name, and its table let go on the relay by the next grant.
+    const why = relaysync.refusalOf(item, data, new Date());
+    data.relayState.released = keepRecent((data.relayState.released || []).concat({ ref: String(p.ref || '').toUpperCase(), date: p.date }));
+    logAudit(data, 'Office', `Office booking for ${p.name || 'a guest'} not taken: ${why}`);
+    return { what, why, now: null };
   } else if (what === 'refuse') {
     const r = data.reservations.find(x => x.id === p.id);
     logAudit(data, 'Office', `Office change to ${p.name || 'a booking'} not applied: ${relaysync.editRefusal(item, data, new Date())}`);
@@ -8893,6 +9000,11 @@ async function relayPass(forceGrant) {
     const cfg = data.settings.relay;
     if (!relay.ready(cfg)) { if (data.relayState.connected) { data.relayState.connected = false; writeData(data); } return null; }
     const ping = await relay.ping(cfg);
+    // An office switched off here while the relay was away: said again now.
+    if (!cfg.office && data.relayState.officeOffOwed) {
+      await relay.officeOff(cfg);
+      data = readData(); data.relayState.officeOffOwed = false; writeData(data);
+    }
     // COLLECT: pull, write into the diary, and only once that is on disk say
     // "got them". A pass that dies in between costs a repeat — which decide()
     // turns into nothing — and never a lost booking.
@@ -8917,12 +9029,17 @@ async function relayPass(forceGrant) {
     // GRANT: what may be sold from here on, when it changed, and at least
     // hourly so the relay never goes a day thinking the venue has vanished.
     data = readData();
-    const body = relaysync.grantsFor(ctxOf(data), { now: new Date(), accent: (data.theme && data.theme.accent) || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel });
+    const body = relaysync.grantsFor(Object.assign(ctxOf(data), { released: keepRecent(data.relayState.released), gone: keepRecent(data.relayState.gone) }),
+      { now: new Date(), accent: (data.theme && data.theme.accent) || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel });
     const hash = crypto.createHash('sha1').update(JSON.stringify(body)).digest('hex');
     const st = data.relayState;
     if (forceGrant || out.changed || hash !== st.grantHash || Date.now() - (st.grantAt || 0) > 3600000) {
-      await relay.grant(cfg, body);
+      const said = await relay.grant(cfg, body);
       out.granted = true;
+      // SWITCHED OFF HERE IS SWITCHED OFF THERE. An office turned off while
+      // the relay could not be reached kept its code and its sessions; every
+      // pass asks again until the relay agrees.
+      if (!cfg.office && said && said.office) { try { await relay.officeOff(cfg); } catch (e) {} }
     }
     data = readData();
     Object.assign(data.relayState, { connected: true, lastSeenAt: Date.now(), lastError: '', bookingPath: (ping.venue && ping.venue.bookingUrl) || data.relayState.bookingPath },
@@ -9920,6 +10037,11 @@ function render() {
   // typing finger dropped the next key and closed a tablet's keyboard.
   const focus = document.activeElement, focusId = focus && focus.id, selStart = focus && focus.selectionStart;
   const focusField = !focusId && focus && focus.dataset && focus.dataset.field;
+  // A KEY keeps its focus too, found again by what it does: a keyboard on a
+  // switch or a Test key lost its place to the body on every repaint and on
+  // the ten-second poll (daily round, 30 Sep).
+  const focusKey = !focusId && !focusField && focus && focus !== document.body && focus.dataset && focus.dataset.act
+    ? `[data-act="${CSS.escape(focus.dataset.act)}"]` + ['val', 'id', 'field', 'table'].map(k => focus.dataset[k] !== undefined ? `[data-${k}="${CSS.escape(focus.dataset[k])}"]` : '').join('') : null;
   const scrolls = {}; document.querySelectorAll('[data-keep]').forEach(el => { scrolls[el.dataset.keep] = [el.scrollTop, el.scrollLeft]; });
   app.innerHTML = `<div class="shell">${renderRail()}<div class="main">${renderDeck()}<div class="pane" data-keep="pane">${renderSecBand()}${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.welcome ? renderWelcome() : ''}${state.toast ? `<div class="toast"><i class="dot${state.toastFailed === state.toast ? ' bad' : ''}"></i>${esc(state.toast)}${state.toastUndo && state.toastUndo.msg === state.toast ? '<button class="toast-undo" data-act="toast-undo">Undo</button>' : ''}</div>` : ''}</div>`;
   document.querySelectorAll('[data-keep]').forEach(el => { const s = scrolls[el.dataset.keep]; if (s) { el.scrollTop = s[0]; el.scrollLeft = s[1]; } });
@@ -9935,7 +10057,8 @@ function render() {
   // the final one and the timeline lands short of where it was aimed.
   if (tlEl && _tlAnchored !== tlKey) { _tlAnchored = tlKey; requestAnimationFrame(() => tlOpenAt(tlEl)); }
   const back = focusId ? document.getElementById(focusId)
-    : focusField ? document.querySelector(`[data-field="${CSS.escape(focusField)}"]`) : null;
+    : focusField ? document.querySelector(`[data-field="${CSS.escape(focusField)}"]`)
+    : focusKey ? document.querySelector(focusKey) : null;
   if (back && back !== document.activeElement) { back.focus(); try { if (selStart != null && back.setSelectionRange) back.setSelectionRange(selStart, selStart); } catch (e) {} }
   playSheet();
 }
@@ -11635,12 +11758,12 @@ function renderWaitlist() {
   ${!list.length ? '<div class="empty">Nobody waiting.</div>' : `<div class="rows">${list.map(x => {
     const waited = mins(x.addedAt), over = x.quotedMin && waited > x.quotedMin;
     return `<div class="row" data-act="wl-seat" data-id="${x.id}">
-      <div class="cell" style="${over ? 'background:var(--violet);color:#fff;' : ''}">${waited}m<small>${x.quotedMin ? 'of ' + x.quotedMin : 'wait'}</small></div>
-      <div class="body"><div class="t1">${esc(x.name)} <span class="tag">${x.partySize} pax</span>${x.status === 'notified' ? '<span class="status-chip confirmed">Told</span>' : ''}</div><div class="t2">Added ${esc(fmtTime(x.addedAt))}${x.phone ? ' · ' + esc(x.phone) : ''}${x.notes ? ' · ' + esc(x.notes) : ''}</div></div>
+      <div class="cell${over ? ' over' : ''}">${waited}m<small>${x.quotedMin ? 'of ' + x.quotedMin : 'wait'}</small></div>
+      <div class="body"><div class="t1"><span class="wl-name">${esc(x.name)}</span> <span class="tag">${x.partySize} pax</span>${x.status === 'notified' ? '<span class="status-chip confirmed">Told</span>' : ''}</div><div class="t2">Added ${esc(fmtTime(x.addedAt))}${x.phone ? ' · ' + esc(x.phone) : ''}${x.notes ? ' · ' + esc(x.notes) : ''}</div></div>
       <div class="actions" data-stop="1">
         <button class="chip${x.status === 'notified' ? ' active' : ''}" data-act="wl-notify" data-id="${x.id}">Told</button>
         <button class="chip go" data-act="wl-seat" data-id="${x.id}">Seat</button>
-        <button class="chip" data-act="wl-remove" data-id="${x.id}" aria-label="Remove">${I.cross}</button>
+        <button class="chip sq" data-act="wl-remove" data-id="${x.id}" aria-label="Remove">${I.cross}</button>
       </div>
     </div>`; }).join('')}</div>`}`;
 }
@@ -11795,7 +11918,7 @@ function renderSettings() {
   // The hub. Rows and not tiles, because a group needs a LINE saying what is
   // behind it — "The room" alone does not tell you the colours are in there —
   // and a tile has nowhere to put one.
-  if (!g) return `<div class="rows set-hub">${SET_GROUPS.map(([k, label]) => `<div class="row" data-act="set-group" data-val="${esc(k)}">
+  if (!g) return `<div class="rows set-hub">${SET_GROUPS.map(([k, label]) => `<div class="row" data-act="set-group" data-val="${esc(k)}" role="button" tabindex="0">
     <div class="body"><div class="t1">${esc(label)}</div></div>
     <span class="set-chev">${I.right}</span>
   </div>`).join('')}</div>`;
@@ -12227,7 +12350,7 @@ function phoneSpaced(p) {
 function renderLateBanner(r) {
   const late = lateBy(r, Date.now());
   if (!late) return '';
-  const t = heldTables(r).map(tableName).join(' + ');
+  const t = tablesFor(r).map(tableName).join(' + ');
   const phone = String(r.phone || '').trim();
   const call = phone ? `<a class="bk-late-go ink" href="tel:${esc(phone.replace(/[^\d+]/g, ''))}">Call<small>${esc(phoneSpaced(phone))}</small></a>` : '';
   return `<div class="bk-late" role="status">
@@ -12261,7 +12384,7 @@ function renderBookingModal() {
       ${bkRow('notes', 'Notes', String(b.notes || '').trim() || 'None', { none: !String(b.notes || '').trim() })}
     </div>
     ${renderBookingSpend(m)}
-    ${isEdit ? `<div class="ts" style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span>Made by ${esc(b.createdBy || '—')} · ${esc(fmtStamp(b.createdAt))}${b.pos && b.pos.id ? ' · on the till' : ''}${b.cancelReason ? ' · ' + esc(b.cancelReason) : ''}</span>${b.tableId && tillUrl(b.tableId) ? `<button class="chip" data-act="to-till-table" data-table="${esc(b.tableId)}" style="min-height:32px;padding:5px 11px;">Open ${esc(tableName(b.tableId))} on the till</button>` : ''}</div>${renderBookingHistory(b)}` : ''}`;
+    ${isEdit ? `<div class="ts" style="margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span>Made by ${esc(b.createdBy || '—')} · ${esc(fmtStamp(b.createdAt))}${b.pos && b.pos.id ? ' · on the till' : ''}${b.cancelReason ? ' · ' + esc(b.cancelReason) : ''}</span>${b.tableId && tillUrl(b.tableId) ? `<button class="chip" data-act="to-till-table" data-table="${esc(b.tableId)}">Open ${esc(tableName(b.tableId))} on the till</button>` : ''}</div>${renderBookingHistory(b)}` : ''}`;
 
   // In from the right, over the room, with the book still on screen beside
   // it — a booking is read against the night it sits in. Away from the desk
@@ -13016,7 +13139,7 @@ document.addEventListener('click', async (ev) => {
       case 'late-noshow': {
         const r = (state.reservations || []).find(x => x.id === id);
         if (!r) { toastBad('That booking has gone'); break; }
-        const was = r.status, t = heldTables(r).map(tableName).join(' + ');
+        const was = r.status, t = tablesFor(r).map(tableName).join(' + ');
         state.modal = null; render();
         try {
           await put('/api/reservations/' + id, { status: 'no-show' });
@@ -13048,9 +13171,7 @@ document.addEventListener('click', async (ev) => {
         state.picking = { id, free: null };
         render();
         try {
-          const q = `date=${dayOf(r.time)}&time=${hhmmOf(r.time)}&party=${r.partySize}&ignore=${encodeURIComponent(id)}`
-            + (r.durationMin ? `&duration=${r.durationMin}` : '');
-          const free = await api('/api/free-tables?' + q);
+          const free = await api('/api/free-tables?' + pickQuery(r, Date.now()));
           if (state.picking && state.picking.id === id) { state.picking.free = free; render(); showRinged(); }
         } catch (e) { state.picking = null; render(); toastBad('Could not ask which tables are free'); }
         break;
@@ -13134,7 +13255,7 @@ document.addEventListener('click', async (ev) => {
         const w = state.walkin; if (!w || !w.data) break;
         const n = w.data.next;
         state.walkin = null;
-        state.wl = { name: '', phone: '', partySize: w.size, quotedMin: n ? Math.ceil(n.wait / 5) * 5 : state.wl.quotedMin };
+        state.wl = { name: '', phone: '', partySize: w.size, quotedMin: n ? Math.ceil(n.wait / 5) * 5 : state.wl.quotedMin, worked: !!n };
         state.side = 'waitlist';
         // A phone's floor has no book beside it: the list is its own screen.
         if (typeof matchMedia === 'function' && matchMedia('(max-width: 760px)').matches) state.todayMode = 'book';
@@ -13151,7 +13272,10 @@ document.addEventListener('click', async (ev) => {
         const w = state.walkin; if (!w || !w.data || !w.data.next) break;
         const n = w.data.next;
         state.walkin = null;
-        openBooking(null, { partySize: w.size, date: w.data.day, time: n.time, tableId: n.tables[0], tableIds: n.tables.slice(1) });
+        // No table pinned: the page shows its own best fit and re-fits it
+        // if the time is changed — a pinned table stayed put and was booked
+        // over the party already on it (daily round, 30 Sep).
+        openBooking(null, { partySize: w.size, date: w.data.day, time: n.time });
         break;
       }
       case 'walkin-seat': {
@@ -13162,7 +13286,8 @@ document.addEventListener('click', async (ev) => {
         const hit = d.tables.find(x => x.id === tid);
         state.walkin = null; render();
         try {
-          await post('/api/reservations', { name: 'Walk-in', partySize: w.size, time: d.day + 'T' + d.at, tableId: tid, tableIds: (hit && hit.combo ? hit.combo.filter(x => x !== tid) : []),
+          const n = new Date();
+          await post('/api/reservations', { name: 'Walk-in', partySize: w.size, time: localDay(n) + 'T' + pad2(n.getHours()) + ':' + pad2(n.getMinutes()), tableId: tid, tableIds: (hit && hit.combo ? hit.combo.filter(x => x !== tid) : []),
             status: 'seated', source: 'walk-in', autoTable: false, tags: [], notes: '' });
           await loadView(); render();
           toast(`${tableName(tid)} · ${w.size} seated`);
@@ -13219,7 +13344,7 @@ document.addEventListener('click', async (ev) => {
       case 'delete-booking': { const b = state.modal.b, back = state.modal.from === 'find'; state.modal = { kind: 'confirm', title: `Delete the booking for ${b.name}?`, body: 'It comes off the till too. Cancelling keeps the record; deleting does not.', yes: 'Delete', danger: true, onYes: async () => { await del('/api/reservations/' + b.id); await loadView(); toast('Deleted'); if (back) { openFind(false); await runFind(); } } }; render(); break; }
       case 'wl-party': state.wl.partySize = Math.max(1, state.wl.partySize + parseInt(val)); render(); break;
       case 'wl-quote': state.wl.quotedMin = parseInt(val); render(); break;
-      case 'wl-add': { if (!state.wl.name.trim()) { toast('A name is needed'); break; } await post('/api/waitlist', state.wl); state.wl = { name: '', phone: '', partySize: 2, quotedMin: state.wl.quotedMin }; await loadView(); toast('Added to the list'); render(); break; }
+      case 'wl-add': { if (!state.wl.name.trim()) { toast('A name is needed'); break; } await post('/api/waitlist', state.wl); state.wl = { name: '', phone: '', partySize: 2, quotedMin: state.wl.worked ? 15 : state.wl.quotedMin }; await loadView(); toast('Added to the list'); render(); break; }
       case 'wl-notify': { const w = state.waitlist.find(x => x.id === id); await put('/api/waitlist/' + id, { status: w.status === 'notified' ? 'waiting' : 'notified' }); await loadView(); render(); break; }
       case 'wl-remove': await del('/api/waitlist/' + id); await loadView(); render(); break;
       case 'notify-add': {
@@ -13714,18 +13839,31 @@ document.addEventListener('touchcancel', flTouchEnd);
 // through flMoveStandDown(), which clears state.dragging FIRST. The venue's
 // "drag" rule turns this off with the timeline's.
 let flMove = null;
+// WHICH TABLES ARE FREE FOR THIS PARTY, asked the one way for the table key
+// and the floor drag alike. A booking nobody has sat is asked at its own hour.
+// A SAT party on tonight is asked from NOW for what is left of its sitting —
+// asked at its booked hour, a party that had run over lit every table that
+// had been free back then, and Hollis was dropped on Brennan's table with a
+// green toast (daily round, 30 Sep).
+function pickQuery(r, nowMs) {
+  let t = hhmmOf(r.time), dur = r.durationMin || null;
+  const start = new Date(r.time).getTime(), n = new Date(nowMs);
+  if (isSat(r) && dayOf(r.time) === tradingDay() && localDay(n) === dayOf(r.time) && nowMs > start) {
+    t = pad2(n.getHours()) + ':' + pad2(n.getMinutes());
+    dur = Math.max(15, durationOf(r) - Math.floor((nowMs - start) / 60000));
+  }
+  return `date=${dayOf(r.time)}&time=${t}&party=${r.partySize}&ignore=${encodeURIComponent(r.id)}` + (dur ? `&duration=${dur}` : '');
+}
 function armFlMove(e) {
   if (flMove || state.picking || state.walkin || !tlRules().drag) return;
   if (e.pointerType === 'mouse' && e.button !== 0) return;
   const el = e.target.closest && e.target.closest('.fl-table[data-act="edit-booking"]');
   const r = el && (state.reservations || []).find(x => x.id === el.dataset.id);
   if (!r || !isLive(r)) return;
-  const q = `date=${dayOf(r.time)}&time=${hhmmOf(r.time)}&party=${r.partySize}&ignore=${encodeURIComponent(r.id)}`
-    + (r.durationMin ? `&duration=${r.durationMin}` : '');
   const g = flMove = { id: r.id, pointerId: e.pointerId, touch: e.pointerType !== 'mouse', x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY,
     lifted: false, holdTimer: 0, raf: 0, ghost: null, over: null,
     // Asked at the PRESS, so the answer is usually home before the hold is up.
-    free: api('/api/free-tables?' + q).catch(() => null) };
+    free: api('/api/free-tables?' + pickQuery(r, Date.now())).catch(() => null) };
   g.blockTouch = (te) => { if (flMove === g && g.lifted && te.cancelable) te.preventDefault(); };
   document.addEventListener('touchmove', g.blockTouch, { passive: false });
   g.mv = (ev) => moveFlMove(ev); g.up = (ev) => endFlMove(ev); g.pc = () => cancelFlMove();
@@ -13813,7 +13951,8 @@ function endFlMove(ev) {
   state.picking = null;
   render();
   if (t && r) moveToTable(r, t);
-  else if (info && r) toastBad(info.seats < r.partySize ? `Table ${info.label} seats ${info.seats}` : `Table ${info.label} is taken at ${fmtHHMM(hhmmOf(r.time))}`);
+  else if (info && r) toastBad(info.seats < r.partySize ? `Table ${info.label} seats ${info.seats}`
+    : `Table ${info.label} is taken ${/time=(\d\d:\d\d)/.exec(pickQuery(r, Date.now()))[1] === hhmmOf(r.time) ? 'at ' + fmtHHMM(hhmmOf(r.time)) : 'now'}`);
 }
 function cancelFlMove() {
   const g = flMove;
@@ -13844,7 +13983,7 @@ window.addEventListener('blur', cancelFlMove);
 // a table the DESK had chosen was never stored, so it goes back to none and
 // autoAssign() lays it out again.
 async function moveToTable(r, tid) {
-  const from = heldTables(r).map(tableName).join(' + ');
+  const from = tablesFor(r).map(tableName).join(' + ');
   const was = { tableId: r.tableId || null, tableIds: (r.tableIds || []).slice() };
   try {
     await put('/api/reservations/' + r.id, { tableId: tid, tableIds: [] });
@@ -14181,6 +14320,8 @@ document.addEventListener('change', (ev) => {
 document.addEventListener('keydown', (ev) => {
 
   // A live drag owns Escape first: the block goes back where it was.
+  // A row that acts as a key answers the keyboard as a key does.
+  if ((ev.key === 'Enter' || ev.key === ' ') && ev.target && ev.target.getAttribute && ev.target.getAttribute('role') === 'button' && ev.target.dataset.act) { ev.preventDefault(); ev.target.click(); return; }
   if (ev.key === 'Escape' && tlDrag) { cancelTlDrag(); return; }
   if (ev.key === 'Escape' && flMove) { cancelFlMove(); return; }
   if (state.modal && state.modal.kind === 'find' && ev.key === 'Enter') { clearTimeout(_findTimer); runFind(); return; }
@@ -14192,6 +14333,12 @@ document.addEventListener('keydown', (ev) => {
   if (!state.modal && !typingInField() && (ev.key === '/' || ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k'))) { ev.preventDefault(); openFind(true); }
 });
 
+async function refreshWalkin() {
+  const w = state.walkin; if (!w) return;
+  w.busy = true;
+  try { const d = await api('/api/walkin?size=' + w.size); if (state.walkin === w && d.size === w.size) { w.data = d; render(); } }
+  catch (e) {} finally { w.busy = false; }
+}
 // §§ The poll — ask before fetching, never repaint under fingers
 setInterval(async () => {
   if (!state.settings) return;
@@ -14203,6 +14350,10 @@ setInterval(async () => {
     const v = await api('/api/version');
     const same = _version && v.store === _version.store;
     _version = v;
+    // THE WALK-IN IS ASKED AGAIN while it stays open: its lit tables were the
+    // answer at the moment the size was tapped, and thirty minutes later it
+    // still lit a table somebody was now due at (daily round, 30 Sep).
+    if (state.walkin && state.walkin.size && state.walkin.data && !state.walkin.busy) refreshWalkin();
     if (same) { if (!state.modal && !typingInField()) render(); return; }
     await loadBase(); await loadView();
     if (!typingInField()) render();

@@ -26,6 +26,7 @@
 /* §§ Palette — :root is LIGHT, body[data-theme="dark"] is DARK. Literals on
    purpose (see the POS: a var() inside a token resolves where declared). */
 :root{
+  color-scheme:light;
   --font-body:'Noto Sans',-apple-system,system-ui,sans-serif;
   --font-mono:'IBM Plex Mono','Noto Sans',monospace;
   /* A SEAM IS DARKER THAN WHAT IT SEPARATES. These three were all LIGHTER
@@ -194,6 +195,9 @@
    override on the body (applyStatusColours) still wins inside the app. */
 html[data-theme="dark"],
 body[data-theme="dark"]{
+  /* The browser's own controls follow: a time field's clock and a date
+     field's calendar were drawn black on slate (daily round, 30 Sep). */
+  color-scheme:dark;
   /* THE SAME LAW, THE OTHER WAY UP. A seam that is LIGHTER than the panels
      beside it is a scratch here too — it just glows instead of scuffing. So
      the hairline and the seam both drop BELOW the paper, and a line is a
@@ -454,7 +458,13 @@ h1,h2,h3{margin:0;}
 .row .t1{font-weight:700;font-size:var(--fs-md);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:8px;}
 .row .t2{font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .row .actions{display:flex;gap:6px;flex:none;}
-.row .actions .chip{min-height:38px;padding:7px 10px;}
+.row .actions .chip{min-height:var(--tap);padding:8px 12px;}
+/* The row's keys are the finger's (44), and an icon key is square: the
+   waitlist's remove key drew nothing at 22x38 (daily round, 30 Sep). */
+.row .actions .chip.sq{width:var(--tap);padding:0;}
+.row .cell.over{background:var(--violet);color:#fff;}
+.row .t1 .wl-name{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+.row .t1 .tag{flex:none;}
 /* A row whose only action is one icon key gives it the whole finger (44). */
 .row.dim{opacity:var(--dim);}
 .section-h{font-weight:800;font-size:var(--fs-lg);margin:16px 0 8px;display:flex;align-items:center;gap:8px;}
@@ -592,6 +602,11 @@ label.toggle-row{display:flex;align-items:center;gap:10px;cursor:pointer;font-si
 .switch{width:52px;height:30px;border-radius:var(--r-pill);border:1px solid var(--steel-300);background:var(--steel-200);position:relative;flex:none;transition:background var(--t-state);}
 .switch .knob{position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:var(--lift-1);transition:left var(--t-state);}
 .switch.on{background:var(--green);border-color:var(--green);}
+/* Dark drops the steels below the paper, so an off switch was a black hole
+   with a knob the colour of the card: the track takes the seam and the knob
+   the soft ink, and off reads as off. */
+body[data-theme="dark"] .switch:not(.on){background:var(--steel-300);}
+body[data-theme="dark"] .switch:not(.on) .knob{background:var(--charcoal-soft);}
 .switch.on .knob{left:25px;}
 /* white-space: a button's label is one line. Without it the Notify form's
    "Add to list" broke onto three when the row got tight, which reads as a
@@ -772,6 +787,12 @@ body[data-theme="dark"] .toast{background:#EDE6D6;color:#26231F;}
 .bk-late-go.ink{background:var(--text-primary);color:var(--surface);}
 .bk-late-go.ink small{color:inherit;}
 @media (max-width:760px){ .bk-late-keys{grid-template-columns:1fr;} }
+/* On a phone the toast stands above the bar, not on it: Undo lay on the
+   Settings tile for ten seconds, where a thumb going for Settings took the
+   no-show back (daily round, 30 Sep). */
+@media (max-width:760px){ .toast{bottom:calc(var(--rail-w) + var(--ring) + env(safe-area-inset-bottom, 0px) + 12px);} }
+/* Where a keyboard is: the one ring, the accent's. */
+:focus-visible{outline:var(--tbl-sel-ring) solid var(--orange);outline-offset:2px;}
 
 /* §§ The guests' booking page — one column, the same tokens */
 body.book-page{overflow:auto;height:auto;min-height:100%;touch-action:auto;}
@@ -1695,6 +1716,11 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    top and a 64 at the foot would eat a third of the screen. So it keeps the
    desktop shape — rail down the left, where vertical space is not spent — and
    everything gets shorter. */
+/* THE ROOM BAR AND THE VIEWS NEVER LIE OVER A TABLE, at any height. The
+   strip was only kept on a short screen, and at 1024x600 table 26 sat three
+   quarters under Flow and a tap on it pressed Flow (daily round, 30 Sep). The
+   foot of the room is the two floating bars' own. */
+@media (min-width:761px){ .desk-main > .fl-wrap{padding-bottom:calc(var(--tap) + 24px);} }
 @media (min-width:761px) and (max-height:520px){
   /* THE ROOM BAR NEVER LIES OVER A TABLE. Turned sideways the room fills
      the column's height, so the bar floating in its corner sat on 45, 46,
@@ -3920,7 +3946,7 @@ const DEFAULT_DATA = {
   posState: { lastSyncAt: 0, lastError: '', version: null, connected: false },
   // The relay link's last word: whether it answered, the booking page's
   // address it reported, and when the desk last told it what it may sell.
-  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0 },
+  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0, released: [], gone: [], officeOffOwed: false },
 };
 
 function ensureStore() {
@@ -4565,8 +4591,15 @@ function walkinTables(ctx, day, hhmm, party) {
 // no one table will do, as everywhere else. The day's own times are the
 // steps, so the answer is a time the booking page would offer too, and
 // "Book 8:45" lands on a time that exists. null when nothing frees tonight.
+//
+// AFTER MIDNIGHT THE NIGHT IS OVER: before the trading day rolls
+// (dayStartsAt) the calendar date's times are TOMORROW's, and "First table
+// 11:30 AM · about 11 hr" is not an answer to six people at the door at half
+// past twelve (daily round, 30 Sep). Nothing frees tonight is.
 function walkinNext(ctx, day, hhmm, party) {
   const size = Math.max(1, Number(party) || 1);
+  const rolls = (ctx.settings && Number.isFinite(Number(ctx.settings.dayStartsAt)) ? Number(ctx.settings.dayStartsAt) : 4) * 60;
+  if (toMin(hhmm) < rolls) return null;
   const sub = walkinBook(ctx, day, hhmm);
   const start = toMin(hhmm);
   for (const t of slotTimes(ctx.settings, day)) {
@@ -5525,6 +5558,19 @@ function tableLabeller(tables) {
   return (id) => (id ? (by.get(String(id)) || 'a table') : '');
 }
 
+// THE ACTIVITY LOG IS READ BY A PERSON. It printed "on t1786359453929" and
+// "(4, 2026-09-29T14:00)" (daily round, 30 Sep): a table is its number and a
+// time is words, whichever line wrote it — so it is said once, here, over
+// the whole line, and a line added tomorrow is readable without remembering.
+function auditWords(text, tables) {
+  const ids = new Map();
+  for (const t of (tables || [])) if (t && t.id) ids.set(String(t.id), String(t.label));
+  return String(text)
+    .replace(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/g, (m, y, mo, d, h, mi) =>
+      `${+d} ${MON[+mo - 1] || mo} ${(+h % 12) || 12}:${mi} ${+h < 12 ? 'AM' : 'PM'}`)
+    .replace(/[A-Za-z0-9_-]+/g, (w) => ids.has(w) ? 'table ' + ids.get(w) : w);
+}
+
 // ---------- the diff ----------
 
 function statusEvent(before, after) {
@@ -5696,7 +5742,7 @@ function append(list, events, max) {
   return out.length > cap ? out.slice(-cap) : out;
 }
 
-module.exports = { MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, diffReservation, changeEvents, createdEvent, noteEvent, append };
+module.exports = { MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, auditWords, diffReservation, changeEvents, createdEvent, noteEvent, append };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./history'] = module;
@@ -6898,6 +6944,9 @@ function infoOf(ctx, opts) {
     maxPartySize: s.online.maxPartySize || 8,
     largerPartyMessage: s.online.largerPartyMessage || '',
     tzOffsetMinutes: -now.getTimezoneOffset(),
+    // The zone by NAME too, so the relay keeps the venue's clock across a
+    // clock change while the desk is off.
+    timeZone: (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } })(),
     minNoticeMinutes: s.online.minNoticeMinutes || 0,
     notifyList: s.online.notifyList !== false,
   };
@@ -6907,8 +6956,14 @@ function infoOf(ctx, opts) {
 // sales. Every one with a reference, whatever its status: a booking the desk
 // has since cancelled is still one the desk has, and the relay must not keep
 // it on the table.
+//
+// And the ones the desk REFUSED: an office booking taken while the office was
+// off here never reaches the diary, so without this the relay went on holding
+// its table until the date passed (daily round, 30 Sep). `ctx.released` is
+// the desk's own short list of them.
 function collectedOn(ctx, day) {
-  return (ctx.reservations || []).filter(r => r && r.ref && av.dayOf(r.time) === day).map(r => r.ref);
+  return (ctx.reservations || []).filter(r => r && r.ref && av.dayOf(r.time) === day).map(r => r.ref)
+    .concat((ctx.released || []).filter(x => x && x.ref && x.date === day).map(x => x.ref));
 }
 
 // When somebody is on each table this day. Placed bookings, and the tables
@@ -6981,11 +7036,21 @@ function grantsFor(ctx, opts) {
 // checking "Already booked?" is told half past eight, or cancelled, rather
 // than the seven o'clock the relay sold them. Only what came through the
 // relay: the relay knows no other reference and would ignore it anyway.
-const GUEST_STATUS = { cancelled: 'cancelled', 'no-show': 'cancelled', done: 'finished' };
+//
+// A party in the room is HERE, not booked: "booked" put a Cancel key on the
+// guest's page, the relay said "cancelled", the desk rightly kept them, and
+// the next grant flipped the guest back — a loop the guest could run all
+// night. And a booking the desk DELETED is cancelled to the guest: it is no
+// longer in the diary to report, so the desk keeps a short list of them
+// (`ctx.gone`), or the guest was told "booked" and turned up.
+const GUEST_STATUS = { cancelled: 'cancelled', 'no-show': 'cancelled', done: 'finished',
+  'part-arrived': 'here', arrived: 'here', 'part-seated': 'here', seated: 'here', check: 'here', paid: 'here' };
 function guestsOf(ctx, today) {
   return (ctx.reservations || [])
     .filter(r => r && r.ref && (r.source === 'online' || r.createdBy === 'Online' || r.createdBy === 'Office') && av.dayOf(r.time) >= today)
-    .map(r => ({ ref: r.ref, date: av.dayOf(r.time), time: String(r.time).slice(11, 16), status: GUEST_STATUS[r.status] || 'booked' }));
+    .map(r => ({ ref: r.ref, date: av.dayOf(r.time), time: String(r.time).slice(11, 16), status: GUEST_STATUS[r.status] || 'booked' }))
+    .concat((ctx.gone || []).filter(x => x && x.ref && x.date >= today)
+      .map(x => ({ ref: x.ref, date: x.date, time: x.time || '', status: 'cancelled' })));
 }
 
 // ---------- the office's copy ----------
@@ -7034,7 +7099,8 @@ function editRefusal(item, diary, now) {
   // the first one had, and was refused over it.
   const own = ((diary.relayState && diary.relayState.officeStamps) || {})[r.id];
   const was = Number(p.was);
-  if (stampOf(r) !== was && !(own && own.from === was && own.to === stampOf(r))) return 'It changed while you had it open — here it is now';
+  const mine = own ? (own.chain || [own.from]) : [];
+  if (stampOf(r) !== was && !(own && own.to === stampOf(r) && mine.includes(was))) return 'It changed while you had it open — here it is now';
   const here = av.officeMayChange(r, now);
   if (here || p.cancel) return here;
   // SERVICE WINS AT THE NEW TIME TOO. Checking only where the booking is now
@@ -7051,6 +7117,12 @@ function editRefusal(item, diary, now) {
   const s = diary && diary.settings;
   if (s && !av.slotTimes(s, av.dayOf(t)).includes(t.slice(11, 16))) return 'The restaurant does not take bookings then';
   return null;
+}
+
+// Why an item is refused, whichever kind it is.
+function refusalOf(item, diary, now) {
+  if (item && item.kind === 'booking') return 'The office is switched off at the restaurant';
+  return editRefusal(item, diary, now);
 }
 
 // The booking with the office's change in it. A new time or party size keeps
@@ -7098,7 +7170,9 @@ function decide(item, diary, now) {
   const ref = String(p.ref || '').toUpperCase();
   const rows = (diary && diary.reservations) || [];
   if (item.kind === 'booking') {
-    if (p.by === 'Office' && diary && diary.settings && !(diary.settings.relay && diary.settings.relay.office)) return 'skip';
+    // Refused, not skipped: a skip was acknowledged as "done" to the office
+    // and the booking never existed.
+    if (p.by === 'Office' && diary && diary.settings && !(diary.settings.relay && diary.settings.relay.office)) return 'refuse';
     if (!ref || !String(p.name || '').trim() || !(parseInt(p.partySize, 10) >= 1) || !DAY_RE.test(p.date) || !HHMM_RE.test(p.time)) return 'skip';
     return rows.some(r => r.ref === ref) ? 'dupe' : 'create';
   }
@@ -7140,7 +7214,12 @@ const DONE_KEEP = 500;
 function noteOfficeEdit(diary, id, from, to) {
   diary.relayState = diary.relayState || {};
   const m = Object.assign({}, diary.relayState.officeStamps || {});
-  m[id] = { from: Number(from), to: Number(to) };
+  // A CHAIN, not a pair: every stamp the office's own changes passed through,
+  // so its THIRD quick change, sent on the stamp it first saw, is still its
+  // own (daily round, 30 Sep: it was refused as "changed while you had it").
+  const prev = m[id];
+  const chain = prev && prev.to === Number(from) ? (prev.chain || [prev.from]).concat(Number(from)) : [Number(from)];
+  m[id] = { from: Number(from), to: Number(to), chain: chain.slice(-20) };
   const keys = Object.keys(m);
   for (const k of keys.slice(0, Math.max(0, keys.length - DONE_KEEP))) delete m[k];
   diary.relayState.officeStamps = m;
@@ -7178,7 +7257,7 @@ function bookingFrom(payload, ctx, opts) {
   };
 }
 
-module.exports = { GRANT_DAYS, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, editedBooking };
+module.exports = { GRANT_DAYS, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relaysync'] = module;
@@ -7266,7 +7345,7 @@ app.get('/book', (req, res) => res.sendFile(path.join(__dirname, 'public', 'book
 function staffFromReq() { return 'The desk'; }
 function logAudit(data, staffName, action) {
   if (!data.auditLog) data.auditLog = [];
-  data.auditLog.unshift({ id: newId('a'), timestamp: Date.now(), staffName, action });
+  data.auditLog.unshift({ id: newId('a'), timestamp: Date.now(), staffName, action: history.auditWords(action, tablesOf(data)) });
   if (data.auditLog.length > 2000) data.auditLog.length = 2000;
 }
 
@@ -7907,6 +7986,13 @@ app.delete('/api/reservations/:id', (req, res) => {
   if (!r) return res.status(404).json({ error: 'Booking not found' });
   if (av.isLive(r)) raiseOpening(data, r, 'deleted', staffFromReq(req));
   data.reservations = data.reservations.filter(x => x.id !== r.id);
+  // A guest who booked online is told it is gone: the relay only hears about
+  // references still in the diary, so a deleted one stayed "booked" to them.
+  if (r.ref && (r.source === 'online' || r.createdBy === 'Online' || r.createdBy === 'Office')) {
+    data.relayState = data.relayState || {};
+    data.relayState.gone = keepRecent((data.relayState.gone || []).concat({ ref: r.ref, date: String(r.time).slice(0, 10), time: String(r.time).slice(11, 16) }));
+    kickRelay();
+  }
   if (r.pos && r.pos.id) { data.posState.pendingDeletes = [...(data.posState.pendingDeletes || []), r.pos.id]; }
   recountGuest(data, r.guestId);
   logAudit(data, staffFromReq(req), `Deleted booking for ${r.name} (${r.time})`);
@@ -8790,7 +8876,7 @@ app.post('/api/relay/office', async (req, res) => {
   if (!relay.ready(cfg)) return res.status(400).json({ error: 'Link the relay first' });
   try {
     const r = await relay.officeOn(cfg);
-    const d = readData(); d.settings.relay.office = true;
+    const d = readData(); d.settings.relay.office = true; d.relayState.officeOffOwed = false;
     logAudit(d, 'The desk', 'Office switched on, new sign-in code');
     writeData(d);
     res.json({ code: r.code, officeUrl: cfg.baseUrl + r.officeUrl });
@@ -8800,10 +8886,24 @@ app.post('/api/relay/office', async (req, res) => {
 app.delete('/api/relay/office', async (req, res) => {
   const data = readData(), cfg = data.settings.relay;
   const d = readData(); d.settings.relay.office = false; logAudit(d, 'The desk', 'Office switched off'); writeData(d);
-  if (relay.ready(cfg)) { try { await relay.officeOff(cfg); } catch (e) { return res.status(502).json({ error: 'Switched off here, but the relay did not answer: ' + e.message }); } }
+  if (relay.ready(cfg)) {
+    try { await relay.officeOff(cfg); }
+    catch (e) {
+      // Kept as owed: every pass asks the relay again until it agrees, so the
+      // office's code and sessions do not outlive the switch (daily round, 30 Sep).
+      const o = readData(); o.relayState.officeOffOwed = true; writeData(o);
+      return res.status(502).json({ error: 'Switched off here, but the relay did not answer: ' + e.message });
+    }
+  }
   res.json({ ok: true });
 });
 
+// The desk's short lists for the relay — bookings it refused and bookings it
+// deleted — kept only while their date is still to come, and never many.
+function keepRecent(list) {
+  const today = av.localDay(new Date());
+  return (list || []).filter(x => x && x.ref && x.date >= today).slice(-300);
+}
 // One item from the relay, written into the diary. Decided against the diary
 // as it stands after the item before it (relaysync.decide), so a booking and
 // its own cancel in one pull come out right, and one delivered twice is one.
@@ -8839,6 +8939,13 @@ function applyRelayItem(data, item) {
     if (!p.cancel && (pt.phone !== undefined || pt.name !== undefined)) touchGuest(data, r);
     recountGuest(data, r.guestId);
     logAudit(data, 'Office', `Office ${p.cancel ? 'cancelled' : 'changed'} ${r.name} (${r.time})`);
+  } else if (what === 'refuse' && item.kind === 'booking') {
+    // An office booking taken while the office was off here: refused to the
+    // office by name, and its table let go on the relay by the next grant.
+    const why = relaysync.refusalOf(item, data, new Date());
+    data.relayState.released = keepRecent((data.relayState.released || []).concat({ ref: String(p.ref || '').toUpperCase(), date: p.date }));
+    logAudit(data, 'Office', `Office booking for ${p.name || 'a guest'} not taken: ${why}`);
+    return { what, why, now: null };
   } else if (what === 'refuse') {
     const r = data.reservations.find(x => x.id === p.id);
     logAudit(data, 'Office', `Office change to ${p.name || 'a booking'} not applied: ${relaysync.editRefusal(item, data, new Date())}`);
@@ -8879,6 +8986,11 @@ async function relayPass(forceGrant) {
     const cfg = data.settings.relay;
     if (!relay.ready(cfg)) { if (data.relayState.connected) { data.relayState.connected = false; writeData(data); } return null; }
     const ping = await relay.ping(cfg);
+    // An office switched off here while the relay was away: said again now.
+    if (!cfg.office && data.relayState.officeOffOwed) {
+      await relay.officeOff(cfg);
+      data = readData(); data.relayState.officeOffOwed = false; writeData(data);
+    }
     // COLLECT: pull, write into the diary, and only once that is on disk say
     // "got them". A pass that dies in between costs a repeat — which decide()
     // turns into nothing — and never a lost booking.
@@ -8903,12 +9015,17 @@ async function relayPass(forceGrant) {
     // GRANT: what may be sold from here on, when it changed, and at least
     // hourly so the relay never goes a day thinking the venue has vanished.
     data = readData();
-    const body = relaysync.grantsFor(ctxOf(data), { now: new Date(), accent: (data.theme && data.theme.accent) || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel });
+    const body = relaysync.grantsFor(Object.assign(ctxOf(data), { released: keepRecent(data.relayState.released), gone: keepRecent(data.relayState.gone) }),
+      { now: new Date(), accent: (data.theme && data.theme.accent) || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel });
     const hash = crypto.createHash('sha1').update(JSON.stringify(body)).digest('hex');
     const st = data.relayState;
     if (forceGrant || out.changed || hash !== st.grantHash || Date.now() - (st.grantAt || 0) > 3600000) {
-      await relay.grant(cfg, body);
+      const said = await relay.grant(cfg, body);
       out.granted = true;
+      // SWITCHED OFF HERE IS SWITCHED OFF THERE. An office turned off while
+      // the relay could not be reached kept its code and its sessions; every
+      // pass asks again until the relay agrees.
+      if (!cfg.office && said && said.office) { try { await relay.officeOff(cfg); } catch (e) {} }
     }
     data = readData();
     Object.assign(data.relayState, { connected: true, lastSeenAt: Date.now(), lastError: '', bookingPath: (ping.venue && ping.venue.bookingUrl) || data.relayState.bookingPath },
