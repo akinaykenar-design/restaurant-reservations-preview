@@ -613,7 +613,7 @@ h1,h2,h3{margin:0;}
    instead of widening its column. */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:var(--hub-edge);align-items:start;}
 .cards > *{min-width:0;}
-.settings-card .mono{overflow-wrap:anywhere;}
+.settings-card .mono{overflow-wrap:break-word;}
 .settings-card{background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-surface);padding:16px;display:flex;flex-direction:column;gap:8px;}
 .settings-card.wide{grid-column:1 / -1;}
 .th{font-weight:800;font-size:var(--fs-lg);letter-spacing:.2px;}
@@ -627,6 +627,7 @@ h1,h2,h3{margin:0;}
 /* A special day's sitting on a phone: the name takes its own line and the
    hours sit under it, one sitting to a block — wrapped loose, the next
    name butted against the last one's end time (daily round, 1 Oct). */
+.exc-win > input[type="text"]{flex:1;min-width:110px;}
 @media (max-width:560px){
   .exc-win{padding:8px 0;border-bottom:1px solid var(--steel-200);}
   .exc-win > input[type="text"]{flex:1 1 100%;}
@@ -643,6 +644,7 @@ body[data-theme="dark"] .switch:not(.on) .knob{background:var(--charcoal-soft);}
 /* The number block at a row's left (a wait, a visit count, a time) was the
    page's dark ink on dark's steel — 2.3 to 1, a smudge. The light ink reads. */
 body[data-theme="dark"] .row .cell{color:var(--text-primary);}
+body[data-theme="dark"] .row .cell.over{color:#fff;}
 .switch.on .knob{left:25px;}
 /* white-space: a button's label is one line. Without it the Notify form's
    "Add to list" broke onto three when the row got tight, which reads as a
@@ -687,14 +689,14 @@ body[data-theme="dark"] .row .cell{color:var(--text-primary);}
 
 /* §§ Popup (Popup law: a FORM is 520 wide, corner 16, padding 24, keys 76x64) */
 .modal-bg{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;z-index:var(--z-popup);padding:20px;}
-.modal{background:var(--surface);border-radius:var(--r-surface);width:100%;max-width:520px;padding:24px;box-shadow:var(--lift-2);max-height:calc(100vh - 40px);overflow-y:auto;}
+.modal{--modal-pad:24px;background:var(--surface);border-radius:var(--r-surface);width:100%;max-width:520px;padding:var(--modal-pad);box-shadow:var(--lift-2);max-height:calc(100vh - 40px);overflow-y:auto;}
 .modal.wide{max-width:720px;}
 .modal h2{font-size:var(--fs-xl);font-weight:700;letter-spacing:-.2px;margin:0 0 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .modal-actions{display:flex;gap:8px;margin-top:20px;justify-content:flex-end;}
 /* A long popup keeps its Save in reach: a new combination lists every table
    and put Save 1,500 pixels under the fold (daily round, 1 Oct). The keys
    stand on the popup's foot, over its padding, on the popup's own paper. */
-.modal > .modal-actions{position:sticky;bottom:-24px;margin-bottom:-24px;padding:12px 0 24px;background:var(--surface);}
+.modal > .modal-actions{position:sticky;bottom:calc(-1 * var(--modal-pad));margin-bottom:calc(-1 * var(--modal-pad));padding:12px 0 var(--modal-pad);background:var(--surface);}
 .icon-action{width:76px;height:var(--h-primary);border:none;border-radius:var(--r-control);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#fff;font-size:var(--fs-xl);line-height:1;flex:0 0 auto;}
 .icon-action svg{width:24px;height:24px;}
 .icon-action .ia-label{font-size:var(--fs-chip);font-weight:700;letter-spacing:.3px;}
@@ -706,7 +708,7 @@ body[data-theme="dark"] .row .cell{color:var(--text-primary);}
 .modal .warnbox{background:color-mix(in srgb, var(--red) 10%, var(--surface));border:1px solid var(--red);border-radius:var(--r-control);padding:8px 12px;font-weight:600;color:var(--red);margin-top:12px;}
 .modal .okbox{background:var(--green-dim);border:1px solid var(--green);border-radius:var(--r-control);padding:8px 12px;font-weight:600;margin-top:12px;}
 .modal .err{color:var(--red);font-weight:700;margin-bottom:8px;}
-@media (max-width:768px){ .modal-bg{padding:10px;} .modal{padding:20px;max-height:calc(100vh - 20px);} }
+@media (max-width:768px){ .modal-bg{padding:10px;} .modal{--modal-pad:20px;max-height:calc(100vh - 20px);} }
 .status-row{display:flex;flex-wrap:wrap;gap:6px;}
 .slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px;max-height:190px;overflow-y:auto;padding:2px;}
 .slots .chip{padding:7px 4px;font-family:var(--font-mono);min-height:var(--tap);}
@@ -799,6 +801,12 @@ body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, v
 /* A phone has no book column: the card takes the width, clear of the bar. */
 @media (max-width:760px){
   .wb{left:0;right:0;width:auto;bottom:calc(var(--rail-w) + var(--ring) + env(safe-area-inset-bottom, 0px));}
+}
+/* A tablet STACKS the book over the room, so the book's foot is 38vh down,
+   not the window's: on the window's foot the card lay over the room's views
+   (daily round, 2 Oct). It stands on the book's foot, the width of the book. */
+@media (min-width:761px) and (max-width:900px){
+  .wb{left:0;right:0;width:auto;bottom:calc(100vh - var(--deck-h) - 38vh);}
 }
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--charcoal);color:#fff;padding:12px 20px;border-radius:var(--r-pill);font-weight:600;font-size:var(--fs-md);z-index:var(--z-toast);display:flex;align-items:center;gap:8px;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:var(--lift-1);}
 body[data-theme="dark"] .toast{background:#EDE6D6;color:#26231F;}
@@ -1487,7 +1495,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    stays put while the detail scrolls under it, and the keys pinned to the
    foot where a thumb already is. */
 .modal-bg.full{padding:0;align-items:stretch;justify-content:stretch;}
-.modal.full{max-width:none;width:100%;max-height:none;height:100%;border-radius:0;padding:0;
+.modal.full{--modal-pad:0px;max-width:none;width:100%;max-height:none;height:100%;border-radius:0;padding:0;
   display:flex;flex-direction:column;min-height:0;overflow:hidden;}
 .modal-top{flex:none;display:flex;align-items:center;gap:12px;padding:16px var(--deck-edge);
   border-bottom:1px solid var(--steel-300);background:var(--surface);}
@@ -1770,6 +1778,10 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
    width now, a phone's included. */
 .fl-box{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column;container:flbox / inline-size;}
 .fl-box > .fl-wrap{padding-bottom:calc(var(--tap) + 24px);}
+/* But not on a phone turned sideways: there the room is sized off a 300-odd
+   height and the strip halved it (tables five pixels across); the bar only
+   ever covers the right-hand end, which the scroll brings out from under. */
+@media (max-width:760px) and (max-height:500px){ .fl-box > .fl-wrap{padding-bottom:0;} }
 /* A narrow room has no width for the views at the left AND the rooms at the
    right at 84 a chip — turned sideways, a phone laid one six pixels over the
    other. Below 600 of room each chip takes its own word's width, which is
@@ -2113,10 +2125,11 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   padding:8px 8px 8px 4px;background:var(--surface);border-bottom:1px solid var(--steel-200);}
 .bl-find-i{display:flex;flex:none;color:var(--charcoal-soft);margin-left:4px;}
 .bl-find-i svg{width:18px;height:18px;}
-.bl-find input{flex:1;min-width:0;min-height:38px;border:none;background:none;padding:0;}
+.bl-find input{flex:1;min-width:0;min-height:var(--tap);border:none;background:none;padding:0;}
 .bl-find input:focus{border:none;box-shadow:none;}
 .bl-find input::-webkit-search-cancel-button{display:none;}
-.bl-find .chip.sq{flex:none;min-height:34px;width:34px;}
+/* The finger's 44 — the well beside the book is 48 and holds it. */
+.bl-find .chip.sq{flex:none;min-height:var(--tap);width:var(--tap);}
 
 
 /* A COLOUR THE TILL OWNS IS SHOWN, NOT OFFERED. The dot still wears the
@@ -5017,7 +5030,9 @@ function onlineDayReason(settings, day, now) {
 // warning staff see when they force a table anyway.
 function conflictsFor(ctx, r) {
   const day = dayOf(r.time);
-  const dur = durationFor(ctx.settings, r.partySize, r.durationMin);
+  // As long as it HOLDS the table — a party still in its chairs past its
+  // sitting dragged onto a table somebody is due at named nobody (2 Oct).
+  const dur = heldFor(ctx, r, nowOn(ctx, day));
   const seen = new Map();
   for (const tid of heldTables(r)) for (const o of holdersOf(ctx, tid, day, minsOf(r.time), dur, r.id)) seen.set(o.id, o);
   return [...seen.values()];
@@ -6561,6 +6576,7 @@ const history = require('./history');
 
 // The statuses the POS floor can say for itself. What comes back in this list
 // is the till telling us something we could not know.
+const WIPED_AT = 3;
 const FLOOR_ONLY = ['seated', 'done', 'no-show', 'cancelled'];
 // The same thing said in OUR vocabulary: every local status that only the
 // floor puts a booking into. It is wider than FLOOR_ONLY because the desk
@@ -6600,10 +6616,16 @@ function reconcile(local, remote, opts) {
   const plan = { patches: [], imports: [], creates: [], updates: [] };
   // A till that has lost EVERY booking we both held has not cancelled them
   // all — it was restored, reinstalled, or the address now points at another
-  // till. Cancelling a whole night over that is the desk wiping its own book,
-  // so then nothing is cancelled: each is relinked and offered back instead.
+  // till. Cancelling a whole night over that is the desk wiping its own book.
+  // Relinking it is no better (daily round, 2 Oct): one pass against a wrong
+  // address re-created the book on the wrong till, and the pass back to the
+  // right one found every link pointing at the wrong one and doubled the
+  // book on both. So the plan is EMPTY and says why — nothing is cancelled,
+  // relinked, pushed or imported, and run() stops the pass with a reason a
+  // person can act on. Three or more at once: one or two can be a till that
+  // really did delete its last stale bookings.
   const held = local.filter(r => r.pos && r.pos.id && r.pos.hash && db.LIVE_STATUSES.includes(r.status));
-  const wiped = held.length > 1 && held.every(r => !byPosId.has(r.pos.id));
+  if (held.length >= WIPED_AT && held.every(r => !byPosId.has(r.pos.id))) return Object.assign(plan, { wiped: held.length });
 
   for (const r of local) {
     const link = r.pos && r.pos.id ? r.pos : null;
@@ -6616,7 +6638,7 @@ function reconcile(local, remote, opts) {
     if (!p) {
       // Gone from the POS. Only cancel if the till really had it (a hash means
       // a full round-trip happened) — otherwise clear the link and re-push.
-      if (link.hash && !wiped) {
+      if (link.hash) {
         const patch = { pos: null };
         if (db.LIVE_STATUSES.includes(r.status)) {
           patch.status = 'cancelled'; patch.cancelledAt = now; patch.cancelReason = 'Removed on the POS';
@@ -6721,6 +6743,7 @@ async function run(config, log) {
   const pending = (data.posState.pendingDeletes || []).slice();
   const tableLabel = history.tableLabeller((data.floorPlans || []).flatMap(fp => fp.tables || []));
   const plan = reconcile(data.reservations, remote, { push: config.pushBookings !== false, pendingDeletes: pending, tableLabel, settings: data.settings || {} });
+  if (plan.wiped) throw new Error(`The till has none of the ${plan.wiped} bookings it shared with the desk — check the POS address. Nothing was changed.`);
 
   // Local first — a POS write that fails must not lose a till-side change.
   let dirty = false;
@@ -7244,8 +7267,18 @@ function editedBooking(r, patch, ctx) {
     const day = av.dayOf(n.time), start = av.minsOf(n.time);
     const dur = av.durationFor(ctx.settings, n.partySize, n.durationMin);
     const seats = ids.reduce((sum, id) => sum + ((ctx.tables || []).find(t => t.id === id) || { seats: 0 }).seats, 0);
-    const clash = ids.some(id => av.holdersOf(ctx, id, day, start, dur, r.id).length);
-    if (ids.length && (clash || seats < n.partySize)) { n.tableId = null; n.tableIds = []; }
+    // Against the book with the desk's own picks holding their tables
+    // (av.heldBook): a move onto the nine's table at eight is a clash with
+    // the nine (daily round, 2 Oct).
+    const held = av.heldBook(ctx, day);
+    const clash = ids.some(id => av.holdersOf(held, id, day, start, dur, r.id).length);
+    // A table it can no longer keep is swapped for the best one free at the
+    // new hour in the same held book — left empty, autoAssign() laid it out
+    // earliest first and took the nine's table anyway (2 Oct).
+    if (ids.length && (clash || seats < n.partySize)) {
+      const t = av.suggestTable(held, day, av.hhmmOf(n.time), n.partySize, { ignoreId: r.id, duration: n.durationMin });
+      n.tableId = t ? t.id : null; n.tableIds = [];
+    }
   }
   return n;
 }
@@ -7348,8 +7381,11 @@ function bookingFrom(payload, ctx, opts) {
   const known = (ctx.tables || []).some(t => t.id === payload.tableId);
   // FREE the way the desk means it — av.freeTables(), which counts the till's
   // walk-ins and a party running over — not merely unbooked.
-  const stillFree = known && av.freeTables(ctx, day, hhmm, party).some(t => t.id === payload.tableId);
-  const t = stillFree ? { id: payload.tableId } : av.suggestTable(ctx, day, hhmm, party);
+  // And asked of the HELD book: a fallback on the plain one put a four on the
+  // nine's auto-picked table and dropped the nine into No table (2 Oct).
+  const held = av.heldBook(ctx, day);
+  const stillFree = known && av.freeTables(held, day, hhmm, party).some(t => t.id === payload.tableId);
+  const t = stillFree ? { id: payload.tableId } : av.suggestTable(held, day, hhmm, party);
   return {
     id: opts.id, name: String(payload.name).trim().slice(0, 60),
     phone: String(payload.phone || '').trim().slice(0, 30), email: String(payload.email || '').trim().slice(0, 80),
@@ -7654,17 +7690,21 @@ app.put('/api/settings', async (req, res) => {
   }
   if (b.relay) {
     const q = b.relay;
-    const wasOn = relay.ready(s.relay);
+    const wasOn = relay.ready(s.relay), was = { baseUrl: s.relay.baseUrl, token: s.relay.token };
     if (q.baseUrl !== undefined) s.relay.baseUrl = String(q.baseUrl || '').trim().replace(/\/+$/, '').slice(0, 200);
     if (q.enabled !== undefined) s.relay.enabled = !!q.enabled;
     // Only a token actually typed replaces the saved one: the card never has
     // it to send back, so an absent or empty field means "keep it".
     if (typeof q.token === 'string' && q.token.trim()) s.relay.token = q.token.trim().slice(0, 200);
     if (q.clearToken) s.relay.token = '';
-    // Switched off here: the relay is told once to stop selling (relayPass),
-    // or it goes on taking bookings nobody will ever collect.
-    if (wasOn && !relay.ready(s.relay)) data.relayState.closeOwed = true;
-    if (relay.ready(s.relay)) data.relayState.closeOwed = false;
+    // Switched off here — or the address or token changed, which leaves the
+    // OLD relay selling just the same: that relay is told once to stop
+    // (relayPass), or it goes on taking bookings nobody will ever collect.
+    // Its own address and token are kept for it, since the settings no
+    // longer hold them (daily round, 2 Oct).
+    const moved = was.baseUrl !== s.relay.baseUrl || was.token !== s.relay.token;
+    if (wasOn && (moved || !relay.ready(s.relay))) data.relayState.closeOwed = was;
+    else if (relay.ready(s.relay)) data.relayState.closeOwed = false;
   }
   logAudit(data, staffFromReq(req), 'Updated settings');
   writeData(data);
@@ -7919,7 +7959,9 @@ function recountGuest(data, guestId) {
   g.cancellations = mine.filter(r => r.status === 'cancelled').length;
 }
 function withWarnings(data, r) {
-  const conflicts = av.conflictsFor(ctxOf(data), r).map(o => ({ id: o.id, name: o.name, time: o.time, partySize: o.partySize }));
+  // The held book, as moveCheck() is asked: a move onto the nine's
+  // auto-picked tables answered no clash with a green toast (2 Oct).
+  const conflicts = av.conflictsFor(av.heldBook(ctxOf(data), av.dayOf(r.time)), r).map(o => ({ id: o.id, name: o.name, time: o.time, partySize: o.partySize }));
   return Object.assign({}, r, { conflicts });
 }
 
@@ -8028,7 +8070,7 @@ app.post('/api/reservations', (req, res) => {
   // Nobody picked a table: hand it the best free one now (the POS floor
   // wants a table to hang its RES chip on).
   if (!r.tableId && req.body.autoTable !== false) {
-    const t = av.suggestTable(ctxOf(data), av.dayOf(r.time), av.hhmmOf(r.time), r.partySize, { duration: r.durationMin });
+    const t = av.suggestTable(av.heldBook(ctxOf(data), av.dayOf(r.time)), av.dayOf(r.time), av.hhmmOf(r.time), r.partySize, { duration: r.durationMin });
     if (t) r.tableId = t.id;
   }
   const g = touchGuest(data, r);
@@ -8151,7 +8193,12 @@ app.post('/api/reservations/:id/move', (req, res) => {
   if (evs.length) r.events = history.append(r.events, evs);
   logAudit(data, staffFromReq(req), `Moved ${r.name} to ${av.hhmmOf(r.time)}${(r.tableId || null) !== was.tableId ? ' on ' + (r.tableId || 'no table') : ''}`);
   writeData(data);
-  res.json(withWarnings(data, r));
+  // The clash is named as it stood BEFORE the drop: once the move is written
+  // the desk re-lays the nine somewhere else or nowhere, and a warning asked
+  // after the fact found nobody on the table it had just taken (2 Oct).
+  const out = withWarnings(data, r);
+  for (const c of move.conflicts || []) if (!out.conflicts.some(x => x.id === c.id)) out.conflicts.push({ id: c.id, name: c.name, time: c.time, partySize: c.partySize });
+  res.json(out);
   kickPos();   // the till's floor has it within a third of a second, or queued
 });
 
@@ -8398,7 +8445,7 @@ app.post('/api/waitlist/:id/seat', (req, res) => {
   const tableId = (req.body && req.body.tableId) || null;
   const r = { id: newId('rv'), name: w.name, phone: w.phone, email: '', partySize: w.partySize, time: av.localTime(now), durationMin: null, tableId, tableIds: [], notes: w.notes, tags: [], setMenu: null, status: 'seated', source: 'walk-in', createdAt: Date.now(), updatedAt: Date.now(), seatedAt: Date.now(), createdBy: staffFromReq(req), waitedMin: Math.round((Date.now() - w.addedAt) / 60000) };
   pruneTables(data, r);
-  if (!r.tableId) { const t = av.suggestTable(ctxOf(data), av.dayOf(r.time), av.hhmmOf(r.time), r.partySize, {}); if (t) r.tableId = t.id; }
+  if (!r.tableId) { const t = av.suggestTable(av.heldBook(ctxOf(data), av.dayOf(r.time)), av.dayOf(r.time), av.hhmmOf(r.time), r.partySize, {}); if (t) r.tableId = t.id; }
   const g = touchGuest(data, r);
   r.events = [history.createdEvent(r, staffFromReq(req), r.createdAt, evOpts(data))];
   data.reservations.push(r);
@@ -8674,7 +8721,11 @@ app.get('/api/public/availability', (req, res) => {
   // 'Too soon', never 'Past', so it stood struck through, and a tap on it
   // put a guest on the notify list for this morning.
   const gone = (x) => av.timeMs(av.joinTime(day, x.time)) < Date.now();
-  const slots = av.slotsFor(ctx, day, party, { online: true }).filter(x => x.ok || !gone(x)).map(x => ({ time: x.time, ok: x.ok }));
+  const all = av.slotsFor(ctx, day, party, { online: true });
+  const slots = all.filter(x => x.ok || !gone(x)).map(x => ({ time: x.time, ok: x.ok }));
+  // Every time of the day has GONE: say so, which also takes the notify
+  // key away — it led to a form with no times in it to pick (2 Oct).
+  if (all.length && !slots.length) return res.json({ date: day, party, slots: [], reason: 'There are no more times today. Please pick another day, or call us.' });
   res.json({ date: day, party, slots, note: (ex && !ex.closed && ex.note) || '' });
 });
 
@@ -8974,7 +9025,7 @@ app.get('/api/relay/status', (req, res) => {
     // Only while the link is on: a QR code to a page this desk is not
     // feeding sends guests somewhere nobody collects from.
     bookingUrl: relay.ready(c) && st.bookingPath ? c.baseUrl + st.bookingPath : '',
-    office: !!c.office, officeUrl: c.office && c.baseUrl && st.bookingPath ? c.baseUrl + st.bookingPath.replace(/^\/book\//, '/office/') : '',
+    office: !!c.office, officeUrl: c.office && relay.ready(c) && st.bookingPath ? c.baseUrl + st.bookingPath.replace(/^\/book\//, '/office/') : '',
   });
 });
 app.post('/api/relay/test', async (req, res) => {
@@ -9105,6 +9156,28 @@ function applyRelayItem(data, item) {
 }
 
 let _relayBusy = false, _relayAgain = false, _relayTimer = null;
+// COLLECT: pull, write into the diary, and only once that is on disk say
+// "got them". A pass that dies in between costs a repeat — which decide()
+// turns into nothing — and never a lost booking.
+async function collectFrom(cfg, waiting, out) {
+  for (let round = 0; round < 20 && waiting > 0; round++) {
+    const got = await relay.pull(cfg, 0);
+    const items = (got && got.items) || [];
+    if (!items.length) break;
+    const data = readData();
+    const done = items.map(it => {
+      const d = applyRelayItem(data, it);
+      relaysync.remember(data, it, d.what); // written with it, so a lost ack repeats nothing
+      return Object.assign({ seq: it.seq }, d);
+    });
+    const whats = done.map(d => d.what);
+    writeData(data);
+    await relay.ack(cfg, got.cursor, done.filter(d => d.what === 'refuse').map(d => ({ seq: d.seq, id: (items.find(i => i.seq === d.seq).payload || {}).id, why: d.why, now: d.now })));
+    out.changed = (out.changed || 0) + whats.filter(w => !['skip', 'dupe', 'refuse'].includes(w)).length;
+    out.collected += whats.filter(w => w === 'create').length;
+    if (!got.more) break;
+  }
+}
 async function relayPass(forceGrant) {
   if (_relayBusy) { _relayAgain = true; return null; }
   _relayBusy = true;
@@ -9112,20 +9185,30 @@ async function relayPass(forceGrant) {
   try {
     let data = readData();
     const cfg = data.settings.relay;
+    // SWITCHED OFF HERE IS CLOSED THERE. The link going off stopped the
+    // passes, so the relay kept the last grant and went on selling every
+    // day of it — to guests whose bookings the desk would never collect.
+    // So the relay it was selling on is told once: first everything guests
+    // already booked there is COLLECTED — a close that left them in its
+    // queue stranded them, told "booked" and never in the diary — and then
+    // one last grant with nothing in it. Asked again each pass until the
+    // relay takes it. (`true` is the 1 Oct shape: the relay in Settings.)
+    const owed = data.relayState.closeOwed;
+    const old = owed && typeof owed === 'object' ? owed : owed ? cfg : null;
+    const same = old && relay.ready(cfg) && old.baseUrl === cfg.baseUrl && old.token === cfg.token;
+    if (old && !same && old.baseUrl && old.token) {
+      try {
+        const oc = { enabled: true, baseUrl: old.baseUrl, token: old.token };
+        await collectFrom(oc, (await relay.ping(oc)).waiting, out);
+        data = readData();
+        const ctx = ctxOf(data);
+        ctx.settings = Object.assign({}, ctx.settings, { online: Object.assign({}, ctx.settings.online, { enabled: false }) });
+        await relay.grant(oc, relaysync.grantsFor(ctx, { now: new Date(), office: false }));
+        data = readData(); data.relayState.closeOwed = false; data.relayState.grantHash = ''; writeData(data);
+      } catch (e) {}
+    }
     if (!relay.ready(cfg)) {
-      // SWITCHED OFF HERE IS CLOSED THERE. The link going off stopped the
-      // passes, so the relay kept the last grant and went on selling every
-      // day of it — to guests whose bookings the desk would never collect.
-      // One last grant with nothing in it, while the address and the token
-      // are still known; asked again each pass until the relay takes it.
-      if (data.relayState.closeOwed && cfg.baseUrl && cfg.token) {
-        try {
-          const ctx = ctxOf(data);
-          ctx.settings = Object.assign({}, ctx.settings, { online: Object.assign({}, ctx.settings.online, { enabled: false }) });
-          await relay.grant(cfg, relaysync.grantsFor(ctx, { now: new Date(), office: false }));
-          data = readData(); data.relayState.closeOwed = false; data.relayState.grantHash = ''; writeData(data);
-        } catch (e) {}
-      }
+      if (out.changed) kickPos();
       if (data.relayState.connected) { data.relayState.connected = false; writeData(data); }
       return null;
     }
@@ -9135,26 +9218,7 @@ async function relayPass(forceGrant) {
       await relay.officeOff(cfg);
       data = readData(); data.relayState.officeOffOwed = false; writeData(data);
     }
-    // COLLECT: pull, write into the diary, and only once that is on disk say
-    // "got them". A pass that dies in between costs a repeat — which decide()
-    // turns into nothing — and never a lost booking.
-    for (let round = 0; round < 20 && ping.waiting > 0; round++) {
-      const got = await relay.pull(cfg, 0);
-      const items = (got && got.items) || [];
-      if (!items.length) break;
-      data = readData();
-      const done = items.map(it => {
-        const d = applyRelayItem(data, it);
-        relaysync.remember(data, it, d.what); // written with it, so a lost ack repeats nothing
-        return Object.assign({ seq: it.seq }, d);
-      });
-      const whats = done.map(d => d.what);
-      writeData(data);
-      await relay.ack(cfg, got.cursor, done.filter(d => d.what === 'refuse').map(d => ({ seq: d.seq, id: (items.find(i => i.seq === d.seq).payload || {}).id, why: d.why, now: d.now })));
-      out.changed = (out.changed || 0) + whats.filter(w => !['skip', 'dupe', 'refuse'].includes(w)).length;
-      out.collected += whats.filter(w => w === 'create').length;
-      if (!got.more) break;
-    }
+    await collectFrom(cfg, ping.waiting, out);
     if (out.changed) kickPos(); // the till's floor hears about them too
     // GRANT: what may be sold from here on, when it changed, and at least
     // hourly so the relay never goes a day thinking the venue has vanished.
