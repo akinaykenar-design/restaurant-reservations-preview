@@ -613,7 +613,10 @@ h1,h2,h3{margin:0;}
    instead of widening its column. */
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:var(--hub-edge);align-items:start;}
 .cards > *{min-width:0;}
-.settings-card .mono{overflow-wrap:break-word;}
+/* min-width:0 as well: inside a flex label or a kv grid, break-word leaves
+   the item's smallest width at the whole address, so a LAN address with no
+   break in it slid the pane sideways at 360 (daily round, 3 Oct). */
+.settings-card .mono{overflow-wrap:break-word;min-width:0;}
 .settings-card{background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-surface);padding:16px;display:flex;flex-direction:column;gap:8px;}
 .settings-card.wide{grid-column:1 / -1;}
 .th{font-weight:800;font-size:var(--fs-lg);letter-spacing:.2px;}
@@ -644,7 +647,9 @@ body[data-theme="dark"] .switch:not(.on) .knob{background:var(--charcoal-soft);}
 /* The number block at a row's left (a wait, a visit count, a time) was the
    page's dark ink on dark's steel — 2.3 to 1, a smudge. The light ink reads. */
 body[data-theme="dark"] .row .cell{color:var(--text-primary);}
-body[data-theme="dark"] .row .cell.over{color:#fff;}
+/* Dark ink on dark's lighter violet: white on it was 3.8 to 1 under a
+   10.5 word (daily round, 3 Oct); the near-black is 5. */
+body[data-theme="dark"] .row .cell.over{color:var(--steel-100);}
 .switch.on .knob{left:25px;}
 /* white-space: a button's label is one line. Without it the Notify form's
    "Add to list" broke onto three when the row got tight, which reads as a
@@ -804,8 +809,10 @@ body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, v
 }
 /* A tablet STACKS the book over the room, so the book's foot is 38vh down,
    not the window's: on the window's foot the card lay over the room's views
-   (daily round, 2 Oct). It stands on the book's foot, the width of the book. */
-@media (min-width:761px) and (max-width:900px){
+   (daily round, 2 Oct). It stands on the book's foot, the width of the book.
+   Only where it stacks: a phone turned sideways keeps the two columns, and
+   there the card lay over the bar and the room (3 Oct). */
+@media (min-width:761px) and (max-width:900px) and (min-height:521px){
   .wb{left:0;right:0;width:auto;bottom:calc(100vh - var(--deck-h) - 38vh);}
 }
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--charcoal);color:#fff;padding:12px 20px;border-radius:var(--r-pill);font-weight:600;font-size:var(--fs-md);z-index:var(--z-toast);display:flex;align-items:center;gap:8px;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:var(--lift-1);}
@@ -4018,10 +4025,10 @@ const DEFAULT_DATA = {
   openings: [],
   guests: [],
   auditLog: [],
-  posState: { lastSyncAt: 0, lastError: '', version: null, connected: false },
+  posState: { lastSyncAt: 0, lastError: '', version: null, connected: false, wiped: 0 },
   // The relay link's last word: whether it answered, the booking page's
   // address it reported, and when the desk last told it what it may sell.
-  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0, released: [], gone: [], officeOffOwed: false, closeOwed: false },
+  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0, released: [], gone: [], officeOffOwed: false, closeOwed: false, closesOwed: [] },
 };
 
 function ensureStore() {
@@ -4366,9 +4373,18 @@ function fits(table, party, slack) { return table.seats >= party && table.seats 
 // The minute of the day it is NOW, when the question is about today and the
 // caller knows the clock (ctx.now) — else null, and the arithmetic is the
 // plan alone, as it always was.
+//
+// AFTER MIDNIGHT THE NIGHT IS STILL ITS OWN: until the day rolls
+// (dayStartsAt) twenty past twelve is minute 24:20 of the night before, and
+// read as nobody's minute the parties still in the chairs and the till's
+// walk-ins were offered to the next party (daily round, 3 Oct).
 function nowOn(ctx, day) {
   const n = ctx && ctx.now;
-  return n instanceof Date && localDay(n) === day ? n.getHours() * 60 + n.getMinutes() : null;
+  if (!(n instanceof Date)) return null;
+  const m = n.getHours() * 60 + n.getMinutes();
+  if (localDay(n) === day) return m;
+  const rolls = (ctx.settings && Number.isFinite(Number(ctx.settings.dayStartsAt)) ? Number(ctx.settings.dayStartsAt) : 4) * 60;
+  return m < rolls && localDay(new Date(n.getFullYear(), n.getMonth(), n.getDate() - 1)) === day ? m + 1440 : null;
 }
 
 // How long a booking holds its table. Its sitting — unless it has sat down
@@ -4590,7 +4606,10 @@ function autoAssign(ctx, day) {
   let around = live.filter(r => heldTables(r).length);
   const out = {};
   for (const r of loose) {
-    const sub = { settings: ctx.settings, tables: ctx.tables, reservations: around };
+    // With the clock: without it a party still in the chairs ended on paper
+    // and the till's walk-ins were nobody, so the desk laid a 2 on a table
+    // somebody was paying at (daily round, 3 Oct).
+    const sub = { settings: ctx.settings, tables: ctx.tables, reservations: around, now: ctx.now };
     const t = suggestTable(sub, day, hhmmOf(r.time), r.partySize, { duration: r.durationMin });
     // A NINE HAD NO PICK AT ALL until combinations existed: nothing single
     // fits it, so the book and the floor both carried a hole where the
@@ -6594,6 +6613,16 @@ function quietStatus(payload, remoteFields) {
   return payload;
 }
 
+// How many shared bookings a till has lost ALL of at once — 0 unless it is
+// three or more, every one of them (see reconcile). Asked before anything is
+// taken from a till as well: a till that has lost the book is the wrong one,
+// or a new one, and its room and its name are no more ours than its silence.
+function wipedOf(local, remote) {
+  const ids = new Set((remote || []).map(p => p && p.id));
+  const held = (local || []).filter(r => r.pos && r.pos.id && r.pos.hash && db.LIVE_STATUSES.includes(r.status));
+  return held.length >= WIPED_AT && held.every(r => !ids.has(r.pos.id)) ? held.length : 0;
+}
+
 function reconcile(local, remote, opts) {
   opts = opts || {};
   const now = opts.now || Date.now();
@@ -6624,8 +6653,8 @@ function reconcile(local, remote, opts) {
   // relinked, pushed or imported, and run() stops the pass with a reason a
   // person can act on. Three or more at once: one or two can be a till that
   // really did delete its last stale bookings.
-  const held = local.filter(r => r.pos && r.pos.id && r.pos.hash && db.LIVE_STATUSES.includes(r.status));
-  if (held.length >= WIPED_AT && held.every(r => !byPosId.has(r.pos.id))) return Object.assign(plan, { wiped: held.length });
+  const wiped = wipedOf(local, remote);
+  if (wiped) return Object.assign(plan, { wiped });
 
   for (const r of local) {
     const link = r.pos && r.pos.id ? r.pos : null;
@@ -6732,6 +6761,11 @@ function reconcile(local, remote, opts) {
 }
 
 // Carry the plan out. Returns a summary for the status card / log.
+function wipedError(n) {
+  const e = new Error(`The till has none of the ${n} bookings it shared with the desk — check the POS address. Nothing was changed.`);
+  e.wiped = n;
+  return e;
+}
 async function run(config, log) {
   const summary = { pulled: 0, pushed: 0, imported: 0, patched: 0, deleted: 0 };
   const remote = await pos.getReservations(config);
@@ -6743,7 +6777,7 @@ async function run(config, log) {
   const pending = (data.posState.pendingDeletes || []).slice();
   const tableLabel = history.tableLabeller((data.floorPlans || []).flatMap(fp => fp.tables || []));
   const plan = reconcile(data.reservations, remote, { push: config.pushBookings !== false, pendingDeletes: pending, tableLabel, settings: data.settings || {} });
-  if (plan.wiped) throw new Error(`The till has none of the ${plan.wiped} bookings it shared with the desk — check the POS address. Nothing was changed.`);
+  if (plan.wiped) throw wipedError(plan.wiped);
 
   // Local first — a POS write that fails must not lose a till-side change.
   let dirty = false;
@@ -6797,7 +6831,7 @@ async function run(config, log) {
   return summary;
 }
 
-module.exports = { reconcile, run };
+module.exports = { reconcile, run, wipedOf, wipedError };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./sync'] = module;
@@ -7703,8 +7737,19 @@ app.put('/api/settings', async (req, res) => {
     // Its own address and token are kept for it, since the settings no
     // longer hold them (daily round, 2 Oct).
     const moved = was.baseUrl !== s.relay.baseUrl || was.token !== s.relay.token;
-    if (wasOn && (moved || !relay.ready(s.relay))) data.relayState.closeOwed = was;
-    else if (relay.ready(s.relay)) data.relayState.closeOwed = false;
+    // A LIST, not one slot: a second save (the new relay's token typed after
+    // its address) overwrote the first close with a pair that never existed,
+    // and the old relay went on selling (daily round, 3 Oct).
+    const same = (c, x) => c && x && c.baseUrl === x.baseUrl && c.token === x.token;
+    let owed = (data.relayState.closesOwed || []).slice();
+    if (wasOn && (moved || !relay.ready(s.relay))) owed = owed.filter(c => !same(c, was)).concat([was]).slice(-5);
+    // Back on a relay a close was owed to: that one is not to be closed.
+    if (relay.ready(s.relay)) owed = owed.filter(c => !same(c, s.relay));
+    data.relayState.closesOwed = owed;
+    // Another relay is another venue there: its booking page is its own, and
+    // so is its office. The page address comes back from its first ping; the
+    // office is switched on there afresh, with a new code.
+    if (moved) { data.relayState.bookingPath = ''; s.relay.office = false; data.relayState.officeOffOwed = false; }
   }
   logAudit(data, staffFromReq(req), 'Updated settings');
   writeData(data);
@@ -8916,7 +8961,29 @@ app.post('/api/pos/test', async (req, res) => {
 app.post('/api/pos/sync', async (req, res) => {
   const data = readData();
   if (!pos.ready(data.settings.pos)) return res.status(400).json({ error: 'The POS link is off' });
-  try { res.json(await posPass(true)); } catch (e) { res.status(502).json({ error: e.message }); }
+  try {
+    const out = await posPass(true);
+    // A pass that stopped answers null: say why, not 200 null (the key read
+    // "Cannot read properties of null" — daily round, 3 Oct).
+    if (!out) return res.status(502).json({ error: readData().posState.lastError || 'The till did not answer' });
+    res.json(out);
+  } catch (e) { res.status(502).json({ error: e.message }); }
+});
+// THE WAY OUT OF A WIPED TILL. The pass stops rather than guess when the till
+// has lost every booking it shared — but when it IS the right till, restored
+// or reinstalled, nothing could ever clear the stop. A person says so: every
+// live booking, and every one from today on, forgets its link and is offered
+// to the till again; the past's finished rows keep theirs and go quietly.
+app.post('/api/pos/relink', async (req, res) => {
+  const data = readData();
+  const today = tradingDay(data);
+  let n = 0;
+  for (const r of data.reservations) if (r.pos && (av.isLive(r) || av.dayOf(r.time) >= today)) { r.pos = null; n++; }
+  data.posState.pendingDeletes = []; data.posState.wiped = 0;
+  logAudit(data, staffFromReq(req), `Sent the book to the till again (${n} bookings)`);
+  writeData(data);
+  res.json({ ok: true, relinked: n });
+  setTimeout(() => posPass(true), 10);
 });
 
 // One pass: pull the venue's shape when the POS store moved, then mirror
@@ -8939,6 +9006,13 @@ async function posPass(force) {
     }
     const moved = force || !data.posState.version || data.posState.version.store !== version.store;
     if (moved) {
+      // A till that has lost the whole book is not one to take a room, a name
+      // and a theme from either: the training till at the wrong address
+      // became the floor plan — three tables — before the pass stopped and
+      // said "Nothing was changed" (daily round, 3 Oct). Asked FIRST.
+      const remote = await pos.getReservations(cfg).catch(() => null);
+      const lost = Array.isArray(remote) ? sync.wipedOf(data.reservations, remote) : 0;
+      if (lost) throw sync.wipedError(lost);
       const [floorPlans, settings, theme, combos] = await Promise.all([
         cfg.useFloor !== false ? pos.getFloorPlans(cfg).catch(() => null) : null,
         pos.getSettings(cfg).catch(() => null),
@@ -8986,11 +9060,12 @@ async function posPass(force) {
       if (evs.length) r.events = history.append(r.events, evs);
     }
     for (const r of data.reservations) if (wasLive.has(r.id) && ['cancelled', 'no-show'].includes(r.status)) raiseOpening(data, r, 'cancelled on the POS', 'POS');
-    data.posState = Object.assign(data.posState, { connected: true, lastSyncAt: Date.now(), lastError: '', version, last: out });
+    data.posState = Object.assign(data.posState, { connected: true, lastSyncAt: Date.now(), lastError: '', wiped: 0, version, last: out });
     writeData(data);
   } catch (e) {
     const data = readData();
     data.posState.lastError = e.message; data.posState.connected = false;
+    data.posState.wiped = e.wiped || 0;   // Settings offers the way out (/api/pos/relink)
     writeData(data);
   } finally {
     _posBusy = false;
@@ -9193,19 +9268,33 @@ async function relayPass(forceGrant) {
     // queue stranded them, told "booked" and never in the diary — and then
     // one last grant with nothing in it. Asked again each pass until the
     // relay takes it. (`true` is the 1 Oct shape: the relay in Settings.)
-    const owed = data.relayState.closeOwed;
-    const old = owed && typeof owed === 'object' ? owed : owed ? cfg : null;
-    const same = old && relay.ready(cfg) && old.baseUrl === cfg.baseUrl && old.token === cfg.token;
-    if (old && !same && old.baseUrl && old.token) {
+    // Every relay owed a close is paid in turn, and its office is switched
+    // off too. The 1 Oct single slot (`closeOwed`) folds into the list. A
+    // relay that answers 401/403/404 cannot be closed with what we hold —
+    // a wrong token, a venue gone — and is let go rather than asked forever.
+    const legacy = data.relayState.closeOwed;
+    if (legacy) {
+      const l = typeof legacy === 'object' ? legacy : cfg;
+      data.relayState.closesOwed = (data.relayState.closesOwed || []).concat(l.baseUrl && l.token ? [{ baseUrl: l.baseUrl, token: l.token }] : []);
+      data.relayState.closeOwed = false; writeData(data);
+    }
+    const sameRelay = (c, x) => c.baseUrl === x.baseUrl && c.token === x.token;
+    const letGo = (c) => { data = readData(); data.relayState.closesOwed = (data.relayState.closesOwed || []).filter(x => !sameRelay(x, c)); writeData(data); };
+    for (const old of (data.relayState.closesOwed || []).slice()) {
+      if (!old.baseUrl || !old.token || (relay.ready(cfg) && sameRelay(old, cfg))) { letGo(old); continue; }
+      const oc = { enabled: true, baseUrl: old.baseUrl, token: old.token };
       try {
-        const oc = { enabled: true, baseUrl: old.baseUrl, token: old.token };
         await collectFrom(oc, (await relay.ping(oc)).waiting, out);
         data = readData();
         const ctx = ctxOf(data);
         ctx.settings = Object.assign({}, ctx.settings, { online: Object.assign({}, ctx.settings.online, { enabled: false }) });
-        await relay.grant(oc, relaysync.grantsFor(ctx, { now: new Date(), office: false }));
-        data = readData(); data.relayState.closeOwed = false; data.relayState.grantHash = ''; writeData(data);
-      } catch (e) {}
+        // `closed`: the relay refuses guests' changes from now on — a cancel
+        // there would sit in a queue nobody collects (3 Oct).
+        await relay.grant(oc, Object.assign(relaysync.grantsFor(ctx, { now: new Date(), office: false }), { closed: true }));
+        try { await relay.officeOff(oc); } catch (e) {}
+        letGo(old);
+        data = readData(); data.relayState.grantHash = ''; writeData(data);
+      } catch (e) { if ([401, 403, 404].includes(e.status)) letGo(old); }
     }
     if (!relay.ready(cfg)) {
       if (out.changed) kickPos();
