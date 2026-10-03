@@ -2306,6 +2306,26 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .wk-go button{height:48px;padding:0 16px;border:none;border-radius:var(--r-control);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-weight:800;font-size:var(--fs-md);}
 .wk-go .wk-go-ink{background:var(--text-primary);color:var(--surface);}
+/* ONE MOVE SEATS THEM (owner, Oct '26). One line in the room bar's own box
+   and strip, where no table stands: the move in the big words, the rest
+   beside it, the make keys' ink and grey. On a phone the words take a line
+   of their own above the keys, and the room keeps clear of both. */
+.mv-bar{position:absolute;right:12px;bottom:12px;z-index:3;display:flex;align-items:center;gap:4px;max-width:calc(100% - 24px);
+  padding:4px 4px 4px 16px;border-radius:var(--r-control);background:var(--surface);border:1px solid var(--steel-300);box-shadow:var(--lift-1);}
+.mv-say{display:flex;align-items:baseline;gap:12px;margin-right:8px;min-width:0;}
+.mv-say b{font-size:var(--fs-xl);font-weight:800;white-space:nowrap;color:var(--text-primary);font-variant-numeric:tabular-nums;}
+.mv-say span{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.mv-bar > button{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
+  color:var(--text-primary);font:inherit;font-weight:800;font-size:var(--fs-md);white-space:nowrap;}
+.mv-bar > .mv-go{background:var(--text-primary);color:var(--surface);}
+.mv-bar > .mv-x{width:var(--tap);padding:0;display:flex;align-items:center;justify-content:center;}
+.mv-x svg{width:20px;height:20px;}
+@media (max-width:760px){
+  .mv-bar{left:8px;right:8px;bottom:8px;max-width:none;flex-wrap:wrap;padding:4px;}
+  .mv-say{flex:1 1 100%;flex-wrap:wrap;row-gap:0;padding:4px 8px;margin:0;}
+  .mv-bar > button:not(.mv-x){flex:1 1 0;}
+  .fl-box.mv > .fl-wrap{padding-bottom:calc(2 * var(--tap) + 64px);}
+}
 .wk-chg{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-weight:700;font-size:var(--fs-md);}
 
@@ -4736,6 +4756,56 @@ function walkinNext(ctx, day, hhmm, party) {
   return null;
 }
 
+// ONE MOVE SEATS THEM (owner, Oct '26: "First idea"). A party nothing can
+// place — not the desk, not autoAssign() — is the one row on the book that
+// will not sort itself out, and its Assign key used to turn the whole room
+// quiet and say nothing. Very often ONE other booking is all that is in the
+// way: Patel's four on 46 is the only thing between a nine and 44 + 45 + 46,
+// and 42 is free for Patel. A host who knows the room by heart finds that;
+// this finds it for the one who does not.
+//
+// Asked of the HELD book (the desk's own picks placed), so the answer is the
+// room the floor is drawing. One table first, the tightest that fits; a
+// stated combination only when no one table will do — the rule everywhere
+// else. A set is a candidate when exactly ONE booking holds it at their time
+// and it is free once that booking is gone (the till's walk-ins included).
+// That booking must be movable: nobody here yet, not sat, not standing in
+// the room. And it must have somewhere to go — one table that fits it, else
+// a stated combination — with the party already placed. The first that works
+// is the answer; null when none does. Nothing is guessed: no join that is not
+// stated, no second move.
+function oneMove(ctx, r) {
+  if (!r || !isLive(r) || heldTables(r).length) return null;
+  const day = dayOf(r.time), hhmm = hhmmOf(r.time), party = r.partySize;
+  const book = heldBook(ctx, day);
+  const me = (book.reservations || []).find(x => x.id === r.id);
+  if (!me || heldTables(me).length) return null;
+  const slack = ctx.settings.seatSlack === undefined ? 2 : ctx.settings.seatSlack;
+  const dur = durationFor(ctx.settings, party, r.durationMin);
+  const byLabel = (a, b) => (parseInt(a.label) - parseInt(b.label)) || String(a.label).localeCompare(String(b.label));
+  const singles = (ctx.tables || []).filter(t => fits(t, party, slack)).sort((a, b) => (a.seats - b.seats) || byLabel(a, b)).map(t => [t.id]);
+  const combos = combosOf(ctx).filter(c => comboSeats(ctx, c) >= party)
+    .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length)).map(c => c.tables.slice());
+  for (const set of singles.concat(combos)) {
+    const holders = new Map();
+    for (const id of set) for (const h of holdersOf(book, id, day, minsOf(r.time), dur, r.id)) holders.set(h.id, h);
+    if (holders.size !== 1) continue;
+    const b = [...holders.values()][0];
+    if (isSat(b) || isHere(b)) continue;
+    const without = Object.assign({}, book, { reservations: book.reservations.filter(x => x.id !== b.id) });
+    const free = new Set(freeTables(without, day, hhmm, party, { ignoreId: r.id, duration: r.durationMin }).map(t => t.id));
+    if (!set.every(id => free.has(id))) continue;
+    const placed = Object.assign({}, without, { reservations: without.reservations.map(x => x.id === r.id ? Object.assign({}, x, { tableId: set[0], tableIds: set.slice(1) }) : x) });
+    const bAt = hhmmOf(b.time), bOpts = { ignoreId: b.id, duration: b.durationMin };
+    const one = freeTables(placed, day, bAt, b.partySize, bOpts).filter(t => !set.includes(t.id) && fits(t, b.partySize, slack))
+      .sort((x, y) => (x.seats - y.seats) || byLabel(x, y))[0];
+    const to = one ? [one.id] : ((freeCombos(placed, day, bAt, b.partySize, bOpts).find(c => !c.tables.some(id => set.includes(id))) || {}).tables || []).slice();
+    if (!to.length) continue;
+    return { tables: set, move: { id: b.id, name: b.name || '', partySize: b.partySize, time: b.time, from: heldTables(b), to } };
+  }
+  return null;
+}
+
 // §§ What a table is doing
 //
 // Four states became seven, because four of them answered "is somebody on
@@ -5594,7 +5664,7 @@ module.exports = {
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkinTables, walkinNext, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkinTables, walkinNext, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -8273,6 +8343,17 @@ app.get('/api/free-tables', (req, res) => {
   const free = new Set(av.freeTables(ctx, day, hhmm, party, opts).map(t => t.id));
   const best = av.suggestTable(ctx, day, hhmm, party, opts);
   res.json({ tables: ctx.tables.map(t => ({ id: t.id, label: t.label, seats: t.seats, floor: t.floor, name: t.name, free: free.has(t.id), fits: av.fits(t, party, ctx.settings.seatSlack) })), suggested: best ? best.id : null });
+});
+
+// The one move that seats a party nothing can place (av.oneMove): which
+// tables they would take, and which booking goes where to free them. Asked
+// when Assign is pressed on that party; nothing is written here — the desk
+// makes the move with the pick's own PUTs, so Undo is the same two PUTs back.
+app.get('/api/one-move', (req, res) => {
+  const data = readData();
+  const r = data.reservations.find(x => x.id === String(req.query.id || ''));
+  if (!r) return res.status(404).json({ error: 'Booking not found' });
+  res.json(av.oneMove(ctxOf(data), r) || { tables: [], move: null });
 });
 
 // ---------- what the guest spent (the till's orders, read only) ----------

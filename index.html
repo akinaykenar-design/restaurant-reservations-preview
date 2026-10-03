@@ -2321,6 +2321,26 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .wk-go button{height:48px;padding:0 16px;border:none;border-radius:var(--r-control);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-weight:800;font-size:var(--fs-md);}
 .wk-go .wk-go-ink{background:var(--text-primary);color:var(--surface);}
+/* ONE MOVE SEATS THEM (owner, Oct '26). One line in the room bar's own box
+   and strip, where no table stands: the move in the big words, the rest
+   beside it, the make keys' ink and grey. On a phone the words take a line
+   of their own above the keys, and the room keeps clear of both. */
+.mv-bar{position:absolute;right:12px;bottom:12px;z-index:3;display:flex;align-items:center;gap:4px;max-width:calc(100% - 24px);
+  padding:4px 4px 4px 16px;border-radius:var(--r-control);background:var(--surface);border:1px solid var(--steel-300);box-shadow:var(--lift-1);}
+.mv-say{display:flex;align-items:baseline;gap:12px;margin-right:8px;min-width:0;}
+.mv-say b{font-size:var(--fs-xl);font-weight:800;white-space:nowrap;color:var(--text-primary);font-variant-numeric:tabular-nums;}
+.mv-say span{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.mv-bar > button{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
+  color:var(--text-primary);font:inherit;font-weight:800;font-size:var(--fs-md);white-space:nowrap;}
+.mv-bar > .mv-go{background:var(--text-primary);color:var(--surface);}
+.mv-bar > .mv-x{width:var(--tap);padding:0;display:flex;align-items:center;justify-content:center;}
+.mv-x svg{width:20px;height:20px;}
+@media (max-width:760px){
+  .mv-bar{left:8px;right:8px;bottom:8px;max-width:none;flex-wrap:wrap;padding:4px;}
+  .mv-say{flex:1 1 100%;flex-wrap:wrap;row-gap:0;padding:4px 8px;margin:0;}
+  .mv-bar > button:not(.mv-x){flex:1 1 0;}
+  .fl-box.mv > .fl-wrap{padding-bottom:calc(2 * var(--tap) + 64px);}
+}
 .wk-chg{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-weight:700;font-size:var(--fs-md);}
 
@@ -4750,6 +4770,56 @@ function walkinNext(ctx, day, hhmm, party) {
   return null;
 }
 
+// ONE MOVE SEATS THEM (owner, Oct '26: "First idea"). A party nothing can
+// place — not the desk, not autoAssign() — is the one row on the book that
+// will not sort itself out, and its Assign key used to turn the whole room
+// quiet and say nothing. Very often ONE other booking is all that is in the
+// way: Patel's four on 46 is the only thing between a nine and 44 + 45 + 46,
+// and 42 is free for Patel. A host who knows the room by heart finds that;
+// this finds it for the one who does not.
+//
+// Asked of the HELD book (the desk's own picks placed), so the answer is the
+// room the floor is drawing. One table first, the tightest that fits; a
+// stated combination only when no one table will do — the rule everywhere
+// else. A set is a candidate when exactly ONE booking holds it at their time
+// and it is free once that booking is gone (the till's walk-ins included).
+// That booking must be movable: nobody here yet, not sat, not standing in
+// the room. And it must have somewhere to go — one table that fits it, else
+// a stated combination — with the party already placed. The first that works
+// is the answer; null when none does. Nothing is guessed: no join that is not
+// stated, no second move.
+function oneMove(ctx, r) {
+  if (!r || !isLive(r) || heldTables(r).length) return null;
+  const day = dayOf(r.time), hhmm = hhmmOf(r.time), party = r.partySize;
+  const book = heldBook(ctx, day);
+  const me = (book.reservations || []).find(x => x.id === r.id);
+  if (!me || heldTables(me).length) return null;
+  const slack = ctx.settings.seatSlack === undefined ? 2 : ctx.settings.seatSlack;
+  const dur = durationFor(ctx.settings, party, r.durationMin);
+  const byLabel = (a, b) => (parseInt(a.label) - parseInt(b.label)) || String(a.label).localeCompare(String(b.label));
+  const singles = (ctx.tables || []).filter(t => fits(t, party, slack)).sort((a, b) => (a.seats - b.seats) || byLabel(a, b)).map(t => [t.id]);
+  const combos = combosOf(ctx).filter(c => comboSeats(ctx, c) >= party)
+    .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length)).map(c => c.tables.slice());
+  for (const set of singles.concat(combos)) {
+    const holders = new Map();
+    for (const id of set) for (const h of holdersOf(book, id, day, minsOf(r.time), dur, r.id)) holders.set(h.id, h);
+    if (holders.size !== 1) continue;
+    const b = [...holders.values()][0];
+    if (isSat(b) || isHere(b)) continue;
+    const without = Object.assign({}, book, { reservations: book.reservations.filter(x => x.id !== b.id) });
+    const free = new Set(freeTables(without, day, hhmm, party, { ignoreId: r.id, duration: r.durationMin }).map(t => t.id));
+    if (!set.every(id => free.has(id))) continue;
+    const placed = Object.assign({}, without, { reservations: without.reservations.map(x => x.id === r.id ? Object.assign({}, x, { tableId: set[0], tableIds: set.slice(1) }) : x) });
+    const bAt = hhmmOf(b.time), bOpts = { ignoreId: b.id, duration: b.durationMin };
+    const one = freeTables(placed, day, bAt, b.partySize, bOpts).filter(t => !set.includes(t.id) && fits(t, b.partySize, slack))
+      .sort((x, y) => (x.seats - y.seats) || byLabel(x, y))[0];
+    const to = one ? [one.id] : ((freeCombos(placed, day, bAt, b.partySize, bOpts).find(c => !c.tables.some(id => set.includes(id))) || {}).tables || []).slice();
+    if (!to.length) continue;
+    return { tables: set, move: { id: b.id, name: b.name || '', partySize: b.partySize, time: b.time, from: heldTables(b), to } };
+  }
+  return null;
+}
+
 // §§ What a table is doing
 //
 // Four states became seven, because four of them answered "is somebody on
@@ -5608,7 +5678,7 @@ module.exports = {
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkinTables, walkinNext, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkinTables, walkinNext, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -8289,6 +8359,17 @@ app.get('/api/free-tables', (req, res) => {
   res.json({ tables: ctx.tables.map(t => ({ id: t.id, label: t.label, seats: t.seats, floor: t.floor, name: t.name, free: free.has(t.id), fits: av.fits(t, party, ctx.settings.seatSlack) })), suggested: best ? best.id : null });
 });
 
+// The one move that seats a party nothing can place (av.oneMove): which
+// tables they would take, and which booking goes where to free them. Asked
+// when Assign is pressed on that party; nothing is written here — the desk
+// makes the move with the pick's own PUTs, so Undo is the same two PUTs back.
+app.get('/api/one-move', (req, res) => {
+  const data = readData();
+  const r = data.reservations.find(x => x.id === String(req.query.id || ''));
+  if (!r) return res.status(404).json({ error: 'Booking not found' });
+  res.json(av.oneMove(ctxOf(data), r) || { tables: [], move: null });
+});
+
 // ---------- what the guest spent (the till's orders, read only) ----------
 // This is the ONE call in the POS link that is deliberately NOT on the
 // 8-second pass, and the only one that is streamed. The POS has no filtered
@@ -10699,6 +10780,24 @@ function walkinNextHtml(d) {
     <div class="wk-go"><button class="wk-go-ink" data-act="walkin-wait">Wait list</button><button data-act="walkin-book">Book ${esc(at.replace(/\s?[AP]M$/i, ''))}</button></div>
   </div>`;
 }
+// ONE MOVE SEATS THEM (owner, Oct '26: "First idea"). One line where the
+// room bar stands while the room is the picker for a party nothing can place
+// — the bar has nothing to say then, and this is the next step. The move is
+// the big words ("46 → 14"), who moves and what the party gets beside it,
+// then the two keys. ONE LINE because the room bar's strip is the only part
+// of the floor no table stands in: a taller box sat on table 46, the very
+// table the move is about. With no move to make it says so, rather than
+// leaving a quiet room to explain itself.
+function moveOfferHtml(r, mv) {
+  const labels = (ids) => ids.map(tableName).join(' + ');
+  if (!mv) return `<div class="mv-bar" role="status"><div class="mv-say"><span>No one move frees a table for ${esc(r.name || 'them')}</span></div>
+    <button class="mv-x" data-act="pick-off" aria-label="Close">${I.cross}</button></div>`;
+  const m = mv.move, from = m.from.filter(id => mv.tables.includes(id));
+  return `<div class="mv-bar" role="group" aria-label="One move seats them">
+    <div class="mv-say"><b>${esc(labels(from.length ? from : m.from))} → ${esc(labels(m.to))}</b><span>${esc(m.name || 'A booking')}, ${m.partySize} at ${esc(fmtHHMM(hhmmOf(m.time)))} · then ${esc(r.name || 'they')} on ${esc(labels(mv.tables))}</span></div>
+    <button class="mv-go" data-act="one-move" data-id="${esc(r.id)}">Move and seat</button><button data-act="pick-off">Not now</button>
+  </div>`;
+}
 // "65 min", "1 hr 30": a wait read out to somebody standing at the door.
 function waitWords(m) { return m < 90 ? m + ' min' : Math.floor(m / 60) + ' hr' + (m % 60 ? ' ' + (m % 60) : ''); }
 // THE VIEWS STAND ON THE ROOM, THE TILL'S WAY (owner, Sep '26, from the v10
@@ -11045,6 +11144,10 @@ function renderFloor() {
   // refused it.
   const pkRoom = (x) => !pkBook || x.seats >= pkBook.partySize || tlRules().onSmall === 'warn';
   const pkFree = pk ? new Set(pk.free.tables.filter(x => x.free && pkRoom(x)).map(x => x.id)) : null;
+  // Nothing they can be pressed onto and nothing theirs: the dead end the
+  // move is for. Anywhere else the room is the picker it always was.
+  const pkStuck = !!pkBook && !pkMine.length && !pkFree.size;
+  const pkMove = pkStuck && pk.move ? pk.move : null;
 
   // ONE ROOM AT A TIME. The desk used to stack every floor plan down the pane
   // with a heading over each, so a venue with an Inside and an Outside got two
@@ -11054,7 +11157,7 @@ function renderFloor() {
   // A TABLE ON SCREEN OUTRANKS THE PICK: ringing a table or putting the room
   // into the picker follows the booking to whichever room its tables are in,
   // because a ring nobody can see is the floor saying nothing at all.
-  const want = state.highlightTable || (pk ? pkMine[0] : null);
+  const want = state.highlightTable || (pk ? pkMine[0] || (pkMove && pkMove.tables[0]) : null);
   const holder = want ? rooms.find(x => (x.tables || []).some(t => t.id === want)) : null;
   const fp = holder || rooms.find(x => x.id === state.plan)
     || rooms.find(x => (x.tables || []).length) || rooms[0];
@@ -11109,21 +11212,28 @@ function renderFloor() {
     // accent ring is the floor saying "chosen" about two tables at once.
     const mine = pk ? pkMine.includes(t.id) : false;
     const canPick = pk ? (mine || pkFree.has(t.id)) : false;
+    // ONE MOVE SEATS THEM: the tables the move frees are lit the walk-in's
+    // way (they can take them) and a press on one makes the move; the table
+    // in the way says, on the floor's own pill, where its booking goes.
+    const mvSet = pkMove && pkMove.tables.includes(t.id);
+    const mvFrom = pkMove && pkMove.move.from.includes(t.id);
     const ring = pk ? mine : state.highlightTable === t.id;
     // A WALK-IN IS BEING SEATED: the tables that can take them are the only
     // keys, the rest go quiet — the picker's own grammar, asked of the door.
     const wk = !pk && state.walkin && state.walkin.data ? state.walkin.data.tables.find(x => x.id === t.id) : null;
     const wkOn = !pk && !!(state.walkin && state.walkin.data);
-    const act = pk ? (canPick ? `data-act="pick-seat" data-id="${esc(pk.id)}" data-table="${esc(t.id)}"` : 'disabled')
+    const act = pk ? (mvSet ? `data-act="one-move" data-id="${esc(pk.id)}"` : canPick ? `data-act="pick-seat" data-id="${esc(pk.id)}" data-table="${esc(t.id)}"` : 'disabled')
       : wkOn ? (wk ? `data-act="walkin-seat" data-table="${esc(t.id)}"` : 'disabled')
       : `data-act="${r ? 'edit-booking' : 'new-at'}" ${r ? `data-id="${esc(r.id)}"` : `data-time="${esc(at)}" data-table="${esc(t.id)}"`}`;
     const pkWhy = !pk ? why
+      : mvSet ? `Move ${pkMove.move.name || 'the booking'} to ${pkMove.move.to.map(tableName).join(' + ')} and seat ${pkBook.name || 'them'} on ${pkMove.tables.map(tableName).join(' + ')}`
       : mine ? `Table ${t.label} — theirs already`
         : canPick ? `Put ${pkBook.name || 'them'} on table ${t.label} · ${t.seats} seats${pk.free.suggested === t.id ? ' · best fit' : ''}`
           : `Table ${t.label} — taken at ${hhmmOf(pkBook.time)}`;
-    const wkCls = !wkOn ? '' : wk ? (wk.until ? ' wk-short' : ' wk-ok') : ' wk-no';
+    const wkCls = mvSet ? ' wk-ok' : !wkOn ? '' : wk ? (wk.until ? ' wk-short' : ' wk-ok') : ' wk-no';
     const wkPill = wk && wk.until ? pillHtml(t, '', 'till ' + esc(fmtHHMM(wk.until)), `Table ${t.label} — booked at ${fmtHHMM(wk.until)}`) : '';
-    const pill = wkOn ? wkPill : floorPill(t, f, at);
+    const pill = mvFrom ? pillHtml(t, '', esc((pkMove.move.name || 'Booking') + ' → ' + pkMove.move.to.map(tableName).join(' + ')), `${pkMove.move.name || 'Booking'} moves to ${pkMove.move.to.map(tableName).join(' + ')}`)
+      : wkOn ? wkPill : floorPill(t, f, at);
     return `<button class="fl-table ${f.state}${wkCls}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
       ${act}
       title="${esc(pkWhy)}">
@@ -11170,9 +11280,9 @@ function renderFloor() {
     : ''}${lensChip}</div></div>`;
   return `
   ${fp ? `
-    <div class="fl-box"><div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : ''}><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
+    <div class="fl-box${pkStuck ? ' mv' : ''}"><div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : ''}><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
       ${(() => { const hug = placed ? floorHug(fp) : null; return (fp.tables || []).map(t => hug ? hugObject(t, hug) : t).map(tableEl).join(''); })()}
-    </div></div></div>${renderViewDock()}${bar}</div>`
+    </div></div></div>${renderViewDock()}${pkStuck ? moveOfferHtml(pkBook, pkMove) : bar}</div>`
     : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>' + renderViewDock()}
   ${placed ? renderPace() : ''}`;
 }
@@ -11213,7 +11323,7 @@ let flGest = null;
 // leaves it where it was put.
 function showRinged() {
   const wrap = document.querySelector('.desk-main .fl-wrap');
-  const t = wrap && wrap.querySelector('.fl-table.picked');
+  const t = wrap && wrap.querySelector('.fl-table.picked, .fl-table.wk-ok');
   if (!t || wrap.scrollWidth <= wrap.clientWidth + 1) return;
   const w = wrap.getBoundingClientRect(), b = t.getBoundingClientRect();
   if (b.left >= w.left && b.right <= w.right) return;
@@ -13577,9 +13687,35 @@ document.addEventListener('click', async (ev) => {
         state.picking = { id, free: null };
         render();
         try {
-          const free = await api('/api/free-tables?' + pickQuery(r, Date.now()));
-          if (state.picking && state.picking.id === id) { state.picking.free = free; render(); showRinged(); }
+          // ONE MOVE SEATS THEM: a party nothing has placed is asked the
+          // move as well, in the same breath, so the room never draws quiet
+          // first and then changes its mind.
+          const [free, move] = await Promise.all([api('/api/free-tables?' + pickQuery(r, Date.now())),
+            tablesFor(r).length ? null : api('/api/one-move?id=' + encodeURIComponent(id)).catch(() => null)]);
+          if (state.picking && state.picking.id === id) { state.picking.free = free; state.picking.move = move && move.move ? move : null; render(); showRinged(); }
         } catch (e) { state.picking = null; render(); toastBad('Could not ask which tables are free'); }
+        break;
+      }
+      // Move and seat: the booking in the way goes where the move said, then
+      // the party lands on the tables it freed — the pick's own PUTs, so the
+      // record says "The desk" twice and Undo is the same two PUTs back.
+      case 'one-move': {
+        const pk = state.picking, mv = pk && pk.id === id ? pk.move : null;
+        const r = (state.reservations || []).find(x => x.id === id);
+        const b = mv && (state.reservations || []).find(x => x.id === mv.move.id);
+        if (!mv || !r || !b) { state.picking = null; render(); toastBad('That booking has gone'); break; }
+        const wasB = { tableId: b.tableId || null, tableIds: (b.tableIds || []).slice() };
+        state.picking = null; render();
+        try {
+          await put('/api/reservations/' + b.id, { tableId: mv.move.to[0], tableIds: mv.move.to.slice(1) });
+          await put('/api/reservations/' + r.id, { tableId: mv.tables[0], tableIds: mv.tables.slice(1) });
+          await loadView(); render();
+          toastUndo(`${b.name || 'Booking'} to ${mv.move.to.map(tableName).join(' + ')} · ${r.name || 'Booking'} on ${mv.tables.map(tableName).join(' + ')}`, async () => {
+            await put('/api/reservations/' + r.id, { tableId: null, tableIds: [] });
+            await put('/api/reservations/' + b.id, wasB);
+            await loadView();
+          });
+        } catch (e) { await loadView().catch(() => {}); render(); toastBad(e.message); }
         break;
       }
       // Pressed on the floor while picking. Theirs already = put it back, so
