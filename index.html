@@ -2328,8 +2328,11 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .mv-bar{position:absolute;right:12px;bottom:12px;z-index:3;display:flex;align-items:center;gap:4px;max-width:calc(100% - 24px);
   padding:4px 4px 4px 16px;border-radius:var(--r-control);background:var(--surface);border:1px solid var(--steel-300);box-shadow:var(--lift-1);}
 .mv-say{display:flex;align-items:baseline;gap:12px;margin-right:8px;min-width:0;}
+/* ONE LINE AT ANY NAME: the words cut with an ellipsis (the whole sentence
+   is on the hover) rather than wrap — "Harrington-Whitfield" took the line
+   to four and sat on the table the move frees (daily round, 4 Oct). */
 .mv-say b{font-size:var(--fs-xl);font-weight:800;white-space:nowrap;color:var(--text-primary);font-variant-numeric:tabular-nums;}
-.mv-say span{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.mv-say span{min-width:0;font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .mv-bar > button{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-weight:800;font-size:var(--fs-md);white-space:nowrap;}
 .mv-bar > .mv-go{background:var(--text-primary);color:var(--surface);}
@@ -2337,9 +2340,21 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .mv-x svg{width:20px;height:20px;}
 @media (max-width:760px){
   .mv-bar{left:8px;right:8px;bottom:8px;max-width:none;flex-wrap:wrap;padding:4px;}
-  .mv-say{flex:1 1 100%;flex-wrap:wrap;row-gap:0;padding:4px 8px;margin:0;}
+  .mv-say{flex:1 1 100%;padding:4px 8px;margin:0;}
   .mv-bar > button:not(.mv-x){flex:1 1 0;}
-  .fl-box.mv > .fl-wrap{padding-bottom:calc(2 * var(--tap) + 64px);}
+  .fl-box.mv > .fl-wrap{padding-bottom:calc(var(--tap) + 64px);}
+}
+/* A PHONE TURNED SIDEWAYS keeps its room: the room is sized off a height of
+   about 150 there, and keeping two lines clear left it nothing — the room
+   went to 0x0 under the very line that names its tables (4 Oct). The move
+   and the two keys at the right, like the room bar, and the scroll brings
+   out what it covers; who moves is on the lit table's own pill. */
+@media (max-width:760px) and (max-height:500px){
+  .mv-bar{left:auto;right:8px;max-width:calc(100% - 16px);flex-wrap:nowrap;padding:4px 4px 4px 12px;}
+  .mv-say{flex:none;padding:0;margin-right:8px;}
+  .mv-bar:has(.mv-go) .mv-say span{display:none;}
+  .mv-bar > button:not(.mv-x){flex:none;}
+  .fl-box.mv > .fl-wrap{padding-bottom:0;}
 }
 .wk-chg{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-weight:700;font-size:var(--fs-md);}
@@ -4431,11 +4446,32 @@ function heldFor(ctx, r, now) {
   return now !== null && isSat(r) ? Math.max(d, now + 1 - minsOf(r.time)) : d;
 }
 
+// IN THE ROOM EARLY IS IN THE ROOM. A party sat, or standing at the door,
+// before its booked time holds its table from NOW, not from the hour it
+// booked: Moss sat at 7:46 for 8:00 and the walk-in menu put strangers on 43
+// with a green toast (daily round, 4 Oct). Only the start moves; the end is
+// still the booked sitting's, or later for a sat party running over.
+function heldFrom(r, now) {
+  const s = minsOf(r.time);
+  return now !== null && (isSat(r) || isHere(r)) && now < s ? now : s;
+}
 // Bookings that hold a table at this moment on this day.
 function holdersOf(ctx, tableId, day, startMin, dur, ignoreId) {
   const now = nowOn(ctx, day);
   return (ctx.reservations || []).filter(r => r.id !== ignoreId && isLive(r) && dayOf(r.time) === day && heldTables(r).includes(tableId)
-    && overlaps(startMin, dur, minsOf(r.time), heldFor(ctx, r, now)));
+    && overlaps(startMin, dur, heldFrom(r, now), heldFor(ctx, r, now) + minsOf(r.time) - heldFrom(r, now)));
+}
+// Where a party's OWN sitting is asked from: now, for one already in the room
+// tonight — sat, or arrived early or late — and its booked hour otherwise.
+// pickQuery()'s rule on the desk, so the desk's own pick and the one move
+// ask the same question the table key does: Tanaka in at 7:46 for 8:15 was
+// laid on 44 where Grant was eating, and a party in early was given a table
+// people were still paying at (4 Oct).
+function askFrom(ctx, r) {
+  const day = dayOf(r.time), now = nowOn(ctx, day), s = minsOf(r.time);
+  if (now === null || !(isSat(r) || isHere(r))) return { hhmm: hhmmOf(r.time), duration: r.durationMin || null };
+  const d = durationFor(ctx.settings, r.partySize, r.durationMin);
+  return { hhmm: pad2(Math.floor(now / 60)) + ':' + pad2(now % 60), duration: isSat(r) && now > s ? Math.max(15, d - (now - s)) : d };
 }
 
 // Tables with nobody on them for this party at this time.
@@ -4644,7 +4680,8 @@ function autoAssign(ctx, day) {
     // and the till's walk-ins were nobody, so the desk laid a 2 on a table
     // somebody was paying at (daily round, 3 Oct).
     const sub = { settings: ctx.settings, tables: ctx.tables, reservations: around, now: ctx.now };
-    const t = suggestTable(sub, day, hhmmOf(r.time), r.partySize, { duration: r.durationMin });
+    const ask = askFrom(ctx, r);
+    const t = suggestTable(sub, day, ask.hhmm, r.partySize, { duration: ask.duration });
     // A NINE HAD NO PICK AT ALL until combinations existed: nothing single
     // fits it, so the book and the floor both carried a hole where the
     // biggest party of the night should have been. A stated combination is
@@ -4652,7 +4689,7 @@ function autoAssign(ctx, day) {
     // old guess, because a pick nobody asked for that puts a nine on two
     // tables at opposite ends of the room is worse than the hole was.
     const ids = t ? [t.id] : (combosOf(ctx).length
-      ? ((freeCombos(sub, day, hhmmOf(r.time), r.partySize, { duration: r.durationMin })[0] || {}).tables || [])
+      ? ((freeCombos(sub, day, ask.hhmm, r.partySize, { duration: ask.duration })[0] || {}).tables || [])
       : []);
     out[r.id] = ids.slice();
     if (ids.length) around = around.concat([Object.assign({}, r, { tableId: ids[0], tableIds: ids.slice(1) })]);
@@ -4790,24 +4827,24 @@ function walkinNext(ctx, day, hhmm, party) {
 // stated, no second move.
 function oneMove(ctx, r) {
   if (!r || !isLive(r) || heldTables(r).length) return null;
-  const day = dayOf(r.time), hhmm = hhmmOf(r.time), party = r.partySize;
+  const day = dayOf(r.time), ask = askFrom(ctx, r), hhmm = ask.hhmm, party = r.partySize;
   const book = heldBook(ctx, day);
   const me = (book.reservations || []).find(x => x.id === r.id);
   if (!me || heldTables(me).length) return null;
   const slack = ctx.settings.seatSlack === undefined ? 2 : ctx.settings.seatSlack;
-  const dur = durationFor(ctx.settings, party, r.durationMin);
+  const dur = durationFor(ctx.settings, party, ask.duration);
   const byLabel = (a, b) => (parseInt(a.label) - parseInt(b.label)) || String(a.label).localeCompare(String(b.label));
   const singles = (ctx.tables || []).filter(t => fits(t, party, slack)).sort((a, b) => (a.seats - b.seats) || byLabel(a, b)).map(t => [t.id]);
   const combos = combosOf(ctx).filter(c => comboSeats(ctx, c) >= party)
     .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length)).map(c => c.tables.slice());
   for (const set of singles.concat(combos)) {
     const holders = new Map();
-    for (const id of set) for (const h of holdersOf(book, id, day, minsOf(r.time), dur, r.id)) holders.set(h.id, h);
+    for (const id of set) for (const h of holdersOf(book, id, day, toMin(hhmm), dur, r.id)) holders.set(h.id, h);
     if (holders.size !== 1) continue;
     const b = [...holders.values()][0];
     if (isSat(b) || isHere(b)) continue;
     const without = Object.assign({}, book, { reservations: book.reservations.filter(x => x.id !== b.id) });
-    const free = new Set(freeTables(without, day, hhmm, party, { ignoreId: r.id, duration: r.durationMin }).map(t => t.id));
+    const free = new Set(freeTables(without, day, hhmm, party, { ignoreId: r.id, duration: ask.duration }).map(t => t.id));
     if (!set.every(id => free.has(id))) continue;
     const placed = Object.assign({}, without, { reservations: without.reservations.map(x => x.id === r.id ? Object.assign({}, x, { tableId: set[0], tableIds: set.slice(1) }) : x) });
     const bAt = hhmmOf(b.time), bOpts = { ignoreId: b.id, duration: b.durationMin };
@@ -4874,10 +4911,12 @@ function floorAt(ctx, day, hhmm, opts) {
     // The booking whose sitting covers this minute. A booking that has sat
     // down and run past its time still holds the table — that IS the point of
     // `over`, so the window is extended for a seated one until it is done.
+    // On the LIVE floor a party in the room before its time is on its table
+    // now (heldFrom's rule): Moss sat at 7:46 for 8:00 was drawn free.
     const on = held.find(r => {
       const s = minsOf(r.time);
       const end = s + durOf(r);
-      return s <= at && (at < end || (isSat(r) && at >= end));
+      return (s <= at && (at < end || (isSat(r) && at >= end))) || (opts.live === true && (isSat(r) || isHere(r)) && at < s);
     }) || null;
     const next = held.find(r => minsOf(r.time) > at) || null;
     const nextAt = next ? hhmmOf(next.time) : null;
@@ -5677,7 +5716,7 @@ function runSheet(ctx, day, opts) {
 module.exports = {
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
-  LIVE, isLive, durationFor, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
+  LIVE, isLive, durationFor, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, walkinTables, walkinNext, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
@@ -7834,6 +7873,11 @@ app.put('/api/settings', async (req, res) => {
     // so is its office. The page address comes back from its first ping; the
     // office is switched on there afresh, with a new code.
     if (moved) { data.relayState.bookingPath = ''; s.relay.office = false; data.relayState.officeOffOwed = false; }
+    // SWITCHED OFF IS SWITCHED OFF HERE TOO. The close turns the office off
+    // on the relay; the desk went on saying it was on, with its link, while
+    // the office page said "not switched on" (daily round, 4 Oct). Back on,
+    // the office is switched on afresh, with a new code, as after a move.
+    if (wasOn && !relay.ready(s.relay)) { s.relay.office = false; data.relayState.officeOffOwed = false; }
   }
   logAudit(data, staffFromReq(req), 'Updated settings');
   writeData(data);
@@ -9028,7 +9072,9 @@ app.get('/api/today', (req, res) => {
   // The room as it stands this minute, from the same function the floor plan
   // draws from: free tables, tables running over, and tables held by somebody
   // who has not sat down. It is the number a host looks up for.
-  const floor = av.floorAt(ctx, day, av.hhmmOf(av.localTime(new Date())));
+  // The NIGHT's minute: after midnight 0:20 is 24:20 of the night before.
+  const m = av.nowOn(ctx, day);
+  const floor = av.floorAt(ctx, day, m === null ? av.hhmmOf(av.localTime(new Date())) : av.pad2(Math.floor(m / 60)) + ':' + av.pad2(m % 60), { live: true });
   const count = (st) => floor.filter(f => f.state === st).length;
   res.json({
     date: day, bookings: live.length, covers: live.reduce((n, r) => n + r.partySize, 0),
@@ -9411,8 +9457,9 @@ async function relayPass(forceGrant) {
       { now: new Date(), accent: (data.theme && data.theme.accent) || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel });
     const hash = crypto.createHash('sha1').update(JSON.stringify(body)).digest('hex');
     const st = data.relayState;
+    let said = null;
     if (forceGrant || out.changed || hash !== st.grantHash || Date.now() - (st.grantAt || 0) > 3600000) {
-      const said = await relay.grant(cfg, body);
+      said = await relay.grant(cfg, body);
       out.granted = true;
       // SWITCHED OFF HERE IS SWITCHED OFF THERE. An office turned off while
       // the relay could not be reached kept its code and its sessions; every
@@ -9420,6 +9467,10 @@ async function relayPass(forceGrant) {
       if (!cfg.office && said && said.office) { try { await relay.officeOff(cfg); } catch (e) {} }
     }
     data = readData();
+    // And the other way: the relay says it has no office while the desk
+    // thinks it has one — closed and opened again, or wiped. The desk follows
+    // the relay, so the switch shows off and switching it on makes a code.
+    if (out.granted && cfg.office && said && said.office === false && data.settings.relay) data.settings.relay.office = false;
     Object.assign(data.relayState, { connected: true, lastSeenAt: Date.now(), lastError: '', bookingPath: (ping.venue && ping.venue.bookingUrl) || data.relayState.bookingPath },
       out.granted ? { grantAt: Date.now(), grantHash: hash } : {}, out.collected ? { collected: (data.relayState.collected || 0) + out.collected } : {});
     writeData(data);
@@ -10427,6 +10478,18 @@ document.addEventListener('pointerdown', () => { _kbd = false; _focusAuto = fals
 // What a keyboard can land on. Visible only: the rail's twin of a bar key is
 // hidden from 761 up and still tabIndex 0, so focus() on it did nothing.
 const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]';
+const MULTI_PART = ['date', 'time', 'datetime-local', 'month', 'week'];
+// A POPUP HOLDS THE KEYBOARD whichever way it is left: a keyboard that lands
+// outside an open popup is put back on its first key.
+document.addEventListener('focusin', (e) => {
+  if (!_kbd || !state.modal) return;
+  const pop = document.querySelector('.modal');
+  if (!pop || pop.contains(e.target)) return;
+  const k = [...pop.querySelectorAll(FOCUSABLE)].find(canFocus);
+  // As a paint putting it there: a popup whose keys arrive a beat later
+  // still moves it on to them (_focusAuto).
+  if (k) { k.focus(); _focusAuto = true; }
+});
 function canFocus(el) { return el.tabIndex >= 0 && el.getClientRects().length > 0; }
 function render() {
   // NEVER rebuild the DOM while a block is being dragged: it destroys the
@@ -10794,7 +10857,7 @@ function moveOfferHtml(r, mv) {
     <button class="mv-x" data-act="pick-off" aria-label="Close">${I.cross}</button></div>`;
   const m = mv.move, from = m.from.filter(id => mv.tables.includes(id));
   return `<div class="mv-bar" role="group" aria-label="One move seats them">
-    <div class="mv-say"><b>${esc(labels(from.length ? from : m.from))} → ${esc(labels(m.to))}</b><span>${esc(m.name || 'A booking')}, ${m.partySize} at ${esc(fmtHHMM(hhmmOf(m.time)))} · then ${esc(r.name || 'they')} on ${esc(labels(mv.tables))}</span></div>
+    <div class="mv-say" title="${esc(`${m.name || 'A booking'}, ${m.partySize} at ${fmtHHMM(hhmmOf(m.time))} · then ${r.name || 'they'} on ${labels(mv.tables)}`)}"><b>${esc(labels(from.length ? from : m.from))} → ${esc(labels(m.to))}</b><span>${esc(m.name || 'A booking')}, ${m.partySize} at ${esc(fmtHHMM(hhmmOf(m.time)))} · then ${esc(r.name || 'they')} on ${esc(labels(mv.tables))}</span></div>
     <button class="mv-go" data-act="one-move" data-id="${esc(r.id)}">Move and seat</button><button data-act="pick-off">Not now</button>
   </div>`;
 }
@@ -11026,7 +11089,9 @@ function floorStateAt(hhmm, live) {
       const a = toMin(hhmmOf(r.time)), end = a + durationOf(r);
       // A seated table keeps its table past its time — that IS `over`. A
       // booking nobody sat gives it back, which is how a no-show frees up.
-      return a <= at && (at < end || (isSat(r) && at >= end));
+      // On the LIVE floor a party in the room before its time is on its
+      // table now — floorAt()'s rule (4 Oct).
+      return (a <= at && (at < end || (isSat(r) && at >= end))) || (live === true && (isSat(r) || isHere(r)) && at < a);
     }) || null;
     const next = held.find(r => toMin(hhmmOf(r.time)) > at) || null;
     const nextAt = next ? hhmmOf(next.time) : null;
@@ -11100,7 +11165,10 @@ function floorMoment() {
     // A minute inside the day here too: after midnight the window's end is
     // 25:00, 24:20 is inside it, and fromMin() wrapped it to 0:20 MONDAY —
     // every seated party drawn as a free table (daily round, 3 Oct).
-    if (m >= start && m <= end) return fromMin(Math.min(m, 1439));
+    // And drawn at THAT minute, 24:20 of the night — not clamped to 23:59,
+    // which was not the clock, so the floor stopped being live: the till's
+    // walk-ins vanished and a party running over was drawn plain (4 Oct).
+    if (m >= start && m <= end) return pad2(Math.floor(m / 60)) + ':' + pad2(m % 60);
     // Past the window tonight: the room as the service left it.
     // A minute inside the day: a window running to midnight is 24:00, and
     // fromMin() would wrap that to 0:00 and draw an empty room.
@@ -11124,8 +11192,7 @@ function renderFloor() {
   // The till's covers are the room as it stands NOW, so they are drawn only
   // when the floor is: tonight, at the clock. Tomorrow, or lunch looked at
   // from dinner, drew tonight's walk-ins on every table they are sitting at.
-  const nowD = new Date();
-  const live = state.date === tradingDay() && at === fromMin(nowD.getHours() * 60 + nowD.getMinutes());
+  const live = state.date === tradingDay() && toMin(at) === tradingNowMin();
   const by = {};
   for (const f of floorStateAt(at, live)) by[f.id] = f;
   // THE ROOM IS THE TABLE PICKER. A row's table key puts the floor in here:
@@ -12466,9 +12533,9 @@ function renderSettings() {
     <div class="settings-card">
       <div class="th">Booking relay</div>
       <label class="field-label" for="relay-url">Relay address</label>
-      <input id="relay-url" type="url" value="${esc(rl.baseUrl || '')}" placeholder="https://book.example.com" data-field="settings.relay.baseUrl" data-save="relay">
+      <input id="relay-url" type="url" value="${esc(rl.baseUrl || '')}" placeholder="https://book.example.com" data-field="settings.relay.baseUrl" data-save="relay" data-save-on="change">
       <label class="field-label" for="relay-token">Venue token</label>
-      <input id="relay-token" type="password" autocomplete="off" value="" placeholder="${rl.hasToken ? 'Saved' : ''}" data-field="settings.relay.token" data-save="relay">
+      <input id="relay-token" type="password" autocomplete="off" value="" placeholder="${rl.hasToken ? 'Saved' : ''}" data-field="settings.relay.token" data-save="relay" data-save-on="change">
       <div class="inline" style="margin-top:8px;">
         <button class="btn" data-act="relay-test">Test</button>
         <label class="toggle-row">${switchHtml(!!rl.enabled, 'set-toggle', 'relay.enabled')} Link on</label>
@@ -12775,7 +12842,9 @@ function openFind(selectAll) {
   state.modal = { kind: 'find' };
   render();
   const el = document.getElementById('find-q');
-  if (el) { el.focus(); if (selectAll) el.select(); }
+  // Coming back from a booking the cursor goes to the END of what was
+  // typed: at 0, "pat" and then "el" read "elpat" (4 Oct).
+  if (el) { el.focus(); if (selectAll) el.select(); else el.setSelectionRange(el.value.length, el.value.length); }
 }
 // One way out of a popup, so the backdrop, the Cancel key and Escape agree —
 // and a booking opened from a search drops back to the results behind it.
@@ -13863,7 +13932,10 @@ document.addEventListener('click', async (ev) => {
         for (const x of servicesOnDay(state.date)) for (let m = toMin(x.start); m < toMin(x.end); m += step) slots.push(m);
         const hit = slots.sort((a, b) => a - b).find(m => m >= at && m < at + step && m < 1440 && !slotGone(state.date, fromMin(m)));
         const t = hit === undefined ? '' : fromMin(hit);
-        openBooking(null, { time: t, tableId: el.dataset.table || null }); break;
+        // No time, no table: a table kept without the time it was tapped at
+        // let the page fill in 8:00 on table 1, where Rowntree was sitting
+        // (4 Oct). The page picks both, as from the Book key.
+        openBooking(null, { time: t, tableId: t ? el.dataset.table || null : null }); break;
       }
       // The release of a drag must not ALSO open the booking it landed on
       // (the POS's own _tblDropAt guard). A tap is untouched.
@@ -14885,12 +14957,18 @@ document.addEventListener('input', (ev) => {
     return;
   }
   setPath(state, f, raw);
-  if (el.dataset.save) queueSave(el.dataset.save);
+  if (el.dataset.save && el.dataset.saveOn !== 'change') queueSave(el.dataset.save);
 });
 document.addEventListener('change', (ev) => {
   const el = ev.target;
   if (el.dataset && el.dataset.act === 'pick-any') { queueSave('colours'); render(); return; }
   const f = el.dataset && el.dataset.field;
+  // THE RELAY'S ADDRESS AND TOKEN SAVE WHEN THEY ARE FINISHED — on leaving
+  // the field or Enter — not on every pause. Each pause was a relay MOVE:
+  // the venue token went to every half-typed address, five of them were left
+  // owed a close, and the real old relay fell off that list and went on
+  // selling (daily round, 4 Oct).
+  if (f && el.dataset.saveOn === 'change' && el.dataset.save) { setPath(state, f, el.value); queueSave(el.dataset.save); }
 });
 document.addEventListener('keydown', (ev) => {
 
@@ -14905,6 +14983,11 @@ document.addEventListener('keydown', (ev) => {
     const ks = pop ? [...pop.querySelectorAll(FOCUSABLE)].filter(canFocus) : [];
     if (ks.length) {
       const a = document.activeElement, i = ks.indexOf(a);
+      // A date or a time is several stops inside ONE field: Shift+Tab from
+      // its day jumped to Save instead of back to its month (4 Oct). The
+      // browser walks those; if it walks out, the focusin guard below brings
+      // it back.
+      if (a && a.tagName === 'INPUT' && MULTI_PART.includes(a.type)) return;
       const to = !pop.contains(a) ? ks[0] : i < 0 ? null : ev.shiftKey && i === 0 ? ks[ks.length - 1] : !ev.shiftKey && i === ks.length - 1 ? ks[0] : null;
       if (to) { ev.preventDefault(); to.focus(); return; }
     }
