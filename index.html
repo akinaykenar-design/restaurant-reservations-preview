@@ -8627,7 +8627,9 @@ app.post('/api/waitlist/:id/seat', (req, res) => {
   if (!w) return res.status(404).json({ error: 'Not on the list' });
   const now = new Date();
   const tableId = (req.body && req.body.tableId) || null;
-  const r = { id: newId('rv'), name: w.name, phone: w.phone, email: '', partySize: w.partySize, time: av.localTime(now), durationMin: null, tableId, tableIds: [], notes: w.notes, tags: [], setMenu: null, status: 'seated', source: 'walk-in', createdAt: Date.now(), updatedAt: Date.now(), seatedAt: Date.now(), createdBy: staffFromReq(req), waitedMin: Math.round((Date.now() - w.addedAt) / 60000) };
+  // A stated combination lit on the room seats them on all of its tables.
+  const tableIds = Array.isArray(req.body && req.body.tableIds) ? req.body.tableIds.map(String).filter(id => id !== tableId).slice(0, 8) : [];
+  const r = { id: newId('rv'), name: w.name, phone: w.phone, email: '', partySize: w.partySize, time: av.localTime(now), durationMin: null, tableId, tableIds, notes: w.notes, tags: [], setMenu: null, status: 'seated', source: 'walk-in', createdAt: Date.now(), updatedAt: Date.now(), seatedAt: Date.now(), createdBy: staffFromReq(req), waitedMin: Math.round((Date.now() - w.addedAt) / 60000) };
   pruneTables(data, r);
   if (!r.tableId) { const t = av.suggestTable(av.heldBook(ctxOf(data), av.dayOf(r.time)), av.dayOf(r.time), av.hhmmOf(r.time), r.partySize, {}); if (t) r.tableId = t.id; }
   const g = touchGuest(data, r);
@@ -8637,7 +8639,35 @@ app.post('/api/waitlist/:id/seat', (req, res) => {
   data.waitlist = data.waitlist.filter(x => x.id !== w.id);
   logAudit(data, staffFromReq(req), `Seated walk-in ${w.name} (${w.partySize})${r.tableId ? ' on ' + r.tableId : ''}`);
   writeData(data);
+  // Kept in memory for the Undo on the message, and only for a while: the
+  // waitlist entry as it was, so taking it back puts them back where they
+  // stood in the queue with the wait they had already done.
+  wlSeated.set(r.id, { w, at: Date.now() });
+  for (const [k, v] of wlSeated) if (Date.now() - v.at > WL_UNDO_MS) wlSeated.delete(k);
   res.json(withWarnings(data, r));
+  kickPos();
+});
+
+// UNDO A SEAT FROM THE LIST. The party walking off before they sit, or the
+// wrong name tapped: the booking the seat made goes, and they are back on the
+// list exactly as they were. Only a seat made from the list, only for a few
+// minutes, only while nobody has moved the booking on.
+const WL_UNDO_MS = 5 * 60 * 1000;
+const wlSeated = new Map();
+app.post('/api/waitlist/unseat/:id', (req, res) => {
+  const data = readData();
+  const kept = wlSeated.get(req.params.id);
+  const r = data.reservations.find(x => x.id === req.params.id);
+  if (!kept || !r || Date.now() - kept.at > WL_UNDO_MS) return res.status(409).json({ error: 'Too late to undo that seat' });
+  if (r.status !== 'seated') return res.status(409).json({ error: `${r.name} has moved on since — change it in the booking` });
+  data.reservations = data.reservations.filter(x => x.id !== r.id);
+  if (r.pos && r.pos.id) data.posState.pendingDeletes = [...(data.posState.pendingDeletes || []), r.pos.id];
+  if (!data.waitlist.some(x => x.id === kept.w.id)) data.waitlist.push(kept.w);
+  wlSeated.delete(r.id);
+  recountGuest(data, r.guestId);
+  logAudit(data, staffFromReq(req), `Waitlist: ${kept.w.name} back on the list`);
+  writeData(data);
+  res.json({ ok: true, waitlist: kept.w });
   kickPos();
 });
 
@@ -10471,7 +10501,7 @@ async function setView(v) { state.view = v; render(); try { await loadView(); } 
 // for one.
 // `_focusAuto` is true while the focus is where a paint PUT it and nobody
 // has pressed anything since: a popup whose keys arrive a beat later (the
-// Seat popup's tables) moves it on to them.
+// guest page's keys) moves it on to them.
 let _kbd = false, _focusAuto = false;
 document.addEventListener('keydown', () => { _kbd = true; _focusAuto = false; }, true);
 document.addEventListener('pointerdown', () => { _kbd = false; _focusAuto = false; }, true);
@@ -10820,7 +10850,14 @@ function renderWalkinMenu() {
   // ONCE A SIZE IS PICKED IT FOLDS TO ONE LINE. Open, it stands over the top
   // row of the room — the very tables it has just lit — so the sizes go away
   // and Change brings them back.
-  const open = !w.size || w.expand;
+  const open = !w.wl && (!w.size || w.expand);
+  // From the list: who is being seated, how many and for how long, and no
+  // sizes to change — the list's own row is where the party is changed. With
+  // nothing free it says when, and nothing else: they are already waiting.
+  if (w.wl) return `<div class="wk-menu folded${none ? ' none' : ''}" role="dialog" aria-label="Seat ${esc(w.wl.name)}">
+    <div class="wk-head"><b>Seat ${esc(w.wl.name)}</b><span>${w.size}<span class="wide-only"> ${w.size === 1 ? 'person' : 'people'}</span>${d ? ` · ${d.minutes} min${none ? '' : '<span class="wide-only"> · tap a lit table</span>'}` : ' · finding tables…'}</span><button class="wk-x" data-act="walkin" aria-label="Close">${I.cross}</button></div>
+    ${none ? `<div class="wk-next"><div class="wk-when"><span class="wk-when-l">${d.next ? 'First table' : 'Nothing frees tonight'}</span>${d.next ? `<b>${esc(fmtHHMM(d.next.time))}</b><span>${esc(d.next.tables.length > 1 ? 'tables ' + d.next.tables.map(tableName).join(' + ') : 'table ' + tableName(d.next.tables[0]))} · about ${waitWords(d.next.wait)}</span>` : ''}</div></div>` : ''}
+  </div>`;
   return `<div class="wk-menu${open ? '' : ' folded'}${none ? ' none' : ''}" role="dialog" aria-label="Walk-in">
     <div class="wk-head"><b>Walk-in</b><span>${esc(hint)}</span>${open ? '' : '<button class="wk-chg" data-act="walkin-expand">Change</button>'}<button class="wk-x" data-act="walkin" aria-label="Close">${I.cross}</button></div>
     ${open ? `<div class="wk-sizes">${sizes}</div>
@@ -12306,7 +12343,9 @@ function renderWaitlist() {
   </div>
   ${!list.length ? '<div class="empty">Nobody waiting.</div>' : `<div class="rows">${list.map(x => {
     const waited = mins(x.addedAt), over = x.quotedMin && waited > x.quotedMin;
-    return `<div class="row keys3" data-act="wl-seat" data-id="${x.id}">
+    const seating = !!(state.walkin && state.walkin.wl && state.walkin.wl.id === x.id);
+    // The row being seated is the Row law's picked while the room is lit for it.
+    return `<div class="row keys3${seating ? ' selected' : ''}" data-act="wl-seat" data-id="${x.id}">
       <div class="cell${over ? ' over' : ''}">${waited}m<small>${x.quotedMin ? 'of ' + x.quotedMin : 'wait'}</small></div>
       <div class="body"><div class="t1"><span class="wl-name">${esc(x.name)}</span> <span class="tag">${x.partySize} pax</span>${x.status === 'notified' ? '<span class="status-chip confirmed">Told</span>' : ''}</div><div class="t2">Added ${esc(fmtTime(x.addedAt))}${x.phone ? ' · ' + esc(x.phone) : ''}${x.notes ? ' · ' + esc(x.notes) : ''}</div></div>
       <div class="actions" data-stop="1">
@@ -12728,7 +12767,6 @@ function renderModal() {
   if (m.kind === 'booking') return renderBookingModal();
   if (m.kind === 'find') return renderFindModal();
   if (m.kind === 'exception') return renderExceptionModal();
-  if (m.kind === 'seat') return renderSeatModal();
   if (m.kind === 'guest') return renderGuestModal();
   if (m.kind === 'colour') return renderColourModal();
   if (m.kind === 'cal') return renderCalModal();
@@ -13178,17 +13216,6 @@ function renderExceptionModal() {
       ? 'Guests are told “Closed — ” and your note. The desk can still write a booking on a closed day.'
       : 'Guests see your note above the times these sittings offer. They replace the weekly pattern on this date — they do not add to it.'}</div>
     ${actionKeys({ saveAct: 'save-exception', saveLabel: 'Save', left: m.isNew ? '' : `<button class="icon-action discard left" data-act="exc-remove" data-id="${esc(ex.id)}">${I.trash}<span class="ia-label">Delete</span></button>` })}
-  </div></div>`;
-}
-function renderSeatModal() {
-  const m = state.modal, w = m.w;
-  return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1">
-    <h2>Seat ${esc(w.name)} <span class="tag">${w.partySize} pax</span></h2>
-    ${m.error ? `<div class="err">${esc(m.error)}</div>` : ''}
-    <label>Table</label>
-    ${m.free ? `<div class="chips">${m.free.tables.map(t => `<button class="chip${m.tableId === t.id ? ' active' : ''}${!t.free ? ' taken' : ''}${m.free.suggested === t.id ? ' best' : ''}" data-act="seat-pick" data-val="${t.id}">${esc(t.label)} <span class="sub">${t.seats}</span></button>`).join('')}</div>` : '<div class="ts">Loading…</div>'}
-    <div class="ts" style="margin-top:6px;">Seating them makes a booking that is already seated, and puts it on the till's floor.</div>
-    ${actionKeys({ saveAct: 'seat-confirm', saveLabel: 'Seat' })}
   </div></div>`;
 }
 // §§ The guest's card — a summary of rows, a page behind each
@@ -13900,6 +13927,18 @@ document.addEventListener('click', async (ev) => {
         // any of its tables seats them on all of them.
         const hit = d.tables.find(x => x.id === tid);
         state.walkin = null; render();
+        if (w.wl) {
+          try {
+            const r = await post('/api/waitlist/' + w.wl.id + '/seat', { tableId: tid, tableIds: hit && hit.combo ? hit.combo.filter(x => x !== tid) : [] });
+            await loadView(); state.waitlist = await api('/api/waitlist'); render();
+            const where = [r.tableId].concat(r.tableIds || []).filter(Boolean).map(tableName).join(' + ');
+            toastUndo(`${r.name} seated at ${where}`, async () => {
+              await post('/api/waitlist/unseat/' + r.id, {});
+              await loadView(); state.waitlist = await api('/api/waitlist');
+            });
+          } catch (e) { toastBad(e.message); }
+          break;
+        }
         try {
           const n = new Date();
           await post('/api/reservations', { name: 'Walk-in', partySize: w.size, time: localDay(n) + 'T' + pad2(n.getHours()) + ':' + pad2(n.getMinutes()), tableId: tid, tableIds: (hit && hit.combo ? hit.combo.filter(x => x !== tid) : []),
@@ -14009,9 +14048,31 @@ document.addEventListener('click', async (ev) => {
         openBooking(null, { name: e.name, phone: e.phone, email: e.email, partySize: e.partySize, date: e.date, time: op ? op.time : e.wanted, tableId: op ? op.tableId : null, notes: e.notes }, { notifyId: e.id });
         break;
       }
-      case 'wl-seat': { const w = state.waitlist.find(x => x.id === id); const now = new Date(); state.modal = { kind: 'seat', w, tableId: null, free: null }; render(); const free = await api(`/api/free-tables?date=${localDay(now)}&time=${pad2(now.getHours())}:${pad2(now.getMinutes())}&party=${w.partySize}`); if (state.modal && state.modal.w === w) { state.modal.free = free; state.modal.tableId = free.suggested; render(); } break; }
-      case 'seat-pick': state.modal.tableId = state.modal.tableId === val ? null : val; render(); break;
-      case 'seat-confirm': { const m = state.modal; const r = await post('/api/waitlist/' + m.w.id + '/seat', { tableId: m.tableId }); state.modal = null; await loadView(); toast(`Seated ${r.name}${r.tableId ? ' at ' + tableName(r.tableId) : ''}`); break; }
+      // SEAT FROM THE LIST ON THE ROOM (owner, Oct '26, v21: "Build the
+      // waitlist seat beautiful"). Seat lights the room for their size — the
+      // walk-in's own answer and drawing — and a tap on a lit table seats
+      // them and takes them off the list, with Undo. It was a popup of every
+      // table in the venue as thirty chips. A second press on the same row
+      // puts it away.
+      case 'wl-seat': {
+        const x = (state.waitlist || []).find(y => y.id === id);
+        if (!x) break;
+        if (state.walkin && state.walkin.wl && state.walkin.wl.id === id) { state.walkin = null; render(); break; }
+        const wk = state.walkin = { size: x.partySize, data: null, wl: { id: x.id, name: x.name } };
+        state.picking = null; state.modal = null;
+        const moved = state.view !== 'today' || state.date !== tradingDay() || !(state.todayMode === 'floor' || state.todayMode === 'book');
+        state.view = 'today';
+        // A phone's list is a screen of its own: the room takes its place.
+        // Beside the room the list stays, with the row being seated ringed.
+        if (state.todayMode !== 'floor') state.todayMode = 'floor';
+        if (state.date !== tradingDay()) state.date = tradingDay();
+        state.service = defaultService(state.date);
+        render();
+        if (moved) { await loadDay(); render(); }
+        try { const d = await api('/api/walkin?size=' + wk.size); if (state.walkin === wk) { wk.data = d; render(); } }
+        catch (e) { toastBad(e.message); }
+        break;
+      }
       // The List. A group shuts, and one booking at a time opens out — an
       // accordion, because two open panels is a scroll and a host reading one
       // booking is not reading another.
