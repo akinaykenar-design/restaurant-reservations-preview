@@ -1098,7 +1098,6 @@ body.book-page #app{display:block;height:auto;}
    else changes — it is a real table and it is really held, it just has
    nobody's name on the choice yet. The FLOOR draws it like any other: a room
    is what is in it, and a host looking across it does not care who decided. */
-.bl-table.auto{font-weight:400;opacity:var(--dim);}
 /* Two tables pushed together are one booking; the ring says so without a
    second colour. */
 .fl-table.joined{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
@@ -1401,41 +1400,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-head.empty .bl-chev{visibility:hidden;}
 
 .bl-rows{display:flex;flex-direction:column;}
-.bl-row{display:flex;align-items:center;border-bottom:1px solid var(--steel-200);background:var(--surface);}
-.bl-rows > .bl-row:last-child{border-bottom:none;}
-.bl-row.selected{background:var(--pick-wash);box-shadow:inset var(--ring) 0 0 0 var(--orange);}
-/* The row proper: a KEY at each end and the name between them — where it is
-   up to, when and who, how many, and which table. */
-/* THE COVERS ARE NOT PART OF THE TABLE. Four pixels between a mono number
-   and a mono number in a box read as one field — "2 21" — and the two say
-   completely different things. Twelve is the row's own step, the same air the
-   table keys keep from the row's right edge. */
-/* A ROW IS A LINE OF READING, NOT A CARD IN A STACK. 54 tall with 8 of
-   padding inside it gave every booking the air of a tile, and ten of them
-   filled a column that holds thirteen at 48 — on the four, and still four
-   clear of the finger law, which this row has never been anywhere near:
-   the things a finger presses in it are the two KEYS at its ends, and both
-   keep their own 44. */
-.bl-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:48px;padding:4px 12px 4px 4px;
-  background:none;border:none;text-align:left;cursor:pointer;}
-.bl-main .st-dot{width:16px;height:16px;flex:0 0 16px;margin-right:0;}
-/* THE STATUS IS A KEY, NOT A DOT. Where a booking is up to is the thing a
-   host changes most across a shift and it was a 16-pixel dot INSIDE the row's
-   own button — readable, and unreachable without opening the whole booking.
-   It is a box at the head of the row now, wearing the status's own glyph in
-   the status's own colour on a pale wash of it: the rail's language for
-   "chosen", applied to a thing that is always chosen. The colour is the same
-   one it wears on the floor, the timeline and the chip, so nothing new is
-   learnt. A whole finger, like every other key. */
-.bl-st{flex:none;width:var(--tap);height:var(--tap);margin-left:8px;display:flex;
-  align-items:center;justify-content:center;border-radius:var(--r-btn);
-  border:1px solid color-mix(in srgb, var(--st-ink, var(--steel-500)) 22%, transparent);
-  background:var(--st-wash, var(--steel-100));
-  color:var(--st-ink, var(--charcoal-soft));cursor:pointer;}
-/* 24 in a 44 box. 20 left ten pixels of air each side and the glyph read as
-   a mark in a field rather than the key's own face. */
-.bl-st svg{width:24px;height:24px;}
-.bl-st.on{box-shadow:inset 0 0 0 var(--ring) var(--st-ink, var(--orange));}
 /* ONE TABLE OF STATUS INK, asked by everything that draws a status: the row's
    key, the status sheet's eleven rows, anything after them. It used to hang
    off .bl-st, so the sheet — the screen whose whole job is to NAME the
@@ -1456,49 +1420,59 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   border:1px solid color-mix(in srgb, var(--st-ink, var(--steel-500)) 22%, transparent);
   background:var(--st-wash, var(--steel-100));color:var(--st-ink, var(--charcoal-soft));}
 .st-mark svg{width:24px;height:24px;}
-.bl-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
-.bl-who small{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);
-  font-family:var(--font-mono);letter-spacing:.3px;}
-.bl-who b{font-size:var(--fs-lg);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.bl-marks{display:flex;align-items:center;gap:6px;flex:none;color:var(--charcoal-soft);}
-.bl-mark{display:flex;}
-.bl-mark svg{width:16px;height:16px;}
-.bl-mark.hot{color:var(--red);}
-.bl-pax{flex:none;min-width:24px;text-align:right;font-family:var(--font-mono);font-weight:700;
-  font-size:var(--fs-lg);color:var(--text-primary);}
-/* The table sits in a box of its own, the way the till's does — it is the one
-   thing on the row a runner is sent to find. */
-/* The table is its own key now: it asks the ROOM a question rather than
-   opening the booking, so it sits outside the row's button and answers with
-   the accent ring and wash the Row law gives anything picked. */
-.bl-tables{flex:none;display:flex;align-items:center;gap:2px;padding-right:12px;}
-.bl-plus{padding:0 1px;font-style:normal;font-family:var(--font-mono);font-weight:700;
-  color:var(--charcoal-soft);font-size:var(--fs-chip);}
-/* A KEY YOU PRESS, so it is a whole finger. It was 38x34 — under the law on
-   both axes — in a row 54 tall that had the room for it all along. */
-.bl-table{flex:none;min-width:var(--tap);min-height:var(--tap);padding:0 10px;display:flex;align-items:center;
-  /* A TABLE IS A NUMBER YOU READ, so it is drawn as one. It wore a filled
-     44-square of --steel-100 — the room's own ground, lifted onto the paper
-     — which made every row carry a slab the size of the finger law with two
-     digits lost inside it. The hairline says it is a key; the number is
-     what you came for. It keeps the 44 in both axes. */
-  justify-content:center;border-radius:var(--r-btn);background:none;
-  border:1px solid var(--steel-300);color:var(--text-primary);
-  font-family:var(--font-mono);font-weight:700;font-size:var(--fs-md);white-space:nowrap;}
-.bl-table.on{background:var(--pick-wash);border-color:var(--orange);color:var(--orange);}
-/* NO TABLE IS THE APP'S RED. Nothing could place this booking — not the desk
-   and not autoAssign() — so it is the one row in the book that will not sort
-   itself out, and red is the colour this app spends on exactly that: go and
-   look. The key is still a dashed outline, because the table is still a hole
-   and not a thing. */
-.bl-table.none{font-family:var(--font-body);font-size:var(--fs-chip);text-transform:uppercase;
-  letter-spacing:.5px;color:var(--red);background:none;border:1px dashed var(--red);}
 /* And its heading with it: the group only exists when it has somebody in it,
    so the red is never on screen saying nothing. */
 .bl-head.none .bl-h-name,.bl-head.none .bl-h-n{color:var(--red);}
 
+/* §§ THE DOCKET LINE (the clean desk, owner 6 Oct: "Build it" — v38)
+   The till's docket carries its quantity as a tab fused to the line's left
+   edge, one width on every line; the book carries the TABLE that way. The tab
+   is the status's own colour — the one Settings gives it and the floor paints
+   the table — with the ink chosen to read on it (--st-*-ink), and it is the
+   row's one key: seat them there, or pick another. A desk pick nobody settled
+   is the same colour carrying less of it. The right edge is one column: the
+   one time this row is about, or the one key it needs. */
+.dk-row{position:relative;display:grid;grid-template-columns:64px minmax(0,1fr) 72px;align-items:stretch;
+  min-height:64px;border-radius:var(--r-control);overflow:hidden;background:var(--surface);}
+.dk-row.selected,.dk-row.open{background:var(--pick-wash);box-shadow:inset 0 0 0 var(--ring) var(--orange);}
+.dk-tab{display:flex;align-items:center;justify-content:center;min-width:var(--tap);min-height:var(--tap);padding:0;
+  border:none;border-radius:0;background:var(--steel-100);color:var(--text-primary);
+  font-family:var(--font-mono);font-weight:800;font-size:var(--fs-xl);white-space:nowrap;cursor:pointer;}
+.dk-tab.st-fill.booked{background:var(--st-booked);color:var(--st-booked-ink,var(--on-scrim));}
+.dk-tab.st-fill.confirmed{background:var(--st-confirmed);color:var(--st-confirmed-ink,var(--on-scrim));}
+.dk-tab.st-fill.part-arrived,.dk-tab.st-fill.arrived{background:var(--st-arrived);color:var(--st-arrived-ink,var(--on-scrim));}
+.dk-tab.st-fill.part-seated,.dk-tab.st-fill.seated{background:var(--st-seated);color:var(--st-seated-ink,var(--on-scrim));}
+.dk-tab.st-fill.check{background:var(--st-check);color:var(--st-check-ink,var(--on-scrim));}
+.dk-tab.st-fill.paid{background:var(--st-paid);color:var(--st-paid-ink,var(--on-scrim));}
+.dk-tab.st-fill.done,.dk-tab.st-fill.cancelled,.dk-tab.st-fill.no-show{background:var(--steel-100);color:var(--charcoal-soft);cursor:default;}
+/* The desk's own pick: the same colour, carrying less of it. */
+.dk-tab.st-fill.auto{background:color-mix(in srgb, var(--st-booked) 40%, var(--surface));color:var(--text-primary);}
+.dk-tab.st-fill.confirmed.auto{background:color-mix(in srgb, var(--st-confirmed) 40%, var(--surface));}
+/* Late wears the app's red down its edge; a table somebody is still eating
+   at is struck through — the press then picks another; nothing is the red
+   hole the No table group has always been. */
+.dk-tab.late{border-left:var(--ring) solid var(--red);}
+.dk-tab.busy{text-decoration:line-through;text-decoration-thickness:2px;}
+.dk-tab.none{background:none;color:var(--red);border:1px dashed var(--red);}
+.dk-main{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px 12px;
+  background:none;border:none;text-align:left;cursor:pointer;color:var(--text-primary);}
+.dk-main b{font-size:var(--fs-lg);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dk-main span{font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dk-main i{font-style:normal;font-weight:700;}
+.dk-main i.here{color:var(--st-arrived);} .dk-main i.late{color:var(--red);}
+.dk-main i.leave{color:var(--st-check);} .dk-main i.ink{color:var(--text-primary);}
+.dk-rt{display:flex;align-items:center;justify-content:center;padding-right:8px;}
+.dk-t{font-family:var(--font-mono);font-weight:600;font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;}
+.dk-t.over{color:var(--red);font-weight:800;}
+.dk-k{display:flex;align-items:center;justify-content:center;min-width:56px;height:var(--tap);padding:0 8px;
+  border:none;border-radius:var(--r-pill);background:var(--steel-100);color:var(--text-primary);
+  font-family:var(--font-body);font-weight:700;font-size:var(--fs-md);text-decoration:none;cursor:pointer;}
+.dk-k.ac{background:var(--pick-wash);color:var(--orange);font-family:var(--font-mono);font-size:var(--fs-md);}
+.toast-count{display:flex;gap:4px;margin:-12px -12px -12px 4px;}
+.toast-count .toast-undo{margin:0;min-width:var(--tap);padding:0 8px;}
+.toast-q{align-self:center;padding:0 4px 0 8px;font-weight:600;}
 
-@media (max-width:520px){ .bl-who b{font-size:var(--fs-md);} }
+
 
 /* §§ A booking covers the page
    A popup is for a question with one answer. A booking is not that: it is a
@@ -2193,12 +2167,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .desk-col .bl-find:focus-within{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
 .bl-head{background:none;border-bottom:none;padding:0 16px;}
 .bl-rows{padding:0 8px 4px;gap:8px;}
-.bl-row{border:1px solid var(--steel-200);border-radius:var(--r-control);overflow:hidden;}
-.bl-rows > .bl-row:last-child{border-bottom:1px solid var(--steel-200);}
-.bl-main{min-height:56px;}
-.bl-who b{font-weight:800;}
-.bl-pax{font-size:var(--fs-xl);}
-.bl-st{border:none;}
 
 /* §§ FEWER LINES (owner, Sep '26: "too many lines" — design C)
    Nothing separates the bar, the book and the room but their grounds: no
@@ -2214,11 +2182,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .desk-col .side-sw,.desk-col .bl-find{background:var(--surface);}
 .pace{border-top:none;}
 .fl-rooms{border:none;}
-.bl-row{position:relative;border:none;background:var(--surface);padding-left:8px;}
-.bl-rows > .bl-row:last-child{border-bottom:none;}
-.bl-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--st-ink, var(--steel-300));}
-.bl-main{padding-left:12px;}
-.bl-table{border:none;background:var(--deck-pill-bg);font-weight:800;}
 
 /* §§ THE VIEWS STAND ON THE ROOM, the till's way (v10). Floor · Timeline ·
    Flow float at the foot LEFT of whatever the pane is showing, the rooms at
@@ -4351,6 +4314,9 @@ function statusStamps(r, now) {
   if (r.status === 'paid') r.paidAt = now;
   if (r.status === 'done') r.doneAt = now;
   if (r.status === 'confirmed') r.confirmedAt = now;
+  // How many of a PART party came: only while it is part (the clean desk's
+  // "Not all here?"). Everybody here, or nobody, and the count means nothing.
+  if (!['part-arrived', 'part-seated'].includes(r.status)) delete r.partCount;
   if (!isSat(r) && !ENDED.includes(r.status)) {
     delete r.seatedAt; delete r.checkAt; delete r.paidAt; delete r.billStale;
     if (!isHere(r)) delete r.arrivedAt;
@@ -8172,6 +8138,9 @@ function cleanReservation(data, body, existing) {
   if (has('setMenu')) r.setMenu = cleanSetMenu(body.setMenu);
   if (has('source') && SOURCES.includes(body.source)) r.source = body.source;
   if (has('status') && STATUSES.includes(body.status)) r.status = body.status;
+  // How many of a part party are here or sat — "2 of 4 seated" (the clean
+  // desk). Fewer than the party, or not at all.
+  if (has('partCount')) { const n = parseInt(body.partCount, 10); r.partCount = n >= 1 && n < (r.partySize || 0) ? n : undefined; if (r.partCount === undefined) delete r.partCount; }
   return r;
 }
 function validateReservation(r) {
@@ -8383,7 +8352,7 @@ app.put('/api/reservations/:id', (req, res) => {
   Object.assign(cur, next);
   // A stamp statusStamps() took away has to go from the stored row too — the
   // assign above only ever adds.
-  if (statusChanged) for (const k of ['seatedAt', 'arrivedAt', 'checkAt', 'paidAt', 'billStale']) if (!(k in next)) delete cur[k];
+  if (statusChanged) for (const k of ['seatedAt', 'arrivedAt', 'checkAt', 'paidAt', 'billStale', 'partCount']) if (!(k in next)) delete cur[k];
   // `next` was a shallow copy, so next.events IS cur.events — append returns
   // a new array rather than growing that shared one.
   if (evs.length) cur.events = history.append(cur.events, evs);

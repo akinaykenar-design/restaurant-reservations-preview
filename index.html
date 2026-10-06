@@ -1113,7 +1113,6 @@ body.book-page #app{display:block;height:auto;}
    else changes — it is a real table and it is really held, it just has
    nobody's name on the choice yet. The FLOOR draws it like any other: a room
    is what is in it, and a host looking across it does not care who decided. */
-.bl-table.auto{font-weight:400;opacity:var(--dim);}
 /* Two tables pushed together are one booking; the ring says so without a
    second colour. */
 .fl-table.joined{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
@@ -1416,41 +1415,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .bl-head.empty .bl-chev{visibility:hidden;}
 
 .bl-rows{display:flex;flex-direction:column;}
-.bl-row{display:flex;align-items:center;border-bottom:1px solid var(--steel-200);background:var(--surface);}
-.bl-rows > .bl-row:last-child{border-bottom:none;}
-.bl-row.selected{background:var(--pick-wash);box-shadow:inset var(--ring) 0 0 0 var(--orange);}
-/* The row proper: a KEY at each end and the name between them — where it is
-   up to, when and who, how many, and which table. */
-/* THE COVERS ARE NOT PART OF THE TABLE. Four pixels between a mono number
-   and a mono number in a box read as one field — "2 21" — and the two say
-   completely different things. Twelve is the row's own step, the same air the
-   table keys keep from the row's right edge. */
-/* A ROW IS A LINE OF READING, NOT A CARD IN A STACK. 54 tall with 8 of
-   padding inside it gave every booking the air of a tile, and ten of them
-   filled a column that holds thirteen at 48 — on the four, and still four
-   clear of the finger law, which this row has never been anywhere near:
-   the things a finger presses in it are the two KEYS at its ends, and both
-   keep their own 44. */
-.bl-main{flex:1;min-width:0;display:flex;align-items:center;gap:10px;min-height:48px;padding:4px 12px 4px 4px;
-  background:none;border:none;text-align:left;cursor:pointer;}
-.bl-main .st-dot{width:16px;height:16px;flex:0 0 16px;margin-right:0;}
-/* THE STATUS IS A KEY, NOT A DOT. Where a booking is up to is the thing a
-   host changes most across a shift and it was a 16-pixel dot INSIDE the row's
-   own button — readable, and unreachable without opening the whole booking.
-   It is a box at the head of the row now, wearing the status's own glyph in
-   the status's own colour on a pale wash of it: the rail's language for
-   "chosen", applied to a thing that is always chosen. The colour is the same
-   one it wears on the floor, the timeline and the chip, so nothing new is
-   learnt. A whole finger, like every other key. */
-.bl-st{flex:none;width:var(--tap);height:var(--tap);margin-left:8px;display:flex;
-  align-items:center;justify-content:center;border-radius:var(--r-btn);
-  border:1px solid color-mix(in srgb, var(--st-ink, var(--steel-500)) 22%, transparent);
-  background:var(--st-wash, var(--steel-100));
-  color:var(--st-ink, var(--charcoal-soft));cursor:pointer;}
-/* 24 in a 44 box. 20 left ten pixels of air each side and the glyph read as
-   a mark in a field rather than the key's own face. */
-.bl-st svg{width:24px;height:24px;}
-.bl-st.on{box-shadow:inset 0 0 0 var(--ring) var(--st-ink, var(--orange));}
 /* ONE TABLE OF STATUS INK, asked by everything that draws a status: the row's
    key, the status sheet's eleven rows, anything after them. It used to hang
    off .bl-st, so the sheet — the screen whose whole job is to NAME the
@@ -1471,49 +1435,59 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   border:1px solid color-mix(in srgb, var(--st-ink, var(--steel-500)) 22%, transparent);
   background:var(--st-wash, var(--steel-100));color:var(--st-ink, var(--charcoal-soft));}
 .st-mark svg{width:24px;height:24px;}
-.bl-who{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px;}
-.bl-who small{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);
-  font-family:var(--font-mono);letter-spacing:.3px;}
-.bl-who b{font-size:var(--fs-lg);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.bl-marks{display:flex;align-items:center;gap:6px;flex:none;color:var(--charcoal-soft);}
-.bl-mark{display:flex;}
-.bl-mark svg{width:16px;height:16px;}
-.bl-mark.hot{color:var(--red);}
-.bl-pax{flex:none;min-width:24px;text-align:right;font-family:var(--font-mono);font-weight:700;
-  font-size:var(--fs-lg);color:var(--text-primary);}
-/* The table sits in a box of its own, the way the till's does — it is the one
-   thing on the row a runner is sent to find. */
-/* The table is its own key now: it asks the ROOM a question rather than
-   opening the booking, so it sits outside the row's button and answers with
-   the accent ring and wash the Row law gives anything picked. */
-.bl-tables{flex:none;display:flex;align-items:center;gap:2px;padding-right:12px;}
-.bl-plus{padding:0 1px;font-style:normal;font-family:var(--font-mono);font-weight:700;
-  color:var(--charcoal-soft);font-size:var(--fs-chip);}
-/* A KEY YOU PRESS, so it is a whole finger. It was 38x34 — under the law on
-   both axes — in a row 54 tall that had the room for it all along. */
-.bl-table{flex:none;min-width:var(--tap);min-height:var(--tap);padding:0 10px;display:flex;align-items:center;
-  /* A TABLE IS A NUMBER YOU READ, so it is drawn as one. It wore a filled
-     44-square of --steel-100 — the room's own ground, lifted onto the paper
-     — which made every row carry a slab the size of the finger law with two
-     digits lost inside it. The hairline says it is a key; the number is
-     what you came for. It keeps the 44 in both axes. */
-  justify-content:center;border-radius:var(--r-btn);background:none;
-  border:1px solid var(--steel-300);color:var(--text-primary);
-  font-family:var(--font-mono);font-weight:700;font-size:var(--fs-md);white-space:nowrap;}
-.bl-table.on{background:var(--pick-wash);border-color:var(--orange);color:var(--orange);}
-/* NO TABLE IS THE APP'S RED. Nothing could place this booking — not the desk
-   and not autoAssign() — so it is the one row in the book that will not sort
-   itself out, and red is the colour this app spends on exactly that: go and
-   look. The key is still a dashed outline, because the table is still a hole
-   and not a thing. */
-.bl-table.none{font-family:var(--font-body);font-size:var(--fs-chip);text-transform:uppercase;
-  letter-spacing:.5px;color:var(--red);background:none;border:1px dashed var(--red);}
 /* And its heading with it: the group only exists when it has somebody in it,
    so the red is never on screen saying nothing. */
 .bl-head.none .bl-h-name,.bl-head.none .bl-h-n{color:var(--red);}
 
+/* §§ THE DOCKET LINE (the clean desk, owner 6 Oct: "Build it" — v38)
+   The till's docket carries its quantity as a tab fused to the line's left
+   edge, one width on every line; the book carries the TABLE that way. The tab
+   is the status's own colour — the one Settings gives it and the floor paints
+   the table — with the ink chosen to read on it (--st-*-ink), and it is the
+   row's one key: seat them there, or pick another. A desk pick nobody settled
+   is the same colour carrying less of it. The right edge is one column: the
+   one time this row is about, or the one key it needs. */
+.dk-row{position:relative;display:grid;grid-template-columns:64px minmax(0,1fr) 72px;align-items:stretch;
+  min-height:64px;border-radius:var(--r-control);overflow:hidden;background:var(--surface);}
+.dk-row.selected,.dk-row.open{background:var(--pick-wash);box-shadow:inset 0 0 0 var(--ring) var(--orange);}
+.dk-tab{display:flex;align-items:center;justify-content:center;min-width:var(--tap);min-height:var(--tap);padding:0;
+  border:none;border-radius:0;background:var(--steel-100);color:var(--text-primary);
+  font-family:var(--font-mono);font-weight:800;font-size:var(--fs-xl);white-space:nowrap;cursor:pointer;}
+.dk-tab.st-fill.booked{background:var(--st-booked);color:var(--st-booked-ink,var(--on-scrim));}
+.dk-tab.st-fill.confirmed{background:var(--st-confirmed);color:var(--st-confirmed-ink,var(--on-scrim));}
+.dk-tab.st-fill.part-arrived,.dk-tab.st-fill.arrived{background:var(--st-arrived);color:var(--st-arrived-ink,var(--on-scrim));}
+.dk-tab.st-fill.part-seated,.dk-tab.st-fill.seated{background:var(--st-seated);color:var(--st-seated-ink,var(--on-scrim));}
+.dk-tab.st-fill.check{background:var(--st-check);color:var(--st-check-ink,var(--on-scrim));}
+.dk-tab.st-fill.paid{background:var(--st-paid);color:var(--st-paid-ink,var(--on-scrim));}
+.dk-tab.st-fill.done,.dk-tab.st-fill.cancelled,.dk-tab.st-fill.no-show{background:var(--steel-100);color:var(--charcoal-soft);cursor:default;}
+/* The desk's own pick: the same colour, carrying less of it. */
+.dk-tab.st-fill.auto{background:color-mix(in srgb, var(--st-booked) 40%, var(--surface));color:var(--text-primary);}
+.dk-tab.st-fill.confirmed.auto{background:color-mix(in srgb, var(--st-confirmed) 40%, var(--surface));}
+/* Late wears the app's red down its edge; a table somebody is still eating
+   at is struck through — the press then picks another; nothing is the red
+   hole the No table group has always been. */
+.dk-tab.late{border-left:var(--ring) solid var(--red);}
+.dk-tab.busy{text-decoration:line-through;text-decoration-thickness:2px;}
+.dk-tab.none{background:none;color:var(--red);border:1px dashed var(--red);}
+.dk-main{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px 12px;
+  background:none;border:none;text-align:left;cursor:pointer;color:var(--text-primary);}
+.dk-main b{font-size:var(--fs-lg);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dk-main span{font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dk-main i{font-style:normal;font-weight:700;}
+.dk-main i.here{color:var(--st-arrived);} .dk-main i.late{color:var(--red);}
+.dk-main i.leave{color:var(--st-check);} .dk-main i.ink{color:var(--text-primary);}
+.dk-rt{display:flex;align-items:center;justify-content:center;padding-right:8px;}
+.dk-t{font-family:var(--font-mono);font-weight:600;font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;}
+.dk-t.over{color:var(--red);font-weight:800;}
+.dk-k{display:flex;align-items:center;justify-content:center;min-width:56px;height:var(--tap);padding:0 8px;
+  border:none;border-radius:var(--r-pill);background:var(--steel-100);color:var(--text-primary);
+  font-family:var(--font-body);font-weight:700;font-size:var(--fs-md);text-decoration:none;cursor:pointer;}
+.dk-k.ac{background:var(--pick-wash);color:var(--orange);font-family:var(--font-mono);font-size:var(--fs-md);}
+.toast-count{display:flex;gap:4px;margin:-12px -12px -12px 4px;}
+.toast-count .toast-undo{margin:0;min-width:var(--tap);padding:0 8px;}
+.toast-q{align-self:center;padding:0 4px 0 8px;font-weight:600;}
 
-@media (max-width:520px){ .bl-who b{font-size:var(--fs-md);} }
+
 
 /* §§ A booking covers the page
    A popup is for a question with one answer. A booking is not that: it is a
@@ -2208,12 +2182,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .desk-col .bl-find:focus-within{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
 .bl-head{background:none;border-bottom:none;padding:0 16px;}
 .bl-rows{padding:0 8px 4px;gap:8px;}
-.bl-row{border:1px solid var(--steel-200);border-radius:var(--r-control);overflow:hidden;}
-.bl-rows > .bl-row:last-child{border-bottom:1px solid var(--steel-200);}
-.bl-main{min-height:56px;}
-.bl-who b{font-weight:800;}
-.bl-pax{font-size:var(--fs-xl);}
-.bl-st{border:none;}
 
 /* §§ FEWER LINES (owner, Sep '26: "too many lines" — design C)
    Nothing separates the bar, the book and the room but their grounds: no
@@ -2229,11 +2197,6 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .desk-col .side-sw,.desk-col .bl-find{background:var(--surface);}
 .pace{border-top:none;}
 .fl-rooms{border:none;}
-.bl-row{position:relative;border:none;background:var(--surface);padding-left:8px;}
-.bl-rows > .bl-row:last-child{border-bottom:none;}
-.bl-row::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--st-ink, var(--steel-300));}
-.bl-main{padding-left:12px;}
-.bl-table{border:none;background:var(--deck-pill-bg);font-weight:800;}
 
 /* §§ THE VIEWS STAND ON THE ROOM, the till's way (v10). Floor · Timeline ·
    Flow float at the foot LEFT of whatever the pane is showing, the rooms at
@@ -4365,6 +4328,9 @@ function statusStamps(r, now) {
   if (r.status === 'paid') r.paidAt = now;
   if (r.status === 'done') r.doneAt = now;
   if (r.status === 'confirmed') r.confirmedAt = now;
+  // How many of a PART party came: only while it is part (the clean desk's
+  // "Not all here?"). Everybody here, or nobody, and the count means nothing.
+  if (!['part-arrived', 'part-seated'].includes(r.status)) delete r.partCount;
   if (!isSat(r) && !ENDED.includes(r.status)) {
     delete r.seatedAt; delete r.checkAt; delete r.paidAt; delete r.billStale;
     if (!isHere(r)) delete r.arrivedAt;
@@ -8186,6 +8152,9 @@ function cleanReservation(data, body, existing) {
   if (has('setMenu')) r.setMenu = cleanSetMenu(body.setMenu);
   if (has('source') && SOURCES.includes(body.source)) r.source = body.source;
   if (has('status') && STATUSES.includes(body.status)) r.status = body.status;
+  // How many of a part party are here or sat — "2 of 4 seated" (the clean
+  // desk). Fewer than the party, or not at all.
+  if (has('partCount')) { const n = parseInt(body.partCount, 10); r.partCount = n >= 1 && n < (r.partySize || 0) ? n : undefined; if (r.partCount === undefined) delete r.partCount; }
   return r;
 }
 function validateReservation(r) {
@@ -8397,7 +8366,7 @@ app.put('/api/reservations/:id', (req, res) => {
   Object.assign(cur, next);
   // A stamp statusStamps() took away has to go from the stored row too — the
   // assign above only ever adds.
-  if (statusChanged) for (const k of ['seatedAt', 'arrivedAt', 'checkAt', 'paidAt', 'billStale']) if (!(k in next)) delete cur[k];
+  if (statusChanged) for (const k of ['seatedAt', 'arrivedAt', 'checkAt', 'paidAt', 'billStale', 'partCount']) if (!(k in next)) delete cur[k];
   // `next` was a shallow copy, so next.events IS cur.events — append returns
   // a new array rather than growing that shared one.
   if (evs.length) cur.events = history.append(cur.events, evs);
@@ -10029,7 +9998,7 @@ const state = {
   // The List, grouped the way a host reads a service: which groups are shut,
   // and the one booking opened out. Shut by DEFAULT are the three that are
   // over — a done, cancelled or no-show booking is a record, not work.
-  listShut: { done: true, cancelled: true, 'no-show': true },
+  listShut: { finished: true },
   deskQ: '',
   reservations: [], days: {}, month: localDay(new Date()).slice(0, 7), waitlist: [], guests: [], guestQ: '', audit: [], today: null,
   // The whole model GET /api/run-sheet last returned, for the day it names.
@@ -10745,7 +10714,7 @@ function render() {
   const focusKey = !focusId && !focusField && focus && focus !== document.body && focus.dataset && focus.dataset.act
     ? `[data-act="${CSS.escape(focus.dataset.act)}"]` + ['val', 'id', 'field', 'table'].map(k => focus.dataset[k] !== undefined ? `[data-${k}="${CSS.escape(focus.dataset[k])}"]` : '').join('') : null;
   const scrolls = {}; document.querySelectorAll('[data-keep]').forEach(el => { scrolls[el.dataset.keep] = [el.scrollTop, el.scrollLeft]; });
-  app.innerHTML = `<div class="shell">${renderRail()}<div class="main">${renderDeck()}<div class="pane" data-keep="pane">${renderSecBand()}${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.welcome ? renderWelcome() : ''}${state.toast ? `<div class="toast"><i class="dot${state.toastFailed === state.toast ? ' bad' : ''}"></i><span class="toast-msg">${esc(state.toast)}</span>${state.toastUndo && state.toastUndo.msg === state.toast ? '<button class="toast-undo" data-act="toast-undo">Undo</button>' : ''}</div>` : ''}</div>`;
+  app.innerHTML = `<div class="shell">${renderRail()}<div class="main">${renderDeck()}<div class="pane" data-keep="pane">${renderSecBand()}${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.welcome ? renderWelcome() : ''}${state.toast ? `<div class="toast"><i class="dot${state.toastFailed === state.toast ? ' bad' : ''}"></i><span class="toast-msg">${esc(state.toast)}</span>${state.toastUndo && state.toastUndo.msg === state.toast ? '<button class="toast-undo" data-act="toast-undo">Undo</button>' : ''}${state.toastSome && state.toastSome.msg === state.toast ? (state.toastSome.open ? '<span class="toast-count"><span class="toast-q">How many sat?</span>' + Array.from({ length: state.toastSome.n - 1 }, (_, i) => `<button class="toast-undo" data-act="toast-count" data-val="${i + 1}" aria-label="${i + 1} seated">${i + 1}</button>`).join('') + '</span>' : '<button class="toast-undo" data-act="toast-some">Not all here?</button>') : ''}</div>` : ''}</div>`;
   document.querySelectorAll('[data-keep]').forEach(el => { const s = scrolls[el.dataset.keep]; if (s) { el.scrollTop = s[0]; el.scrollLeft = s[1]; } });
   // A day drawn for the first time opens where the work is; after that the
   // line above has already put the desk's own scroll back and this does
@@ -12238,27 +12207,19 @@ setInterval(tlTick, 15000);
 // and it is the only group that does not appear when it is empty: a heading
 // that is always there saying nought is noise, and one that turns up is the
 // whole point.
+// THE CLEAN DESK'S GROUPS (owner, 6 Oct: "Build it" — the clean prototype,
+// v34–v39): everyone not sitting down is UPCOMING, the room is SEATED, and the
+// three ways a night ends are one FINISHED, folded. No table still stands
+// above them all when somebody is in it.
 const LIST_GROUPS = [
   ['none',      'No table',  ['part-arrived', 'arrived', 'part-seated', 'booked', 'confirmed', 'seated', 'check', 'paid'], (r) => !tablesFor(r).length],
-  ['upcoming',  'Upcoming',  ['part-arrived', 'arrived', 'part-seated', 'booked', 'confirmed']],
-  ['seated',    'Seated',    ['seated', 'check', 'paid']],
-  ['done',      'Left',      ['done']],
-  ['no-show',   'No-show',   ['no-show']],
-  ['cancelled', 'Cancelled', ['cancelled']],
+  ['upcoming',  'Upcoming',  ['part-arrived', 'arrived', 'booked', 'confirmed']],
+  ['seated',    'Seated',    ['part-seated', 'seated', 'check', 'paid']],
+  ['finished',  'Finished',  ['done', 'no-show', 'cancelled']],
 ];
 function coversOf(list) { return list.reduce((a, r) => a + (r.partySize || 0), 0); }
-function listTables(r) { const t = heldTables(r); return t.length ? t.map(tableName).join(' + ') : ''; }
-// The marks that survive the trim: the three a host must not miss. An allergy
-// is a kitchen fact, a set menu is a commitment, a note is somebody's request.
-// Tags beyond those live in the opened-out panel, where there is room to read.
-function listMarks(r) {
-  const out = [];
-  if ((r.tags || []).some(t => String(t).toLowerCase() === 'allergy')) out.push(`<span class="bl-mark hot" title="Allergy">${I.alert}</span>`);
-  if (setMenuName(r)) out.push(`<span class="bl-mark" title="${esc(setMenuName(r))}">${I.setMenus}</span>`);
-  if (String(r.notes || '').trim()) out.push(`<span class="bl-mark" title="${esc(r.notes)}">${I.note}</span>`);
-  return out.join('');
-}
-
+// How close a party has to be before a busy table is worth saying.
+const DESK_DUE_SOON = 15;
 function renderDayList() {
   const all = state.reservations.filter(onPickedBook).slice().sort((a, b) => a.time.localeCompare(b.time));
   const q = deskQuery();
@@ -12276,47 +12237,62 @@ function renderDayList() {
   if (q.on && !rows.length) return find + `<div class="empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d.
     <div style="margin-top:12px;"><button class="btn" data-act="find-every-day">${I.search} Look on every day</button></div></div>`;
 
-  // TWO BOXES AND A NAME BETWEEN THEM. The two things a host CHANGES about a
-  // booking during service are where it is up to and which table it is on, and
-  // both used to be read-only on this row — the status a 16-pixel dot inside
-  // the row's own button, the table a key that only rang the floor. They are
-  // the row's two KEYS now, one at each end, each opening the thing it names:
-  // the status a panel that slides out over the room, the table the ROOM
-  // ITSELF with every free one lit. Everything else about the booking is still
-  // behind the middle, which opens the sheet.
+  // THE DOCKET LINE (the clean desk, v38): the till's docket carries its
+  // quantity as a tab fused to the line's left edge, one width on every line;
+  // the book carries the TABLE that way. The tab wears the status's own colour
+  // — the one Settings gives it and the floor paints the table — and tapping
+  // it is the next step: seat them there when it is free (one tap, v36), the
+  // table pick otherwise. The right edge is ONE column: the one time that
+  // matters for this row, or the one key it needs. The line under the name
+  // says only what is different about them, so most rows are one line.
+  const nowM = tradingNowMin(), tonight = state.date === tradingDay();
+  const room = tonight ? floorStateAt(pad2(Math.floor(nowM / 60)) + ':' + pad2(nowM % 60), true) : [];
+  const busyOn = (r) => tablesFor(r).find(id => { const f = room.find(x => x.id === id); return f && ((f.r && f.r.id !== r.id && isSat(f.r)) || f.state === 'walkin'); });
   const row = (r) => {
-    const held = tablesFor(r);
-    // FAINT IS THE APP'S, SOLID IS A PERSON'S. The list used to say "assign"
-    // wherever nobody had chosen — a job the desk has to finish before the
-    // night reads as a night. The app lays it out instead and says so by
-    // WEIGHT: the same number, drawn light.
-    const auto = isAutoTable(r);
-    // ONE QUESTION, SO ONE ANSWER: every table key on the row opens the pick
-    // for that BOOKING, whether a person chose it, the desk did, or nobody
-    // has. It still rings what it names — the booking's tables wear the
-    // accent on the floor while the pick is open — and now it also offers
-    // the ones it could be instead, which is the thing the key was for.
-    const picking = !!state.picking && state.picking.id === r.id;
-    const key = (label, extra, title) => `<button class="bl-table${extra}${picking ? ' on' : ''}"
-      data-act="row-table" data-id="${esc(r.id)}" title="${esc(title)}">${esc(label)}</button>`;
-    // One key a table, not one key for "T9 + T10": a join is two boxes, and
-    // both belong to the one booking, so both open the one pick.
-    const tables = held.length
-      ? held.map(id => key(tableName(id), auto ? ' auto' : '',
-        auto ? 'Nobody has chosen — the desk would use ' + tableName(id) + '. Tap to pick one on the floor'
-          : 'Table ' + tableName(id) + ' — tap to pick one on the floor')).join('<i class="bl-plus">+</i>')
-      : key('assign', ' none', 'No table — tap to pick one on the floor');
-    // NO ICON, NO LINES (owner, Sep '26: "too many lines" — design C). Where
-    // the booking is up to is the stripe of its status colour down the
-    // card's left edge, the colour Settings gives it and the floor paints
-    // its table; the words are in the title and the sheet the card opens.
-    return `<div class="bl-row st-ink ${esc(r.status)}${state.highlightTable && held.includes(state.highlightTable) ? ' selected' : ''}">
-      <button class="bl-main" data-act="edit-booking" data-id="${r.id}" title="${esc(statusLabel(r.status))}" aria-label="${esc((r.name || 'No name') + ', ' + statusLabel(r.status))}">
-        <span class="bl-who"><small>${esc(fmtHHMM(hhmmOf(r.time)))}</small><b>${esc(r.name || 'No name')}</b></span>
-        <span class="bl-marks">${listMarks(r)}</span>
-        <span class="bl-pax" title="${r.partySize} covers">${r.partySize}</span>
+    const held = tablesFor(r), auto = isAutoTable(r), now = Date.now();
+    const ended = !isLive(r), sat = isSat(r), here = isHere(r), late = tonight ? lateBy(r, now) : 0;
+    // A table somebody else is still at: the tap cannot seat them there. It is
+    // only SAID (struck, "21 still eating") once the party is due or here —
+    // at half past seven nobody needs telling that the nine o'clock's table
+    // is busy.
+    const occ = tonight && !sat && !ended ? busyOn(r) : null;
+    const busy = occ && (here || new Date(r.time).getTime() - now <= DESK_DUE_SOON * 60000) ? occ : null;
+    const label = held.length ? tableName(held[0]) + (held.length > 1 ? '+' : '') : '—';
+    const seatable = tonight && !sat && !ended && held.length && !occ;
+    const tabAct = seatable ? `data-act="row-seat" data-id="${esc(r.id)}" aria-label="Seat at ${esc(held.map(tableName).join(' + '))}"`
+      : `data-act="row-table" data-id="${esc(r.id)}" aria-label="${held.length ? 'Table ' + esc(held.map(tableName).join(' + ')) + ' — pick another' : 'No table — pick one'}"`;
+    const tab = ended ? `<span class="dk-tab">${esc(label)}</span>` : `<button class="dk-tab${auto ? ' auto' : ''}${held.length ? '' : ' none'}${late ? ' late' : ''}${busy ? ' busy' : ''}" ${tabAct}>${esc(label)}</button>`;
+    // The line under the name: only what is different.
+    const said = [];
+    const part = r.partCount ? `${r.partCount} of ${r.partySize}` : 'Some';
+    if (r.status === 'arrived') said.push('<i class="here">Here</i>');
+    if (r.status === 'part-arrived') said.push(`<i class="here">${part} here</i>`);
+    if (r.status === 'part-seated') said.push(`<i class="ink">${part} seated</i>`);
+    if (r.status === 'check') said.push('<i class="leave">Bill</i>');
+    if (r.status === 'paid') said.push('<i class="leave">Paid</i>');
+    if (ended) said.push(esc(statusLabel(r.status)));
+    if (late) said.push(`<i class="late">${esc(waitWords(late))} late</i>`);
+    if (busy) said.push(`<i class="late">${esc(tableName(busy))} still eating</i>`);
+    if ((r.tags || []).some(t => String(t).toLowerCase() === 'allergy')) said.push('<i class="late">Allergy</i>');
+    if (held.length > 1) said.push(esc(held.map(tableName).join(' + ')));
+    if (setMenuName(r)) said.push(esc(setMenuName(r)));
+    if (String(r.notes || '').trim()) said.push(esc(String(r.notes).trim().slice(0, 60)));
+    // The one time, or the one key.
+    let rt = `<span class="dk-t">${esc(fmtHHMM(hhmmOf(r.time)))}</span>`;
+    if (tonight && here && r.arrivedAt) rt = `<span class="dk-t">${esc(waitWords(Math.max(0, Math.round((now - r.arrivedAt) / 60000))))}</span>`;
+    if (tonight && late && String(r.phone || '').trim()) rt = `<a class="dk-k" href="tel:${esc(String(r.phone).replace(/[^\d+]/g, ''))}" aria-label="Call ${esc(r.name || '')}">Call</a>`;
+    if (busy && !here) rt = `<button class="dk-k" data-act="row-here" data-id="${esc(r.id)}">Here</button>`;
+    if (tonight && sat) {
+      const start = r.seatedAt || new Date(r.time).getTime(), left = durationOf(r) - Math.round((now - start) / 60000);
+      rt = r.status === 'part-seated' ? `<button class="dk-k ac" data-act="row-rest" data-id="${esc(r.id)}" aria-label="The rest arrived">+${Math.max(1, r.partySize - (r.partCount || 0))}</button>`
+        : left >= 0 ? `<span class="dk-t">${esc(waitWords(left))}</span>` : `<span class="dk-t over">+${esc(waitWords(-left))}</span>`;
+    }
+    return `<div class="dk-row${state.highlightTable && held.includes(state.highlightTable) ? ' selected' : ''}${state.modal && state.modal.kind === 'booking' && state.modal.b && state.modal.b.id === r.id ? ' open' : ''}">
+      ${tab.replace('class="dk-tab', `class="dk-tab st-fill ${esc(r.status)}`)}
+      <button class="dk-main" data-act="edit-booking" data-id="${r.id}" aria-label="${esc((r.name || 'No name') + ', ' + statusLabel(r.status))}">
+        <b>${esc(r.name || 'No name')} · ${r.partySize}</b>${said.length ? `<span>${said.join(' · ')}</span>` : ''}
       </button>
-      <span class="bl-tables">${tables}</span>
+      <span class="dk-rt">${rt}</span>
     </div>`;
   };
 
@@ -12349,8 +12325,11 @@ function renderDayList() {
         // place: ranked apart, a confirmed eight o'clock sat under a booked
         // half past (daily round, 1 Oct). The sort is stable, so they keep
         // the day's own order — the time.
-        const rank = (st) => statuses.indexOf(st === 'confirmed' ? 'booked' : st);
-        const list = mine.slice().sort((a, b) => rank(a.status) - rank(b.status));
+        // Upcoming: the party standing in front of you first, then the late,
+        // then everybody else as they come (v34). Elsewhere the day's order.
+        const now = Date.now();
+        const rank = (r) => key !== 'upcoming' ? 0 : isHere(r) ? 0 : lateBy(r, now) ? 1 : 2;
+        const list = mine.slice().sort((a, b) => rank(a) - rank(b));
         if (pick && !list.length) return '';
         return head(key, name, list) + (state.listShut[key] || !list.length ? '' : `<div class="bl-rows">${list.map(row).join('')}</div>`);
       }).join('');
@@ -14011,6 +13990,44 @@ document.addEventListener('click', async (ev) => {
         render();
         break;
       }
+      // ONE TAP SEATS THEM (the clean desk, v36). The tab is the table the
+      // party is held on, and on tonight with that table clear the press is
+      // the whole job: seated there, the desk's own pick settled as theirs,
+      // Undo for ten seconds. Most parties come in whole, so "not all here"
+      // is the exception and asks AFTER, on the same message, not before.
+      case 'row-seat': {
+        const r = (state.reservations || []).find(x => x.id === id);
+        const held = r ? tablesFor(r) : [];
+        if (!r || !held.length) { toastBad('That booking has gone'); break; }
+        const was = { status: r.status, tableId: r.tableId || null, tableIds: (r.tableIds || []).slice() };
+        try {
+          await put('/api/reservations/' + id, { status: 'seated', tableId: held[0], tableIds: held.slice(1) });
+          await loadView();
+          const msg = `${r.name || 'Booking'} seated at ${held.map(tableName).join(' + ')}`;
+          state.toastSome = r.partySize > 1 ? { msg, id, n: r.partySize, open: false } : null;
+          toastUndo(msg, async () => { await put('/api/reservations/' + id, was); await loadView(); });
+          greet(id, was.status, 'seated');
+        } catch (e) { toastBad(e.message); }
+        break;
+      }
+      case 'toast-some': {
+        const t = state.toastSome;
+        if (!t || t.msg !== state.toast) break;
+        t.open = true; toast(t.msg, 20000);
+        break;
+      }
+      // How many sat down: the party is PART seated with that count, and the
+      // row says "2 of 4 seated" with +2 as its one key for the rest.
+      case 'toast-count': {
+        const t = state.toastSome, k = parseInt(el.dataset.val, 10);
+        state.toastSome = null; state.toastUndo = null; state.toast = ''; render();
+        if (!t || !(k >= 1 && k < t.n)) break;
+        try { await put('/api/reservations/' + t.id, { status: 'part-seated', partCount: k }); await loadView(); toast(`${k} of ${t.n} seated`); }
+        catch (e) { toastBad(e.message); }
+        break;
+      }
+      case 'row-here': await setStatus(id, 'arrived'); break;
+      case 'row-rest': await setStatus(id, 'seated'); break;
       case 'row-table': {
         if (state.picking && state.picking.id === id) { state.picking = null; render(); break; }
         const r = (state.reservations || []).find(x => x.id === id);
