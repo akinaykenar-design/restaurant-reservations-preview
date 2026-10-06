@@ -404,7 +404,7 @@ h1,h2,h3{margin:0;}
 [data-more="start end"]{-webkit-mask-image:linear-gradient(var(--rail-axis,180deg),#000 var(--fade-top,0px),transparent var(--fade-top,0px),#000 calc(var(--fade-top,0px) + var(--rail-fade)),#000 calc(100% - var(--fade-foot,0px) - var(--rail-fade)),transparent calc(100% - var(--fade-foot,0px)),#000 calc(100% - var(--fade-foot,0px)));mask-image:linear-gradient(var(--rail-axis,180deg),#000 var(--fade-top,0px),transparent var(--fade-top,0px),#000 calc(var(--fade-top,0px) + var(--rail-fade)),#000 calc(100% - var(--fade-foot,0px) - var(--rail-fade)),transparent calc(100% - var(--fade-foot,0px)),#000 calc(100% - var(--fade-foot,0px)));}
 /* A ROW WEARS A ROW'S AXIS. A row given a column's fade shades its top and
    bottom and slices its ends anyway. */
-.tabs,.secband,.fl-box > .fl-wrap{--rail-axis:90deg;}
+.tabs,.secband,.fl-box > .fl-wrap,.bkq-days{--rail-axis:90deg;}
 
 /* §§ Login — the POS's number pad, the same five tokens */
 /* The keypad the front door used to wear. There is no front door now — the
@@ -2254,31 +2254,54 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
    Each question is the top bar's own well of 44 keys; the one picked is the
    accent; a time that cannot be sat is struck and dimmed and still says why
    on it. On a phone the wells become even grids so no key is a sliver. */
-.bkq{display:grid;gap:20px;}
-.bkq-q{display:grid;gap:8px;justify-items:start;}
-.bkq-l{font-weight:800;font-size:var(--fs-md);color:var(--text-primary);}
-.bkq-well{display:flex;flex-wrap:wrap;gap:4px;padding:4px;border-radius:var(--r-control);background:var(--deck-pill-bg);max-width:100%;}
-.bkq-well > button{min-width:var(--tap);height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);background:transparent;
-  color:var(--text-primary);font:inherit;font-weight:800;font-size:var(--fs-md);}
-.bkq-well > button.on{background:var(--orange);color:#fff;}
-.bkq-well > button.full{color:var(--charcoal-soft);text-decoration:line-through;opacity:var(--dim);}
-.bkq-well > .ts{padding:12px;}
-.bkq-table{border:none;background:none;padding:4px 0;color:var(--charcoal-soft);font:inherit;font-size:var(--fs-md);text-align:left;min-height:var(--tap);}
-.bkq-table b{color:var(--text-primary);}
-.bkq-who{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;}
-.bkq-f{display:grid;gap:4px;align-content:start;}
-.bkq-f input{height:52px;font-size:var(--fs-lg);font-weight:700;}
-.bkq-more{display:flex;flex-wrap:wrap;gap:8px;}
-.bkq-more > button{display:flex;align-items:center;gap:8px;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);
-  background:var(--deck-pill-bg);color:var(--text-primary);font:inherit;font-weight:700;font-size:var(--fs-md);}
+/* §§ THE QUIET FORM (the clean desk, v46–v47). Nothing filled at rest —
+   hairlines only — and only what is chosen is filled, in ink. */
+.bkq{display:grid;gap:24px;max-width:560px;}
+.bkq-q{display:grid;gap:8px;min-width:0;}
+.bkq-l{font-weight:700;font-size:var(--fs-md);color:var(--charcoal-soft);}
+.bkq-pax{display:flex;align-items:center;gap:12px;}
+.bkq-pax button{width:52px;height:52px;border-radius:50%;border:1px solid var(--steel-300);background:none;
+  color:var(--text-primary);font:inherit;font-size:var(--fs-num);line-height:1;display:flex;align-items:center;justify-content:center;padding:0;}
+.bkq-pax button:disabled{opacity:var(--dim);}
+.bkq-pax b{min-width:44px;text-align:center;font-family:var(--font-mono);font-size:var(--fs-num);font-weight:800;}
+.bkq-pax span{margin-left:-4px;color:var(--charcoal-soft);font-size:var(--fs-lg);}
+.bkq-days{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;}
+.bkq-days::-webkit-scrollbar{display:none;}
+.bkq-days > button{flex:none;width:64px;height:60px;border-radius:var(--r-control);border:1px solid var(--steel-300);background:none;
+  color:var(--text-primary);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0;font:inherit;}
+.bkq-days small{font-size:var(--fs-chip);font-weight:700;color:var(--charcoal-soft);text-transform:uppercase;letter-spacing:.4px;}
+.bkq-days b{font-family:var(--font-mono);font-size:var(--fs-xl);font-weight:800;}
+.bkq-times{display:flex;flex-wrap:wrap;gap:8px;}
+.bkq-times > button{height:var(--tap);min-width:72px;padding:0 12px;border-radius:var(--r-pill);border:1px solid var(--steel-300);background:none;
+  color:var(--text-primary);font-family:var(--font-mono);font-weight:700;font-size:var(--fs-md);}
+.bkq-times > button.full{border-color:transparent;color:var(--charcoal-soft);text-decoration:line-through;opacity:var(--dim);}
+.bkq-times > button.other{font-family:var(--font-body);border-style:dashed;}
+.bkq-times > .ts{align-self:center;}
+.bkq-days > button.on,.bkq-times > button.on,.bkq-days > button.on small{background:var(--text-primary);border-color:var(--text-primary);color:var(--surface);}
+.bkq-table{justify-self:start;border:none;background:none;padding:0;color:var(--charcoal-soft);font:inherit;font-size:var(--fs-md);text-align:left;min-height:var(--tap);}
+.bkq-who{display:grid;gap:0;}
+.bkq .bkq-who input.bkq-u{display:block;width:100%;height:56px;border:none;border-bottom:1px solid var(--steel-300);border-radius:0;background:none;
+  box-shadow:none;padding:0 2px;font:inherit;font-size:var(--fs-xl);font-weight:600;color:var(--text-primary);}
+.bkq .bkq-who input.bkq-u:focus{border-bottom-color:var(--orange);box-shadow:inset 0 calc(-1 * var(--ring)) 0 var(--orange);outline:none;}
+.bkq .bkq-who input.bkq-u::placeholder{color:var(--charcoal-soft);font-weight:500;}
+.bkq-sug{display:grid;gap:4px;padding:8px 0;}
+.bkq-sug > button{display:flex;align-items:baseline;gap:8px;min-height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);
+  background:var(--pick-wash);color:var(--text-primary);font:inherit;text-align:left;}
+.bkq-sug b{font-weight:700;} .bkq-sug span{color:var(--charcoal-soft);font-size:var(--fs-md);}
+.bkq-g{padding:12px 2px 4px;color:var(--charcoal-soft);font-size:var(--fs-md);}
+.bkq-g i{font-style:normal;font-weight:700;color:var(--red);} .bkq-g b{color:var(--gold);}
+.bkq-more{display:flex;flex-wrap:wrap;gap:4px;margin-left:-12px;}
+.bkq-more > button{display:flex;align-items:center;gap:8px;height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);
+  background:none;color:var(--charcoal-soft);font:inherit;font-weight:700;font-size:var(--fs-md);}
 .bkq-more > button svg{width:16px;height:16px;}
 .bkq-more > button.on{color:var(--orange);}
-@media (max-width:760px){
-  .bkq-q{justify-items:stretch;}
-  .bkq-well{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));}
-  .bkq-well > button{padding:0 4px;min-width:0;}
-  .bkq-who{grid-template-columns:1fr;}
-}
+/* The key stands under the form it books, on the body's own column. */
+.bkq-foot{flex:none;padding:12px 0 calc(12px + env(safe-area-inset-bottom, 0px));border-top:1px solid var(--steel-300);background:var(--surface);}
+.bkq-foot-in{width:100%;max-width:820px;margin:0 auto;padding:0 var(--deck-edge);}
+.bkq-go{display:block;width:100%;max-width:560px;height:56px;padding:0 16px;border:none;border-radius:var(--r-control);
+  background:var(--text-primary);color:var(--surface);font:inherit;font-weight:800;font-size:var(--fs-lg);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bkq-go:disabled{background:var(--steel-100);color:var(--charcoal-soft);}
 .wk-menu.folded{padding:4px 4px 4px 12px;}
 /* NOTHING FREE, AND WHEN (v19). The time is the answer, so it is the biggest
    thing in the menu, on the POS's number rung; where and how long sit beside
@@ -10516,7 +10539,7 @@ function sinceLabel(ts) {
 // --fade-foot move it in past a bar pinned over an end; nothing of ours pins
 // a bar INSIDE a scroller, so they are declared in the stylesheet where they
 // are needed rather than measured here.
-const RAIL_ENDS = '.tabs, .rail, .rail-scroll, .secband, .room-list, .audit, .fl-box > .fl-wrap, .flowgrid';
+const RAIL_ENDS = '.tabs, .rail, .rail-scroll, .secband, .room-list, .audit, .fl-box > .fl-wrap, .flowgrid, .bkq-days';
 function markRailEnds(one) {
   if (!one) document.querySelectorAll('[data-more]').forEach(r => { if (!r.matches(RAIL_ENDS)) delete r.dataset.more; });
   (one ? [one] : [...document.querySelectorAll(RAIL_ENDS)]).forEach(r => {
@@ -13197,7 +13220,7 @@ function renderBookingModal() {
       <button class="chip sq" data-act="close-modal" aria-label="Close">${I.cross}</button>
     </div>
     <div class="modal-body">${body}</div>
-    ${actionKeys({ saveAct: 'save-booking', saveLabel: isEdit ? 'Save' : (walkIn ? 'Seat them' : 'Book'), left: isEdit && !page ? `<button class="icon-action discard left" data-act="delete-booking">${I.trash}<span class="ia-label">Delete</span></button>` : '' })}
+    ${!page && !isEdit && !walkIn ? (() => { const k = bkqKey(b); return `<div class="bkq-foot"><div class="bkq-foot-in"><button class="bkq-go" id="bkq-go" data-act="save-booking"${k.off || state.busy ? ' disabled' : ''}>${esc(k.txt)}</button></div></div>`; })() : actionKeys({ saveAct: 'save-booking', saveLabel: isEdit ? 'Save' : (walkIn ? 'Seat them' : 'Book'), left: isEdit && !page ? `<button class="icon-action discard left" data-act="delete-booking">${I.trash}<span class="ia-label">Delete</span></button>` : '' })}
   </div></div>`;
 }
 
@@ -13212,48 +13235,103 @@ function renderBookingModal() {
 // time, a note, tags, a set menu — are still the pages they always were, one
 // press away. An edit and a walk-in keep the rows: there the booking already
 // exists, and the rows are a summary of it.
-const BK_QUICK_DAYS = 6;
+const BK_QUICK_DAYS = 14;
 // A time on a day that has GONE, read as a moment and not a clock face: at
 // half past midnight the trading day is still yesterday, and "11:30 < 00:30"
 // is false, so every one of its times was offered and 11:30 AM preselected —
 // thirteen hours ago (daily round, 1 Oct).
 function slotGone(day, hhmm) { return new Date(day + 'T' + hhmm).getTime() < Date.now(); }
+// THE QUIET FORM (the clean desk, owner 6 Oct — v45 to v47: "Forms should be
+// fucking clean", "Form looks shit", "what is the most common covers?").
+// One page, top to bottom, nothing filled at rest: how many is ONE stepper
+// that starts on two, because two is the night's most common party by a long
+// way and a couple then costs no tap at all; the day is a strip of dates; the
+// time is the day's own times as words, a full one struck and still
+// pressable with its reason on it; name, phone and a note are plain
+// underlined lines. A name or a phone already in the book finds the guest
+// under the fields. Only what is chosen is filled, in ink, and the key at the
+// foot reads the booking back before it is made.
+function bkqDayWord(d) {
+  const today = tradingDay();
+  return d === today ? 'Today' : d === addDays(today, 1) ? 'Tomorrow' : parseDay(d).toLocaleDateString([], { weekday: 'short' }) + ' ' + parseDay(d).getDate();
+}
+function bkqKey(b) {
+  if (!b.time) return { off: true, txt: 'Pick a time' };
+  const nm = String(b.name || '').trim();
+  if (!nm) return { off: true, txt: 'Add a name' };
+  return { off: false, txt: `Book ${nm.split(/\s+/)[0]} · ${b.partySize} · ${bkqDayWord(b.date)} · ${fmtHHMM(b.time)}` };
+}
+// A guest already in the book, found by what has been typed: the phone
+// first, because two Smiths are two people (personKey's own rule), then the
+// name. A picked guest is one line of who they are instead.
+function bkqSugHtml(m) {
+  const g = m.guest;
+  if (g) {
+    const allergy = (g.tags || []).some(t => String(t).toLowerCase() === 'allergy');
+    const been = g.fromTill && !g.visits ? 'On the till' : `Been ${g.visits || 0} time${g.visits === 1 ? '' : 's'}${g.lastSeen ? ' · last ' + esc(fmtDay(localDay(new Date(g.lastSeen)))) : ''}`;
+    return `<div class="bkq-g">${been}${allergy ? ' · <i>Allergy</i>' : ''}${(g.tags || []).some(t => String(t).toLowerCase() === 'vip') ? ' · <b>VIP</b>' : ''}</div>`;
+  }
+  const list = (m.sug && m.sug.list) || [];
+  return list.length ? `<div class="bkq-sug">${list.map((x, i) => `<button data-act="bkq-guest" data-val="${i}"><b>${esc(x.name || '')}</b><span>${esc([x.phone, x.fromTill && !x.visits ? 'on the till' : `been ${x.visits || 0} time${x.visits === 1 ? '' : 's'}`].filter(Boolean).join(' · '))}</span></button>`).join('')}</div>` : '';
+}
+let _bkqTimer = null;
+function bkqTyped(field) {
+  const m = state.modal; if (!m || m.kind !== 'booking' || m.b.id || m.page) return;
+  if (field !== 'modal.b.notes') m.guest = null;
+  const k = bkqKey(m.b), go = document.getElementById('bkq-go');
+  if (go) { go.textContent = k.txt; go.disabled = k.off; }
+  if (field === 'modal.b.notes') return;
+  const digits = String(m.b.phone || '').replace(/\D/g, ''), name = String(m.b.name || '').trim();
+  const q = field === 'modal.b.phone' && digits.length >= 3 ? digits : name.length >= 2 ? name : digits.length >= 3 ? digits : '';
+  const box = document.getElementById('bkq-found');
+  clearTimeout(_bkqTimer);
+  if (!q) { m.sug = null; if (box) box.innerHTML = ''; return; }
+  _bkqTimer = setTimeout(async () => {
+    try {
+      const got = await api('/api/guests?q=' + encodeURIComponent(q));
+      if (state.modal !== m) return;
+      m.sug = { q, list: (got.guests || []).slice(0, 3) };
+      const el = document.getElementById('bkq-found'); if (el) el.innerHTML = bkqSugHtml(m);
+    } catch (e) { /* a lookup that fails is a form without suggestions */ }
+  }, 250);
+}
 function renderBookingQuick(m) {
-  const b = m.b, today = tradingDay();
-  const sizes = [1, 2, 3, 4, 5, 6, 7, 8].map(n =>
-    `<button class="${b.partySize === n ? 'on' : ''}" data-act="bk-size" data-val="${n}" aria-pressed="${b.partySize === n}">${n}</button>`).join('')
-    + `<button class="${b.partySize > 8 ? 'on' : ''}" data-act="bk-page" data-val="party">${b.partySize > 8 ? b.partySize : '9+'}</button>`;
+  const b = m.b, today = tradingDay(), max = (state.settings && state.settings.maxPartySize) || 20;
+  const pax = `<div class="bkq-pax">
+    <button data-act="bk-size" data-val="${b.partySize - 1}" aria-label="One fewer"${b.partySize <= 1 ? ' disabled' : ''}>−</button>
+    <b>${b.partySize}</b><span>${b.partySize === 1 ? 'person' : 'people'}</span>
+    <button data-act="bk-size" data-val="${b.partySize + 1}" aria-label="One more"${b.partySize >= max ? ' disabled' : ''}>+</button></div>`;
   const dayList = Array.from({ length: BK_QUICK_DAYS }, (_, i) => addDays(today, i));
-  // "Wed 30", in that order whatever the browser's locale would put first.
-  const dayName = (d) => d === today ? 'Today' : parseDay(d).toLocaleDateString([], { weekday: 'short' }) + ' ' + parseDay(d).getDate();
-  const days = dayList.map(d => `<button class="${b.date === d ? 'on' : ''}" data-act="bk-day" data-val="${d}">${esc(dayName(d))}</button>`).join('')
-    + `<button class="${dayList.includes(b.date) ? '' : 'on'}" data-act="bk-page" data-val="when">${dayList.includes(b.date) ? 'Other day' : esc(fmtDay(b.date))}</button>`;
+  const days = dayList.map(d => `<button class="${b.date === d ? 'on' : ''}" data-act="bk-day" data-val="${d}" aria-pressed="${b.date === d}"><small>${d === today ? 'Today' : esc(parseDay(d).toLocaleDateString([], { weekday: 'short' }))}</small><b>${parseDay(d).getDate()}</b></button>`).join('')
+    + `<button class="other${dayList.includes(b.date) ? '' : ' on'}" data-act="bk-page" data-val="when">${dayList.includes(b.date) ? '<small>Other</small><b>…</b>' : `<small>${esc(parseDay(b.date).toLocaleDateString([], { weekday: 'short' }))}</small><b>${parseDay(b.date).getDate()}</b>`}</button>`;
   const past = (t) => slotGone(b.date, t);
   const slots = (m.slots || []).filter(x => !past(x.time) || x.time === b.time);
   const times = !m.slots ? '<span class="ts">Finding times…</span>'
     : !slots.length ? `<span class="ts">${m.closed ? (m.note ? 'Closed — ' + esc(m.note) : 'Closed that day') : 'No times left on this day'}</span>`
-      : slots.map(x => `<button class="${b.time === x.time ? 'on' : ''}${!x.ok && b.time !== x.time ? ' full' : ''}" data-act="pick-time" data-val="${x.time}"${x.ok ? '' : ` title="${esc(x.reason || 'Full')}"`}>${esc(fmtHHMM(x.time))}</button>`).join('');
+      : slots.map(x => `<button class="${b.time === x.time ? 'on' : ''}${!x.ok && b.time !== x.time ? ' full' : ''}" data-act="pick-time" data-val="${x.time}"${x.ok ? '' : ` title="${esc(x.reason || 'Full')}" aria-label="${esc(fmtHHMM(x.time) + ' — ' + (x.reason || 'Full'))}"`}>${esc(fmtHHMM(x.time))}</button>`).join('');
   const held = heldTables(b);
   const best = m.free && m.free.suggested;
   const tableTxt = held.length ? held.map(tableName).join(' + ') : best ? tableName(best) : '';
   // No single table, but the slot is open because tables push together: say
   // so, in the words a host uses, rather than "no table" over an open time.
   const slot = (m.slots || []).find(x => x.time === b.time);
-  const tableLine = tableTxt ? `<b>Table ${esc(tableTxt)}</b>` : slot && slot.ok && slot.join ? '<b>Tables pushed together</b>' : '<b>No table free</b>';
+  const tableLine = tableTxt ? `Table ${esc(tableTxt)}` : slot && slot.ok && slot.join ? 'Tables pushed together' : 'No table free';
   const extra = (key, label, on) => `<button class="${on ? 'on' : ''}" data-act="bk-page" data-val="${key}">${on ? I.tick : I.plus}<span>${esc(label)}</span></button>`;
   return `${m.error ? `<div class="err">${esc(m.error)}</div>` : ''}
     ${(m.conflicts || []).length ? `<div class="warnbox">${esc(conflictLine(m.conflicts))}</div>` : ''}
     ${m.small ? `<div class="warnbox">${esc(m.small)}</div>` : ''}
     <div class="bkq">
-      <div class="bkq-q"><div class="bkq-l">How many?</div><div class="bkq-well">${sizes}</div></div>
-      <div class="bkq-q"><div class="bkq-l">Which day?</div><div class="bkq-well">${days}</div></div>
-      <div class="bkq-q"><div class="bkq-l">What time?</div><div class="bkq-well">${times}<button data-act="bk-page" data-val="when">Other time</button></div>
-        ${b.time ? `<button class="bkq-table" data-act="bk-page" data-val="table">${tableLine} · ${durationOf(b)} min${slots.some(x => !x.ok) ? ' · crossed out = full' : ''}</button>` : ''}</div>
-      <div class="bkq-q"><div class="bkq-l">Who?</div><div class="bkq-who">
-        <div class="bkq-f"><label for="bk-name">Name</label><input id="bk-name" type="text" value="${esc(b.name)}" data-field="modal.b.name" placeholder="e.g. Smith" autocomplete="off"></div>
-        <div class="bkq-f"><label for="bk-phone">Phone</label><input id="bk-phone" type="tel" value="${esc(b.phone)}" data-field="modal.b.phone" placeholder="Optional"></div>
-      </div></div>
-      <div class="bkq-more">${extra('notes', 'Note', !!String(b.notes || '').trim())}${extra('tags', 'Tags', !!(b.tags || []).length)}${extra('setmenu', 'Set menu', !!setMenuName(b))}${extra('guest', 'Email', !!b.email)}</div>
+      ${pax}
+      <div class="bkq-q"><div class="bkq-l">Day</div><div class="bkq-days" data-keep="bkq-days">${days}</div></div>
+      <div class="bkq-q"><div class="bkq-l">Time</div><div class="bkq-times">${times}<button class="other" data-act="bk-page" data-val="when">Other time</button></div>
+        ${b.time ? `<button class="bkq-table" data-act="bk-page" data-val="table">${tableLine} · ${durationOf(b)} min</button>` : ''}</div>
+      <div class="bkq-who">
+        <input class="bkq-u" id="bk-name" type="text" value="${esc(b.name)}" data-field="modal.b.name" placeholder="Name" autocomplete="off" aria-label="Name">
+        <input class="bkq-u" id="bk-phone" type="tel" value="${esc(b.phone)}" data-field="modal.b.phone" placeholder="Phone" autocomplete="off" aria-label="Phone">
+        <div id="bkq-found">${bkqSugHtml(m)}</div>
+        <input class="bkq-u" id="bk-note" type="text" value="${esc(b.notes)}" data-field="modal.b.notes" placeholder="Note" autocomplete="off" aria-label="Note">
+      </div>
+      <div class="bkq-more">${extra('tags', 'Tags', !!(b.tags || []).length)}${extra('setmenu', 'Set menu', !!setMenuName(b))}${extra('guest', 'Email', !!b.email)}</div>
     </div>`;
 }
 // One page, one decision.
@@ -14268,6 +14346,15 @@ document.addEventListener('click', async (ev) => {
       // The one-page booking's own keys: a size or a day changes which times
       // are open, so both ask again; a day starts with no time, and the first
       // one still open is picked for it (loadAvailability).
+      // A guest the book already knows: their name, phone and email, and
+      // one line of who they are where the matches were.
+      case 'bkq-guest': {
+        const m = state.modal, g = m && m.sug && m.sug.list[parseInt(val, 10)];
+        if (!g) break;
+        m.b.name = g.name || m.b.name; m.b.phone = g.phone || m.b.phone; if (g.email && !m.b.email) m.b.email = g.email;
+        m.guest = g; m.sug = null; render();
+        break;
+      }
       case 'bk-size': { const m = state.modal; m.b.partySize = parseInt(val, 10) || 1; m.free = null; render(); loadAvailability(true); break; }
       case 'bk-day': { const m = state.modal; if (m.b.date === val) break; m.b.date = val; m.b.time = ''; m.slots = null; m.free = null; render(); loadAvailability(true); break; }
       case 'g-dob-clear': { const m2 = state.modal; m2.dobD = ''; m2.dobM = ''; m2.dobY = ''; m2.g.dob = ''; render(); break; }
@@ -15284,6 +15371,7 @@ document.addEventListener('input', (ev) => {
       _saveTimer = setTimeout(() => { if (el.dataset.avail === 'tables') loadAvailability(false); else { state.modal.b.time = el.dataset.field === 'modal.b.date' ? '' : state.modal.b.time; loadAvailability(true); } }, 300);
     }
     if (f === 'modal.b.durationMin' || f === 'modal.b.partySize') render();
+    if (f === 'modal.b.name' || f === 'modal.b.phone' || f === 'modal.b.notes') bkqTyped(f);
     return;
   }
   setPath(state, f, raw);
