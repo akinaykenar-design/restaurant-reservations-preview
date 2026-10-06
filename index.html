@@ -1294,6 +1294,34 @@ body.book-page #app{display:block;height:auto;}
 /* A phone swipes the strip sideways at its own width rather than squeezing
    forty slots into three hundred pixels. The columns keep their size. */
 @media (max-width:640px){ .fg-col{flex:0 0 64px;gap:4px;} .fg-stack{gap:4px;} }
+/* The column's head is the key to its limit: the time and the guests over
+   the limit, one press. The column picked wears the Row law's picked. */
+.fg-head{display:flex;flex-direction:column;gap:8px;min-height:var(--tap);padding:0;border:none;border-radius:var(--r-btn);
+  background:none;color:inherit;font:inherit;text-align:left;}
+.fg-head > span{display:block;}
+.fg-col.sel{opacity:1;}
+.fg-col.sel .fg-head{background:var(--pick-wash);box-shadow:inset 0 0 0 var(--ring) var(--orange);}
+.fg-lim{position:sticky;left:0;display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-top:12px;padding:8px 8px 8px 16px;
+  border-radius:var(--r-control);background:var(--surface);box-shadow:var(--lift-1);}
+.fg-lim-t{display:flex;flex-direction:column;min-width:120px;}
+.fg-lim-t b{font-family:var(--font-mono);font-size:var(--fs-lg);}
+.fg-lim-t span{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.fg-lim-n{display:flex;align-items:center;gap:8px;}
+.fg-lim-n button{width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--steel-300);background:none;
+  color:var(--text-primary);font:inherit;font-size:var(--fs-xl);line-height:1;padding:0;}
+.fg-lim-n button:disabled{opacity:var(--dim);}
+.fg-lim-n b{min-width:44px;text-align:center;font-family:var(--font-mono);font-size:var(--fs-num);font-weight:800;}
+.fg-lim-n b.none{font-family:var(--font-body);font-size:var(--fs-lg);color:var(--charcoal-soft);}
+.fg-lim-n small{margin-left:-4px;font-size:var(--fs-md);color:var(--charcoal-soft);}
+.fg-lim-seg{display:flex;gap:4px;padding:4px;border-radius:var(--r-control);background:var(--deck-pill-bg);}
+.fg-lim-seg button{height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);background:none;
+  color:var(--charcoal-soft);font:inherit;font-weight:700;font-size:var(--fs-md);}
+.fg-lim-seg button.on{background:var(--surface);color:var(--text-primary);box-shadow:var(--lift-1);}
+.fg-lim-x{height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);background:none;color:var(--charcoal-soft);
+  font:inherit;font-weight:700;font-size:var(--fs-md);}
+.fg-lim-close{margin-left:auto;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;
+  border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);}
+.fg-lim-close svg{width:20px;height:20px;}
 .stat.over{border-color:var(--red);}
 .stat.over b{color:var(--red);}
 
@@ -4048,7 +4076,9 @@ const DEFAULT_SETTINGS = {
     holdMs: 250,          // a finger holds this long before a block lifts
     showFinished: false,  // draw left, cancelled and no-show as well
   },
-  pacing: { maxCoversPer15: 0, maxBookingsPer15: 0 }, // 0 = off
+  // 0 = off. `night` and `week` are the Flow's own limits for one slot:
+  // { 'YYYY-MM-DD': { 'HH:MM': covers } } and { '0'..'6': { 'HH:MM': covers } }.
+  pacing: { maxCoversPer15: 0, maxBookingsPer15: 0, night: {}, week: {} },
   // What the venue has recoloured. A key here is a CSS custom property the
   // client re-points at boot; a key ABSENT (or '') means the stylesheet's own
   // token stands. The accent is NOT in here — it comes from the POS with the
@@ -4171,7 +4201,8 @@ function migrate(data) {
   for (const k of Object.keys(DEFAULT_SETTINGS.pos)) if (s.pos[k] === undefined) s.pos[k] = DEFAULT_SETTINGS.pos[k];
   for (const k of Object.keys(DEFAULT_SETTINGS.relay)) if (s.relay[k] === undefined) s.relay[k] = DEFAULT_SETTINGS.relay[k];
   for (const k of Object.keys(DEFAULT_DATA.relayState)) if (data.relayState[k] === undefined) data.relayState[k] = DEFAULT_DATA.relayState[k];
-  for (const k of Object.keys(DEFAULT_SETTINGS.pacing)) if (s.pacing[k] === undefined) s.pacing[k] = DEFAULT_SETTINGS.pacing[k];
+  for (const k of Object.keys(DEFAULT_SETTINGS.pacing)) if (s.pacing[k] === undefined) s.pacing[k] = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.pacing[k]));
+  for (const k of ['night', 'week']) if (!s.pacing[k] || typeof s.pacing[k] !== 'object' || Array.isArray(s.pacing[k])) s.pacing[k] = {};
   // The loop above already gives an older store `exceptions: []`; this catches
   // a hand-edited or half-written file that has the key but not an array.
   if (!Array.isArray(s.exceptions)) s.exceptions = [];
@@ -5151,11 +5182,12 @@ function coverFlow(ctx, day, opts) {
       if (Math.floor(s / step) * step === t) { covers += party; bookings++; }
       if (s <= t && t < s + durationFor(settings, party, r.durationMin)) { inRoom += party; sittings++; }
     }
+    const cap = coverCap(settings, day, time);
     return {
-      time, covers, bookings, inRoom, sittings,
+      time, covers, bookings, inRoom, sittings, cap,
       // Named the same way pacingReason() refuses a booking, so the band and
       // the popup can never disagree about what "full" means.
-      over: !!((capCovers && covers > capCovers) || (capBookings && bookings > capBookings)),
+      over: !!((cap && covers > cap) || (capBookings && bookings > capBookings)),
     };
   });
 
@@ -5228,6 +5260,48 @@ function suggestJoin(ctx, day, hhmm, party, opts) {
   return seats >= party && pick.length > 1 ? pick : null;
 }
 
+// THE LIMIT FOR ONE SLOT (owner, 6 Oct: "flow should be where you can adjust
+// bookings allowances per hour or half hour"). The covers that may walk in
+// during one slot: the night's own limit for that time first, then the one
+// set for every week on that weekday, then the venue's one number. A 0 at a
+// level is "no limit" THERE and stops the fall-through, so a quiet Tuesday
+// can lift the usual cap for one night. Keyed on the slot's own start time.
+function hasOwn(o, k) { return !!o && typeof o === 'object' && Object.prototype.hasOwnProperty.call(o, k); }
+function coverCap(settings, day, hhmm) {
+  const p = (settings && settings.pacing) || {};
+  const night = p.night && p.night[day];
+  if (hasOwn(night, hhmm)) return Math.max(0, parseInt(night[hhmm], 10) || 0);
+  const week = p.week && p.week[String(weekdayOf(day))];
+  if (hasOwn(week, hhmm)) return Math.max(0, parseInt(week[hhmm], 10) || 0);
+  return p.maxCoversPer15 > 0 ? p.maxCoversPer15 : 0;
+}
+// Where a slot's limit comes from: 'night', 'week' or '' (the venue's own).
+function coverCapFrom(settings, day, hhmm) {
+  const p = (settings && settings.pacing) || {};
+  if (hasOwn(p.night && p.night[day], hhmm)) return 'night';
+  if (hasOwn(p.week && p.week[String(weekdayOf(day))], hhmm)) return 'week';
+  return '';
+}
+
+// One slot's limit set from the Flow: for this night only, or for every week
+// on this weekday. `cap` is a number of covers (0 is "no limit" at that
+// level) or null to take that level's limit away. Setting it for every week
+// takes the night's own away, so the week's is the one that stands tonight;
+// setting it for tonight leaves the week's alone, because one night is not a
+// reason to change every Tuesday. Nights before `today` are dropped, so the
+// store does not grow a night a day for ever.
+function setSlotCap(pacing, day, hhmm, cap, every, today) {
+  const p = JSON.parse(JSON.stringify(pacing || {}));
+  p.night = p.night && typeof p.night === 'object' && !Array.isArray(p.night) ? p.night : {};
+  p.week = p.week && typeof p.week === 'object' && !Array.isArray(p.week) ? p.week : {};
+  const wd = String(weekdayOf(day));
+  const put = (o, k) => { if (cap === null) { if (o[k]) { delete o[k][hhmm]; if (!Object.keys(o[k]).length) delete o[k]; } } else (o[k] = o[k] || {})[hhmm] = Math.max(0, Math.min(999, parseInt(cap, 10) || 0)); };
+  if (every) { if (p.night[day]) { delete p.night[day][hhmm]; if (!Object.keys(p.night[day]).length) delete p.night[day]; } put(p.week, wd); }
+  else put(p.night, day);
+  if (today) for (const d of Object.keys(p.night)) if (d < today) delete p.night[d];
+  return p;
+}
+
 // Covers and bookings already starting in the same slot (pacing).
 function loadAt(ctx, day, hhmm, ignoreId) {
   const step = ctx.settings.slotMinutes || 15;
@@ -5239,7 +5313,9 @@ function loadAt(ctx, day, hhmm, ignoreId) {
 function pacingReason(ctx, day, hhmm, party, ignoreId) {
   const p = ctx.settings.pacing || {};
   const l = loadAt(ctx, day, hhmm, ignoreId);
-  if (p.maxCoversPer15 > 0 && l.covers + party > p.maxCoversPer15) return 'Kitchen full at this time';
+  const step = ctx.settings.slotMinutes || 15;
+  const cap = coverCap(ctx.settings, day, fromMin(Math.floor(toMin(hhmm) / step) * step));
+  if (cap > 0 && l.covers + party > cap) return 'Kitchen full at this time';
   if (p.maxBookingsPer15 > 0 && l.bookings + 1 > p.maxBookingsPer15) return 'Too many arrivals at this time';
   return null;
 }
@@ -5872,7 +5948,7 @@ module.exports = {
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkinTables, walkinNext, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkinTables, walkinNext, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -7453,7 +7529,8 @@ function dayGrant(ctx, day, now) {
     if (av.timeMs(av.joinTime(day, hhmm)) < now.getTime() + notice) continue;
     // Pacing is the one thing a COUNT is right for: how many walk in at 7:30.
     const l = av.loadAt(ctx, day, hhmm);
-    const covers = p.maxCoversPer15 > 0 ? p.maxCoversPer15 - l.covers : NO_CAP.covers;
+    const cap = av.coverCap(s, day, hhmm);
+    const covers = cap > 0 ? cap - l.covers : NO_CAP.covers;
     const bookings = p.maxBookingsPer15 > 0 ? p.maxBookingsPer15 - l.bookings : NO_CAP.bookings;
     if (covers > 0 && bookings > 0) g.slots[hhmm] = { covers, bookings };
   }
@@ -7890,6 +7967,23 @@ function safeSettings(data) {
 app.get('/api/settings', (req, res) => { res.json(safeSettings(readData())); });
 
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+// ONE SLOT'S LIMIT, from the Flow (owner, 6 Oct). Its own route rather than
+// the settings save, because the Flow sends one press about one time, and a
+// whole pacing object sent back from a tablet would put back whatever another
+// tablet changed in between.
+app.put('/api/pacing/slot', (req, res) => {
+  const b = req.body || {};
+  const day = String(b.day || ''), time = String(b.time || '');
+  if (!av.isRealDay(day) || !/^\d{2}:\d{2}$/.test(time) || av.toMin(time) >= 1440) return res.status(400).json({ error: 'A day and a time are required' });
+  const cap = b.cap === null ? null : parseInt(b.cap, 10);
+  if (cap !== null && !(cap >= 0)) return res.status(400).json({ error: 'The limit is a number of guests' });
+  const data = readData();
+  data.settings.pacing = av.setSlotCap(data.settings.pacing, day, time, cap, !!b.every, av.localDay(new Date()));
+  const wd = new Date(day + 'T12:00').toLocaleDateString('en-AU', { weekday: 'long' });
+  logAudit(data, staffFromReq(req), `Limit at ${time} ${b.every ? 'every ' + wd : 'on ' + day}: ${cap === null ? 'the usual' : cap === 0 ? 'none' : cap + ' guests'}`);
+  writeData(data);
+  res.json({ pacing: data.settings.pacing });
+});
 app.put('/api/settings', async (req, res) => {
   const data = readData();
   const b = req.body || {}, s = data.settings;
@@ -11418,6 +11512,23 @@ function floorStateAt(hhmm, live) {
   });
 }
 
+// The browser's copy of availability.js:coverCap — one slot's limit, the
+// night's own, then every week's, then the venue's one number. Held to the
+// tested one by test/availability.test.js, the way floorStateAt() is.
+function coverCapLocal(settings, day, hhmm) {
+  const p = (settings && settings.pacing) || {};
+  const own = (o) => !!o && typeof o === 'object' && Object.prototype.hasOwnProperty.call(o, hhmm);
+  const night = p.night && p.night[day];
+  if (own(night)) return Math.max(0, parseInt(night[hhmm], 10) || 0);
+  const week = p.week && p.week[String(parseDay(day).getDay())];
+  if (own(week)) return Math.max(0, parseInt(week[hhmm], 10) || 0);
+  return p.maxCoversPer15 > 0 ? p.maxCoversPer15 : 0;
+}
+function coverCapFromLocal(settings, day, hhmm) {
+  const p = (settings && settings.pacing) || {};
+  const own = (o) => !!o && typeof o === 'object' && Object.prototype.hasOwnProperty.call(o, hhmm);
+  return own(p.night && p.night[day]) ? 'night' : own(p.week && p.week[String(parseDay(day).getDay())]) ? 'week' : '';
+}
 // Arrivals and bums on seats, slot by slot. The second one is the one nobody
 // draws and the one the kitchen actually feels.
 function coverFlowFor() {
@@ -11441,7 +11552,8 @@ function coverFlowFor() {
       if (Math.floor(a / step) * step === t) { covers += party; bookings++; }
       if (a <= t && t < a + durationOf(r)) { inRoom += party; sittings++; }
     }
-    return { time: fromMin(t), mins: t, covers, bookings, inRoom, sittings, over: !!((capCovers && covers > capCovers) || (capBookings && bookings > capBookings)) };
+    const cap = coverCapLocal(state.settings, state.date, fromMin(t));
+    return { time: fromMin(t), mins: t, covers, bookings, inRoom, sittings, cap, over: !!((cap && covers > cap) || (capBookings && bookings > capBookings)) };
   });
   const peak = (k) => slots.reduce((best, x) => (!best || x[k] > best[k] ? x : best), null);
   return {
@@ -12027,14 +12139,40 @@ function renderFlow() {
     <div class="flowgrid" data-keep="flowgrid" role="img" aria-label="The tables arriving in each slot, and the covers with them">
       ${cf.slots.map((s, i) => {
     const mine = bySlot[s.mins] || [];
-    return `<div class="fg-col${s.over ? ' over' : ''}${hour(s) ? ' hour' : ''}${breaks[i] ? ' brk' : ''}${mine.length ? '' : ' quiet'}">
-        <div class="fg-time">${esc(fmtHHMM(s.time))}</div>
-        <div class="fg-total"><b>${s.covers}</b>${cf.capCovers ? `<small>/${cf.capCovers}</small>` : ''}</div>
+    return `<div class="fg-col${s.over ? ' over' : ''}${hour(s) ? ' hour' : ''}${breaks[i] ? ' brk' : ''}${mine.length ? '' : ' quiet'}${state.flowSlot === s.time ? ' sel' : ''}">
+        <button class="fg-head" data-act="flow-slot" data-val="${esc(s.time)}" aria-pressed="${state.flowSlot === s.time}" aria-label="${esc(fmtHHMM(s.time))}: ${s.covers} guests${s.cap ? ', limit ' + s.cap : ', no limit'}">
+        <span class="fg-time">${esc(fmtHHMM(s.time))}</span>
+        <span class="fg-total"><b>${s.covers}</b>${s.cap ? `<small>/${s.cap}</small>` : ''}</span></button>
         <div class="fg-stack">${mine.map(box).join('')}</div>
       </div>`;
   }).join('')}
     </div>
+    ${renderFlowLimit(cf)}
   </div>`;
+}
+// THE LIMITS ARE SET WHERE THE NIGHT IS SEEN (owner, 6 Oct: "flow should be
+// where you can adjust bookings allowances per hour or half hour"). Tap a
+// column and this stands under the strip: that slot's guests, its limit on a
+// − n + stepper, for Tonight or Every Tuesday, and No limit. Each press is
+// saved as it is pressed, the way Settings saves.
+function renderFlowLimit(cf) {
+  const sl = state.flowSlot && cf.slots.find(x => x.time === state.flowSlot);
+  if (!sl) return '';
+  const from = coverCapFromLocal(state.settings, state.date, sl.time);
+  const wd = parseDay(state.date).toLocaleDateString([], { weekday: 'long' });
+  return `<div class="fg-lim" role="group" aria-label="Limit at ${esc(fmtHHMM(sl.time))}">
+    <span class="fg-lim-t"><b>${esc(fmtHHMM(sl.time))}–${esc(fmtHHMM(fromMin(sl.mins + cf.step)))}</b><span>${sl.covers} ${sl.covers === 1 ? 'guest' : 'guests'} arriving</span></span>
+    <span class="fg-lim-n"><button data-act="flow-cap" data-val="-1" aria-label="One fewer"${sl.cap === 1 ? ' disabled' : ''}>−</button><b class="${sl.cap ? '' : 'none'}">${sl.cap || 'None'}</b><small>limit</small><button data-act="flow-cap" data-val="1" aria-label="One more">+</button></span>
+    <span class="fg-lim-seg"><button class="${from === 'week' ? '' : 'on'}" data-act="flow-every" data-val="0" aria-pressed="${from !== 'week'}">Tonight</button><button class="${from === 'week' ? 'on' : ''}" data-act="flow-every" data-val="1" aria-pressed="${from === 'week'}">Every ${esc(wd)}</button></span>
+    <button class="fg-lim-x" data-act="flow-cap" data-val="none">No limit</button>
+    <button class="fg-lim-close" data-act="flow-slot" data-val="${esc(sl.time)}" aria-label="Close">${I.cross}</button>
+  </div>`;
+}
+async function saveSlotCap(time, cap, every) {
+  try {
+    const got = await put('/api/pacing/slot', { day: state.date, time, cap, every });
+    state.settings.pacing = got.pacing; render();
+  } catch (e) { toastBad(e.message); }
 }
 
 function renderToday() {
@@ -14262,6 +14400,26 @@ document.addEventListener('click', async (ev) => {
       case 'row-rest': if (state.modal && state.modal.kind === 'booking') state.modal = null; await setStatus(id, 'seated'); break;
       // The booking's own next step past the chair: Bill, Paid, Left.
       case 'bke-step': state.modal = null; await setStatus(id, val); break;
+      case 'flow-slot': state.flowSlot = state.flowSlot === val ? null : val; render(); break;
+      // − and + walk the limit from where it stands; from no limit they start
+      // at what is already booked there, which is the number a host is
+      // deciding about. Saved where it is shown: tonight, or every week.
+      case 'flow-cap': {
+        const t = state.flowSlot; if (!t) break;
+        const every = coverCapFromLocal(state.settings, state.date, t) === 'week';
+        if (val === 'none') { await saveSlotCap(t, 0, every); break; }
+        const cf = coverFlowFor(), sl = cf.slots.find(x => x.time === t);
+        const base = (sl && sl.cap) || Math.max(1, (sl && sl.covers) || 0);
+        await saveSlotCap(t, Math.max(1, base + (sl && sl.cap ? parseInt(val, 10) : (parseInt(val, 10) > 0 ? 1 : 0))), every);
+        break;
+      }
+      case 'flow-every': {
+        const t = state.flowSlot; if (!t) break;
+        const cap = coverCapLocal(state.settings, state.date, t);
+        if (val === '1') await saveSlotCap(t, cap, true);
+        else if (coverCapFromLocal(state.settings, state.date, t) !== 'night') await saveSlotCap(t, cap, false);
+        break;
+      }
       case 'row-table': {
         if (state.picking && state.picking.id === id) { state.picking = null; render(); break; }
         const r = (state.reservations || []).find(x => x.id === id);
