@@ -494,14 +494,14 @@ h1,h2,h3{margin:0;}
 /* §§ Status chips */
 .status-chip{display:inline-flex;align-items:center;gap:4px;font-size:var(--fs-chip);font-weight:700;padding:4px 8px;border-radius:var(--r-pill);text-transform:uppercase;letter-spacing:.3px;color:#fff;white-space:nowrap;vertical-align:middle;}
 .status-chip svg{width:13px;height:13px;flex:0 0 13px;}
-.status-chip.booked{background:var(--st-booked);} .status-chip.confirmed{background:var(--st-confirmed);} .status-chip.arrived{background:var(--st-arrived);}
-.status-chip.seated{background:var(--st-seated);} .status-chip.done{background:var(--st-done);} .status-chip.cancelled{background:var(--st-cancelled);} .status-chip.no-show{background:var(--st-noshow);}
+.status-chip.booked{background:var(--st-booked);color:var(--st-booked-ink,var(--on-scrim));} .status-chip.confirmed{background:var(--st-confirmed);color:var(--st-confirmed-ink,var(--on-scrim));} .status-chip.arrived{background:var(--st-arrived);color:var(--st-arrived-ink,var(--on-scrim));}
+.status-chip.seated{background:var(--st-seated);color:var(--st-seated-ink,var(--on-scrim));} .status-chip.done{background:var(--st-done);color:var(--st-done-ink,var(--on-scrim));} .status-chip.cancelled{background:var(--st-cancelled);color:var(--st-cancelled-ink,var(--on-scrim));} .status-chip.no-show{background:var(--st-noshow);color:var(--st-noshow-ink,var(--on-scrim));}
 /* A PART WEARS ITS WHOLE S COLOUR. Half a party through the door is not a new
    thing on the floor, it is less of the same thing, and the chip already
    carries the word. The DOT is where the halving is drawn, below. */
-.status-chip.part-arrived{background:var(--st-arrived);} .status-chip.part-seated{background:var(--st-seated);}
-.status-chip.check{background:var(--st-check);} .status-chip.paid{background:var(--st-paid);}
-.status-chip.online{background:var(--src-online);} .status-chip.walk-in{background:var(--src-walkin);} .status-chip.pos{background:var(--src-pos);}
+.status-chip.part-arrived{background:var(--st-arrived);color:var(--st-arrived-ink,var(--on-scrim));} .status-chip.part-seated{background:var(--st-seated);color:var(--st-seated-ink,var(--on-scrim));}
+.status-chip.check{background:var(--st-check);color:var(--st-check-ink,var(--on-scrim));} .status-chip.paid{background:var(--st-paid);color:var(--st-paid-ink,var(--on-scrim));}
+.status-chip.online{background:var(--src-online);color:var(--src-online-ink,var(--on-scrim));} .status-chip.walk-in{background:var(--src-walkin);color:var(--src-walkin-ink,var(--on-scrim));} .status-chip.pos{background:var(--src-pos);color:var(--src-pos-ink,var(--on-scrim));}
 .tag{font-size:var(--fs-chip);font-weight:700;padding:3px 7px;border-radius:var(--r-pill);border:1px solid var(--steel-300);color:var(--charcoal-soft);white-space:nowrap;}
 .tag.hot{border-color:var(--red);color:var(--red);}
 /* A tag that carries a glyph — the cake on a birthday — lays out as a row. */
@@ -544,11 +544,11 @@ h1,h2,h3{margin:0;}
 .tl-lane.unassigned{background-color:var(--pick-wash);}
 .tl-block{position:absolute;top:5px;height:34px;border-radius:var(--r-btn);padding:0 8px;display:flex;align-items:center;gap:6px;color:#fff;font-weight:700;font-size:var(--fs-md);white-space:nowrap;overflow:hidden;cursor:pointer;border:1px solid transparent;}
 .tl-block small{font-family:var(--font-mono);font-size:var(--fs-chip);font-weight:700;opacity:.9;}
-.tl-block.booked{background:var(--st-booked);} .tl-block.confirmed{background:var(--st-confirmed);} .tl-block.arrived{background:var(--st-arrived);}
-.tl-block.seated{background:var(--st-seated);} .tl-block.done{background:var(--st-done);}
-.tl-block.part-arrived{background:var(--st-arrived);} .tl-block.part-seated{background:var(--st-seated);}
-.tl-block.check{background:var(--st-check);} .tl-block.paid{background:var(--st-paid);}
-.tl-block.cancelled{background:var(--st-cancelled);} .tl-block.no-show{background:var(--st-noshow);}
+.tl-block.booked{background:var(--st-booked);color:var(--st-booked-ink,var(--on-scrim));} .tl-block.confirmed{background:var(--st-confirmed);color:var(--st-confirmed-ink,var(--on-scrim));} .tl-block.arrived{background:var(--st-arrived);color:var(--st-arrived-ink,var(--on-scrim));}
+.tl-block.seated{background:var(--st-seated);color:var(--st-seated-ink,var(--on-scrim));} .tl-block.done{background:var(--st-done);color:var(--st-done-ink,var(--on-scrim));}
+.tl-block.part-arrived{background:var(--st-arrived);color:var(--st-arrived-ink,var(--on-scrim));} .tl-block.part-seated{background:var(--st-seated);color:var(--st-seated-ink,var(--on-scrim));}
+.tl-block.check{background:var(--st-check);color:var(--st-check-ink,var(--on-scrim));} .tl-block.paid{background:var(--st-paid);color:var(--st-paid-ink,var(--on-scrim));}
+.tl-block.cancelled{background:var(--st-cancelled);color:var(--st-cancelled-ink,var(--on-scrim));} .tl-block.no-show{background:var(--st-noshow);color:var(--st-noshow-ink,var(--on-scrim));}
 .tl-block.conflict{border-color:var(--red);box-shadow:inset 0 0 0 var(--ring) var(--red);}
 /* NOW, AND IT WALKS. One line down the whole grid rather than a copy inside
    every lane, laid over the blocks (z 1) and under the sticky table names
@@ -1255,9 +1255,9 @@ body.book-page #app{display:block;height:auto;}
 .fg-tbl.booked{background:color-mix(in srgb, var(--st-booked) 30%, var(--surface));}
 .fg-tbl.confirmed{background:color-mix(in srgb, var(--st-confirmed) 30%, var(--surface));}
 .fg-tbl.part-arrived,.fg-tbl.arrived{background:color-mix(in srgb, var(--st-arrived) 30%, var(--surface));}
-.fg-tbl.part-seated,.fg-tbl.seated{background:var(--st-seated);color:var(--on-scrim);}
-.fg-tbl.check{background:var(--st-check);color:var(--on-scrim);}
-.fg-tbl.paid{background:var(--st-paid);color:var(--on-scrim);}
+.fg-tbl.part-seated,.fg-tbl.seated{background:var(--st-seated);color:var(--st-seated-ink,var(--on-scrim));}
+.fg-tbl.check{background:var(--st-check);color:var(--st-check-ink,var(--on-scrim));}
+.fg-tbl.paid{background:var(--st-paid);color:var(--st-paid-ink,var(--on-scrim));}
 /* The covers walking in during this slot, against the venue's cap when it set
    one. The strip of numbers the pacing band always was, kept. */
 /* margin-top:auto, not flex:1 on the tables above it. A column with nothing
@@ -4247,6 +4247,10 @@ function cleanDob(input) {
 // them and so has nothing to disagree with. `free` is not in either list:
 // on this floor a free table is the plain surface, never a colour.
 const TILL_COLOURS = { seated: 'occupied', check: 'billPrinted' };
+// Which of OUR status keys the till really paints: the ones it sends a colour
+// for. A till sending them as null paints nothing, and treating it as owning
+// them dropped the venue's own Seated and Bill on every colour save.
+function tillOwns(tsc) { return Object.keys(TILL_COLOURS).filter(k => !!(tsc && tsc[TILL_COLOURS[k]])); }
 
 // Reading a venue's colour code off the wire. Pure, so the rule that decides
 // whether a colour is kept can be read and tested without a request: a key we
@@ -4287,7 +4291,7 @@ const COLOUR_KEYS = {
   over: '--st-over',
   online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
 };
-module.exports = { readData, writeData, dataVersion, newId, migrate, TILL_COLOURS, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
+module.exports = { readData, writeData, dataVersion, newId, migrate, TILL_COLOURS, tillOwns, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./db'] = module;
@@ -4332,6 +4336,27 @@ function isSat(r) { return SAT.includes(r && r.status); }
 // split out of `due` in the first place.
 const HERE = ['part-arrived', 'arrived'];
 function isHere(r) { return HERE.includes(r && r.status); }
+
+// THE STAMPS A STATUS CHANGE LEAVES. The FIRST time somebody is down is the
+// seating, so it is written once — walking on to the bill or the door must
+// not move it, or every sitting length and spend window shortens as the night
+// ends. But a party put BACK before the table never sat: a stale stamp from a
+// mistaken press told the till's payment for the party before them that it
+// was theirs, and the next pass marked them Paid (daily round, 6 Oct).
+const ENDED = ['done', 'cancelled', 'no-show'];
+function statusStamps(r, now) {
+  if (isSat(r) && !r.seatedAt) r.seatedAt = now;
+  if (isHere(r) && !r.arrivedAt) r.arrivedAt = now;
+  if (r.status === 'check') r.checkAt = now;
+  if (r.status === 'paid') r.paidAt = now;
+  if (r.status === 'done') r.doneAt = now;
+  if (r.status === 'confirmed') r.confirmedAt = now;
+  if (!isSat(r) && !ENDED.includes(r.status)) {
+    delete r.seatedAt; delete r.checkAt; delete r.paidAt; delete r.billStale;
+    if (!isHere(r)) delete r.arrivedAt;
+  }
+  return r;
+}
 
 // How long a party of this size holds its table.
 function durationFor(settings, party, override) {
@@ -4435,6 +4460,14 @@ function onNight(settings, r, day) {
   return d === day || (d === addDays(day, 1) && minsOf(r.time) < rollsOf(settings));
 }
 function nightMin(r, day) { return minsOf(r.time) + (dayOf(r.time) > day ? 1440 : 0); }
+// A date and a clock time as the NIGHT they belong to: 00:30 on the 29th,
+// before the day rolls, is the 28th at 24:30. What a table question has to
+// be asked on, or last night's chairs are invisible to it (daily round, 6 Oct).
+function nightAt(settings, day, hhmm) {
+  const prev = addDays(day, -1), m = toMin(hhmm);
+  if (!(m < rollsOf(settings))) return { day, hhmm };
+  return { day: prev, hhmm: pad2(Math.floor((m + 1440) / 60)) + ':' + pad2(m % 60) };
+}
 function nowOn(ctx, day) {
   const n = ctx && ctx.now;
   if (!(n instanceof Date)) return null;
@@ -4449,9 +4482,10 @@ function nowOn(ctx, day) {
 // until somebody marks it Left, which is the whole point of `over`, and
 // floorAt() already draws it that way. The free-table answer used to let
 // the sitting end on paper while the party was still in the chairs.
-function heldFor(ctx, r, now) {
+function heldFor(ctx, r, now, s) {
   const d = durationFor(ctx.settings, r.partySize, r.durationMin);
-  return now !== null && isSat(r) ? Math.max(d, now + 1 - minsOf(r.time)) : d;
+  if (s === undefined) s = minsOf(r.time);
+  return now !== null && isSat(r) ? Math.max(d, now + 1 - s) : d;
 }
 
 // IN THE ROOM EARLY IS IN THE ROOM. A party sat, or standing at the door,
@@ -4459,15 +4493,21 @@ function heldFor(ctx, r, now) {
 // booked: Moss sat at 7:46 for 8:00 and the walk-in menu put strangers on 43
 // with a green toast (daily round, 4 Oct). Only the start moves; the end is
 // still the booked sitting's, or later for a sat party running over.
-function heldFrom(r, now) {
-  const s = minsOf(r.time);
+function heldFrom(r, now, s) {
+  if (s === undefined) s = minsOf(r.time);
   return now !== null && (isSat(r) || isHere(r)) && now < s ? now : s;
 }
-// Bookings that hold a table at this moment on this day.
+// Bookings that hold a table at this moment on this night — its tail too: a
+// party sat at 00:30 is stored on the next date, and asked about at 24:40 it
+// held nothing, so the table key offered the table they were eating at
+// (daily round, 6 Oct). Their minute is counted on from this midnight.
 function holdersOf(ctx, tableId, day, startMin, dur, ignoreId) {
   const now = nowOn(ctx, day);
-  return (ctx.reservations || []).filter(r => r.id !== ignoreId && isLive(r) && dayOf(r.time) === day && heldTables(r).includes(tableId)
-    && overlaps(startMin, dur, heldFrom(r, now), heldFor(ctx, r, now) + minsOf(r.time) - heldFrom(r, now)));
+  return (ctx.reservations || []).filter(r => {
+    if (r.id === ignoreId || !isLive(r) || !onNight(ctx.settings, r, day) || !heldTables(r).includes(tableId)) return false;
+    const s = nightMin(r, day), from = heldFrom(r, now, s);
+    return overlaps(startMin, dur, from, heldFor(ctx, r, now, s) + s - from);
+  });
 }
 // Where a party's OWN sitting is asked from: now, for one already in the room
 // tonight — sat, or arrived early or late — and its booked hour otherwise.
@@ -4598,6 +4638,62 @@ function tableCourse(t) {
   const raw = String((c && typeof c === 'object' && (c.color || c.colour)) || t.courseColor || '').trim();
   const at = Number((c && typeof c === 'object' && (c.at || c.sentAt)) || t.courseAt) || null;
   return { name: name.slice(0, 24), colour: /^#[0-9A-Fa-f]{6}$/.test(raw) ? raw.toUpperCase() : null, at };
+}
+
+// WHAT THE TILL SAYS IS ON A TABLE — covers, marks, course — and only while
+// the till is linked. They are this minute's word from another machine; a
+// link switched off leaves the last word it sent sitting on the floor plan,
+// and covers from September then drew walk-ins every night and made the
+// relay refuse tables nobody was at (daily round, 6 Oct).
+function tillMarks(t, linked) {
+  if (!linked || !t) return { covers: 0, allergies: [], vip: '', course: null };
+  return { covers: Math.max(0, Number(t.covers) || 0), allergies: tableAllergies(t), vip: tableVip(t), course: tableCourse(t) };
+}
+
+// SETTINGS → THE ROOM SAVES INTO EVERY ROOM. The card sends one list of every
+// table in the venue; each goes back to the plan it came from, every plan is
+// kept, and only what was sent moves. Writing the list into the first plan
+// deleted a venue's Outside and dropped its tables into Inside as two huge
+// boxes (daily round, 6 Oct). A NEW table goes to the plan it names (floorId)
+// or the first, is sized like the tables already in that room — the till's
+// canvas draws tables about 1.25 by 2, and a fixed 8 by 11 was a slab — and
+// stands among them on the first spot nothing is on.
+function mergeTables(plans, list, newId) {
+  plans = (Array.isArray(plans) && plans.length) ? plans : [{ id: 'fp1', name: 'Main', tables: [] }];
+  const NUM = (v, lo, hi, d) => { const n = Number(v); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
+  const home = new Map(), was = new Map();
+  plans.forEach((fp, pi) => (fp.tables || []).forEach(t => { if (t && t.type !== 'decor') { home.set(t.id, pi); was.set(t.id, t); } }));
+  const rooms = plans.map(fp => ({ decor: (fp.tables || []).filter(t => t && t.type === 'decor'), tables: [] }));
+  const own = (pi) => (plans[pi].tables || []).filter(t => t && t.type !== 'decor');
+  const median = (pi, k) => { const v = own(pi).map(t => Number(t[k])).filter(Number.isFinite).sort((a, b) => a - b); return v.length ? v[Math.floor(v.length / 2)] : undefined; };
+  const spot = (pi, w, h) => {
+    const near = own(pi).concat(rooms[pi].tables).filter(t => Number.isFinite(t.x) && Number.isFinite(t.y));
+    const clear = (x, y) => !near.concat(rooms[pi].decor).some(t => Number.isFinite(t.x) && Math.abs(t.x - x) < Math.max(w, t.width || w) && Math.abs(t.y - y) < Math.max(h, t.height || h));
+    if (near.length) {
+      const xs = near.map(t => t.x), ys = near.map(t => t.y);
+      const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys) + 2 * h;
+      for (let y = y0; y <= y1; y += 1.5 * h) for (let x = x0; x <= x1 + 2 * w; x += 1.5 * w) if (x <= 100 && y <= 100 && clear(x, y)) return { x: +x.toFixed(2), y: +y.toFixed(2) };
+    }
+    for (let row = 0; row < 6; row++) for (let col = 0; col < 6; col++) { const x = 14 + col * 14.5, y = 20 + row * 13; if (clear(x, y)) return { x, y }; }
+    return { x: 50, y: 50 };
+  };
+  (Array.isArray(list) ? list : []).slice(0, 200).forEach((t, i) => {
+    if (!t) return;
+    const old = was.get(t.id) || {};
+    const pi = home.has(t.id) ? home.get(t.id) : Math.max(0, plans.findIndex(fp => fp.id === t.floorId));
+    const next = Object.assign({}, old, { id: t.id || newId(), label: String(t.label || (i + 1)).slice(0, 8), seats: Math.max(1, Math.min(40, parseInt(t.seats) || 2)), type: 'table' });
+    if (t.x !== undefined) next.x = NUM(t.x, 0, 100, old.x);
+    if (t.y !== undefined) next.y = NUM(t.y, 0, 100, old.y);
+    if (t.width !== undefined) next.width = NUM(t.width, 1, 100, old.width);
+    if (t.height !== undefined) next.height = NUM(t.height, 1, 100, old.height);
+    if (t.rotation !== undefined) next.rotation = NUM(t.rotation, -360, 360, old.rotation || 0);
+    if (t.shape !== undefined) next.shape = t.shape === 'circle' ? 'circle' : 'rect';
+    if (next.width === undefined) next.width = median(pi, 'width') || (next.seats > 4 ? 14 : next.seats > 2 ? 12 : 8);
+    if (next.height === undefined) next.height = median(pi, 'height') || (next.seats > 4 ? 18 : next.seats > 2 ? 15 : 11);
+    if (next.x === undefined || next.y === undefined) Object.assign(next, spot(pi, next.width, next.height));
+    rooms[pi].tables.push(next);
+  });
+  return plans.map((fp, pi) => Object.assign({}, fp, { id: fp.id || 'fp' + (pi + 1), name: fp.name || 'Main', tables: rooms[pi].decor.concat(rooms[pi].tables) }));
 }
 
 // §§ THE BILL AND THE PAYMENT COME FROM THE TILL
@@ -5727,11 +5823,12 @@ function runSheet(ctx, day, opts) {
 }
 
 module.exports = {
+  statusStamps, mergeTables,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
-  LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
+  LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, walkinTables, walkinNext, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
-  FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tableBill, tillSitting, tillSendsBill, coverFlow,
+  FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
@@ -7287,7 +7384,11 @@ function roomOn(ctx, day) {
     if (!(Number(t.covers) > 0) || av.holdersOf(ctx, t.id, day, now, 1, null).length) continue;
     (busy[t.id] = busy[t.id] || []).push([now, now + av.durationFor(s, Number(t.covers))]);
   }
-  const most = Math.max(1, s.online.maxPartySize || 8);
+  // A sitting for every party that can REACH the relay, not just the online
+  // limit: the office books for the desk, up to the venue's own maximum, and
+  // a sitting clamped to the online size held a six for a four's 90 minutes
+  // and sold the same table again behind it (daily round, 6 Oct).
+  const most = Math.min(200, Math.max(1, s.online.maxPartySize || 8, s.maxPartySize || 0));
   return {
     tables: (ctx.tables || []).map(t => ({ id: t.id, seats: t.seats, busy: busy[t.id] || [] })),
     durations: Array.from({ length: most }, (_, i) => av.durationFor(s, i + 1)),
@@ -7691,7 +7792,7 @@ function effectiveSettings(data) {
     for (const [mine, theirs] of Object.entries(TILL_COLOURS)) {
       if (t[theirs]) s.statusColours[mine] = t[theirs];
     }
-    s.tillColours = Object.keys(TILL_COLOURS).filter(k => t[TILL_COLOURS[k]]);
+    s.tillColours = db.tillOwns(t);
   } else {
     s.tillColours = [];
   }
@@ -7702,9 +7803,9 @@ function tablesOf(data) { return av.tablesFrom(data.floorPlans); }
 // plus what the till says is on them. tablesFrom() stays lean because the
 // arithmetic has no use for covers — only the drawing does.
 function floorTablesOf(data) {
-  const live = {};
+  const live = {}, linked = pos.ready(data.settings.pos);
   (data.floorPlans || []).forEach(fp => (fp.tables || []).forEach(t => {
-    live[t.id] = { covers: Math.max(0, Number(t.covers) || 0), allergies: av.tableAllergies(t), vip: av.tableVip(t), course: av.tableCourse(t) };
+    live[t.id] = av.tillMarks(t, linked);
   }));
   return av.tablesFrom(data.floorPlans).map(t => Object.assign({}, t, live[t.id] || { covers: 0, allergies: [], vip: '', course: null }));
 }
@@ -7798,8 +7899,7 @@ app.put('/api/settings', async (req, res) => {
     // which is the definition of a second source. Dropped, not refused: the
     // card sends the whole map back and a refusal would block the eight that
     // ARE ours over two the person never touched.
-    const linked = pos.ready(s.pos) && (data.posSettings || {}).tableStatusColors;
-    if (linked) for (const k of Object.keys(TILL_COLOURS)) delete nextColours[k];
+    for (const k of db.tillOwns(pos.ready(s.pos) ? (data.posSettings || {}).tableStatusColors : null)) delete nextColours[k];
     s.statusColours = nextColours;
   }
   if (b.venueName !== undefined) s.venueName = String(b.venueName || '').trim().slice(0, 40);
@@ -7813,7 +7913,10 @@ app.put('/api/settings', async (req, res) => {
   if (nextExceptions) s.exceptions = nextExceptions;
   if (b.slotMinutes !== undefined) s.slotMinutes = [15, 30].includes(parseInt(b.slotMinutes)) ? parseInt(b.slotMinutes) : 15;
   if (b.defaultDuration !== undefined) s.defaultDuration = Math.max(30, Math.min(360, parseInt(b.defaultDuration) || 90));
-  if (Array.isArray(b.durationByParty)) s.durationByParty = b.durationByParty.slice(0, 6).map(x => ({ upTo: Math.max(1, parseInt(x.upTo) || 1), minutes: Math.max(30, Math.min(360, parseInt(x.minutes) || 90)) })).sort((x, y) => x.upTo - y.upTo);
+  // Kept in the order the card sent them — av.durationFor() sorts when it
+  // reads. Sorted here, the card wrote a half-typed "up to" back by its old
+  // index into the re-sorted rows and lost two of them (daily round, 6 Oct).
+  if (Array.isArray(b.durationByParty)) s.durationByParty = b.durationByParty.slice(0, 6).map(x => ({ upTo: Math.max(1, parseInt(x.upTo) || 1), minutes: Math.max(30, Math.min(360, parseInt(x.minutes) || 90)) }));
   if (b.maxPartySize !== undefined) s.maxPartySize = Math.max(1, Math.min(200, parseInt(b.maxPartySize) || 12));
   if (b.seatSlack !== undefined) s.seatSlack = Math.max(0, Math.min(10, parseInt(b.seatSlack) || 0));
   // Which tables push together. Two or more DISTINCT ids and nothing else —
@@ -7949,6 +8052,7 @@ app.get('/api/tables', (req, res) => {
   // verbatim, so a room drawn here sits exactly where it sits on the till.
   // Decor rides along (walls, the bar, the entrance): it is never bookable,
   // and without it a floor plan is a scatter of rectangles nobody recognises.
+  const linked = pos.ready(data.settings.pos);
   const shape = (t) => ({
     id: t.id, label: t.label, seats: t.seats,
     x: t.x, y: t.y, width: t.width, height: t.height,
@@ -7967,15 +8071,13 @@ app.get('/api/tables', (req, res) => {
     // WHAT THE TILL KNOWS AND THE BOOK DOES NOT: how many are sitting there
     // right now. A table the desk never booked is a walk-in on the floor,
     // and without this the desk draws it free and offers it to the phone.
-    covers: Math.max(0, Number(t.covers) || 0),
     // THE TILL'S OWN MARKS. A waiter taking an allergy at the table types it
     // into the till, not into the book — and the desk is the one answering
     // the phone about it an hour later. Same for a VIP marked on the floor.
-    // Both ride the floor-plan call that was already being made.
-    allergies: av.tableAllergies(t), vip: av.tableVip(t),
-    // AND THE COURSE, the day the till sends it. Null until then — see
-    // av.tableCourse() and POS-LINK.md.
-    course: av.tableCourse(t),
+    // Both ride the floor-plan call that was already being made. AND THE
+    // COURSE, the day the till sends it (av.tableCourse, POS-LINK.md). All of
+    // it only while the till is linked: av.tillMarks().
+    ...av.tillMarks(t, linked),
   });
   res.json({
     tables: floorTablesOf(data),
@@ -7994,53 +8096,16 @@ app.get('/api/tables', (req, res) => {
 // dealing the tables out in reading order and the room a host had arranged was
 // gone. Geometry is kept off the stored table unless the caller sends its own,
 // and decor (walls, the bar, the pass) is never something the list can touch.
-const NUM = (v, lo, hi, fallback) => {
-  const n = Number(v);
-  return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : fallback;
-};
-// A table nobody has placed goes where there is room: down the grid in reading
-// order, which is what the Floor view would have done with it anyway.
-function freeSpot(taken) {
-  for (let row = 0; row < 6; row++) {
-    for (let col = 0; col < 6; col++) {
-      const x = 14 + col * 14.5, y = 20 + row * 13;
-      if (!taken.some(t => Math.abs((t.x ?? -99) - x) < 7 && Math.abs((t.y ?? -99) - y) < 7)) return { x, y };
-    }
-  }
-  return { x: 50, y: 50 };
-}
+// The merge itself is av.mergeTables(): every room kept, each table to its own.
 app.put('/api/tables', async (req, res) => {
   const data = readData();
   if (pos.ready(data.settings.pos) && data.settings.pos.useFloor !== false) return res.status(400).json({ error: 'Tables come from the POS while it is linked. Edit them there.' });
   const list = Array.isArray(req.body && req.body.tables) ? req.body.tables : [];
-  const plan = data.floorPlans[0] || { id: 'fp1', name: 'Main', tables: [] };
-  const was = new Map((plan.tables || []).map(t => [t.id, t]));
-  const decor = (plan.tables || []).filter(t => t.type === 'decor');
-  const placed = [];
-  const tables = list.slice(0, 200).map((t, i) => {
-    const old = was.get(t.id) || {};
-    const next = Object.assign({}, old, {
-      id: t.id || newId('t'),
-      label: String(t.label || (i + 1)).slice(0, 8),
-      seats: Math.max(1, Math.min(40, parseInt(t.seats) || 2)),
-      type: 'table',
-    });
-    // Only what the caller actually sent moves. A Settings list that carries
-    // no geometry leaves the room exactly where the host dragged it.
-    if (t.x !== undefined) next.x = NUM(t.x, 0, 100, old.x);
-    if (t.y !== undefined) next.y = NUM(t.y, 0, 100, old.y);
-    if (t.width !== undefined) next.width = NUM(t.width, 1, 100, old.width);
-    if (t.height !== undefined) next.height = NUM(t.height, 1, 100, old.height);
-    if (t.rotation !== undefined) next.rotation = NUM(t.rotation, -360, 360, old.rotation || 0);
-    if (t.shape !== undefined) next.shape = t.shape === 'circle' ? 'circle' : 'rect';
-    if (next.width === undefined) { next.width = next.seats > 4 ? 14 : next.seats > 2 ? 12 : 8; }
-    if (next.height === undefined) { next.height = next.seats > 4 ? 18 : next.seats > 2 ? 15 : 11; }
-    if (next.x === undefined || next.y === undefined) Object.assign(next, freeSpot(placed.concat(decor)));
-    placed.push(next);
-    return next;
-  });
+  // Every table back to its own room, every room kept (av.mergeTables).
+  const plans = av.mergeTables(data.floorPlans, list, () => newId('t'));
+  const tables = [].concat(...plans.map(fp => fp.tables.filter(t => t.type !== 'decor')));
   if (!tables.length) return res.status(400).json({ error: 'Keep at least one table' });
-  data.floorPlans = [Object.assign({}, plan, { id: plan.id || 'fp1', name: plan.name || 'Main', tables: decor.concat(tables) })];
+  data.floorPlans = plans;
   logAudit(data, staffFromReq(req), `Updated tables (${tables.length})`);
   writeData(data);
   res.json({ tables: tablesOf(data) });
@@ -8267,7 +8332,11 @@ app.post('/api/reservations', (req, res) => {
   // Nobody picked a table: hand it the best free one now (the POS floor
   // wants a table to hang its RES chip on).
   if (!r.tableId && req.body.autoTable !== false) {
-    const t = av.suggestTable(av.heldBook(ctxOf(data), av.dayOf(r.time)), av.dayOf(r.time), av.hhmmOf(r.time), r.partySize, { duration: r.durationMin });
+    // On the NIGHT it belongs to: a walk-in at 00:30 is last night's tail,
+    // and asked on the calendar's date it was put on a table people were
+    // still paying at (daily round, 6 Oct). Its minute runs on past 24:00.
+    const ctx = ctxOf(data), n = av.nightAt(ctx.settings, av.dayOf(r.time), av.hhmmOf(r.time));
+    const t = av.suggestTable(av.heldBook(ctx, n.day), n.day, n.hhmm, r.partySize, { duration: r.durationMin });
     if (t) r.tableId = t.id;
   }
   const g = touchGuest(data, r);
@@ -8298,16 +8367,10 @@ app.put('/api/reservations/:id', (req, res) => {
   pruneTables(data, next);
   const statusChanged = next.status !== cur.status;
   if (statusChanged) {
-    // The FIRST time somebody is down is the seating, so the stamp is only
-    // written once — walking on to check-dropped or paid must not move it, or
-    // every sitting length and every spend window shortens as the night ends.
-    if (av.isSat(next) && !next.seatedAt) next.seatedAt = Date.now();
-    if (av.isHere(next) && !next.arrivedAt) next.arrivedAt = Date.now();
-    if (next.status === 'check') next.checkAt = Date.now();
-    if (next.status === 'paid') next.paidAt = Date.now();
-    if (next.status === 'done') next.doneAt = Date.now();
+    // The seating, the arrival, the bill — and none of them left behind on a
+    // party put back before the table (av.statusStamps).
+    av.statusStamps(next, Date.now());
     if (next.status === 'cancelled') { next.cancelledAt = Date.now(); next.cancelReason = String((req.body && req.body.cancelReason) || '').slice(0, 120); }
-    if (next.status === 'confirmed') next.confirmedAt = Date.now();
     // A table that was being held and now is not: somebody on the notify list
     // may want exactly this slot.
     if (wasLive && ['cancelled', 'no-show'].includes(next.status)) raiseOpening(data, next, next.status, staffFromReq(req));
@@ -8318,6 +8381,9 @@ app.put('/api/reservations/:id', (req, res) => {
   const evs = history.changeEvents(cur, next, { by: staffFromReq(req), at: now }, evOpts(data));
   next.updatedAt = now;
   Object.assign(cur, next);
+  // A stamp statusStamps() took away has to go from the stored row too — the
+  // assign above only ever adds.
+  if (statusChanged) for (const k of ['seatedAt', 'arrivedAt', 'checkAt', 'paidAt', 'billStale']) if (!(k in next)) delete cur[k];
   // `next` was a shallow copy, so next.events IS cur.events — append returns
   // a new array rather than growing that shared one.
   if (evs.length) cur.events = history.append(cur.events, evs);
@@ -8417,8 +8483,9 @@ app.get('/api/availability', (req, res) => {
 // Free tables at one moment (the popup's table chips).
 app.get('/api/free-tables', (req, res) => {
   const data = readData();
-  const day = String(req.query.date || tradingDay(data));
-  const hhmm = String(req.query.time || '19:00');
+  // Asked on the night: the walk-in form at 00:30 asks the calendar's date,
+  // which lit tables last night's parties were still sitting at.
+  const { day, hhmm } = av.nightAt(effectiveSettings(data), String(req.query.date || tradingDay(data)), String(req.query.time || '19:00'));
   const party = Math.max(1, parseInt(req.query.party) || 2);
   const ctx = av.heldBook(ctxOf(data), day);
   const opts = { ignoreId: req.query.ignore || null, duration: parseInt(req.query.duration) || null };
@@ -9240,9 +9307,11 @@ async function posPass(force) {
     // now, never about last week's booking that once held it.
     const tillTables = [];
     (data.floorPlans || []).forEach(fp => (fp.tables || []).forEach(t => tillTables.push(t)));
-    const today = av.localDay(new Date());
+    // The trading NIGHT with its tail, not the calendar's date: after
+    // midnight a bill on a table sat at 18:15 reached nobody (daily round, 6 Oct).
+    const night = tradingDay(data), ns = effectiveSettings(data);
     for (const r of data.reservations) {
-      if (String(r.time || '').slice(0, 10) !== today) continue;
+      if (!av.onNight(ns, r, night)) continue;
       // A bill on the table when this party is first seen sat is the party
       // before's (av.tillSitting); it stops being theirs when the flag drops.
       if (av.isSat(r)) { const on = av.billOn(r, tillTables); if (r.billStale === undefined) r.billStale = on; else if (r.billStale && !on) r.billStale = false; }
