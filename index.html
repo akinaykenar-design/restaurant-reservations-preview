@@ -2230,24 +2230,31 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .wk-x{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
   border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);}
 .wk-x svg{width:20px;height:20px;}
-.wk-sizes{display:grid;grid-template-columns:repeat(8,var(--tap));gap:4px;padding:4px;border-radius:var(--r-control);background:var(--deck-pill-bg);}
-.wk-size{height:var(--tap);border:none;border-radius:var(--r-btn);background:transparent;color:var(--text-primary);
-  font:inherit;font-weight:800;font-size:var(--fs-lg);}
-.wk-size.on{background:var(--orange);color:#fff;}
-.wk-more{height:var(--tap);border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);
+.wk-menu{width:360px;}
+/* How many: the new booking's own stepper, starting on two. */
+.wk-pax{display:flex;align-items:center;gap:12px;padding:0 4px;}
+.wk-pax > button:not(.wk-more){flex:none;width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--steel-300);background:none;
+  color:var(--text-primary);font:inherit;font-size:var(--fs-xl);line-height:1;display:flex;align-items:center;justify-content:center;padding:0;}
+.wk-pax > button:disabled{opacity:var(--dim);}
+.wk-pax b{min-width:32px;text-align:center;font-family:var(--font-mono);font-size:var(--fs-num);font-weight:800;}
+.wk-pax span{margin-left:-4px;color:var(--charcoal-soft);font-size:var(--fs-md);}
+.wk-more{margin-left:auto;height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);background:none;color:var(--charcoal-soft);
   font:inherit;font-weight:700;font-size:var(--fs-md);}
+/* The tables that take them, as keys: the accent the room lights them in. */
+.wk-ts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.wk-t{height:52px;border:none;border-radius:var(--r-control);background:var(--orange);color:#fff;padding:0 4px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+  font-family:var(--font-mono);font-weight:800;font-size:var(--fs-lg);white-space:nowrap;}
+.wk-t small{font-family:var(--font-body);font-size:var(--fs-chip);font-weight:700;}
+.wk-t.till{background:var(--pick-wash);color:var(--orange);border:1px solid var(--orange);}
 .deck-sq.make.on{outline:var(--tbl-sel-ring) solid var(--orange);outline-offset:2px;}
 .fl-table.wk-ok::after{content:'';position:absolute;inset:-1px;z-index:4;pointer-events:none;
   border-radius:inherit;box-shadow:inset 0 0 0 var(--tbl-sel-ring) var(--orange);}
-@media (max-width:760px){
-  .wk-sizes{grid-template-columns:repeat(4,var(--tap));}
-}
 @media (max-width:760px){
   /* A phone's key sits at the screen's edge: the sizes hang from the whole
      bar instead, edge to edge, still straight under the finger. */
   .wk-anchor{position:static;}
   .wk-menu{left:8px;right:8px;width:auto;top:calc(100% + 4px);}
-  .wk-sizes{grid-template-columns:repeat(4,1fr);}
 }
 
 /* §§ A NEW BOOKING IS ONE PAGE (v13): how many, which day, what time, who.
@@ -2353,8 +2360,6 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
   .mv-bar > button:not(.mv-x){flex:none;}
   .fl-box.mv > .fl-wrap{padding-bottom:0;}
 }
-.wk-chg{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
-  color:var(--text-primary);font:inherit;font-weight:700;font-size:var(--fs-md);}
 
 /* Daily round, 29 Sep. The app's one <a> key ("Download everything") wore the
    browser's own blue underline — navy on near-black in dark — because .btn
@@ -11037,35 +11042,56 @@ function renderDeck() {
 // table that seats them but is booked sooner says till when; the rest go
 // quiet. Tap a lit table and they are sat. "9+ or a name" is the old form,
 // for the walk-in that needs more than a number.
+// A WALK-IN IS ONE TAP FOR TWO (the clean desk, v41–v47: "walk-in very
+// simple. No information needed"; "what is the most common covers?"). The
+// key opens on TWO, already asked, so the tables that take a couple for their
+// whole sitting are standing in the menu as keys the moment it opens — and on
+// the room, lit — and a tap on one sits them. How many is the stepper above
+// them; a table booked sooner keeps its key and says till when.
+// The answer for the size ASKED, not the size picked: tap 2, then + twice,
+// with the 2's answer arriving last, lit two-tops for a four.
+async function walkinAsk(w) {
+  try { const d = await api('/api/walkin?size=' + w.size); if (state.walkin === w && d.size === w.size) { w.data = d; render(); } }
+  catch (e) { toastBad(e.message); }
+}
+// The tightest eight: free for the whole sitting first, then the fewest
+// seats, so a two is offered the two-tops before the eights. The room still
+// lights every table that takes them.
+const WALKIN_KEYS = 8;
+function walkinKeys(d) {
+  const seen = new Set();
+  const seats = (t) => (t.combo || [t.id]).reduce((a, id) => a + ((state.tables.find(x => x.id === id) || {}).seats || 0), 0);
+  return d.tables.filter(t => { const k = (t.combo || [t.id]).join(); if (seen.has(k)) return false; seen.add(k); return true; })
+    .map((t, i) => ({ t, i, n: seats(t) }))
+    .sort((a, b) => (a.t.until ? 1 : 0) - (b.t.until ? 1 : 0) || a.n - b.n || a.i - b.i)
+    .slice(0, WALKIN_KEYS).map(x => x.t)
+    .map(t => {
+      const label = (t.combo || [t.id]).map(tableName).join('+');
+      return `<button class="wk-t${t.until ? ' till' : ''}" data-act="walkin-seat" data-table="${esc(t.id)}" aria-label="Seat at ${esc(label)}${t.until ? ' till ' + esc(fmtHHMM(t.until)) : ''}"><b>${esc(label)}</b>${t.until ? `<small>till ${esc(fmtHHMM(t.until).replace(/\s?[AP]M$/i, ''))}</small>` : ''}</button>`;
+    }).join('');
+}
 function renderWalkinMenu() {
   const w = state.walkin;
   if (!w) return '';
-  const sizes = [1, 2, 3, 4, 5, 6, 7, 8].map(n =>
-    `<button class="wk-size${w.size === n ? ' on' : ''}" data-act="walkin-size" data-val="${n}" aria-pressed="${w.size === n}">${n}</button>`).join('');
   const d = w.data;
   const none = !!(d && !d.tables.length);
-  const hint = !w.size ? 'How many people?'
-    : !d ? 'Finding tables…'
-      : none ? `Nothing free for ${w.size} ${d.next ? 'now' : 'tonight'}`
-        : `${w.size} ${w.size === 1 ? 'person' : 'people'} · ${d.minutes} min`;
-  // "tap a lit table" is a desk's word: on a phone it wrapped the line to
-  // three and laid it over the lit tables (5 Oct).
-  const tail = w.size && d && !none ? '<span class="wide-only"> · tap a lit table</span>' : '';
-  // ONCE A SIZE IS PICKED IT FOLDS TO ONE LINE. Open, it stands over the top
-  // row of the room — the very tables it has just lit — so the sizes go away
-  // and Change brings them back.
-  const open = !w.wl && (!w.size || w.expand);
   // From the list: who is being seated, how many and for how long, and no
   // sizes to change — the list's own row is where the party is changed. With
   // nothing free it says when, and nothing else: they are already waiting.
+  const max = (state.settings && state.settings.maxPartySize) || 20;
   if (w.wl) return `<div class="wk-menu folded${none ? ' none' : ''}" role="dialog" aria-label="Seat ${esc(w.wl.name)}">
     <div class="wk-head"><b>Seat ${esc(w.wl.name)}</b><span>${w.size}<span class="wide-only"> ${w.size === 1 ? 'person' : 'people'}</span>${d ? ` · ${d.minutes} min${none ? '' : '<span class="wide-only"> · tap a lit table</span>'}` : ' · finding tables…'}</span><button class="wk-x" data-act="walkin" aria-label="Close">${I.cross}</button></div>
     ${none ? `<div class="wk-next"><div class="wk-when"><span class="wk-when-l">${d.next ? 'First table' : 'Nothing frees tonight'}</span>${d.next ? `<b>${esc(fmtHHMM(d.next.time))}</b><span>${esc(d.next.tables.length > 1 ? 'tables ' + d.next.tables.map(tableName).join(' + ') : 'table ' + tableName(d.next.tables[0]))} · about ${waitWords(d.next.wait)}</span>` : ''}</div></div>` : ''}
   </div>`;
-  return `<div class="wk-menu${open ? '' : ' folded'}${none ? ' none' : ''}" role="dialog" aria-label="Walk-in">
-    <div class="wk-head"><b>Walk-in</b><span>${esc(hint)}${tail}</span>${open ? '' : '<button class="wk-chg" data-act="walkin-expand">Change</button>'}<button class="wk-x" data-act="walkin" aria-label="Close">${I.cross}</button></div>
-    ${open ? `<div class="wk-sizes">${sizes}</div>
-    <button class="wk-more" data-act="new-walkin">9+ or a name</button>` : ''}
+  const hint = !d ? 'Finding tables…'
+    : none ? `Nothing free for ${w.size} ${d.next ? 'now' : 'tonight'}`
+      : `${d.minutes} min`;
+  const tail = d && !none ? '<span class="wide-only"> · or tap a lit table</span>' : '';
+  return `<div class="wk-menu${none ? ' none' : ''}" role="dialog" aria-label="Walk-in">
+    <div class="wk-head"><b>Walk-in</b><span>${esc(hint)}${tail}</span><button class="wk-x" data-act="walkin" aria-label="Close">${I.cross}</button></div>
+    <div class="wk-pax"><button data-act="walkin-size" data-val="${w.size - 1}" aria-label="One fewer"${w.size <= 1 ? ' disabled' : ''}>−</button><b>${w.size}</b><span>${w.size === 1 ? 'person' : 'people'}</span><button data-act="walkin-size" data-val="${w.size + 1}" aria-label="One more"${w.size >= max ? ' disabled' : ''}>+</button>
+      <button class="wk-more" data-act="new-walkin">With a name</button></div>
+    ${d && !none ? `<div class="wk-ts">${walkinKeys(d)}</div>` : ''}
     ${none ? walkinNextHtml(d) : ''}
   </div>`;
 }
@@ -14216,7 +14242,7 @@ document.addEventListener('click', async (ev) => {
       // its ✕, it goes away.
       case 'walkin': {
         if (state.walkin) { state.walkin = null; render(); break; }
-        state.walkin = { size: null, data: null };
+        const w = state.walkin = { size: 2, data: null };
         state.picking = null; state.modal = null;
         const moved = state.view !== 'today' || state.todayMode !== 'floor' || state.date !== tradingDay();
         state.view = 'today'; state.todayMode = 'floor';
@@ -14226,18 +14252,15 @@ document.addEventListener('click', async (ev) => {
         state.service = defaultService(state.date);
         render();
         if (moved) { await loadDay(); render(); }
+        await walkinAsk(w);
         break;
       }
       case 'walkin-size': {
         const w = state.walkin; if (!w) break;
-        w.size = parseInt(val, 10) || 1; w.data = null; w.expand = false; render();
-        // The answer for the size ASKED, not the size picked: tap 2, Change, 4
-        // with the 2's answer arriving last lit two-tops for a four.
-        try { const d = await api('/api/walkin?size=' + w.size); if (state.walkin === w && d.size === w.size) { w.data = d; render(); } }
-        catch (e) { toastBad(e.message); }
+        w.size = Math.max(1, parseInt(val, 10) || 1); w.data = null; render();
+        await walkinAsk(w);
         break;
       }
-      case 'walkin-expand': if (state.walkin) { state.walkin.expand = true; render(); } break;
       // Onto the waitlist with the wait the book worked out, not a guess: the
       // add form is filled in and the only thing left is their name.
       case 'walkin-wait': {

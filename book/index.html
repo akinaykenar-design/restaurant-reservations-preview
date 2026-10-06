@@ -2215,24 +2215,31 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .wk-x{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
   border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);}
 .wk-x svg{width:20px;height:20px;}
-.wk-sizes{display:grid;grid-template-columns:repeat(8,var(--tap));gap:4px;padding:4px;border-radius:var(--r-control);background:var(--deck-pill-bg);}
-.wk-size{height:var(--tap);border:none;border-radius:var(--r-btn);background:transparent;color:var(--text-primary);
-  font:inherit;font-weight:800;font-size:var(--fs-lg);}
-.wk-size.on{background:var(--orange);color:#fff;}
-.wk-more{height:var(--tap);border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);
+.wk-menu{width:360px;}
+/* How many: the new booking's own stepper, starting on two. */
+.wk-pax{display:flex;align-items:center;gap:12px;padding:0 4px;}
+.wk-pax > button:not(.wk-more){flex:none;width:var(--tap);height:var(--tap);border-radius:50%;border:1px solid var(--steel-300);background:none;
+  color:var(--text-primary);font:inherit;font-size:var(--fs-xl);line-height:1;display:flex;align-items:center;justify-content:center;padding:0;}
+.wk-pax > button:disabled{opacity:var(--dim);}
+.wk-pax b{min-width:32px;text-align:center;font-family:var(--font-mono);font-size:var(--fs-num);font-weight:800;}
+.wk-pax span{margin-left:-4px;color:var(--charcoal-soft);font-size:var(--fs-md);}
+.wk-more{margin-left:auto;height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);background:none;color:var(--charcoal-soft);
   font:inherit;font-weight:700;font-size:var(--fs-md);}
+/* The tables that take them, as keys: the accent the room lights them in. */
+.wk-ts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.wk-t{height:52px;border:none;border-radius:var(--r-control);background:var(--orange);color:#fff;padding:0 4px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+  font-family:var(--font-mono);font-weight:800;font-size:var(--fs-lg);white-space:nowrap;}
+.wk-t small{font-family:var(--font-body);font-size:var(--fs-chip);font-weight:700;}
+.wk-t.till{background:var(--pick-wash);color:var(--orange);border:1px solid var(--orange);}
 .deck-sq.make.on{outline:var(--tbl-sel-ring) solid var(--orange);outline-offset:2px;}
 .fl-table.wk-ok::after{content:'';position:absolute;inset:-1px;z-index:4;pointer-events:none;
   border-radius:inherit;box-shadow:inset 0 0 0 var(--tbl-sel-ring) var(--orange);}
-@media (max-width:760px){
-  .wk-sizes{grid-template-columns:repeat(4,var(--tap));}
-}
 @media (max-width:760px){
   /* A phone's key sits at the screen's edge: the sizes hang from the whole
      bar instead, edge to edge, still straight under the finger. */
   .wk-anchor{position:static;}
   .wk-menu{left:8px;right:8px;width:auto;top:calc(100% + 4px);}
-  .wk-sizes{grid-template-columns:repeat(4,1fr);}
 }
 
 /* §§ A NEW BOOKING IS ONE PAGE (v13): how many, which day, what time, who.
@@ -2338,8 +2345,6 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
   .mv-bar > button:not(.mv-x){flex:none;}
   .fl-box.mv > .fl-wrap{padding-bottom:0;}
 }
-.wk-chg{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
-  color:var(--text-primary);font:inherit;font-weight:700;font-size:var(--fs-md);}
 
 /* Daily round, 29 Sep. The app's one <a> key ("Download everything") wore the
    browser's own blue underline — navy on near-black in dark — because .btn
