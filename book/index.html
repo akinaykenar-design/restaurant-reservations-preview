@@ -664,7 +664,6 @@ body[data-theme="dark"] .row .cell.over{color:var(--steel-100);}
    12:45 PM on Wednesday, September 3" — and on a 390 phone that is wider
    than the key. A key that cuts off its own first letter is worse than one
    that takes two lines. */
-.book .btn.go{white-space:normal;text-align:center;}
 .btn.add{background:var(--green);border-color:var(--green);color:#fff;}
 .btn.danger{background:var(--red-btn);border-color:var(--red-btn);color:#fff;}
 .btn.primary{background:var(--orange);border-color:var(--orange);color:#fff;}
@@ -861,17 +860,6 @@ body[data-theme="dark"] .toast{background:#EDE6D6;color:#26231F;}
 /* §§ The guests' booking page — one column, the same tokens */
 body.book-page{overflow:auto;height:auto;min-height:100%;touch-action:auto;}
 body.book-page #app{display:block;height:auto;}
-.book{max-width:520px;margin:0 auto;padding:24px 16px 48px;display:flex;flex-direction:column;gap:16px;}
-.book .venue{font-size:var(--fs-lg);font-weight:800;letter-spacing:4px;text-transform:uppercase;text-align:center;}
-.book h1{font-size:var(--fs-xl);font-weight:700;text-align:center;}
-.book .card{background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-surface);padding:20px;display:flex;flex-direction:column;gap:8px;}
-.book .field-label:first-child{margin-top:0;}
-.book .dates{display:flex;gap:6px;overflow-x:auto;padding:2px;}
-.book .dates .chip{flex:none;flex-direction:column;gap:0;min-width:64px;min-height:56px;line-height:1.15;}
-.book .dates .chip small{font-size:var(--fs-chip);opacity:.85;}
-.book .done{ text-align:center;display:flex;flex-direction:column;gap:8px;}
-.book .ref{font-family:var(--font-mono);font-size:var(--fs-num);font-weight:700;letter-spacing:2px;}
-.book .foot{text-align:center;color:var(--charcoal-soft);font-size:var(--fs-md);}
 
 /* §§ Run sheet — the day on paper */
 /* Today's third mode, sized like a sheet of paper rather than a screen. Every
@@ -2649,6 +2637,76 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
   .tp-ar{width:32px;}
 }
 @media (max-width:760px){ .tp-ar{display:none;} .tp-date{padding-left:4px;} .tp-when{max-width:200px;} }
+
+/* §§ THE GUESTS' PAGE, the quiet form (owner, 6 Oct: "do the guests page.
+   Make the page itself easier to view, zoom etc"). One column, nothing fixed
+   wide, so it reflows at any zoom; type a guest reads without pinching; no
+   field under 16 pixels, or a phone zooms in the moment it is tapped. */
+body.book-page{background:var(--bg);color:var(--ink);font-size:var(--fs-lg);line-height:1.45;}
+.gp{max-width:560px;margin:0 auto;padding:24px 20px 48px;display:flex;flex-direction:column;gap:28px;}
+.gp-head{text-align:center;display:grid;gap:4px;}
+.gp-venue{font-size:var(--fs-md);font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);}
+.gp h1{margin:0;font-size:var(--fs-num);font-weight:700;letter-spacing:-.01em;line-height:1.2;}
+.gp-sec{display:grid;gap:12px;min-width:0;}
+.gp-l,.gp-h{margin:0;font-size:var(--fs-md);font-weight:700;color:var(--mute);}
+.gp-h{font-size:var(--fs-xl);color:var(--ink);}
+.gp-say{margin:0;color:var(--mute);}
+.gp-say a,.gp-foot a{color:var(--accent);font-weight:600;}
+.gp-quiet{margin:0;color:var(--mute);text-align:center;}
+.gp-err{margin:0;color:var(--late);font-weight:700;}
+.gp-pax{display:flex;align-items:center;justify-content:center;gap:16px;}
+.gp-pax button{width:56px;height:56px;border-radius:50%;border:1px solid var(--steel-300);background:var(--surface);
+  color:var(--ink);font:inherit;font-size:var(--fs-num);line-height:1;display:flex;align-items:center;justify-content:center;padding:0;}
+.gp-pax button:disabled{opacity:var(--dim);}
+.gp-pax b{min-width:56px;text-align:center;font-family:var(--font-mono);font-size:var(--fs-num);font-weight:800;}
+.gp-pax span{margin-left:-8px;color:var(--mute);}
+.gp-days{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px 4px;}
+.gp-days::-webkit-scrollbar{display:none;}
+.gp-days button{flex:none;min-width:64px;min-height:72px;padding:8px 4px;border-radius:var(--r-control);border:1px solid var(--steel-300);
+  background:var(--surface);color:var(--ink);font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;}
+.gp-days small{font-size:var(--fs-md);color:var(--mute);line-height:1.2;}
+.gp-days b{font-family:var(--font-mono);font-size:var(--fs-xl);line-height:1.3;}
+.gp-times{display:flex;flex-wrap:wrap;gap:8px;}
+.gp-times button{min-height:48px;min-width:88px;padding:0 16px;border-radius:var(--r-pill);border:1px solid var(--steel-300);
+  background:var(--surface);color:var(--ink);font:inherit;font-weight:600;}
+.gp-days button.full,.gp-times button.full{color:var(--mute);text-decoration:line-through;border-color:transparent;background:none;}
+.gp-days button.on,.gp-times button.on,.gp-days button.on small{background:var(--ink);border-color:var(--ink);color:var(--surface);}
+.gp-f{display:grid;gap:0;}
+.gp-f span{font-size:var(--fs-md);font-weight:600;color:var(--mute);}
+.gp .gp-f input,.gp .gp-f textarea{width:100%;min-height:48px;padding:4px 0;border:none;border-bottom:1px solid var(--steel-300);border-radius:0;
+  background:none;box-shadow:none;color:var(--ink);font:inherit;font-size:var(--fs-xl);}
+.gp .gp-f textarea{min-height:56px;resize:vertical;}
+.gp .gp-f input:focus,.gp .gp-f textarea:focus{outline:none;border-bottom-color:var(--accent);box-shadow:inset 0 calc(-1 * var(--ring)) 0 var(--accent);}
+.gp-go{width:100%;min-height:56px;padding:12px 20px;border:none;border-radius:var(--r-control);background:var(--ink);color:var(--surface);
+  font:inherit;font-size:var(--fs-lg);font-weight:800;}
+.gp-go:disabled{opacity:var(--dim);}
+.gp-btn{justify-self:start;min-height:48px;padding:0 20px;border:1px solid var(--steel-300);border-radius:var(--r-pill);background:var(--surface);
+  color:var(--ink);font:inherit;font-weight:600;text-align:left;}
+.gp-btn.ink{background:var(--ink);border-color:var(--ink);color:var(--surface);}
+.gp-danger{color:var(--late);}
+.gp-box{padding:20px;border-radius:var(--r-surface);background:var(--surface);}
+.gp-find details{display:grid;gap:12px;}
+.gp-find summary{min-height:48px;display:flex;align-items:center;justify-content:center;color:var(--mute);font-weight:600;cursor:pointer;list-style:none;}
+.gp-find summary::-webkit-details-marker{display:none;}
+.gp-find-row{display:flex;align-items:flex-end;gap:12px;}
+.gp-find-row .gp-f{flex:1;min-width:0;}
+.gp-find-row input{text-transform:uppercase;}
+.gp-done{display:grid;gap:8px;justify-items:center;text-align:center;}
+.gp-big{margin:0;font-size:var(--fs-xl);font-weight:700;}
+.gp-ref{margin:0;font-family:var(--font-mono);font-size:var(--fs-num);font-weight:800;letter-spacing:.1em;}
+.gp-done .gp-btn{justify-self:center;margin-top:8px;}
+.gp-foot{text-align:center;color:var(--mute);font-size:var(--fs-md);}
+.gp-sub{margin:4px 0 0;font-size:var(--fs-md);font-weight:600;color:var(--ink);}
+/* Pinched in to 200%, a phone is under 200 wide: the page keeps its edge and
+   the stepper keeps its keys, and nothing slides sideways. */
+@media (max-width:340px){
+  .gp{padding:20px 12px 40px;}
+  .gp-days{margin:0 -12px;padding:0 12px 4px;}
+  .gp-pax{gap:8px;}
+  .gp-pax button{width:48px;height:48px;}
+  .gp-pax b{min-width:48px;}
+  .gp-pax span{display:none;}
+}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
@@ -10185,7 +10243,6 @@ function applyTheme(theme) {
   const mode = t.mode === 'auto' || !t.mode ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t.mode;
   document.body.dataset.theme = mode;
   document.documentElement.dataset.theme = mode; // the root's own background is dark too
-  if (t.accent && /^#[0-9A-Fa-f]{6}$/.test(t.accent)) document.documentElement.style.setProperty('--orange', t.accent);
 }
 // The days on offer, as { day, closed, note }. A dated exception replaces the
 // weekly pattern — the mirror of availability.js's servicesOn(), which is
@@ -10203,6 +10260,13 @@ function openDays() {
     else if (ex || weeklyOpen) out.push({ day: d, closed: false, note: (ex && ex.note) || '' });
   }
   return out;
+}
+// The first open day is already picked, so a guest booking for tonight
+// starts on the times: one tap fewer for the most common booking there is.
+function firstDay() {
+  const d = openDays().find(o => !o.closed);
+  if (!d) { render(); return; }
+  st.date = d.day; loadSlots();
 }
 async function loadSlots() {
   st.slots = null; st.reason = ''; st.note = ''; st.time = ''; render();
@@ -10260,85 +10324,111 @@ async function book() {
   st.busy = false; render();
 }
 
+// THE GUESTS' PAGE IS THE QUIET FORM (owner, 6 Oct: "do the guests page.
+// Make the page itself easier to view, zoom etc"). The desk's own new
+// booking, turned round for a guest on a phone: how many on one stepper that
+// starts on two, the days as a strip, the day's times as words, then who —
+// and one key that reads the booking back. Nothing is filled at rest; only
+// what is chosen is in ink. Type is a size a guest can read without zooming,
+// a field is never under 16 pixels (a phone zooms in on a smaller one the
+// moment it is tapped), nothing is a fixed width, and the page can always be
+// pinched — so it reflows rather than slides sideways at any zoom.
+const pax = (n, max) => `<div class="gp-pax" role="group" aria-label="How many people">
+  <button data-act="party" data-val="${n - 1}" aria-label="One fewer"${n <= 1 ? ' disabled' : ''}>−</button>
+  <b aria-live="polite">${n}</b><span>${n === 1 ? 'person' : 'people'}</span>
+  <button data-act="party" data-val="${n >= max ? 'more' : n + 1}" aria-label="One more">+</button></div>`;
+const field = (id, label, value, f, type, auto, more) => `<label class="gp-f" for="${id}"><span>${esc(label)}</span>${type === 'area'
+  ? `<textarea id="${id}" data-field="${f}" rows="2">${esc(value)}</textarea>`
+  : `<input id="${id}" type="${type}" value="${esc(value)}" data-field="${f}" autocomplete="${auto}"${more || ''}>`}</label>`;
+// A day's times under the service they belong to — thirty-two times in one
+// heap is a wall; "Lunch" and "Dinner" are how a guest already thinks of it.
+// One service, or a time outside them all, needs no heading.
+function slotGroups(slots) {
+  const wd = parseDay(st.date).getDay();
+  const svcs = (st.info.services || []).filter(v => (v.days || []).includes(wd)).sort((a, b) => toMin(a.start) - toMin(b.start));
+  const groups = [];
+  for (const x of slots) {
+    const v = svcs.find(v => toMin(v.start) <= toMin(x.time) && toMin(x.time) < toMin(v.end));
+    const name = v ? v.name : '';
+    const last = groups[groups.length - 1];
+    if (last && last.name === name) last.slots.push(x); else groups.push({ name, slots: [x] });
+  }
+  if (groups.length < 2) groups.forEach(g => { g.name = ''; });
+  return groups;
+}
+const shortDay = (day) => parseDay(day).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
 function render() {
   const app = document.getElementById('app');
   const focus = document.activeElement && document.activeElement.id;
-  if (!st.info) { app.innerHTML = '<div class="book"><div class="card"><div class="ts">Loading…</div></div></div>'; return; }
+  if (!st.info) { app.innerHTML = '<main class="gp"><p class="gp-quiet">Loading…</p></main>'; return; }
   const i = st.info;
-  const head = `<div class="venue">${esc(i.venueName)}</div>`;
-  if (!i.enabled) { app.innerHTML = `<div class="book">${head}<div class="card"><h1>Bookings by phone</h1><div class="ts" style="text-align:center;">Online bookings are not open right now.${i.venuePhone ? ` Please call <a href="tel:${esc(i.venuePhone)}">${esc(i.venuePhone)}</a>.` : ''}</div></div></div>`; return; }
+  const head = `<header class="gp-head"><div class="gp-venue">${esc(i.venueName)}</div>`;
+  const foot = (i.venueAddress || i.venuePhone) ? `<footer class="gp-foot">${esc(i.venueAddress || '')}${i.venueAddress && i.venuePhone ? '<br>' : ''}${i.venuePhone ? `<a href="tel:${esc(i.venuePhone)}">${esc(i.venuePhone)}</a>` : ''}</footer>` : '';
+  if (!i.enabled) { app.innerHTML = `<main class="gp">${head}<h1>Bookings by phone</h1></header><p class="gp-say">Online bookings are not open right now.${i.venuePhone ? ` Please call <a href="tel:${esc(i.venuePhone)}">${esc(i.venuePhone)}</a>.` : ''}</p></main>`; return; }
   if (st.done) {
     const d = st.done;
-    app.innerHTML = `<div class="book">${head}<div class="card done"><h1>See you soon, ${esc(d.name.split(' ')[0])}.</h1><div class="ts">${esc(fmtWhen(d.time))} · ${d.partySize} ${d.partySize === 1 ? 'guest' : 'guests'}</div><div class="field-label" style="margin-top:12px;">Your reference</div><div class="ref">${esc(d.ref)}</div><div class="ts">Keep it to cancel online. ${i.venuePhone ? 'Or call ' + esc(i.venuePhone) + '.' : ''}</div><button class="btn" data-act="again" style="margin-top:12px;">Make another booking</button></div>${i.venueAddress ? `<div class="foot">${esc(i.venueAddress)}</div>` : ''}</div>`;
+    app.innerHTML = `<main class="gp">${head}<h1>See you soon, ${esc(d.name.split(' ')[0])}.</h1></header>
+      <section class="gp-done"><p class="gp-big">${esc(fmtWhen(d.time))}</p><p class="gp-say">${d.partySize} ${d.partySize === 1 ? 'person' : 'people'}</p>
+      <p class="gp-l">Your reference</p><p class="gp-ref">${esc(d.ref)}</p>
+      <p class="gp-say">Keep it to cancel online.${i.venuePhone ? ' Or call ' + esc(i.venuePhone) + '.' : ''}</p>
+      <button class="gp-btn" data-act="again">Make another booking</button></section>${foot}</main>`;
     return;
   }
   // On the list, not booked — and it says so twice, because the difference is
   // the whole point.
   if (st.notifyDone) {
     const d = st.notifyDone;
-    app.innerHTML = `<div class="book">${head}<div class="card done">
-      ${d.removed ? `<h1>You're off the list.</h1><div class="ts">We will not call about ${esc(fmtDayLong(d.date))}.</div>`
-      : `<h1>You're on the list, ${esc(String(d.name || '').split(' ')[0])}.</h1>
-        <div class="ts">${esc(fmtDayLong(d.date))} · ${d.partySize} ${d.partySize === 1 ? 'guest' : 'guests'} · between ${esc(fmtHHMM(d.from))} and ${esc(fmtHHMM(d.to))}</div>
-        <div class="field-label" style="margin-top:12px;">Your reference</div><div class="ref">${esc(d.ref)}</div>
-        <div class="ts">This is not a booking. We will call you if a table opens, and there is nothing to do if we do not.${i.venuePhone ? ' Our number is ' + esc(i.venuePhone) + '.' : ''}</div>
-        ${st.notifyError ? `<div class="err" style="color:var(--red);font-weight:700;">${esc(st.notifyError)}</div>` : ''}
-        <button class="btn" data-act="notify-off" style="margin-top:12px;" ${st.busy ? 'disabled' : ''}>Take me off the list</button>`}
-      <button class="btn" data-act="again" style="margin-top:8px;">Back to booking</button>
-    </div>${i.venueAddress ? `<div class="foot">${esc(i.venueAddress)}</div>` : ''}</div>`;
+    app.innerHTML = `<main class="gp">${head}${d.removed ? `<h1>You're off the list.</h1></header><section class="gp-done"><p class="gp-say">We will not call about ${esc(fmtDayLong(d.date))}.</p>`
+      : `<h1>You're on the list, ${esc(String(d.name || '').split(' ')[0])}.</h1></header><section class="gp-done">
+        <p class="gp-big">${esc(fmtDayLong(d.date))}</p><p class="gp-say">${d.partySize} ${d.partySize === 1 ? 'person' : 'people'} · between ${esc(fmtHHMM(d.from))} and ${esc(fmtHHMM(d.to))}</p>
+        <p class="gp-l">Your reference</p><p class="gp-ref">${esc(d.ref)}</p>
+        <p class="gp-say">This is not a booking. We will call you if a table opens, and there is nothing to do if we do not.</p>
+        ${st.notifyError ? `<p class="gp-err">${esc(st.notifyError)}</p>` : ''}
+        <button class="gp-btn" data-act="notify-off" ${st.busy ? 'disabled' : ''}>Take me off the list</button>`}
+      <button class="gp-btn" data-act="again">Back to booking</button></section>${foot}</main>`;
     return;
   }
   const days = openDays();
   const anyOk = (st.slots || []).some(x => x.ok);
-  // Somebody has to say it is not a booking, and it has to be the loudest line
-  // on the card that offers it.
-  const notifyCta = i.notifyList && st.date && !st.reason && st.slots !== null && st.party !== 'more'
-    ? (anyOk
-      ? `<div class="ts" style="margin-top:8px;">Not the time you wanted?</div><button class="btn" data-act="notify-open">Tell me if something opens</button>`
-      : `<button class="btn go" data-act="notify-open" style="margin-top:8px;min-height:56px;">Tell me if something opens</button>`)
-    : '';
-  const notifyCard = i.notifyList && st.notifyOpen && st.date && st.party !== 'more' ? `<div class="card">
-    <div class="field-label">Tell me if something opens</div>
-    <div class="ts">This is not a booking. It puts you on our list for ${esc(fmtDayLong(st.date))}. If a table frees up we will call you — we offer it to whoever asked for the closest time, and to whoever has waited longest.</div>
-    <div class="field-label">Earliest you would take</div>
-    <div class="slots">${(st.slots || []).map(x => `<button class="chip${st.notifyFrom === x.time ? ' active' : ''}" data-act="notify-from" data-val="${x.time}">${esc(fmtHHMM(x.time))}</button>`).join('') || '<div class="ts">No times that day.</div>'}</div>
-    <div class="field-label">Latest you would take</div>
-    <div class="slots">${(st.slots || []).map(x => `<button class="chip${st.notifyTo === x.time ? ' active' : ''}" data-act="notify-to" data-val="${x.time}">${esc(fmtHHMM(x.time))}</button>`).join('') || '<div class="ts">No times that day.</div>'}</div>
-    <label class="field-label" for="n-name">Your name</label><input id="n-name" type="text" value="${esc(st.notifyName)}" data-field="notifyName" autocomplete="name">
-    <label class="field-label" for="n-phone">Phone</label><input id="n-phone" type="tel" value="${esc(st.notifyPhone)}" data-field="notifyPhone" autocomplete="tel">
-    <label class="field-label" for="n-email">Email (optional)</label><input id="n-email" type="email" value="${esc(st.notifyEmail)}" data-field="notifyEmail" autocomplete="email">
-    <label class="field-label" for="n-notes">Anything we should know? (optional)</label><textarea id="n-notes" data-field="notifyNotes">${esc(st.notifyNotes)}</textarea>
-    ${st.notifyError ? `<div class="err" style="color:var(--red);font-weight:700;margin-top:8px;">${esc(st.notifyError)}</div>` : ''}
-    <button class="btn go" data-act="notify-send" style="margin-top:12px;min-height:56px;" ${st.busy ? 'disabled' : ''}>Add me to the list for ${st.party} on ${esc(fmtDayLong(st.date))}</button>
-  </div>` : '';
-  app.innerHTML = `<div class="book">
-    ${head}
-    <h1>Book a table</h1>
-    <div class="card">
-      <div class="field-label">How many?</div>
-      <div class="chips">${Array.from({ length: i.maxPartySize }, (_, k) => k + 1).map(n => `<button class="chip${st.party === n ? ' active' : ''}" data-act="party" data-val="${n}">${n}</button>`).join('')}<button class="chip" data-act="party" data-val="more">More</button></div>
-      ${st.party === 'more' ? `<div class="ts" style="margin-top:8px;">${esc(i.largerPartyMessage)}${i.venuePhone ? ` <a href="tel:${esc(i.venuePhone)}">${esc(i.venuePhone)}</a>` : ''}</div>` : ''}
-    </div>
-    ${st.party !== 'more' ? `<div class="card">
-      <div class="field-label">Which day?</div>
-      <div class="dates">${days.map(o => { const dt = parseDay(o.day); return `<button class="chip${st.date === o.day ? ' active' : ''}${o.closed && st.date !== o.day ? ' off' : ''}" data-act="date" data-val="${o.day}"${o.note ? ` title="${esc(o.note)}"` : ''}><small>${esc(dt.toLocaleDateString([], { weekday: 'short' }))}</small><span>${dt.getDate()}</span><small>${esc(dt.toLocaleDateString([], { month: 'short' }))}</small></button>`; }).join('')}</div>
-      ${st.date ? `<div class="field-label">What time?</div>${st.slots === null ? '<div class="ts">Checking…</div>' : st.reason ? `<div class="ts">${esc(st.reason)}</div>` : `${st.note ? `<div class="ts">${esc(st.note)}</div>` : ''}${st.slots.length ? `<div class="slots">${st.slots.map(s => `<button class="chip${st.time === s.time ? ' active' : ''}${!s.ok ? ' off' : ''}" data-act="${s.ok || !i.notifyList ? 'time' : 'notify-want'}" data-val="${s.time}" ${s.ok || i.notifyList ? '' : 'disabled'}>${esc(fmtHHMM(s.time))}</button>`).join('')}</div>` : ''}${anyOk ? '' : '<div class="ts">Nothing free that day, sorry.</div>'}${notifyCta}`}` : ''}
-    </div>${notifyCard}` : ''}
-    ${st.time ? `<div class="card">
-      <label class="field-label" for="b-name">Your name</label><input id="b-name" type="text" value="${esc(st.name)}" data-field="name" autocomplete="name">
-      <label class="field-label" for="b-phone">Phone</label><input id="b-phone" type="tel" value="${esc(st.phone)}" data-field="phone" autocomplete="tel">
-      <label class="field-label" for="b-email">Email (optional)</label><input id="b-email" type="email" value="${esc(st.email)}" data-field="email" autocomplete="email">
-      <label class="field-label" for="b-notes">${esc(i.notesPrompt || 'Anything we should know?')}</label><textarea id="b-notes" data-field="notes">${esc(st.notes)}</textarea>
-      ${st.error ? `<div class="err" style="color:var(--red);font-weight:700;margin-top:8px;">${esc(st.error)}</div>` : ''}
-      <button class="btn go" data-act="book" style="margin-top:12px;min-height:56px;" ${st.busy ? 'disabled' : ''}>Book ${st.party} for ${esc(fmtHHMM(st.time))} on ${esc(parseDay(st.date).toLocaleDateString([], { weekday: 'long', day: 'numeric', month: 'long' }))}</button>
-    </div>` : ''}
-    <div class="card">
-      <div class="field-label">Already booked?</div>
-      <div class="inline"><input type="text" id="b-ref" placeholder="Reference, e.g. BX7K2A" value="${esc(st.lookup)}" data-field="lookup" style="flex:1;text-transform:uppercase;" autocomplete="off"><button class="btn" data-act="lookup">Find</button></div>
-      ${st.found ? (st.found.error ? `<div class="ts">${esc(st.found.error)}</div>` : `<div class="ts">${esc(st.found.name)} · ${esc(fmtWhen(st.found.time))} · ${st.found.partySize} guests · ${esc(st.found.status)}</div>${['booked', 'confirmed'].includes(st.found.status) ? `<button class="btn danger" data-act="cancel">Cancel this booking</button>` : ''}`) : ''}
-    </div>
-    <div class="foot">${esc(i.venueAddress || '')}${i.venuePhone ? (i.venueAddress ? ' · ' : '') + esc(i.venuePhone) : ''}</div>
-  </div>`;
+  const more = st.party === 'more';
+  const notifyCta = i.notifyList && st.date && !st.reason && st.slots !== null && !more
+    ? `<button class="gp-btn${anyOk ? '' : ' ink'}" data-act="notify-open">${anyOk ? 'None of these? Tell me if something opens' : 'Tell me if something opens'}</button>` : '';
+  const timeKeys = (list, act, on) => list.map(x => `<button class="${on === x.time ? 'on' : ''}" data-act="${act}" data-val="${x.time}">${esc(fmtHHMM(x.time))}</button>`).join('');
+  const notifyBlock = i.notifyList && st.notifyOpen && st.date && !more ? `<section class="gp-sec gp-box">
+    <h2 class="gp-h">Tell me if something opens</h2>
+    <p class="gp-say">This is not a booking. If a table frees up on ${esc(fmtDayLong(st.date))} we will call you.</p>
+    <h3 class="gp-l">Earliest you would take</h3><div class="gp-times">${timeKeys(st.slots || [], 'notify-from', st.notifyFrom)}</div>
+    <h3 class="gp-l">Latest you would take</h3><div class="gp-times">${timeKeys(st.slots || [], 'notify-to', st.notifyTo)}</div>
+    ${field('n-name', 'Your name', st.notifyName, 'notifyName', 'text', 'name')}
+    ${field('n-phone', 'Phone', st.notifyPhone, 'notifyPhone', 'tel', 'tel')}
+    ${field('n-email', 'Email (optional)', st.notifyEmail, 'notifyEmail', 'email', 'email')}
+    ${field('n-notes', 'Anything we should know? (optional)', st.notifyNotes, 'notifyNotes', 'area')}
+    ${st.notifyError ? `<p class="gp-err">${esc(st.notifyError)}</p>` : ''}
+    <button class="gp-go" data-act="notify-send" ${st.busy ? 'disabled' : ''}>Add me to the list · ${st.party} · ${esc(shortDay(st.date))}</button>
+  </section>` : '';
+  const timeSec = !st.date ? '' : `<section class="gp-sec"><h2 class="gp-l">Time</h2>${st.slots === null ? '<p class="gp-quiet">Finding times…</p>'
+    : st.reason ? `<p class="gp-say">${esc(st.reason)}</p>`
+      : `${st.note ? `<p class="gp-say">${esc(st.note)}</p>` : ''}${st.slots.length ? slotGroups(st.slots).map(g => `${g.name ? `<h3 class="gp-sub">${esc(g.name)}</h3>` : ''}<div class="gp-times">${g.slots.map(x => `<button class="${st.time === x.time ? 'on' : ''}${!x.ok ? ' full' : ''}" data-act="${x.ok || !i.notifyList ? 'time' : 'notify-want'}" data-val="${x.time}" ${x.ok || i.notifyList ? '' : 'disabled'}${x.ok ? '' : ` aria-label="${esc(fmtHHMM(x.time))}, full"`}>${esc(fmtHHMM(x.time))}</button>`).join('')}</div>`).join('') : ''}${anyOk ? '' : '<p class="gp-say">Nothing free that day, sorry.</p>'}${notifyCta}`}</section>`;
+  const who = st.time ? `<section class="gp-sec gp-who">
+    ${field('b-name', 'Your name', st.name, 'name', 'text', 'name')}
+    ${field('b-phone', 'Phone', st.phone, 'phone', 'tel', 'tel')}
+    ${field('b-email', 'Email (optional)', st.email, 'email', 'email', 'email')}
+    ${field('b-notes', i.notesPrompt || 'Anything we should know?', st.notes, 'notes', 'area')}
+    ${st.error ? `<p class="gp-err">${esc(st.error)}</p>` : ''}
+    <button class="gp-go" data-act="book" ${st.busy ? 'disabled' : ''}>Book ${st.party} · ${esc(shortDay(st.date))} · ${esc(fmtHHMM(st.time))}</button>
+  </section>` : '';
+  app.innerHTML = `<main class="gp">
+    ${head}<h1>Book a table</h1></header>
+    <section class="gp-sec">${more ? `<div class="gp-pax"><button data-act="party" data-val="${i.maxPartySize}" aria-label="Fewer">−</button><b>${i.maxPartySize}+</b><span>people</span></div>
+      <p class="gp-say">${esc(i.largerPartyMessage)}${i.venuePhone ? ` <a href="tel:${esc(i.venuePhone)}">${esc(i.venuePhone)}</a>` : ''}</p>` : pax(st.party, i.maxPartySize)}</section>
+    ${more ? '' : `<section class="gp-sec"><h2 class="gp-l">Day</h2><div class="gp-days">${days.map(o => { const dt = parseDay(o.day); return `<button class="${st.date === o.day ? 'on' : ''}${o.closed && st.date !== o.day ? ' full' : ''}" data-act="date" data-val="${o.day}"${o.note ? ` title="${esc(o.note)}"` : ''} aria-label="${esc(fmtDayLong(o.day))}${o.closed ? ', closed' : ''}"><small>${o.day === localDay(new Date()) ? 'Today' : esc(dt.toLocaleDateString([], { weekday: 'short' }))}</small><b>${dt.getDate()}</b><small>${esc(dt.toLocaleDateString([], { month: 'short' }))}</small></button>`; }).join('')}</div></section>
+    ${timeSec}${notifyBlock}${who}`}
+    <section class="gp-sec gp-find"><details${st.lookup || st.found ? ' open' : ''}><summary>Already booked?</summary>
+      <div class="gp-find-row">${field('b-ref', 'Your reference', st.lookup, 'lookup', 'text', 'off', ' placeholder="e.g. BX7K2A" autocapitalize="characters"')}<button class="gp-btn" data-act="lookup">Find</button></div>
+      ${st.found ? (st.found.error ? `<p class="gp-say">${esc(st.found.error)}</p>` : `<p class="gp-say">${esc(st.found.name)} · ${esc(fmtWhen(st.found.time))} · ${st.found.partySize} people · ${esc(st.found.status)}</p>${['booked', 'confirmed'].includes(st.found.status) ? '<button class="gp-btn gp-danger" data-act="cancel">Cancel this booking</button>' : ''}`) : ''}
+    </details></section>
+    ${foot}
+  </main>`;
   if (focus) { const el = document.getElementById(focus); if (el) el.focus(); }
 }
 
@@ -10346,7 +10436,7 @@ document.addEventListener('click', async (ev) => {
   const el = ev.target.closest('[data-act]'); if (!el) return;
   const act = el.dataset.act, val = el.dataset.val;
   try {
-    if (act === 'party') { st.party = val === 'more' ? 'more' : parseInt(val); st.time = ''; st.notifyOpen = false; render(); if (st.date && st.party !== 'more') loadSlots(); }
+    if (act === 'party') { st.party = val === 'more' ? 'more' : Math.max(1, parseInt(val, 10) || 1); st.time = ''; st.notifyOpen = false; render(); if (st.date && st.party !== 'more') loadSlots(); }
     else if (act === 'date') { st.date = val; st.notifyOpen = false; loadSlots(); }
     else if (act === 'time') { st.time = val; render(); setTimeout(() => { const n = document.getElementById('b-name'); if (n) n.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 50); }
     else if (act === 'book') book();
@@ -10363,7 +10453,7 @@ document.addEventListener('click', async (ev) => {
       catch (e) { st.notifyError = e.message; }
       st.busy = false; render();
     }
-    else if (act === 'again') { st.done = null; st.notifyDone = null; st.notifyOpen = false; st.notifyError = ''; st.time = ''; st.slots = null; st.date = ''; st.reason = ''; st.note = ''; render(); }
+    else if (act === 'again') { st.done = null; st.notifyDone = null; st.notifyOpen = false; st.notifyError = ''; st.time = ''; st.slots = null; st.date = ''; st.reason = ''; st.note = ''; firstDay(); }
     else if (act === 'lookup') { try { st.found = await api('/api/public/booking/' + encodeURIComponent(st.lookup.trim().toUpperCase())); } catch (e) { st.found = { error: e.message }; } render(); }
     else if (act === 'cancel') { if (!confirm('Cancel this booking?')) return; await api('/api/public/booking/' + encodeURIComponent(st.found.ref) + '/cancel', {}); st.found = Object.assign({}, st.found, { status: 'cancelled' }); render(); }
   } catch (e) { st.error = e.message; render(); }
@@ -10374,5 +10464,6 @@ document.addEventListener('input', (ev) => { const f = ev.target.dataset && ev.t
   try { st.info = await api('/api/public/info'); applyTheme(st.info.theme); }
   catch (e) { st.info = { venueName: '', enabled: false, notifyList: false, services: [], exceptions: [] }; }
   render();
+  if (st.info.enabled) firstDay();
 })();
 </script>
