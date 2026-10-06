@@ -147,6 +147,9 @@
      own; the till lifts it off the near-black ground in dark mode rather than
      leaving a dark-on-dark ghost. */
   --table-plain:var(--surface);
+  /* A list tab with nothing painted on it: the room's ground, since a
+     plain table is the paper the row already is. */
+  --tab-plain:var(--steel-100);
   /* A picked table's band. The same hairline + --ring as everything else,
      drawn as ONE band because it covers the table's own edge. */
   --tbl-sel-ring:calc(var(--ring) + 1px);
@@ -240,6 +243,7 @@ body[data-theme="dark"]{
   --st-late:#CF6152;
   --st-check:#D96AA3; --st-paid:#9AB0C4;
   --table-plain:#2A323B;
+  --tab-plain:var(--table-plain);
 }
 @media (max-height:560px){ :root{ --num-key-w:64px; --num-key-h:52px; --num-key-r:10px; --num-key-fs:var(--fs-xl); --num-gap:8px; } }
 @media (max-width:768px){ :root{ --deck-edge:12px; --hub-edge:8px; } }
@@ -1436,7 +1440,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
   min-height:64px;border-radius:var(--r-control);overflow:hidden;background:var(--surface);}
 .dk-row.selected,.dk-row.open{background:var(--pick-wash);box-shadow:inset 0 0 0 var(--ring) var(--orange);}
 .dk-tab{display:flex;align-items:center;justify-content:center;min-width:var(--tap);min-height:var(--tap);padding:0;
-  border:none;border-radius:0;background:var(--steel-100);color:var(--text-primary);
+  border:none;border-radius:0;background:var(--tab-plain);color:var(--text-primary);
   font-family:var(--font-mono);font-weight:800;font-size:var(--fs-xl);white-space:nowrap;cursor:pointer;}
 .dk-tab.st-fill.booked{background:var(--st-booked);color:var(--st-booked-ink,var(--on-scrim));}
 .dk-tab.st-fill.confirmed{background:var(--st-confirmed);color:var(--st-confirmed-ink,var(--on-scrim));}
@@ -1444,7 +1448,7 @@ input[type=color]{min-height:var(--sq-ctl);padding:4px;cursor:pointer;}
 .dk-tab.st-fill.part-seated,.dk-tab.st-fill.seated{background:var(--st-seated);color:var(--st-seated-ink,var(--on-scrim));}
 .dk-tab.st-fill.check{background:var(--st-check);color:var(--st-check-ink,var(--on-scrim));}
 .dk-tab.st-fill.paid{background:var(--st-paid);color:var(--st-paid-ink,var(--on-scrim));}
-.dk-tab.st-fill.done,.dk-tab.st-fill.cancelled,.dk-tab.st-fill.no-show{background:var(--steel-100);color:var(--charcoal-soft);cursor:default;}
+span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 /* The desk's own pick: the same colour, carrying less of it. */
 .dk-tab.st-fill.auto{background:color-mix(in srgb, var(--st-booked) 40%, var(--surface));color:var(--text-primary);}
 .dk-tab.st-fill.confirmed.auto{background:color-mix(in srgb, var(--st-confirmed) 40%, var(--surface));}
