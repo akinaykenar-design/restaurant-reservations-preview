@@ -2431,6 +2431,216 @@ a.btn{color:var(--text-primary);text-decoration:none;}
 .bke-ln-t span{color:var(--charcoal-soft);}
 .bke-ln svg{flex:none;width:20px;height:20px;color:var(--charcoal-soft);}
 .bke-foot{margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
+/* §§ THE SIMPLE DESK (owner, 6 Oct: "This doesn't look like the simple design
+   at all" — the v47 prototype, its colours, one menu key, none of the old
+   extras). Everything below re-points the page to the prototype's palette
+   and lays the shell out its way. It REPEALS the POS tokens' look, the rail,
+   the pill, the room bar and lens, the pacing strip and the view dock. */
+:root{
+  --font-body:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --bg:#F3F3F1; --ink:#17181B; --mute:#6A6D75; --faint:#A3A6AD; --line:#E4E4E0;
+  --accent:#2D55E6; --accent-wash:#E8EDFD; --late:#C8412D; --late-wash:#FBEAE6;
+  --leave:#25925A; --seat:#D9DBE2; --well:#E7E7E3; --tfree:#E9E9E5;
+  --surface:#FFFFFF; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#D4D4CF;
+  --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
+  --orange:var(--accent); --red:var(--late); --red-btn:var(--late); --green:var(--leave);
+  --deck-pill-bg:var(--well); --deck-bg:var(--bg); --chrome:var(--bg);
+  --table-plain:var(--tfree); --tab-plain:var(--tfree);
+  --pick-wash:var(--accent-wash); --steel-500:var(--faint);
+  --r-control:12px; --r-surface:20px;
+  --lift-1:0 1px 3px rgba(0,0,0,.08); --lift-2:0 18px 48px rgba(0,0,0,.14);
+}
+body[data-theme="dark"]{
+  --bg:#0E0F11; --ink:#F1F1EE; --mute:#9A9DA5; --faint:#62656D; --line:#2A2C31;
+  --accent:#7090FF; --accent-wash:#1C2546; --late:#FF6E58; --late-wash:#3A1F1A;
+  --leave:#4BC47E; --seat:#3A3C44; --well:#202227; --tfree:#2A2D34;
+  --surface:#18191D; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#33363C;
+  --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
+  --orange:var(--accent); --red:var(--late); --red-btn:var(--late); --green:var(--leave);
+  --deck-pill-bg:var(--well); --deck-bg:var(--bg); --chrome:var(--bg);
+  --table-plain:var(--tfree); --tab-plain:var(--tfree);
+  --pick-wash:var(--accent-wash); --steel-500:var(--faint);
+  --lift-1:0 1px 3px rgba(0,0,0,.5); --lift-2:0 18px 48px rgba(0,0,0,.5);
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
+
+/* The shell: the bar over the work, the work in a column 1440 at most. */
+.shell.simple{flex-direction:column;max-width:1440px;margin:0 auto;width:100%;}
+.shell.simple .main{background:var(--bg);}
+.shell.simple .pane{padding:0 20px 20px;}
+.rail{display:none;}
+
+/* §§ The bar: the night, the service, the two make keys, the menu key. */
+.tp{position:relative;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;background:var(--bg);}
+.tp-night{display:flex;align-items:center;gap:4px;}
+.tp-ar{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
+  border-radius:50%;background:var(--well);color:var(--ink);padding:0;}
+.tp-ar svg{width:20px;height:20px;}
+.tp-date{display:flex;flex-direction:column;align-items:flex-start;min-height:var(--tap);min-width:0;padding:0 8px;border:none;
+  background:none;color:var(--ink);text-align:left;}
+.tp-big{display:flex;align-items:center;gap:4px;font-size:var(--fs-num);font-weight:700;letter-spacing:-.02em;line-height:1.15;white-space:nowrap;}
+.tp-big svg{width:20px;height:20px;color:var(--mute);}
+.tp-when{font-family:var(--font-mono);font-size:var(--fs-md);color:var(--mute);white-space:nowrap;}
+.tp-row2{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
+.tp-seg,.vt{display:flex;gap:4px;padding:4px;border-radius:var(--r-pill);background:var(--well);}
+.tp-seg button,.vt button{min-height:40px;padding:0 16px;border:none;border-radius:var(--r-pill);background:none;
+  color:var(--mute);font:inherit;font-weight:600;font-size:var(--fs-lg);white-space:nowrap;}
+.tp-seg button.on,.vt button.on{background:var(--surface);color:var(--ink);box-shadow:var(--lift-1);}
+.tp-shut{color:var(--mute);font-weight:600;}
+.tp-now{min-height:var(--tap);padding:0 16px;border:1px solid var(--accent);border-radius:var(--r-pill);background:none;
+  color:var(--accent);font:inherit;font-weight:600;}
+.tp-sp{flex:1;}
+.tp-btn{min-height:var(--tap);padding:0 16px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--surface);
+  color:var(--ink);font:inherit;font-weight:600;font-size:var(--fs-lg);white-space:nowrap;display:inline-flex;align-items:center;gap:8px;}
+.tp-btn.ink{background:var(--ink);border-color:var(--ink);color:var(--surface);}
+.tp-btn.on{border-color:var(--accent);color:var(--accent);}
+.tp-btn.icon{width:var(--tap);padding:0;justify-content:center;}
+.tp-btn svg{width:20px;height:20px;}
+.tp-sh{display:none;}
+.tp-menu-a{position:relative;display:flex;}
+.tp-veil{position:fixed;inset:0;z-index:39;}
+.tp-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:40;width:240px;display:grid;padding:8px;
+  border-radius:var(--r-surface);background:var(--surface);box-shadow:var(--lift-2);}
+.tp-mi{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 12px;border:none;
+  border-radius:var(--r-control);background:none;color:var(--ink);font:inherit;font-weight:600;font-size:var(--fs-lg);text-align:left;}
+.tp-mi.on{background:var(--accent-wash);color:var(--accent);}
+.tp-mi-n{min-width:28px;height:24px;padding:0 8px;border-radius:var(--r-pill);background:var(--accent);color:#fff;
+  font-family:var(--font-mono);font-size:var(--fs-md);display:flex;align-items:center;justify-content:center;}
+/* Away from tonight the page names itself and the way back. */
+.pg-head{display:flex;align-items:center;gap:12px;padding:4px 0 12px;}
+.pg-head h1{flex:1;margin:0;font-size:var(--fs-xl);font-weight:700;}
+.pg-back{display:inline-flex;align-items:center;gap:4px;min-height:var(--tap);padding:0 12px 0 4px;border:none;border-radius:var(--r-pill);
+  background:var(--well);color:var(--ink);font:inherit;font-weight:600;}
+.pg-back svg{width:20px;height:20px;}
+.sd-head{display:flex;align-items:center;gap:12px;padding-bottom:12px;}
+.sd-head b{font-size:var(--fs-lg);}
+
+/* §§ The desk: the night's list down the left, the room beside it. */
+.pane:has(> .desk){padding:0 20px 20px;}
+.shell.simple .desk{display:grid;grid-template-columns:400px minmax(0,1fr);gap:16px;background:none;overflow:hidden;height:100%;}
+.shell.simple .desk-col{max-height:none;overflow-y:auto;border-right:none;background:none;padding-bottom:16px;}
+.shell.simple .desk.mode-book{grid-template-columns:minmax(0,900px);justify-content:center;}
+.shell.simple .desk-main{display:flex;flex-direction:column;gap:12px;min-height:0;}
+.vt-row{display:flex;align-items:center;gap:12px;flex:none;}
+.vt-phone{display:none;}
+.d2-panel{flex:1;min-height:0;display:flex;flex-direction:column;border-radius:var(--r-surface);background:var(--surface);overflow:hidden;position:relative;}
+.d2-panel > .dm-scroll{flex:1;min-height:0;overflow:auto;padding:16px;}
+.shell.simple .fl-box > .fl-wrap{background:var(--surface);padding:16px;}
+.shell.simple .timeline,.shell.simple .tl-card{border:none;border-radius:0;}
+
+/* The search well and the groups, the prototype's own. */
+.shell.simple .desk-col .bl-find{position:sticky;top:0;margin:0 0 16px;padding:0 4px 0 16px;min-height:48px;border:none;
+  border-radius:var(--r-pill);background:var(--surface);}
+.shell.simple .desk-col .side-sw{display:none;}
+.shell.simple .bl-head{display:flex;align-items:center;gap:8px;min-height:52px;padding:0 4px;border:none;background:none;}
+.shell.simple .bl-h-name{flex:none;font-size:var(--fs-lg);font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);}
+.bl-h-c{min-width:28px;height:24px;padding:0 8px;border-radius:var(--r-pill);background:var(--well);color:var(--ink);
+  font-family:var(--font-mono);font-weight:600;font-size:var(--fs-md);display:flex;align-items:center;justify-content:center;}
+.bl-h-p{margin-left:auto;color:var(--mute);font-size:var(--fs-md);white-space:nowrap;}
+.shell.simple .bl-head.red .bl-h-name,.shell.simple .bl-head.red .bl-h-c{color:var(--late);}
+.shell.simple .bl-head.red .bl-h-c{background:var(--late-wash);}
+.shell.simple .bl-head.shut{min-height:52px;padding:0 16px;border-radius:var(--r-control);background:var(--surface);margin-bottom:8px;}
+.shell.simple .bl-rows{display:block;padding:0;margin-bottom:16px;border-radius:var(--r-control);background:var(--surface);overflow:hidden;}
+
+/* The docket line in the design's few colours. */
+.shell.simple .dk-row{border-radius:0;border-top:1px solid var(--line);}
+.shell.simple .bl-rows > .dk-row:first-child{border-top:none;}
+.shell.simple .dk-row.selected,.shell.simple .dk-row.open{background:var(--accent-wash);box-shadow:none;}
+.dk-tab[class*="stg-"]{background:var(--tfree);color:var(--ink);border-left:none;text-decoration:none;}
+.dk-tab.stg-here{background:var(--accent);color:#fff;}
+.dk-tab.stg-phere{background:var(--accent-wash);color:var(--accent);box-shadow:inset var(--ring) 0 0 var(--accent);}
+.dk-tab.stg-late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
+.dk-tab.stg-in{background:var(--seat);}
+.dk-tab.stg-bill{background:var(--seat);box-shadow:inset var(--ring) 0 0 var(--leave);}
+.dk-tab.stg-gone{color:var(--mute);}
+.dk-tab.stg-none{background:none;color:var(--late);border:1px dashed var(--late);}
+.dk-tab.busy{color:var(--faint);text-decoration:line-through;text-decoration-thickness:2px;}
+.dk-main b{font-size:var(--fs-lg);font-weight:600;}
+.dk-main i.here{color:var(--accent);} .dk-main i.late{color:var(--late);} .dk-main i.leave{color:var(--leave);}
+.dk-t{font-size:var(--fs-md);color:var(--mute);}
+.dk-k{background:var(--seat);color:var(--ink);}
+.dk-k svg{width:20px;height:20px;}
+
+/* §§ The room: tables are plain tops in the design's few colours — light
+   grey free, darker grey sat, blue at the door, pale blue for part of a
+   party, red edge late — and a ring for over (red) or the bill (green). */
+.shell.simple .fl-table{border:none;background:var(--tfree);color:var(--ink);box-shadow:none;}
+.shell.simple .desk-main .fl-room{background:var(--surface);}
+.shell.simple .fl-wash{display:none;}
+.shell.simple .fl-in{background:none;box-shadow:none;color:inherit;padding:0;}
+.shell.simple .fl-table.stg-in{background:var(--seat);}
+.shell.simple .fl-table.stg-here{background:var(--accent);color:#fff;}
+.shell.simple .fl-table.stg-phere{background:var(--accent-wash);color:var(--accent);border:.25cqw solid var(--accent);}
+.shell.simple .fl-table.stg-late{background:var(--late-wash);color:var(--late);border:.25cqw solid var(--late);outline:none;}
+.shell.simple .fl-table.over{outline:.3cqw solid var(--late);outline-offset:.3cqw;}
+.shell.simple .fl-table.check,.shell.simple .fl-table.paid{outline:.3cqw solid var(--leave);outline-offset:.3cqw;}
+
+/* The timeline and the flow wear the same few colours. */
+.shell.simple .tl-block{background:var(--tfree);color:var(--ink);}
+.shell.simple .tl-block.arrived{background:var(--accent);color:#fff;}
+.shell.simple .tl-block.part-arrived{background:var(--accent-wash);color:var(--accent);}
+.shell.simple .tl-block.seated,.shell.simple .tl-block.part-seated{background:var(--seat);color:var(--ink);}
+.shell.simple .tl-block.check,.shell.simple .tl-block.paid{background:var(--seat);color:var(--ink);box-shadow:inset var(--ring) 0 0 var(--leave);}
+.shell.simple .tl-block.done,.shell.simple .tl-block.cancelled,.shell.simple .tl-block.no-show{background:var(--well);color:var(--mute);}
+.shell.simple .fg-tbl{background:var(--tfree);color:var(--ink);}
+.shell.simple .fg-tbl.arrived{background:var(--accent);color:#fff;}
+.shell.simple .fg-tbl.part-arrived{background:var(--accent-wash);color:var(--accent);}
+.shell.simple .fg-tbl.sat{background:var(--seat);color:var(--ink);}
+.shell.simple .stat{border:none;border-radius:var(--r-control);background:var(--well);}
+
+/* The toast is the design's: ink, round, its keys on the paper. */
+.shell.simple ~ .toast,.toast{background:var(--ink);color:var(--surface);}
+body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
+
+/* §§ A phone: the bar wraps to two lines and the views are tabs under it —
+   List · Floor · Timeline · Flow — with no bar at the foot. */
+@media (max-width:760px){
+  .tp{padding:8px 16px;gap:8px;}
+  .tp-night{flex:1;order:0;justify-content:space-between;}
+  .tp-menu-a{order:1;}
+  .tp-row2{order:2;flex:1 1 100%;}
+  .tp-seg button{padding:0 12px;}
+  .tp-btn{padding:0 12px;}
+  .tp-date{align-items:center;text-align:center;}
+  .tp-big{font-size:var(--fs-xl);}
+  .tp-lg{display:none;} .tp-sh{display:inline;}
+  .shell.simple .pane{padding:0 16px 16px;}
+  .pane:has(> .desk){padding:0 16px 16px;}
+  .toast{bottom:calc(16px + env(safe-area-inset-bottom, 0px));}
+}
+
+/* Where a booking is up to, named in the same few colours: blue at the door,
+   ink sat down, green at the bill, red for the two that went wrong, grey for
+   still to come and for done. */
+.shell.simple .st-ink.booked,.shell.simple .st-ink.confirmed,.shell.simple .st-ink.done{--st-ink:var(--mute);}
+.shell.simple .st-ink.part-arrived,.shell.simple .st-ink.arrived{--st-ink:var(--accent);}
+.shell.simple .st-ink.part-seated,.shell.simple .st-ink.seated{--st-ink:var(--ink);}
+.shell.simple .st-ink.check,.shell.simple .st-ink.paid{--st-ink:var(--leave);}
+.shell.simple .st-ink.cancelled,.shell.simple .st-ink.no-show{--st-ink:var(--late);}
+.shell.simple .st-ink{--st-wash:var(--well);}
+/* A popup's keys are the design's round keys: Save in ink, Cancel on the
+   well, Delete a red word. */
+.shell.simple .modal-actions{align-items:center;}
+.shell.simple .icon-action{width:auto;height:48px;padding:0 20px;flex-direction:row;gap:8px;border-radius:var(--r-pill);font-size:var(--fs-lg);}
+.shell.simple .icon-action svg{width:20px;height:20px;}
+.shell.simple .icon-action .ia-label{font-size:var(--fs-lg);font-weight:600;letter-spacing:0;}
+.shell.simple .icon-action.send{background:var(--ink);color:var(--surface);}
+.shell.simple .icon-action.neutral{background:var(--well);color:var(--ink);}
+.shell.simple .icon-action.discard{background:none;color:var(--late);}
+.shell.simple .icon-action.left{margin-right:auto;}
+/* Up to 900 the list and the room do not both fit beside each other, so the
+   desk is the phone's: List · Floor · Timeline · Flow as tabs, one at a time. */
+@media (max-width:900px){
+  .vt-phone{display:flex;margin-bottom:12px;}
+  .vt-phone button{flex:1;}
+  .vt-row .vt:not(.vt-rooms){display:none;}
+  .vt-row:not(:has(.vt-rooms)){display:none;}
+  .shell.simple .desk{grid-template-columns:minmax(0,1fr);}
+  .shell.simple .desk:not(.mode-book) > .desk-col{display:none;}
+  .shell.simple .desk.mode-book > .desk-main{display:none;}
+}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "86aa30189a86abd0325d2a86873f2544272dc4d0";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -10089,6 +10299,8 @@ const I = {
   // stroke 2, the long axis 20 — the icon law, like every glyph above.
   cheer: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l5-13 8 8z"/><path d="M13.5 2v3M22 10.5h-3M18.5 5.5l2-2"/><path d="M12 12c.8-2 2.4-3.2 4.6-3.4"/></svg>',
   note: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3.5h9.5L19 8v12.5H5z"/><path d="M14 3.5V8h5"/><path d="M8.5 12.5h7M8.5 16h4.5"/></svg>',
+  phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg>',
+  menu: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>',
   chev: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 9l7 7 7-7"/></svg>',
   stBooked: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3h7a2 2 0 0 1 2 2v16l-5.5-4.2-5.5 4.2V5a2 2 0 0 1 2-2z"/></svg>',
   stConfirmed: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path fill="currentColor" stroke="none" d="M7.5 2h9a2 2 0 0 1 2 2v18l-6.5-5-6.5 5V4a2 2 0 0 1 2-2z"/></svg>',
@@ -10739,7 +10951,9 @@ function applyTheme() {
   const mode = t.mode === 'auto' || !t.mode ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : t.mode;
   document.body.dataset.theme = mode;
   document.documentElement.dataset.theme = mode;
-  if (t.accent && /^#[0-9A-Fa-f]{6}$/.test(t.accent)) document.documentElement.style.setProperty('--orange', t.accent);
+  // THE SIMPLE DESK WEARS ITS OWN ACCENT (owner, 6 Oct): the till's mode
+  // still decides light or dark, but the blue is the design's, so a party at
+  // the door is the same blue on every venue's desk.
   applyStatusColours();
   // The browser chrome strip's colour, and GUARDED. A page that does not
   // carry the meta — an embed, a stripped head, the preview shell — used to
@@ -10873,7 +11087,7 @@ function render() {
   const focusKey = !focusId && !focusField && focus && focus !== document.body && focus.dataset && focus.dataset.act
     ? `[data-act="${CSS.escape(focus.dataset.act)}"]` + ['val', 'id', 'field', 'table'].map(k => focus.dataset[k] !== undefined ? `[data-${k}="${CSS.escape(focus.dataset[k])}"]` : '').join('') : null;
   const scrolls = {}; document.querySelectorAll('[data-keep]').forEach(el => { scrolls[el.dataset.keep] = [el.scrollTop, el.scrollLeft]; });
-  app.innerHTML = `<div class="shell">${renderRail()}<div class="main">${renderDeck()}<div class="pane" data-keep="pane">${renderSecBand()}${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.welcome ? renderWelcome() : ''}${state.toast ? `<div class="toast"><i class="dot${state.toastFailed === state.toast ? ' bad' : ''}"></i><span class="toast-msg">${esc(state.toast)}</span>${state.toastUndo && state.toastUndo.msg === state.toast ? '<button class="toast-undo" data-act="toast-undo">Undo</button>' : ''}${state.toastSome && state.toastSome.msg === state.toast ? (state.toastSome.open ? '<span class="toast-count"><span class="toast-q">How many sat?</span>' + Array.from({ length: state.toastSome.n - 1 }, (_, i) => `<button class="toast-undo" data-act="toast-count" data-val="${i + 1}" aria-label="${i + 1} seated">${i + 1}</button>`).join('') + '</span>' : '<button class="toast-undo" data-act="toast-some">Not all here?</button>') : ''}</div>` : ''}</div>`;
+  app.innerHTML = `<div class="shell simple">${renderTop()}<div class="main"><div class="pane" data-keep="pane">${renderPageHead()}${state.view === 'guests' ? renderSecBand() : ''}${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.welcome ? renderWelcome() : ''}${state.toast ? `<div class="toast"><i class="dot${state.toastFailed === state.toast ? ' bad' : ''}"></i><span class="toast-msg">${esc(state.toast)}</span>${state.toastUndo && state.toastUndo.msg === state.toast ? '<button class="toast-undo" data-act="toast-undo">Undo</button>' : ''}${state.toastSome && state.toastSome.msg === state.toast ? (state.toastSome.open ? '<span class="toast-count"><span class="toast-q">How many sat?</span>' + Array.from({ length: state.toastSome.n - 1 }, (_, i) => `<button class="toast-undo" data-act="toast-count" data-val="${i + 1}" aria-label="${i + 1} seated">${i + 1}</button>`).join('') + '</span>' : '<button class="toast-undo" data-act="toast-some">Not all here?</button>') : ''}</div>` : ''}</div>`;
   document.querySelectorAll('[data-keep]').forEach(el => { const s = scrolls[el.dataset.keep]; if (s) { el.scrollTop = s[0]; el.scrollLeft = s[1]; } });
   // A day drawn for the first time opens where the work is; after that the
   // line above has already put the desk's own scroll back and this does
@@ -11080,76 +11294,68 @@ function railTile(key, label, icon, n, on, act) {
 // Its laws are still the POS's: a uniform square tile, icon over label, no
 // body at all until it is chosen, and chosen is a PALE ACCENT BLOCK with
 // accent ink — never a solid fill, which is the deck's language.
-function renderRail() {
-  const items = modeItems();
-  const place = (k, label, icon, n) => railTile(k, label, icon, n || null, state.view === k, 'view');
-  const modes = items.filter(([k]) => k !== 'settings').map(x => place(...x)).join('');
-  const foot = items.filter(([k]) => k === 'settings').map(x => place(...x)).join('');
-  const svc = RAILS.today;
-  const secs = `<div class="rail-secs">${svc.items.map(([k, label, icon]) =>
-    railTile(k, label, icon, null, state.view === 'today' && state[svc.key] === k, 'mode')).join('')}</div>`;
-  // AND THE RAIL KEEPS ITS PLACE WHEN YOU PRESS A TILE. render() rebuilds the
-  // DOM, so a scroller without `data-keep` goes back to nought on every paint
-  // — press Guests at the far end of the phone's bar and the bar jumps home
-  // under the thumb that just pressed it, which is the shuffle the rail was
-  // made to stop, arriving a different way.
-  return `<nav class="rail" aria-label="Sections"><div class="rail-scroll" data-keep="rail">${secs}<div class="rail-modes">${modes}</div></div><div class="rail-foot">${foot}</div></nav>`;
+// §§ THE SIMPLE DESK (owner, 6 Oct: "Build it" and then "This doesn't look
+// like the simple design at all" — v47). One bar across the top, the
+// prototype's own: the night (‹ Tonight ›, the date and the clock under it,
+// a press opens the month), the services as one segment, Walk-in and New
+// booking, and ONE menu key for everything that is not tonight — Waitlist,
+// Notify, Run sheet, Guests, Settings. No rail, no tabs of places, no cog.
+function nightWord(d) {
+  const today = tradingDay();
+  if (d === today) return 'Tonight';
+  if (d === addDays(today, 1)) return 'Tomorrow';
+  if (d === addDays(today, -1)) return 'Last night';
+  return parseDay(d).toLocaleDateString([], { weekday: 'long' });
 }
-
-// THE NIGHT IS ONE PILL, IN THE MIDDLE OF THE BAR. It was a row of loose
-// keys: the day arrows and Today pinned to the far left, the date centred
-// three inches away with the services stacked under it in a second line.
-// Three separate things saying one thing — which night, and which part of it.
-//
-// One pill now, three segments with a hairline between: Today, the day
-// between its arrows, the service between its arrows. A stepper rather than a
-// band of chips, because a service is a place ON the night and you walk along
-// it; and it is the same shape as the day beside it, so one control teaches
-// the other. A day with ONE service has nothing to step through, so it states
-// the name and drops its arrows.
-function renderDeck() {
+function renderTop() {
+  const today = tradingDay(), d = state.date;
+  const svcs = servicesInOrderOn(d), on = pickedService();
+  const nowM = tradingNowMin();
+  const clock = d === today ? ' · ' + fmtHHMM(pad2(Math.floor(nowM / 60) % 24) + ':' + pad2(nowM % 60)) : '';
+  const sub = parseDay(d).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' }) + clock;
+  const isNow = d === today && (state.service || '') === defaultService(today);
+  const seg = svcs.length > 1
+    ? `<div class="tp-seg" role="group" aria-label="Service">${svcs.map(x => `<button class="${on && on.id === x.id ? 'on' : ''}" data-act="svc-pick" data-val="${esc(x.id)}" aria-pressed="${!!(on && on.id === x.id)}">${esc(x.name)}</button>`).join('')}</div>`
+    : svcs.length ? '' : '<span class="tp-shut">Closed</span>';
+  return `<header class="tp">
+    <div class="tp-night">
+      <button class="tp-ar" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
+      <button class="tp-date" data-act="open-cal" aria-label="Open the month"><span class="tp-big">${esc(nightWord(d))}${I.chev}</span><span class="tp-when">${esc(sub)}</span></button>
+      <button class="tp-ar" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
+    </div>
+    <div class="tp-row2">
+      ${seg}
+      ${isNow ? '' : '<button class="tp-now" data-act="now">Now</button>'}
+      <span class="tp-sp"></span>
+      <span class="wk-anchor"><button class="tp-btn${state.walkin ? ' on' : ''}" data-act="walkin" aria-expanded="${state.walkin ? 'true' : 'false'}">Walk-in</button>${renderWalkinMenu()}</span>
+      <button class="tp-btn ink" data-act="new-booking"><span class="tp-lg">New booking</span><span class="tp-sh">Book</span></button>
+    </div>
+    <span class="tp-menu-a"><button class="tp-btn icon${state.menuOpen ? ' on' : ''}" data-act="menu" aria-label="More" aria-expanded="${state.menuOpen ? 'true' : 'false'}">${I.menu}</button>${state.menuOpen ? renderMenu() : ''}</span>
+  </header>`;
+}
+// The one menu key: everything that is not tonight's list and room. A count
+// where somebody needs a person (people at the door waiting, openings with
+// somebody to ring).
+function renderMenu() {
+  const t = state.today || {};
   const ps = state.settings && state.settings.pos;
-  const linked = ps && ps.enabled && ps.baseUrl;
-  const svcs = servicesInOrderOn(state.date);
-  const on = pickedService();
-  // Lit when you are already there: tonight, on whatever is running.
-  // LIT ONLY WHEN YOU ARE ACTUALLY THERE. The key takes you to tonight, the
-  // service the clock is in, AND the floor, so all three have to hold for it
-  // to say you have arrived — a key glowing on the run sheet is the bar
-  // claiming a place you are not standing in.
-  const isNow = state.date === tradingDay() && (state.service || '') === defaultService(tradingDay())
-    && state.view === 'today' && state.todayMode === 'floor';
-  // NO FALLBACK. This read `(on || svcs[0]).name`, so a desk with no service
-  // picked printed the first one's name and looked settled while every other
-  // screen was showing the whole night. A label that names a thing that is
-  // not selected is worse than one that says nothing.
-  const svcLabel = !svcs.length ? 'Closed' : on ? on.name : 'All night';
-  const step = svcs.length > 1;
-  return `
-  <div class="topbar">
-    <div class="deck-mid">
-      <div class="deck-pill">
-        <button class="pill-arw wide-only" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
-        <button class="pill-lbl" data-act="open-cal" title="Open the month">
-          ${esc(fmtDay(state.date))}
-        </button>
-        <button class="pill-arw wide-only" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
-        <i class="pill-sep wide-only"></i>
-        <button class="pill-arw pill-now wide-only${isNow ? ' on' : ''}" data-act="now" aria-label="Now" title="Tonight, and the service running now">${I.now}</button>
-        <i class="pill-sep wide-only"></i>
-        ${step ? `<button class="pill-arw wide-only" data-act="svc-step" data-val="-1" aria-label="The service before">${I.left}</button>` : ''}
-        <span class="pill-lbl pill-svc wide-only${svcs.length ? '' : ' shut'}">${esc(svcLabel)}</span>
-        ${step ? `<button class="pill-arw wide-only" data-act="svc-step" data-val="1" aria-label="The service after">${I.right}</button>` : ''}
-      </div>
-    </div>
-    ${renderTabs()}
-    <div class="deck-keys">
-      ${linked ? `<button class="deck-sq wide-only" data-act="to-till" aria-label="Open the till" title="Open the till on this venue">${I.till}</button>` : ''}
-      <span class="wk-anchor"><button class="deck-sq make${state.walkin ? ' on' : ''}" data-act="walkin" aria-label="Seat a walk-in" aria-expanded="${state.walkin ? 'true' : 'false'}" title="Somebody is at the door — seat them now">${I.srcWalkIn}<span class="deck-word wide-only">Walk-in</span></button>${renderWalkinMenu()}</span>
-      <button class="deck-sq make" data-act="new-booking" aria-label="New booking" title="Take a booking">${I.book}<span class="deck-word wide-only">Book</span></button>
-      <button class="deck-sq wide-only${state.view === 'settings' ? ' on' : ''}" data-act="view" data-val="settings" aria-label="Settings" aria-current="${state.view === 'settings' ? 'page' : 'false'}" title="Settings">${I.settings}</button>
-    </div>
+  const item = (act, val, label, n, on) => `<button class="tp-mi${on ? ' on' : ''}" data-act="${act}" data-val="${val}">${esc(label)}${n ? `<span class="tp-mi-n">${n}</span>` : ''}</button>`;
+  return `<div class="tp-veil" data-act="menu"></div><div class="tp-menu" role="menu">
+    ${item('menu-go', 'waitlist', 'Waitlist', t.waiting || 0, state.view === 'today' && state.side === 'waitlist')}
+    ${item('menu-go', 'notify', 'Notify', t.openings || 0, state.view === 'today' && state.side === 'notify')}
+    ${item('menu-go', 'sheet', 'Run sheet', 0, state.view === 'today' && state.todayMode === 'sheet')}
+    ${item('menu-go', 'guests', 'Guests', 0, state.view === 'guests')}
+    ${ps && ps.enabled && ps.baseUrl ? item('to-till', '', 'Open the till', 0, false) : ''}
+    ${item('menu-go', 'settings', 'Settings', 0, state.view === 'settings')}
   </div>`;
+}
+// Away from tonight — the guest book, Settings, the run sheet — the page says
+// where it is and the way back, because the bar no longer has tabs to light.
+function renderPageHead() {
+  const name = state.view === 'guests' ? 'Guests' : state.view === 'settings' ? 'Settings'
+    : state.view === 'today' && state.todayMode === 'sheet' ? 'Run sheet' : '';
+  if (!name) return '';
+  return `<div class="pg-head"><button class="pg-back" data-act="menu-go" data-val="desk">${I.left}<span>Tonight</span></button><h1>${esc(name)}</h1>${name === 'Run sheet' ? `<button class="tp-btn" data-act="print-sheet" ${state.sheet && state.sheet.date === state.date ? '' : 'disabled'}>Print</button>` : ''}</div>`;
 }
 
 // THE VIEWS ARE TABS IN THE BAR, AND THERE IS NO RAIL. The owner, Sep '26:
@@ -11267,32 +11473,23 @@ function waitWords(m) { return m < 90 ? m + ' min' : Math.floor(m / 60) + ' hr' 
 // book. Service is lit on all three views, so exactly one tab is always lit.
 const ROOM_VIEWS = [['floor', 'Floor'], ['timeline', 'Timeline'], ['flow', 'Flow']];
 const isRoomView = (m) => ROOM_VIEWS.some(([k]) => k === m);
-function renderTabs() {
-  const inRoom = state.view === 'today' && isRoomView(state.todayMode);
-  if (inRoom) state.roomMode = state.todayMode;
-  const tab = (k, label, act, on) =>
-    `<button class="deck-tab${on ? ' on' : ''}" data-act="${act}" data-val="${k}" aria-current="${on ? 'page' : 'false'}">${esc(label)}</button>`;
-  return `<nav class="deck-tabs wide-only" aria-label="Places">${tab(state.roomMode || 'floor', 'Service', 'mode', inRoom)}${tab('sheet', 'Run sheet', 'mode', state.view === 'today' && state.todayMode === 'sheet')}${tab('guests', 'Guests', 'view', state.view === 'guests')}</nav>`;
-}
-// The dock is the till's floor-band chip, the same key the rooms wear beside
-// it, so the two floating boxes at the room's foot are one family. It stands
-// down while the room IS the table picker — the till's move flows get no
-// switch either — and on a phone, whose bar at the foot already carries them.
-function renderViewDock() {
-  if (state.picking) return '';
-  return `<nav class="vdock wide-only" aria-label="Views">${ROOM_VIEWS.map(([k, l]) =>
-    `<button class="fl-room-chip${state.todayMode === k ? ' on' : ''}" data-act="mode" data-val="${k}" aria-current="${state.todayMode === k ? 'page' : 'false'}">${l}</button>`).join('')}</nav>`;
+// The three views of the room are tabs over it, the way the simple design
+// switches them; a phone adds List in front, because there the list is a
+// view of its own rather than the column beside the room.
+function renderViewTabs(phone) {
+  const views = phone ? [['book', 'List']].concat(ROOM_VIEWS) : ROOM_VIEWS;
+  return `<div class="vt${phone ? ' vt-phone' : ''}" role="tablist">${views.map(([k, l]) => `<button class="${state.todayMode === k ? 'on' : ''}" data-act="mode" data-val="${k}" role="tab" aria-selected="${state.todayMode === k}">${l}</button>`).join('')}</div>`;
 }
 // THE COLUMN DOWN THE LEFT, and what is in it: the night's book, or the
 // people waiting at the door, or the people waiting for a cancellation. Three
 // lists of people a host works through, so they share one column and a
 // switch at its head — the SevenRooms shape the owner asked for.
 function renderSide() {
-  const t = state.today || {};
-  const seg = (k, label, n) => `<button class="side-seg${state.side === k ? ' on' : ''}" data-act="side" data-val="${k}" aria-pressed="${state.side === k}">${esc(label)}${n ? ` <span class="sub">${n}</span>` : ''}</button>`;
-  const head = `<div class="side-sw">${seg('book', 'Bookings', state.reservations.filter(isLive).filter(onPickedBook).length)}${seg('waitlist', 'Waitlist', t.waiting || 0)}${seg('notify', 'Notify', t.openings || 0)}</div>`;
-  const body = state.side === 'waitlist' ? renderWaitlist() : state.side === 'notify' ? renderNotify() : renderDayList();
-  return head + `<div class="side-body">${body}</div>`;
+  if (state.side === 'waitlist' || state.side === 'notify') {
+    const head = `<div class="sd-head"><button class="pg-back" data-act="side" data-val="book">${I.left}<span>Bookings</span></button><b>${state.side === 'waitlist' ? 'Waitlist' : 'Notify'}</b></div>`;
+    return head + `<div class="side-body">${state.side === 'waitlist' ? renderWaitlist() : renderNotify()}</div>`;
+  }
+  return `<div class="side-body">${renderDayList()}</div>`;
 }
 
 // The band of chips at the top of the pane. It carries the sections of the
@@ -11716,7 +11913,10 @@ function renderFloor() {
     const wkPill = wk && wk.until ? pillHtml(t, '', 'till ' + esc(fmtHHMM(wk.until)), `Table ${t.label} — booked at ${fmtHHMM(wk.until)}`) : '';
     const pill = mvFrom ? pillHtml(t, '', esc((pkMove.move.name || 'Booking') + ' → ' + pkMove.move.to.map(tableName).join(' + ')), `${pkMove.move.name || 'Booking'} moves to ${pkMove.move.to.map(tableName).join(' + ')}`)
       : wkOn ? wkPill : floorPill(t, f, at);
-    return `<button class="fl-table ${f.state}${wkCls}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
+    // The simple design's few colours, the list tab's own (owner, 6 Oct).
+    const stage = f.state === 'late' ? 'late' : f.state === 'arrived' ? (r && r.status === 'part-arrived' ? 'phere' : 'here')
+      : ['seated', 'over', 'walkin', 'check', 'paid'].includes(f.state) ? 'in' : '';
+    return `<button class="fl-table ${f.state}${stage ? ' stg-' + stage : ''}${wkCls}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
       ${act}
       title="${esc(pkWhy)}">
       ${f.state === 'free' ? '' : `<span class="fl-wash ${esc(r ? r.status : f.state)}"></span>`}
@@ -11752,21 +11952,12 @@ function renderFloor() {
   //
   // The lens chip carries its own WORD rather than the room chip's 84: a room
   // has a name and they line up as a set, and this is one key beside them.
-  const lensChip = `<div class="fl-lens">
-      ${state.lensOpen ? '<div class="fl-lens-veil" data-act="lens-open"></div>' : ''}
-      <button class="fl-room-chip snug${state.lensOpen ? ' on' : ''}${state.floorLens ? ' lit' : ''}" data-act="lens-open">${esc(lensName(state.floorLens))}</button>
-      ${state.lensOpen ? `<div class="fl-lens-menu">${FLOOR_LENSES.map(([v, l]) => `<button class="fl-lens-item${v === (state.floorLens || '') ? ' on' : ''}" data-act="lens-pick" data-val="${esc(v)}">${esc(l)}</button>`).join('')}</div>` : ''}
-    </div>`;
-  const bar = `<div class="fl-bar"><div class="fl-rooms">${rooms.length > 1
-    ? rooms.map(x => `<button class="fl-room-chip${x === fp ? ' on' : ''}" data-act="plan" data-id="${esc(x.id)}">${esc(x.name || 'Room')}</button>`).join('') + '<i class="fl-sep"></i>'
-    : ''}${lensChip}</div></div>`;
   return `
   ${fp ? `
     <div class="fl-box${pkStuck ? ' mv' : ''}"><div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : ''}><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
       ${(() => { const hug = placed ? floorHug(fp) : null; return (fp.tables || []).map(t => hug ? hugObject(t, hug) : t).map(tableEl).join(''); })()}
-    </div></div></div>${renderViewDock()}${pkStuck ? moveOfferHtml(pkBook, pkMove) : bar}</div>`
-    : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>' + renderViewDock()}
-  ${placed ? renderPace() : ''}`;
+    </div></div></div>${pkStuck ? moveOfferHtml(pkBook, pkMove) : ''}</div>`
+    : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>'}`;
 }
 
 // §§ Pushing into the room
@@ -11927,21 +12118,6 @@ async function endArrange() {
   } catch (e) { toastBad(e.message); }
   render();
 }
-
-// The night along the bottom of the plan, the way a pass reads it: covers
-// landing in each slot against what the venue said it would take. Nothing new
-// is computed — this is coverFlowFor(), which the Flow view already draws.
-function renderPace() {
-  const cf = coverFlowFor();
-  if (!cf.slots.length) return '';
-  const at = toMin(floorMoment());
-  return `<div class="pace" data-keep="pace">${cf.slots.map(sl => `
-    <div class="pace-col${sl.over ? ' over' : ''}${!sl.covers && !sl.inRoom ? ' zero' : ''}${sl.mins <= at && at < sl.mins + cf.step ? ' now' : ''}">
-      <span class="pace-t">${esc(fmtHHMM(sl.time))}</span>
-      <span class="pace-n">${sl.covers}</span>
-      <span class="pace-c">${sl.inRoom}/${cf.capCovers || cf.seats || 0}</span>
-    </div>`).join('')}</div>`;
-}
 // Where a table sits. The POS stores x/y as the CENTRE of the table in
 // percent of a 900x560 canvas, and width/height as percentages of each axis —
 // its own layout maths, used verbatim so the room matches the till. A plan
@@ -12009,8 +12185,10 @@ function contrastInk(hex) {
 // editor remove it"), so a colour saved before then is read by nothing there
 // and nothing here: the only colour on a table is what it is DOING, the wash.
 // Walls and objects keep theirs — decorStyle — because that is the room.
+// THE SIMPLE DESK DRAWS NO SKIN: a table's ground is what it is doing, in
+// the design's few colours, so nothing is written inline to outrank them.
 function skinStyle() {
-  return 'background:var(--table-plain);color:var(--text-primary);';
+  return '';
 }
 // A wall's arm is a real LENGTH on the till — pixels on its canvas, 900 ×
 // FLOOR_ROOM wide — so it is the same thickness however long the wall runs.
@@ -12214,23 +12392,25 @@ function renderToday() {
   // run sheet is: a MODE is state and re-renders anyway, so there is nothing
   // for a resize to catch out. (The desk/phone split stays in CSS, because
   // that one must be right on the first frame with nothing listening.)
-  if (state.todayMode === 'book') return `${notice}<div class="desk mode-book">
+  if (state.todayMode === 'book') return `${notice}${renderViewTabs(true)}<div class="desk mode-book">
     <div class="desk-col" data-keep="desk-col">${renderSide()}</div>
   </div>`;
   const whole = state.todayMode === 'sheet';
   const side = state.todayMode === 'floor' ? renderFloor()
     : state.todayMode === 'flow' ? renderFlow()
     : renderTimeline();
-  if (whole) return `<div class="band desk-bar">
-      <span class="spacer"></span>
-      <button class="chip" data-act="print-sheet" ${state.sheet && state.sheet.date === state.date ? '' : 'disabled'}>Print</button>
-    </div>${notice}${renderRunSheet()}`;
+  if (whole) return `${notice}${renderRunSheet()}`;
   // Both halves are always RENDERED — the phone hides one in CSS rather than
   // in JS, so nothing has to listen for a resize and a tablet turned sideways
   // is right on the first frame.
-  return `${notice}<div class="desk mode-${esc(state.todayMode)}">
+  // Several rooms: a small switch beside the tabs, only when there is a
+  // choice to make.
+  const plans = (state.floorPlans || []).filter(x => (x.tables || []).length);
+  const rooms = state.todayMode === 'floor' && plans.length > 1
+    ? `<div class="vt vt-rooms">${plans.map(x => { const on = x.id === state.plan || (!state.plan && x === plans[0]); return `<button class="${on ? 'on' : ''}" data-act="plan" data-id="${esc(x.id)}">${esc(x.name || 'Room')}</button>`; }).join('')}</div>` : '';
+  return `${notice}${renderViewTabs(true)}<div class="desk mode-${esc(state.todayMode)}">
     <div class="desk-col" data-keep="desk-col">${renderSide()}</div>
-    <div class="desk-main">${state.todayMode === 'flow' ? `<div class="dm-scroll" data-keep="dm-scroll">${side}</div>` : side}${state.todayMode === 'floor' ? '' : renderViewDock()}</div>
+    <div class="desk-main"><div class="vt-row">${renderViewTabs(false)}${rooms}</div><div class="d2-panel">${state.todayMode === 'flow' ? `<div class="dm-scroll" data-keep="dm-scroll">${side}</div>` : side}</div></div>
   </div>`;
 }
 // THE RULER STRETCHES TO THE PANE. Two pixels a minute is the FLOOR, not the
@@ -12482,14 +12662,13 @@ function renderDayList() {
     const occ = tonight && !sat && !ended ? busyOn(r) : null;
     const busy = occ && (here || new Date(r.time).getTime() - now <= DESK_DUE_SOON * 60000) ? occ : null;
     const label = held.length ? tableName(held[0]) + (held.length > 1 ? '+' : '') : '—';
-    // THE TAB IS THE COLOUR THE FLOOR PAINTS THAT TABLE (owner, 6 Oct: "make
-    // the floor match the list colours"). Tonight a booking's table is not
-    // painted until its time comes or the party is in the room, so its tab
-    // is not either: an eight o'clock at half past seven is the room's own
-    // ground on both. Away from tonight there is no now to match, so the tab
-    // says where the booking is up to.
-    const fl = tonight && held.length ? room.find(x => x.id === held[0]) : null;
-    const painted = !ended && (!tonight || !!(fl && fl.r && fl.r.id === r.id));
+    // THE TAB SAYS WHERE THEY ARE UP TO, in the simple design's few colours
+    // (owner, 6 Oct): blue at the door, pale blue for part of a party, red
+    // late, the darker grey sat down, a green edge for the bill, the light
+    // grey for everybody still to come — the same few the floor uses.
+    const stage = ended ? 'gone' : !held.length ? 'none' : late ? 'late'
+      : r.status === 'arrived' ? 'here' : r.status === 'part-arrived' ? 'phere'
+        : r.status === 'check' || r.status === 'paid' ? 'bill' : sat ? 'in' : 'wait';
     const seatable = tonight && !sat && !ended && held.length && !occ;
     const tabAct = seatable ? `data-act="row-seat" data-id="${esc(r.id)}" aria-label="Seat at ${esc(held.map(tableName).join(' + '))}"`
       : `data-act="row-table" data-id="${esc(r.id)}" aria-label="${held.length ? 'Table ' + esc(held.map(tableName).join(' + ')) + ' — pick another' : 'No table — pick one'}"`;
@@ -12510,9 +12689,9 @@ function renderDayList() {
     if (setMenuName(r)) said.push(esc(setMenuName(r)));
     if (String(r.notes || '').trim()) said.push(esc(String(r.notes).trim().slice(0, 60)));
     // The one time, or the one key.
-    let rt = `<span class="dk-t">${esc(fmtHHMM(hhmmOf(r.time)))}</span>`;
+    let rt = `<span class="dk-t">${esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''))}</span>`;
     if (tonight && here && r.arrivedAt) rt = `<span class="dk-t">${esc(waitWords(Math.max(0, Math.round((now - r.arrivedAt) / 60000))))}</span>`;
-    if (tonight && late && String(r.phone || '').trim()) rt = `<a class="dk-k" href="tel:${esc(String(r.phone).replace(/[^\d+]/g, ''))}" aria-label="Call ${esc(r.name || '')}">Call</a>`;
+    if (tonight && late && String(r.phone || '').trim()) rt = `<a class="dk-k" href="tel:${esc(String(r.phone).replace(/[^\d+]/g, ''))}" aria-label="Call ${esc(r.name || '')}">${I.phone}</a>`;
     if (busy && !here) rt = `<button class="dk-k" data-act="row-here" data-id="${esc(r.id)}">Here</button>`;
     if (tonight && sat) {
       const start = r.seatedAt || new Date(r.time).getTime(), left = durationOf(r) - Math.round((now - start) / 60000);
@@ -12520,7 +12699,7 @@ function renderDayList() {
         : left >= 0 ? `<span class="dk-t">${esc(waitWords(left))}</span>` : `<span class="dk-t over">+${esc(waitWords(-left))}</span>`;
     }
     return `<div class="dk-row${state.highlightTable && held.includes(state.highlightTable) ? ' selected' : ''}${state.modal && state.modal.kind === 'booking' && state.modal.b && state.modal.b.id === r.id ? ' open' : ''}">
-      ${painted ? tab.replace('class="dk-tab', `class="dk-tab st-fill ${esc(r.status)}`) : tab}
+      ${tab.replace('class="dk-tab', `class="dk-tab stg-${stage}`)}
       <button class="dk-main" data-act="edit-booking" data-id="${r.id}" aria-label="${esc((r.name || 'No name') + ', ' + statusLabel(r.status))}">
         <b>${esc(r.name || 'No name')} · ${r.partySize}</b>${said.length ? `<span>${said.join(' · ')}</span>` : ''}
       </button>
@@ -12530,9 +12709,11 @@ function renderDayList() {
 
   const head = (key, name, list) => {
     const shut = !!state.listShut[key];
-    return `<button class="bl-head ${esc(key)}${shut ? ' shut' : ''}${list.length ? '' : ' empty'}" data-act="list-group" data-val="${key}" aria-expanded="${!shut}">
+    const n = coversOf(list), red = key === 'none' || (key === 'upcoming' && list.some(r => lateBy(r, Date.now())));
+    return `<button class="bl-head ${esc(key)}${shut ? ' shut' : ''}${list.length ? '' : ' empty'}${red ? ' red' : ''}" data-act="list-group" data-val="${key}" aria-expanded="${!shut}">
       <span class="bl-h-name">${esc(name)}</span>
-      <span class="bl-h-n">${list.length} <i>(${coversOf(list)})</i></span>
+      <span class="bl-h-c">${list.length}</span>
+      <span class="bl-h-p">${n} ${n === 1 ? 'person' : 'people'}</span>
       <span class="bl-chev">${I.chev}</span>
     </button>`;
   };
@@ -13046,23 +13227,6 @@ function renderSettings() {
       </div>`;
   }).join('')}</div>` : '<div class="ts">None yet.</div>'}
       <div><button class="btn" data-act="combo-add">${I.plus} Add a combination</button></div>
-    </div>
-    <div class="settings-card">
-      <div class="th">Colours</div>
-      ${COLOUR_SLOTS.map(([group, items]) => `
-        <div class="section-h" style="font-size:var(--fs-md);">${esc(group)}</div>
-        ${items.map(([k, label]) => {
-    // THE TILL PAINTS THESE ON THE SAME TABLES, so it owns them: shown, and
-    // not pressable. Named rather than explained — the row says where the
-    // colour is from, which is the whole of what there is to say.
-    const fromTill = (s.tillColours || []).includes(k);
-    return `<div class="colour-row${fromTill ? ' from-till' : ''}">
-          <button type="button" class="colour-dot-btn" style="background:${esc(liveColourOf(k) || 'transparent')};color:${contrastInk(liveColourOf(k))};"
-            ${fromTill ? 'disabled' : `data-act="open-colour" data-key="${esc(k)}" data-label="${esc(label)}" aria-label="Change the colour for ${esc(label)}"`}>${keyGlyph(k)}</button>
-          <span class="key-text"><b>${esc(label)}</b><span>${fromTill ? 'From the till' : esc(colourOf(k) || 'Built-in')}</span></span>
-        </div>`;
-  }).join('')}`).join('')}
-      <div><button class="btn" data-act="colours-reset">${I.refresh} Put them all back</button></div>
     </div>`,
     venue: `    <div class="settings-card">
       <div class="th">Venue</div>
@@ -14546,7 +14710,7 @@ document.addEventListener('click', async (ev) => {
         state.wl = { name: '', phone: '', partySize: w.size, quotedMin: n ? Math.ceil(n.wait / 5) * 5 : state.wl.quotedMin, worked: !!n };
         state.side = 'waitlist';
         // A phone's floor has no book beside it: the list is its own screen.
-        if (typeof matchMedia === 'function' && matchMedia('(max-width: 760px)').matches) state.todayMode = 'book';
+        if (typeof matchMedia === 'function' && matchMedia('(max-width: 900px)').matches) state.todayMode = 'book';
         render();
         const f = document.getElementById('wl-name'); if (f) f.focus();
         try { await loadSide(); } catch (e) {}
@@ -14773,6 +14937,23 @@ document.addEventListener('click', async (ev) => {
         await loadDay();
         render();
         break;
+      }
+      case 'svc-pick': state.service = val; state.walkin = null; render(); break;
+      case 'menu': state.menuOpen = !state.menuOpen; render(); break;
+      // The menu's places. Waitlist and Notify are lists of people, so they
+      // take the list's column and the room stays beside them; the rest are
+      // pages of their own.
+      case 'menu-go': {
+        state.menuOpen = false; state.walkin = null;
+        if (val === 'waitlist' || val === 'notify') {
+          state.view = 'today'; state.side = val;
+          if (!isRoomView(state.todayMode)) state.todayMode = 'floor';
+          if (typeof matchMedia === 'function' && matchMedia('(max-width: 900px)').matches) state.todayMode = 'book';
+          render(); try { await loadView(); await loadSide(); state.today = await api('/api/today'); } catch (e) {} render(); break;
+        }
+        if (val === 'desk') { state.view = 'today'; state.side = 'book'; if (!isRoomView(state.todayMode) && state.todayMode !== 'book') state.todayMode = state.roomMode || 'floor'; render(); try { await loadView(); } catch (e) {} render(); break; }
+        if (val === 'sheet') { state.view = 'today'; state.todayMode = 'sheet'; render(); await loadDay(); render(); break; }
+        setView(val); break;
       }
       case 'svc-step': {
         const stops = servicesInOrderOn(state.date).map(s => s.id);

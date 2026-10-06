@@ -2416,6 +2416,216 @@ a.btn{color:var(--text-primary);text-decoration:none;}
 .bke-ln-t span{color:var(--charcoal-soft);}
 .bke-ln svg{flex:none;width:20px;height:20px;color:var(--charcoal-soft);}
 .bke-foot{margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+
+/* §§ THE SIMPLE DESK (owner, 6 Oct: "This doesn't look like the simple design
+   at all" — the v47 prototype, its colours, one menu key, none of the old
+   extras). Everything below re-points the page to the prototype's palette
+   and lays the shell out its way. It REPEALS the POS tokens' look, the rail,
+   the pill, the room bar and lens, the pacing strip and the view dock. */
+:root{
+  --font-body:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --bg:#F3F3F1; --ink:#17181B; --mute:#6A6D75; --faint:#A3A6AD; --line:#E4E4E0;
+  --accent:#2D55E6; --accent-wash:#E8EDFD; --late:#C8412D; --late-wash:#FBEAE6;
+  --leave:#25925A; --seat:#D9DBE2; --well:#E7E7E3; --tfree:#E9E9E5;
+  --surface:#FFFFFF; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#D4D4CF;
+  --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
+  --orange:var(--accent); --red:var(--late); --red-btn:var(--late); --green:var(--leave);
+  --deck-pill-bg:var(--well); --deck-bg:var(--bg); --chrome:var(--bg);
+  --table-plain:var(--tfree); --tab-plain:var(--tfree);
+  --pick-wash:var(--accent-wash); --steel-500:var(--faint);
+  --r-control:12px; --r-surface:20px;
+  --lift-1:0 1px 3px rgba(0,0,0,.08); --lift-2:0 18px 48px rgba(0,0,0,.14);
+}
+body[data-theme="dark"]{
+  --bg:#0E0F11; --ink:#F1F1EE; --mute:#9A9DA5; --faint:#62656D; --line:#2A2C31;
+  --accent:#7090FF; --accent-wash:#1C2546; --late:#FF6E58; --late-wash:#3A1F1A;
+  --leave:#4BC47E; --seat:#3A3C44; --well:#202227; --tfree:#2A2D34;
+  --surface:#18191D; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#33363C;
+  --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
+  --orange:var(--accent); --red:var(--late); --red-btn:var(--late); --green:var(--leave);
+  --deck-pill-bg:var(--well); --deck-bg:var(--bg); --chrome:var(--bg);
+  --table-plain:var(--tfree); --tab-plain:var(--tfree);
+  --pick-wash:var(--accent-wash); --steel-500:var(--faint);
+  --lift-1:0 1px 3px rgba(0,0,0,.5); --lift-2:0 18px 48px rgba(0,0,0,.5);
+}
+body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
+
+/* The shell: the bar over the work, the work in a column 1440 at most. */
+.shell.simple{flex-direction:column;max-width:1440px;margin:0 auto;width:100%;}
+.shell.simple .main{background:var(--bg);}
+.shell.simple .pane{padding:0 20px 20px;}
+.rail{display:none;}
+
+/* §§ The bar: the night, the service, the two make keys, the menu key. */
+.tp{position:relative;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;background:var(--bg);}
+.tp-night{display:flex;align-items:center;gap:4px;}
+.tp-ar{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
+  border-radius:50%;background:var(--well);color:var(--ink);padding:0;}
+.tp-ar svg{width:20px;height:20px;}
+.tp-date{display:flex;flex-direction:column;align-items:flex-start;min-height:var(--tap);min-width:0;padding:0 8px;border:none;
+  background:none;color:var(--ink);text-align:left;}
+.tp-big{display:flex;align-items:center;gap:4px;font-size:var(--fs-num);font-weight:700;letter-spacing:-.02em;line-height:1.15;white-space:nowrap;}
+.tp-big svg{width:20px;height:20px;color:var(--mute);}
+.tp-when{font-family:var(--font-mono);font-size:var(--fs-md);color:var(--mute);white-space:nowrap;}
+.tp-row2{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
+.tp-seg,.vt{display:flex;gap:4px;padding:4px;border-radius:var(--r-pill);background:var(--well);}
+.tp-seg button,.vt button{min-height:40px;padding:0 16px;border:none;border-radius:var(--r-pill);background:none;
+  color:var(--mute);font:inherit;font-weight:600;font-size:var(--fs-lg);white-space:nowrap;}
+.tp-seg button.on,.vt button.on{background:var(--surface);color:var(--ink);box-shadow:var(--lift-1);}
+.tp-shut{color:var(--mute);font-weight:600;}
+.tp-now{min-height:var(--tap);padding:0 16px;border:1px solid var(--accent);border-radius:var(--r-pill);background:none;
+  color:var(--accent);font:inherit;font-weight:600;}
+.tp-sp{flex:1;}
+.tp-btn{min-height:var(--tap);padding:0 16px;border:1px solid var(--line);border-radius:var(--r-pill);background:var(--surface);
+  color:var(--ink);font:inherit;font-weight:600;font-size:var(--fs-lg);white-space:nowrap;display:inline-flex;align-items:center;gap:8px;}
+.tp-btn.ink{background:var(--ink);border-color:var(--ink);color:var(--surface);}
+.tp-btn.on{border-color:var(--accent);color:var(--accent);}
+.tp-btn.icon{width:var(--tap);padding:0;justify-content:center;}
+.tp-btn svg{width:20px;height:20px;}
+.tp-sh{display:none;}
+.tp-menu-a{position:relative;display:flex;}
+.tp-veil{position:fixed;inset:0;z-index:39;}
+.tp-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:40;width:240px;display:grid;padding:8px;
+  border-radius:var(--r-surface);background:var(--surface);box-shadow:var(--lift-2);}
+.tp-mi{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 12px;border:none;
+  border-radius:var(--r-control);background:none;color:var(--ink);font:inherit;font-weight:600;font-size:var(--fs-lg);text-align:left;}
+.tp-mi.on{background:var(--accent-wash);color:var(--accent);}
+.tp-mi-n{min-width:28px;height:24px;padding:0 8px;border-radius:var(--r-pill);background:var(--accent);color:#fff;
+  font-family:var(--font-mono);font-size:var(--fs-md);display:flex;align-items:center;justify-content:center;}
+/* Away from tonight the page names itself and the way back. */
+.pg-head{display:flex;align-items:center;gap:12px;padding:4px 0 12px;}
+.pg-head h1{flex:1;margin:0;font-size:var(--fs-xl);font-weight:700;}
+.pg-back{display:inline-flex;align-items:center;gap:4px;min-height:var(--tap);padding:0 12px 0 4px;border:none;border-radius:var(--r-pill);
+  background:var(--well);color:var(--ink);font:inherit;font-weight:600;}
+.pg-back svg{width:20px;height:20px;}
+.sd-head{display:flex;align-items:center;gap:12px;padding-bottom:12px;}
+.sd-head b{font-size:var(--fs-lg);}
+
+/* §§ The desk: the night's list down the left, the room beside it. */
+.pane:has(> .desk){padding:0 20px 20px;}
+.shell.simple .desk{display:grid;grid-template-columns:400px minmax(0,1fr);gap:16px;background:none;overflow:hidden;height:100%;}
+.shell.simple .desk-col{max-height:none;overflow-y:auto;border-right:none;background:none;padding-bottom:16px;}
+.shell.simple .desk.mode-book{grid-template-columns:minmax(0,900px);justify-content:center;}
+.shell.simple .desk-main{display:flex;flex-direction:column;gap:12px;min-height:0;}
+.vt-row{display:flex;align-items:center;gap:12px;flex:none;}
+.vt-phone{display:none;}
+.d2-panel{flex:1;min-height:0;display:flex;flex-direction:column;border-radius:var(--r-surface);background:var(--surface);overflow:hidden;position:relative;}
+.d2-panel > .dm-scroll{flex:1;min-height:0;overflow:auto;padding:16px;}
+.shell.simple .fl-box > .fl-wrap{background:var(--surface);padding:16px;}
+.shell.simple .timeline,.shell.simple .tl-card{border:none;border-radius:0;}
+
+/* The search well and the groups, the prototype's own. */
+.shell.simple .desk-col .bl-find{position:sticky;top:0;margin:0 0 16px;padding:0 4px 0 16px;min-height:48px;border:none;
+  border-radius:var(--r-pill);background:var(--surface);}
+.shell.simple .desk-col .side-sw{display:none;}
+.shell.simple .bl-head{display:flex;align-items:center;gap:8px;min-height:52px;padding:0 4px;border:none;background:none;}
+.shell.simple .bl-h-name{flex:none;font-size:var(--fs-lg);font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);}
+.bl-h-c{min-width:28px;height:24px;padding:0 8px;border-radius:var(--r-pill);background:var(--well);color:var(--ink);
+  font-family:var(--font-mono);font-weight:600;font-size:var(--fs-md);display:flex;align-items:center;justify-content:center;}
+.bl-h-p{margin-left:auto;color:var(--mute);font-size:var(--fs-md);white-space:nowrap;}
+.shell.simple .bl-head.red .bl-h-name,.shell.simple .bl-head.red .bl-h-c{color:var(--late);}
+.shell.simple .bl-head.red .bl-h-c{background:var(--late-wash);}
+.shell.simple .bl-head.shut{min-height:52px;padding:0 16px;border-radius:var(--r-control);background:var(--surface);margin-bottom:8px;}
+.shell.simple .bl-rows{display:block;padding:0;margin-bottom:16px;border-radius:var(--r-control);background:var(--surface);overflow:hidden;}
+
+/* The docket line in the design's few colours. */
+.shell.simple .dk-row{border-radius:0;border-top:1px solid var(--line);}
+.shell.simple .bl-rows > .dk-row:first-child{border-top:none;}
+.shell.simple .dk-row.selected,.shell.simple .dk-row.open{background:var(--accent-wash);box-shadow:none;}
+.dk-tab[class*="stg-"]{background:var(--tfree);color:var(--ink);border-left:none;text-decoration:none;}
+.dk-tab.stg-here{background:var(--accent);color:#fff;}
+.dk-tab.stg-phere{background:var(--accent-wash);color:var(--accent);box-shadow:inset var(--ring) 0 0 var(--accent);}
+.dk-tab.stg-late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
+.dk-tab.stg-in{background:var(--seat);}
+.dk-tab.stg-bill{background:var(--seat);box-shadow:inset var(--ring) 0 0 var(--leave);}
+.dk-tab.stg-gone{color:var(--mute);}
+.dk-tab.stg-none{background:none;color:var(--late);border:1px dashed var(--late);}
+.dk-tab.busy{color:var(--faint);text-decoration:line-through;text-decoration-thickness:2px;}
+.dk-main b{font-size:var(--fs-lg);font-weight:600;}
+.dk-main i.here{color:var(--accent);} .dk-main i.late{color:var(--late);} .dk-main i.leave{color:var(--leave);}
+.dk-t{font-size:var(--fs-md);color:var(--mute);}
+.dk-k{background:var(--seat);color:var(--ink);}
+.dk-k svg{width:20px;height:20px;}
+
+/* §§ The room: tables are plain tops in the design's few colours — light
+   grey free, darker grey sat, blue at the door, pale blue for part of a
+   party, red edge late — and a ring for over (red) or the bill (green). */
+.shell.simple .fl-table{border:none;background:var(--tfree);color:var(--ink);box-shadow:none;}
+.shell.simple .desk-main .fl-room{background:var(--surface);}
+.shell.simple .fl-wash{display:none;}
+.shell.simple .fl-in{background:none;box-shadow:none;color:inherit;padding:0;}
+.shell.simple .fl-table.stg-in{background:var(--seat);}
+.shell.simple .fl-table.stg-here{background:var(--accent);color:#fff;}
+.shell.simple .fl-table.stg-phere{background:var(--accent-wash);color:var(--accent);border:.25cqw solid var(--accent);}
+.shell.simple .fl-table.stg-late{background:var(--late-wash);color:var(--late);border:.25cqw solid var(--late);outline:none;}
+.shell.simple .fl-table.over{outline:.3cqw solid var(--late);outline-offset:.3cqw;}
+.shell.simple .fl-table.check,.shell.simple .fl-table.paid{outline:.3cqw solid var(--leave);outline-offset:.3cqw;}
+
+/* The timeline and the flow wear the same few colours. */
+.shell.simple .tl-block{background:var(--tfree);color:var(--ink);}
+.shell.simple .tl-block.arrived{background:var(--accent);color:#fff;}
+.shell.simple .tl-block.part-arrived{background:var(--accent-wash);color:var(--accent);}
+.shell.simple .tl-block.seated,.shell.simple .tl-block.part-seated{background:var(--seat);color:var(--ink);}
+.shell.simple .tl-block.check,.shell.simple .tl-block.paid{background:var(--seat);color:var(--ink);box-shadow:inset var(--ring) 0 0 var(--leave);}
+.shell.simple .tl-block.done,.shell.simple .tl-block.cancelled,.shell.simple .tl-block.no-show{background:var(--well);color:var(--mute);}
+.shell.simple .fg-tbl{background:var(--tfree);color:var(--ink);}
+.shell.simple .fg-tbl.arrived{background:var(--accent);color:#fff;}
+.shell.simple .fg-tbl.part-arrived{background:var(--accent-wash);color:var(--accent);}
+.shell.simple .fg-tbl.sat{background:var(--seat);color:var(--ink);}
+.shell.simple .stat{border:none;border-radius:var(--r-control);background:var(--well);}
+
+/* The toast is the design's: ink, round, its keys on the paper. */
+.shell.simple ~ .toast,.toast{background:var(--ink);color:var(--surface);}
+body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
+
+/* §§ A phone: the bar wraps to two lines and the views are tabs under it —
+   List · Floor · Timeline · Flow — with no bar at the foot. */
+@media (max-width:760px){
+  .tp{padding:8px 16px;gap:8px;}
+  .tp-night{flex:1;order:0;justify-content:space-between;}
+  .tp-menu-a{order:1;}
+  .tp-row2{order:2;flex:1 1 100%;}
+  .tp-seg button{padding:0 12px;}
+  .tp-btn{padding:0 12px;}
+  .tp-date{align-items:center;text-align:center;}
+  .tp-big{font-size:var(--fs-xl);}
+  .tp-lg{display:none;} .tp-sh{display:inline;}
+  .shell.simple .pane{padding:0 16px 16px;}
+  .pane:has(> .desk){padding:0 16px 16px;}
+  .toast{bottom:calc(16px + env(safe-area-inset-bottom, 0px));}
+}
+
+/* Where a booking is up to, named in the same few colours: blue at the door,
+   ink sat down, green at the bill, red for the two that went wrong, grey for
+   still to come and for done. */
+.shell.simple .st-ink.booked,.shell.simple .st-ink.confirmed,.shell.simple .st-ink.done{--st-ink:var(--mute);}
+.shell.simple .st-ink.part-arrived,.shell.simple .st-ink.arrived{--st-ink:var(--accent);}
+.shell.simple .st-ink.part-seated,.shell.simple .st-ink.seated{--st-ink:var(--ink);}
+.shell.simple .st-ink.check,.shell.simple .st-ink.paid{--st-ink:var(--leave);}
+.shell.simple .st-ink.cancelled,.shell.simple .st-ink.no-show{--st-ink:var(--late);}
+.shell.simple .st-ink{--st-wash:var(--well);}
+/* A popup's keys are the design's round keys: Save in ink, Cancel on the
+   well, Delete a red word. */
+.shell.simple .modal-actions{align-items:center;}
+.shell.simple .icon-action{width:auto;height:48px;padding:0 20px;flex-direction:row;gap:8px;border-radius:var(--r-pill);font-size:var(--fs-lg);}
+.shell.simple .icon-action svg{width:20px;height:20px;}
+.shell.simple .icon-action .ia-label{font-size:var(--fs-lg);font-weight:600;letter-spacing:0;}
+.shell.simple .icon-action.send{background:var(--ink);color:var(--surface);}
+.shell.simple .icon-action.neutral{background:var(--well);color:var(--ink);}
+.shell.simple .icon-action.discard{background:none;color:var(--late);}
+.shell.simple .icon-action.left{margin-right:auto;}
+/* Up to 900 the list and the room do not both fit beside each other, so the
+   desk is the phone's: List · Floor · Timeline · Flow as tabs, one at a time. */
+@media (max-width:900px){
+  .vt-phone{display:flex;margin-bottom:12px;}
+  .vt-phone button{flex:1;}
+  .vt-row .vt:not(.vt-rooms){display:none;}
+  .vt-row:not(:has(.vt-rooms)){display:none;}
+  .shell.simple .desk{grid-template-columns:minmax(0,1fr);}
+  .shell.simple .desk:not(.mode-book) > .desk-col{display:none;}
+  .shell.simple .desk.mode-book > .desk-main{display:none;}
+}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
