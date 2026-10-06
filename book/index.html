@@ -2355,6 +2355,39 @@ a.btn{color:var(--text-primary);text-decoration:none;}
    row and the last squares could not be reached. */
 .desk-main > .dm-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding-bottom:72px;}
 .dm-scroll > .grid3,.dm-scroll > .flow{margin:var(--hub-edge);}
+
+/* §§ THE BOOKING, OPENED (the clean desk, v43). The stage under the name in
+   the status's own colour; one sentence of keys; the one next step; an
+   allergy in red; tags and a note on one line; contact on one line; the
+   source in the small print. */
+.bke{display:grid;gap:12px;max-width:560px;}
+.bke-stage{justify-self:start;display:flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 12px 0 0;border:none;background:none;
+  color:var(--st-ink, var(--text-primary));font:inherit;font-size:var(--fs-lg);font-weight:700;}
+.bke-sent{display:flex;flex-wrap:wrap;gap:8px;}
+.bke-sent > button{height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-control);background:var(--deck-pill-bg);
+  color:var(--text-primary);font:inherit;font-size:var(--fs-lg);font-weight:600;white-space:nowrap;}
+.bke-sent > button.mono{font-family:var(--font-mono);font-weight:700;}
+.bke-sent > button.none{background:none;border:1px dashed var(--red);color:var(--red);}
+.bke-next{display:flex;gap:8px;}
+.bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--orange);color:#fff;
+  font:inherit;font-size:var(--fs-lg);font-weight:800;}
+.bke-next .go.ink{background:var(--text-primary);color:var(--surface);}
+.bke-alert{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:8px 16px;border:none;border-radius:var(--r-control);
+  background:color-mix(in srgb, var(--red) 12%, var(--surface));color:var(--red);font:inherit;font-weight:700;text-align:left;}
+.bke-alert svg{flex:none;width:20px;height:20px;}
+.bke-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.bke-tags > button{height:36px;padding:0 12px;border:none;border-radius:var(--r-pill);background:var(--deck-pill-bg);
+  color:var(--text-primary);font:inherit;font-size:var(--fs-md);font-weight:600;}
+.bke-tags > button.vip{background:color-mix(in srgb, var(--gold) 28%, var(--surface));}
+.bke-tags > button.add{background:none;border:1px solid var(--steel-300);color:var(--charcoal-soft);}
+.bke-note{padding:12px 16px;border:none;border-radius:var(--r-control);background:var(--deck-pill-bg);color:var(--text-primary);
+  font:inherit;font-size:var(--fs-md);line-height:1.45;text-align:left;white-space:pre-wrap;}
+.bke-ln{display:flex;align-items:center;gap:12px;min-height:56px;padding:0;border:none;border-top:1px solid var(--steel-200);
+  border-radius:0;background:none;color:var(--text-primary);font:inherit;text-align:left;}
+.bke-ln-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:var(--fs-md);}
+.bke-ln-t span{color:var(--charcoal-soft);}
+.bke-ln svg{flex:none;width:20px;height:20px;color:var(--charcoal-soft);}
+.bke-foot{margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>

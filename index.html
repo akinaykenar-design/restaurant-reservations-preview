@@ -2370,6 +2370,39 @@ a.btn{color:var(--text-primary);text-decoration:none;}
    row and the last squares could not be reached. */
 .desk-main > .dm-scroll{flex:1 1 auto;min-height:0;overflow:auto;padding-bottom:72px;}
 .dm-scroll > .grid3,.dm-scroll > .flow{margin:var(--hub-edge);}
+
+/* §§ THE BOOKING, OPENED (the clean desk, v43). The stage under the name in
+   the status's own colour; one sentence of keys; the one next step; an
+   allergy in red; tags and a note on one line; contact on one line; the
+   source in the small print. */
+.bke{display:grid;gap:12px;max-width:560px;}
+.bke-stage{justify-self:start;display:flex;align-items:center;gap:8px;min-height:var(--tap);padding:0 12px 0 0;border:none;background:none;
+  color:var(--st-ink, var(--text-primary));font:inherit;font-size:var(--fs-lg);font-weight:700;}
+.bke-sent{display:flex;flex-wrap:wrap;gap:8px;}
+.bke-sent > button{height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-control);background:var(--deck-pill-bg);
+  color:var(--text-primary);font:inherit;font-size:var(--fs-lg);font-weight:600;white-space:nowrap;}
+.bke-sent > button.mono{font-family:var(--font-mono);font-weight:700;}
+.bke-sent > button.none{background:none;border:1px dashed var(--red);color:var(--red);}
+.bke-next{display:flex;gap:8px;}
+.bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--orange);color:#fff;
+  font:inherit;font-size:var(--fs-lg);font-weight:800;}
+.bke-next .go.ink{background:var(--text-primary);color:var(--surface);}
+.bke-alert{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:8px 16px;border:none;border-radius:var(--r-control);
+  background:color-mix(in srgb, var(--red) 12%, var(--surface));color:var(--red);font:inherit;font-weight:700;text-align:left;}
+.bke-alert svg{flex:none;width:20px;height:20px;}
+.bke-tags{display:flex;flex-wrap:wrap;gap:8px;}
+.bke-tags > button{height:36px;padding:0 12px;border:none;border-radius:var(--r-pill);background:var(--deck-pill-bg);
+  color:var(--text-primary);font:inherit;font-size:var(--fs-md);font-weight:600;}
+.bke-tags > button.vip{background:color-mix(in srgb, var(--gold) 28%, var(--surface));}
+.bke-tags > button.add{background:none;border:1px solid var(--steel-300);color:var(--charcoal-soft);}
+.bke-note{padding:12px 16px;border:none;border-radius:var(--r-control);background:var(--deck-pill-bg);color:var(--text-primary);
+  font:inherit;font-size:var(--fs-md);line-height:1.45;text-align:left;white-space:pre-wrap;}
+.bke-ln{display:flex;align-items:center;gap:12px;min-height:56px;padding:0;border:none;border-top:1px solid var(--steel-200);
+  border-radius:0;background:none;color:var(--text-primary);font:inherit;text-align:left;}
+.bke-ln-t{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:var(--fs-md);}
+.bke-ln-t span{color:var(--charcoal-soft);}
+.bke-ln svg{flex:none;width:20px;height:20px;color:var(--charcoal-soft);}
+.bke-foot{margin-top:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "86aa30189a86abd0325d2a86873f2544272dc4d0";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -13211,7 +13244,7 @@ function renderBookingModal() {
   const whenTxt = `${fmtDay(b.date)}${b.time ? ' · ' + fmtHHMM(b.time) : ''}`;
   const tagTxt = (b.tags || []).join(', ');
 
-  const body = page ? renderBookingPage(page) : (!isEdit && !walkIn) ? renderBookingQuick(m) : `
+  const body = page ? renderBookingPage(page) : (!isEdit && !walkIn) ? renderBookingQuick(m) : isEdit ? renderBookingEdit(m) : `
     ${m.error ? `<div class="err">${esc(m.error)}</div>` : ''}
     ${(m.conflicts || []).length ? `<div class="warnbox">${esc(conflictLine(m.conflicts))}</div>` : ''}
     ${m.small ? `<div class="warnbox">${esc(m.small)}</div>` : ''}
@@ -13241,7 +13274,6 @@ function renderBookingModal() {
     <div class="modal-top">
       ${page ? `<button class="chip sq" data-act="bk-back" aria-label="Back to the booking">${I.left}</button>` : ''}
       <h2>${page ? esc(BK_PAGES[page]) : (isEdit ? esc(b.name || 'Booking') : (walkIn ? 'Walk-in' : 'New booking'))}
-        ${page ? '' : (isEdit ? statusChip(b.status) + sourceChip(b.source) : '')}
         ${page || !b.ref ? '' : `<span class="tag mono">${esc(b.ref)}</span>`}</h2>
       <button class="chip sq" data-act="close-modal" aria-label="Close">${I.cross}</button>
     </div>
@@ -13249,6 +13281,89 @@ function renderBookingModal() {
     ${!page && !isEdit && !walkIn ? (() => { const k = bkqKey(b); return `<div class="bkq-foot"><div class="bkq-foot-in"><button class="bkq-go" id="bkq-go" data-act="save-booking"${k.off || state.busy ? ' disabled' : ''}>${esc(k.txt)}</button></div></div>`; })() : actionKeys({ saveAct: 'save-booking', saveLabel: isEdit ? 'Save' : (walkIn ? 'Seat them' : 'Book'), left: isEdit && !page ? `<button class="icon-action discard left" data-act="delete-booking">${I.trash}<span class="ia-label">Delete</span></button>` : '' })}
   </div></div>`;
 }
+
+// §§ THE BOOKING, OPENED (the clean desk, v43: "think hard about the fields
+// and if a field deserves a new line"). A field earns a line of its own only
+// if it changes what somebody does. Under the name: where they are up to, in
+// the row's own words and the status's own colour (a press opens the eleven).
+// Then ONE sentence — how many · which day · what time · which table — each
+// word a key to its page. Then the one next step, the one the row's tab
+// offers. An allergy is a red line of its own, because the kitchen can hurt
+// somebody with it; tags and a note share a line, and the note only exists
+// if there is one; phone and email share a line. Where it came from is the
+// small print at the foot.
+function bkeStage(r, b) {
+  const tonight = b.date === tradingDay(), now = Date.now();
+  if (!r || !tonight || !isLive(r)) return esc(statusLabel(b.status));
+  const part = r.partCount ? `${r.partCount} of ${r.partySize}` : 'Some';
+  const since = r.arrivedAt ? ' · ' + waitWords(Math.max(0, Math.round((now - r.arrivedAt) / 60000))) : '';
+  if (r.status === 'arrived') return 'Here' + since;
+  if (r.status === 'part-arrived') return `${part} here${since}`;
+  if (r.status === 'part-seated') return `${part} seated`;
+  if (r.status === 'check') return 'Bill';
+  if (r.status === 'paid') return 'Paid';
+  if (isSat(r)) {
+    const left = durationOf(r) - Math.round((now - (r.seatedAt || new Date(r.time).getTime())) / 60000);
+    return left >= 0 ? `Seated · ${waitWords(left)} left` : `${waitWords(-left)} over`;
+  }
+  // Late is the late line's headline, under this one; said here too it
+  // was the same words twice, a hand apart.
+  if (lateBy(r, now)) return esc(statusLabel(r.status));
+  const due = Math.round((new Date(r.time).getTime() - now) / 60000);
+  return esc(statusLabel(r.status)) + (due > 0 && due <= 180 ? ` · in ${waitWords(due)}` : due <= 0 ? ' · due now' : '');
+}
+function renderBookingEdit(m) {
+  const b = m.b, r = (state.reservations || []).find(x => x.id === b.id) || null;
+  const tonight = b.date === tradingDay(), now = Date.now();
+  const held = tablesFor(b), tables = held.map(tableName).join(' + ');
+  const end = b.time ? fmtHHMM(fromMin(toMin(b.time) + durationOf(b))) : '';
+  const late = r ? lateBy(r, now) : 0;
+  const k = (page, txt, cls) => `<button class="${cls || ''}" data-act="bk-page" data-val="${page}">${txt}</button>`;
+  const sent = `<div class="bke-sent">${k('party', `${b.partySize} ${b.partySize === 1 ? 'person' : 'people'}`)}${k('when', esc(bkqDayWord(b.date)))}${k('when', b.time ? `${esc(fmtHHMM(b.time))}–${esc(end)}` : 'No time', 'mono')}${k('table', tables ? (held.length > 1 ? 'Tables ' : 'Table ') + esc(tables) : 'No table', held.length ? '' : 'none')}</div>`;
+  // The next step — the same one the row's tab offers, and only while
+  // nothing on the page is unsaved: a step that closed the page would drop
+  // what was typed into it. A late party's two keys are the late line's.
+  const dirty = m.was && Object.keys(editPatch(m.was, bookingPayload(b))).length > 0;
+  let next = '';
+  if (r && tonight && isLive(r) && !dirty && !late) {
+    const room = floorStateAt(pad2(Math.floor(tradingNowMin() / 60)) + ':' + pad2(tradingNowMin() % 60), true);
+    const occ = !isSat(r) && tablesFor(r).find(id => { const f = room.find(x => x.id === id); return f && ((f.r && f.r.id !== r.id && isSat(f.r)) || f.state === 'walkin'); });
+    const id = esc(r.id);
+    if (!isSat(r) && tablesFor(r).length && !occ) next = `<button class="go" data-act="row-seat" data-id="${id}">Seat at ${esc(tablesFor(r).map(tableName).join(' + '))}</button>`;
+    else if (!isSat(r) && occ && !isHere(r)) next = `<button class="go ink" data-act="row-here" data-id="${id}">Here — ${esc(tableName(occ))} still eating</button>`;
+    else if (r.status === 'part-seated') next = `<button class="go" data-act="row-rest" data-id="${id}">The other ${Math.max(1, r.partySize - (r.partCount || 0))} arrived</button>`;
+    else if (!state.billFromTill && r.status === 'seated') next = `<button class="go ink" data-act="bke-step" data-id="${id}" data-val="check">Bill</button>`;
+    else if (!state.billFromTill && r.status === 'check') next = `<button class="go ink" data-act="bke-step" data-id="${id}" data-val="paid">Paid</button>`;
+    else if (r.status === 'paid' || (state.billFromTill && r.status === 'check')) next = `<button class="go ink" data-act="bke-step" data-id="${id}" data-val="done">Left</button>`;
+  }
+  const hot = (b.tags || []).some(t => String(t).toLowerCase() === 'allergy');
+  const note = String(b.notes || '').trim();
+  const allergy = hot ? (/allerg|nut|gluten|shellfish|dairy|coeliac|celiac/i.test(note) ? note : 'Allergy') : '';
+  const tags = (b.tags || []).filter(t => String(t).toLowerCase() !== 'allergy' || !allergy)
+    .map(t => `<button class="${String(t).toLowerCase() === 'vip' ? 'vip' : ''}" data-act="bk-page" data-val="tags">${esc(t)}</button>`).join('');
+  const sm = setMenuName(b);
+  const tagRow = `<div class="bke-tags">${tags}<button class="add" data-act="bk-page" data-val="tags">${tags ? '+' : '+ Tag'}</button>${note && note !== allergy ? '' : '<button class="add" data-act="bk-page" data-val="notes">+ Note</button>'}${sm ? `<button data-act="bk-page" data-val="setmenu">${esc(sm)}</button>` : (state.setMenus || []).length ? '<button class="add" data-act="bk-page" data-val="setmenu">+ Set menu</button>' : ''}</div>`;
+  const contact = b.phone || b.email
+    ? `<b>${esc(b.phone || '')}</b>${b.email ? `<span>${b.phone ? ' · ' : ''}${esc(b.email)}</span>` : ''}` : '<span>Add a phone</span>';
+  return `${m.error ? `<div class="err">${esc(m.error)}</div>` : ''}
+    ${(m.conflicts || []).length ? `<div class="warnbox">${esc(conflictLine(m.conflicts))}</div>` : ''}
+    ${m.small ? `<div class="warnbox">${esc(m.small)}</div>` : ''}
+    ${m.closed ? `<div class="warnbox">${m.note ? 'Closed — ' + esc(m.note) : 'Closed that day'}. A time can still be set by hand.</div>` : ''}
+    <div class="bke">
+      <button class="bke-stage st-ink ${esc(b.status)}" data-act="bk-page" data-val="status">${statusMark(b.status)}<span>${bkeStage(r, b)}</span></button>
+      ${sent}
+      ${renderLateBanner(r)}
+      ${next ? `<div class="bke-next">${next}</div>` : ''}
+      ${allergy ? `<button class="bke-alert" data-act="bk-page" data-val="notes">${I.alert}<span>${esc(allergy)}</span></button>` : ''}
+      ${tagRow}
+      ${note && note !== allergy ? `<button class="bke-note" data-act="bk-page" data-val="notes">${esc(note)}</button>` : ''}
+      <button class="bke-ln" data-act="bk-page" data-val="guest"><span class="bke-ln-t">${esc(b.name || 'No name')} · ${contact}</span>${I.right}</button>
+    </div>
+    ${renderBookingSpend(m)}
+    <div class="ts bke-foot"><span>${esc(sourceLabel(b.source))} · made by ${esc(b.createdBy || '—')} · ${esc(fmtStamp(b.createdAt))}${b.pos && b.pos.id ? ' · on the till' : ''}${b.cancelReason ? ' · ' + esc(b.cancelReason) : ''}</span>${b.tableId && tillUrl(b.tableId) ? `<button class="chip" data-act="to-till-table" data-table="${esc(b.tableId)}">Open ${esc(tableName(b.tableId))} on the till</button>` : ''}</div>
+    ${renderBookingHistory(b)}`;
+}
+function sourceLabel(src) { const row = SOURCE_KEY.find(k => k[0] === src); return row ? row[1] : 'The desk'; }
 
 // §§ A NEW BOOKING IS ONE PAGE, IN THE ORDER THE CALLER SAYS IT (owner, Sep
 // '26, v13: "yes"). It was seven rows, each a door to its own page, so "four
@@ -14112,6 +14227,7 @@ document.addEventListener('click', async (ev) => {
       // Undo for ten seconds. Most parties come in whole, so "not all here"
       // is the exception and asks AFTER, on the same message, not before.
       case 'row-seat': {
+        if (state.modal && state.modal.kind === 'booking') state.modal = null;
         const r = (state.reservations || []).find(x => x.id === id);
         const held = r ? tablesFor(r) : [];
         if (!r || !held.length) { toastBad('That booking has gone'); break; }
@@ -14142,8 +14258,10 @@ document.addEventListener('click', async (ev) => {
         catch (e) { toastBad(e.message); }
         break;
       }
-      case 'row-here': await setStatus(id, 'arrived'); break;
-      case 'row-rest': await setStatus(id, 'seated'); break;
+      case 'row-here': if (state.modal && state.modal.kind === 'booking') state.modal = null; await setStatus(id, 'arrived'); break;
+      case 'row-rest': if (state.modal && state.modal.kind === 'booking') state.modal = null; await setStatus(id, 'seated'); break;
+      // The booking's own next step past the chair: Bill, Paid, Left.
+      case 'bke-step': state.modal = null; await setStatus(id, val); break;
       case 'row-table': {
         if (state.picking && state.picking.id === id) { state.picking = null; render(); break; }
         const r = (state.reservations || []).find(x => x.id === id);
