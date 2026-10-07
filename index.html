@@ -2538,6 +2538,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .dk-row.selected,.shell.simple .dk-row.open{background:var(--accent-wash);box-shadow:none;}
 .dk-tab[class*="stg-"]{background:var(--tfree);color:var(--ink);border-left:none;text-decoration:none;}
 .dk-tab.stg-here{background:var(--accent);color:#fff;}
+.dk-tab.stg-open{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 calc(var(--ring) * 2) var(--accent);}
+.bl-head.opened .bl-h-name{color:var(--accent);}
+.bl-head.opened .bl-h-c{color:var(--accent);background:var(--accent-wash);}
+.dk-k.ink{background:var(--ink);color:var(--surface);}
+.dk-k.txt{background:var(--accent-wash);color:var(--accent);}
+a.dk-k,a.chip{text-decoration:none;}
 .dk-tab.stg-phere{background:var(--accent-wash);color:var(--accent);box-shadow:inset var(--ring) 0 0 var(--accent);}
 .dk-tab.stg-late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
 .dk-tab.stg-in{background:var(--seat);}
@@ -11129,7 +11135,7 @@ async function loadGuests() {
   state.guestFromTill = got.fromTill || 0;
 }
 async function loadView() {
-  if (state.view === 'today') { await loadDay(); await loadSide(); }
+  if (state.view === 'today') { await loadDay(); await loadSide(); if (state.side !== 'notify') state.notify = await api('/api/notify'); }
   else if (state.view === 'waitlist') { state.waitlist = await api('/api/waitlist'); state.today = await api('/api/today'); }
   else if (state.view === 'notify') { state.notify = await api('/api/notify'); state.today = await api('/api/today'); }
   else if (state.view === 'guests') await loadGuests();
@@ -12744,6 +12750,34 @@ const LIST_GROUPS = [
   ['seated',    'Seated',    ['part-seated', 'seated', 'check', 'paid']],
   ['finished',  'Finished',  ['done', 'no-show', 'cancelled']],
 ];
+// JUST OPENED (v48). A cancellation that somebody on the notify list asked
+// for stands above Upcoming as one line: the table it freed as the tab, the
+// person closest to the time they wanted, and one key — Text, then Book once
+// they have been texted. Book is the Notify page's own: the booking form,
+// filled in. Nobody to tell, nothing shown; the rest stay on the Notify page.
+function renderOpened() {
+  const nd = state.notify || { openings: [] };
+  const opens = (nd.openings || []).filter(o => o.date === state.date && (o.matches || []).length);
+  if (!opens.length) return '';
+  const venue = (state.settings || {}).venueName;
+  const lines = opens.map(o => {
+    const e = o.matches[0], told = e.status === 'told';
+    const ts = [...new Set([o.tableId].concat(o.tableIds || []).filter(Boolean))].map(tableName);
+    const hm = (t) => fmtHHMM(t).replace(/\s?[AP]M$/i, '');
+    const when = o.date === tradingDay() ? 'tonight' : 'on ' + fmtDay(o.date);
+    const href = smsHref(e.phone, textOpened(e.name, e.partySize, fmtHHMM(o.time), when, venue));
+    const key = told || !href ? `<button class="dk-k ink" data-act="notify-book" data-id="${esc(e.id)}" data-op="${esc(o.id)}">Book</button>`
+      : `<a class="dk-k txt" href="${esc(href)}" data-act="op-text" data-id="${esc(e.id)}">Text</a>`;
+    const said = told ? `<i class="here">${esc(textedWords(e.notifiedAt))}</i>`
+      : `<i class="here">${esc(hm(o.time))} opened</i> · asked ${esc(hm(e.from).replace(/:00$/, ''))}–${esc(hm(e.to).replace(/:00$/, ''))}`;
+    return `<div class="dk-row">
+      <span class="dk-tab stg-open">${esc(ts.length ? ts[0] + (ts.length > 1 ? '+' : '') : '—')}</span>
+      <button class="dk-main" data-act="notify-book" data-id="${esc(e.id)}" data-op="${esc(o.id)}"><b>${esc(e.name)} · ${e.partySize}</b><span>${said}</span></button>
+      <span class="dk-rt">${key}</span>
+    </div>`;
+  });
+  return `<div class="bl-head opened"><span class="bl-h-name">Just opened</span><span class="bl-h-c">${opens.length}</span></div><div class="bl-rows">${lines.join('')}</div>`;
+}
 function coversOf(list) { return list.reduce((a, r) => a + (r.partySize || 0), 0); }
 // How close a party has to be before a busy table is worth saying.
 const DESK_DUE_SOON = 15;
@@ -12759,7 +12793,8 @@ function renderDayList() {
   </div>`;
   if (!all.length) {
     const sv = pickedService();
-    return find + `<div class="empty">${sv ? 'Nothing booked for ' + esc(sv.name) + '.' : 'No bookings this day.'}</div>`;
+    // A cancellation can leave a service with nobody else on it; it still says so.
+    return find + renderOpened() + `<div class="empty">${sv ? 'Nothing booked for ' + esc(sv.name) + '.' : 'No bookings this day.'}</div>`;
   }
   if (q.on && !rows.length) return find + `<div class="empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d.
     <div style="margin-top:12px;"><button class="btn" data-act="find-every-day">${I.search} Look on every day</button></div></div>`;
@@ -12847,6 +12882,7 @@ function renderDayList() {
   // night. The night's totals are a question about the NIGHT, not about this
   // list, and they live on the Flow now, where there is a row for them.
   return find + `<div class="bl">
+    ${q.on ? '' : renderOpened()}
     ${(() => {
       // A group with a PICK takes its rows out of the day before the rest see
       // it, so nothing is listed twice.
@@ -13073,13 +13109,32 @@ function renderWaitlist() {
     // The row being seated is the Row law's picked while the room is lit for it.
     return `<div class="row keys3${seating ? ' selected' : ''}" data-act="wl-seat" data-id="${x.id}">
       <div class="cell${over ? ' over' : ''}">${waited}m<small>${x.quotedMin ? 'of ' + x.quotedMin : 'wait'}</small></div>
-      <div class="body"><div class="t1"><span class="wl-name">${esc(x.name)}</span> <span class="tag">${x.partySize} pax</span>${x.status === 'notified' ? '<span class="status-chip confirmed">Told</span>' : ''}</div><div class="t2">Added ${esc(fmtTime(x.addedAt))}${x.phone ? ' · ' + esc(x.phone) : ''}${x.notes ? ' · ' + esc(x.notes) : ''}</div></div>
+      <div class="body"><div class="t1"><span class="wl-name">${esc(x.name)}</span> <span class="tag">${x.partySize} pax</span>${x.status === 'notified' ? `<span class="status-chip confirmed">${x.phone ? esc(textedWords(x.notifiedAt)) : 'Told'}</span>` : ''}</div><div class="t2">Added ${esc(fmtTime(x.addedAt))}${x.phone ? ' · ' + esc(x.phone) : ''}${x.notes ? ' · ' + esc(x.notes) : ''}</div></div>
       <div class="actions" data-stop="1">
-        <button class="chip${x.status === 'notified' ? ' active' : ''}" data-act="wl-notify" data-id="${x.id}">Told</button>
+        ${smsHref(x.phone, '') ? `<a class="chip${x.status === 'notified' ? ' active' : ''}" href="${esc(smsHref(x.phone, textReady(x.name, x.partySize, (state.settings || {}).venueName)))}" data-act="wl-text" data-id="${x.id}">Text</a>`
+          : `<button class="chip${x.status === 'notified' ? ' active' : ''}" data-act="wl-notify" data-id="${x.id}">Told</button>`}
         <button class="chip go" data-act="wl-seat" data-id="${x.id}">Seat</button>
         <button class="chip sq" data-act="wl-remove" data-id="${x.id}" aria-label="Remove">${I.cross}</button>
       </div>
     </div>`; }).join('')}</div>`}`;
+}
+
+// TEXT FROM THE LINE (owner, 7 Oct, v48: "Ok. But keep it simple"). The desk
+// sends nothing itself and keeps no texting service: Text is an sms: link, so
+// the tablet's own messages app opens with the words already written and the
+// host presses send. Pressing it marks the person told, which is what the
+// Told key used to be pressed for afterwards by hand.
+function smsHref(phone, body) {
+  const to = String(phone || '').replace(/[^\d+]/g, '');
+  return to ? 'sms:' + to + '?&body=' + encodeURIComponent(body) : '';
+}
+function textedWords(ts) { return Date.now() - (ts || 0) < 60000 ? 'Texted just now' : 'Texted ' + sinceLabel(ts) + ' ago'; }
+function firstName(name) { return String(name || '').trim().split(/\s+/)[0] || 'there'; }
+function textReady(name, size, venue) {
+  return `Hi ${firstName(name)}, your table for ${size} is ready. See you at the front${venue ? ' of ' + venue : ''}.`;
+}
+function textOpened(name, size, time, when, venue) {
+  return `Hi ${firstName(name)}, a table for ${size} at ${time} ${when} just opened${venue ? ' at ' + venue : ''}. Reply YES and it's yours.`;
 }
 
 // §§ Notify — people waiting for a cancellation
@@ -14965,6 +15020,9 @@ document.addEventListener('click', async (ev) => {
       case 'wl-party': state.wl.partySize = Math.max(1, state.wl.partySize + parseInt(val)); render(); break;
       case 'wl-quote': state.wl.quotedMin = parseInt(val); render(); break;
       case 'wl-add': { if (!state.wl.name.trim()) { toast('A name is needed'); break; } await post('/api/waitlist', state.wl); state.wl = { name: '', phone: '', partySize: 2, quotedMin: state.wl.worked ? 15 : state.wl.quotedMin }; await loadView(); toast('Added to the list'); render(); break; }
+      // The link opens the messages app by itself; this only writes down that it was sent.
+      case 'wl-text': await put('/api/waitlist/' + id, { status: 'notified' }); await loadView(); render(); break;
+      case 'op-text': await put('/api/notify/' + id, { status: 'told' }); await loadView(); render(); break;
       case 'wl-notify': { const w = state.waitlist.find(x => x.id === id); await put('/api/waitlist/' + id, { status: w.status === 'notified' ? 'waiting' : 'notified' }); await loadView(); render(); break; }
       case 'wl-remove': await del('/api/waitlist/' + id); await loadView(); render(); break;
       case 'notify-add': {
