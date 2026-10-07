@@ -2774,6 +2774,38 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 .cal .day{border:none;}
 .cal .day .bar i{background:var(--mute);}
 .cal .day.special{box-shadow:inset 0 0 0 var(--ring) var(--faint);}
+
+/* §§ THE TOP BAR, FIXED (owner, 7 Oct: "Top bar fix it it looks messy and
+   confusing"). The night on the left as one title with its service and date
+   under it in plain type; the day is stepped from its menu, not from arrows
+   either side of it. The views beside it on a desk. Walk-in and New booking
+   are words, the same pill, grey and ink; the menu is a plain key. */
+.tp{gap:16px;min-height:68px;}
+.tp-night{gap:0;}
+.tp-date{padding:0 4px;}
+.tp-big{font-size:var(--fs-num);}
+.tp-when{font-family:var(--font-body);font-size:var(--fs-md);font-weight:500;}
+.tp-btn{min-height:var(--tap);padding:0 20px;border:none;background:var(--well);}
+.tp-btn.ink{background:var(--ink);color:var(--surface);}
+.tp-btn.on{background:var(--accent-wash);color:var(--accent);}
+.tp-btn.icon{background:none;}
+.tp-sh{display:none;}
+@media (max-width:1100px){ .tp-lg{display:inline;} .tp-btn:not(.icon){width:auto;padding:0 20px;} }
+@media (max-width:760px){
+  .tp{gap:8px;min-height:60px;}
+  .tp-lg{display:none;} .tp-sh{display:inline;}
+  .tp-btn:not(.icon){padding:0 16px;}
+  .tp-big{font-size:var(--fs-xl);}
+  .tp-when{max-width:none;}
+}
+@media (max-width:760px){
+  .tp-night,.tp-night-a{flex:1;min-width:0;}
+  .tp-date{min-width:0;max-width:100%;overflow:hidden;}
+  .tp-when{overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+  .tp-btn:not(.icon){flex:none;padding:0 12px;}
+}
+@media (max-width:760px){ .tp-sp{display:none;} }
+@media (max-width:760px){ .tp-wd{display:none;} }
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>

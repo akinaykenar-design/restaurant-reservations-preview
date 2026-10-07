@@ -2789,6 +2789,38 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 .cal .day{border:none;}
 .cal .day .bar i{background:var(--mute);}
 .cal .day.special{box-shadow:inset 0 0 0 var(--ring) var(--faint);}
+
+/* §§ THE TOP BAR, FIXED (owner, 7 Oct: "Top bar fix it it looks messy and
+   confusing"). The night on the left as one title with its service and date
+   under it in plain type; the day is stepped from its menu, not from arrows
+   either side of it. The views beside it on a desk. Walk-in and New booking
+   are words, the same pill, grey and ink; the menu is a plain key. */
+.tp{gap:16px;min-height:68px;}
+.tp-night{gap:0;}
+.tp-date{padding:0 4px;}
+.tp-big{font-size:var(--fs-num);}
+.tp-when{font-family:var(--font-body);font-size:var(--fs-md);font-weight:500;}
+.tp-btn{min-height:var(--tap);padding:0 20px;border:none;background:var(--well);}
+.tp-btn.ink{background:var(--ink);color:var(--surface);}
+.tp-btn.on{background:var(--accent-wash);color:var(--accent);}
+.tp-btn.icon{background:none;}
+.tp-sh{display:none;}
+@media (max-width:1100px){ .tp-lg{display:inline;} .tp-btn:not(.icon){width:auto;padding:0 20px;} }
+@media (max-width:760px){
+  .tp{gap:8px;min-height:60px;}
+  .tp-lg{display:none;} .tp-sh{display:inline;}
+  .tp-btn:not(.icon){padding:0 16px;}
+  .tp-big{font-size:var(--fs-xl);}
+  .tp-when{max-width:none;}
+}
+@media (max-width:760px){
+  .tp-night,.tp-night-a{flex:1;min-width:0;}
+  .tp-date{min-width:0;max-width:100%;overflow:hidden;}
+  .tp-when{overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+  .tp-btn:not(.icon){flex:none;padding:0 12px;}
+}
+@media (max-width:760px){ .tp-sp{display:none;} }
+@media (max-width:760px){ .tp-wd{display:none;} }
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "02ce172db408aa44413cf77771f5c84c17444bad";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -11488,26 +11520,28 @@ function nightWord(d) {
 function renderTop() {
   const today = tradingDay(), d = state.date;
   const on = pickedService();
-  const nowM = tradingNowMin();
-  const clock = d === today ? ' · ' + fmtHHMM(pad2(Math.floor(nowM / 60) % 24) + ':' + pad2(nowM % 60)) : '';
   // ONE CONTROL SAYS WHICH NIGHT AND WHICH PART OF IT (owner, 6 Oct: "Top
   // area looks messy and cluttered"). The service is a word under the night,
   // not a second well of keys; the night's own menu changes it, steps back
   // to now, or opens the month.
-  const sub = (on ? on.name + ' · ' : servicesInOrderOn(d).length ? 'All night · ' : 'Closed · ')
-    + parseDay(d).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' }) + clock;
+  // A phone drops the weekday so the line is never cut.
+  const sub = esc(on ? on.name + ' · ' : servicesInOrderOn(d).length ? 'All night · ' : 'Closed · ')
+    + `<span class="tp-wd">${esc(parseDay(d).toLocaleDateString([], { weekday: 'short' }))} </span>`
+    + esc(parseDay(d).toLocaleDateString([], { day: 'numeric', month: 'short' }));
   // The views sit in the bar on a desk, so the room starts one line higher.
   const views = state.view === 'today' && state.todayMode !== 'sheet' ? `<span class="tp-views">${renderViewTabs(false)}</span>` : '';
+  // FIX THE TOP BAR (owner, 7 Oct: "it looks messy and confusing"). Three
+  // things, each said once: which night (a press opens its menu, where the
+  // day is stepped), how you are looking at it, and the two things you make
+  // — in words, never a glyph a host has to learn — then the menu.
   return `<header class="tp">
     <div class="tp-night">
-      <button class="tp-ar" data-act="day" data-val="-1" aria-label="The night before">${I.left}</button>
-      <span class="tp-night-a"><button class="tp-date${state.nightOpen ? ' on' : ''}" data-act="night-menu" aria-expanded="${state.nightOpen ? 'true' : 'false'}"><span class="tp-big">${esc(nightWord(d))}${I.chev}</span><span class="tp-when">${esc(sub)}</span></button>${state.nightOpen ? renderNightMenu() : ''}</span>
-      <button class="tp-ar" data-act="day" data-val="1" aria-label="The night after">${I.right}</button>
+      <span class="tp-night-a"><button class="tp-date${state.nightOpen ? ' on' : ''}" data-act="night-menu" aria-expanded="${state.nightOpen ? 'true' : 'false'}"><span class="tp-big">${esc(nightWord(d))}${I.chev}</span><span class="tp-when">${sub}</span></button>${state.nightOpen ? renderNightMenu() : ''}</span>
     </div>
     ${views}
     <span class="tp-sp"></span>
-    <span class="wk-anchor"><button class="tp-btn${state.walkin ? ' on' : ''}" data-act="walkin" aria-label="Walk-in" aria-expanded="${state.walkin ? 'true' : 'false'}">${I.srcWalkIn}<span class="tp-lg">Walk-in</span></button>${renderWalkinMenu()}</span>
-    <button class="tp-btn ink" data-act="new-booking" aria-label="New booking">${I.book}<span class="tp-lg">New booking</span></button>
+    <span class="wk-anchor"><button class="tp-btn${state.walkin ? ' on' : ''}" data-act="walkin" aria-expanded="${state.walkin ? 'true' : 'false'}">Walk-in</button>${renderWalkinMenu()}</span>
+    <button class="tp-btn ink" data-act="new-booking" aria-label="New booking"><span class="tp-lg">New booking</span><span class="tp-sh">Book</span></button>
     <span class="tp-menu-a"><button class="tp-btn icon${state.menuOpen ? ' on' : ''}" data-act="menu" aria-label="More" aria-expanded="${state.menuOpen ? 'true' : 'false'}">${I.menu}</button>${state.menuOpen ? renderMenu() : ''}</span>
   </header>`;
 }
@@ -11519,7 +11553,9 @@ function renderNightMenu() {
     ${svcs.map(x => `<button class="tp-mi${on && on.id === x.id ? ' on' : ''}" data-act="svc-pick" data-val="${esc(x.id)}">${esc(x.name)}<span class="tp-mi-t">${esc(fmtHHMM(x.start).replace(/\s?[AP]M$/i, ''))}–${esc(fmtHHMM(x.end))}</span></button>`).join('')}
     ${svcs.length > 1 ? `<button class="tp-mi${on ? '' : ' on'}" data-act="svc-pick" data-val="">All night</button>` : ''}
     <i class="tp-mi-sep"></i>
-    ${isNow ? '' : '<button class="tp-mi" data-act="now">Back to now</button>'}
+    ${isNow ? '' : '<button class="tp-mi" data-act="now">Back to tonight</button>'}
+    <button class="tp-mi" data-act="day" data-val="1">Next day</button>
+    <button class="tp-mi" data-act="day" data-val="-1">Day before</button>
     <button class="tp-mi" data-act="open-cal">Pick a day…</button>
   </div>`;
 }
@@ -14691,7 +14727,7 @@ document.addEventListener('click', async (ev) => {
       // Leaving the room puts a walk-in away: its lit tables are about THIS
       // room, now, and nowhere else.
       case 'view': state.walkin = null; setView(val); break;
-      case 'day': state.walkin = null; state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.picking = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
+      case 'day': state.walkin = null; state.nightOpen = false; state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.picking = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'mode': {
         // A section carries its own place. The rail shows Service's five from
