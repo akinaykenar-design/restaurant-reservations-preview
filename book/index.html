@@ -2806,6 +2806,9 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 }
 @media (max-width:760px){ .tp-sp{display:none;} }
 @media (max-width:760px){ .tp-wd{display:none;} }
+/* A message that went through carries no dot; only a failure marks itself, in red. */
+.toast .dot{display:none;}
+.toast .dot.bad{display:block;}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
