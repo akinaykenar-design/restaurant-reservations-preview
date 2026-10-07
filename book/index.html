@@ -2713,6 +2713,67 @@ body.book-page{background:var(--bg);color:var(--ink);font-size:var(--fs-lg);line
   .gp-pax b{min-width:48px;}
   .gp-pax span{display:none;}
 }
+
+/* §§ QUIET (owner, 7 Oct: "Too many colours. Too much noise. Do you honestly
+   think this is a finished product?"). Ink and greys, ONE blue for the party
+   at the door and for what you picked, red ONLY for late, an allergy, a
+   delete and a failure. No green anywhere: a key that does the thing is ink.
+   No pill round a word, no grey box round a number. */
+:root{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute);}
+body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute);}
+.chip{border:none;border-radius:var(--r-pill);background:var(--well);color:var(--ink);}
+.chip.active,.chip.go,.chip.best.active,.btn.go,.btn.add,.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--surface);}
+.chip.best,.tag.good,.chip.warn{border-color:transparent;color:var(--ink);}
+.btn{border:none;border-radius:var(--r-pill);background:var(--well);color:var(--ink);}
+.btn.danger{background:none;color:var(--late);}
+.status-chip,.status-chip[class*=" "]{background:none;color:var(--mute);padding:0;font-size:var(--fs-md);font-weight:600;
+  text-transform:none;letter-spacing:0;}
+.status-chip svg{display:none;}
+.tag{border:none;padding:0;color:var(--mute);font-size:var(--fs-md);font-weight:600;}
+.tag.hot{color:var(--late);}
+.row .cell,.row .cell.over{background:none;color:var(--ink);border-right:1px solid var(--line);}
+.row .cell.over{color:var(--late);}
+.band.opening{border-color:var(--line);}
+.band.opening .title{color:var(--ink);}
+.settings-card{border:none;}
+.stat{background:none;border:none;padding:0;flex-direction:row;align-items:baseline;gap:6px;}
+.stat b{font-size:var(--fs-xl);}
+.stat span{font-size:var(--fs-md);text-transform:none;letter-spacing:0;font-weight:500;}
+.shell.simple .stat{background:none;}
+.tp-mi-n{background:var(--well);color:var(--ink);}
+/* The list: the late row says it is late; its heading and the others do not shout. */
+.shell.simple .bl-head.red .bl-h-name,.shell.simple .bl-head.red .bl-h-c{color:var(--ink);}
+.shell.simple .bl-head.red .bl-h-c{background:var(--well);}
+.dk-tab.stg-bill{box-shadow:none;}
+.dk-tab.stg-none{color:var(--mute);border-color:var(--faint);}
+.dk-t.over{color:var(--ink);font-weight:700;}
+.dk-main i.leave{color:var(--mute);}
+.dk-main i.quiet{color:var(--mute);font-weight:600;}
+/* The room: grey, darker grey, blue at the door, red only for late. No rings. */
+.shell.simple .fl-table.stg-late{border:none;}
+.shell.simple .fl-table.over,.shell.simple .fl-table.check,.shell.simple .fl-table.paid{outline:none;}
+.shell.simple .tl-block.check,.shell.simple .tl-block.paid{box-shadow:none;}
+.tl-now{width:1px;background:var(--ink);}
+.tl-now i{background:var(--ink);color:var(--surface);}
+/* Walk-in: the tables that take them are plain keys, not a row of blue slabs. */
+.wk-t{background:var(--well);color:var(--ink);}
+.wk-t.till{background:none;color:var(--mute);border:1px solid var(--line);}
+.fg-sum{margin:0 0 12px;color:var(--mute);font-size:var(--fs-lg);}
+.fg-sum b{color:var(--ink);font-family:var(--font-mono);}
+.shell.simple .flow{border:none;padding:0;}
+.fg-col.quiet .fg-total{visibility:hidden;}
+.btn.add-open{align-self:flex-start;margin-bottom:16px;min-height:var(--tap);padding:0 20px;}
+.btn.add-open svg{width:18px;height:18px;}
+.th.fold-h{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+/* A late booking: the red words say it; no pink box round them. */
+.bk-late,[data-theme="dark"] .bk-late{background:none;padding:0;}
+.bk-late-go{background:var(--well);}
+/* A switch that is on is ink, the way a picked chip is. */
+.switch.on{background:var(--ink);border-color:var(--ink);}
+/* The month: how full a day is, in grey; only today wears the blue ring. */
+.cal .day{border:none;}
+.cal .day .bar i{background:var(--mute);}
+.cal .day.special{box-shadow:inset 0 0 0 var(--ring) var(--faint);}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>

@@ -2728,6 +2728,67 @@ body.book-page{background:var(--bg);color:var(--ink);font-size:var(--fs-lg);line
   .gp-pax b{min-width:48px;}
   .gp-pax span{display:none;}
 }
+
+/* §§ QUIET (owner, 7 Oct: "Too many colours. Too much noise. Do you honestly
+   think this is a finished product?"). Ink and greys, ONE blue for the party
+   at the door and for what you picked, red ONLY for late, an allergy, a
+   delete and a failure. No green anywhere: a key that does the thing is ink.
+   No pill round a word, no grey box round a number. */
+:root{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute);}
+body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute);}
+.chip{border:none;border-radius:var(--r-pill);background:var(--well);color:var(--ink);}
+.chip.active,.chip.go,.chip.best.active,.btn.go,.btn.add,.btn.primary{background:var(--ink);border-color:var(--ink);color:var(--surface);}
+.chip.best,.tag.good,.chip.warn{border-color:transparent;color:var(--ink);}
+.btn{border:none;border-radius:var(--r-pill);background:var(--well);color:var(--ink);}
+.btn.danger{background:none;color:var(--late);}
+.status-chip,.status-chip[class*=" "]{background:none;color:var(--mute);padding:0;font-size:var(--fs-md);font-weight:600;
+  text-transform:none;letter-spacing:0;}
+.status-chip svg{display:none;}
+.tag{border:none;padding:0;color:var(--mute);font-size:var(--fs-md);font-weight:600;}
+.tag.hot{color:var(--late);}
+.row .cell,.row .cell.over{background:none;color:var(--ink);border-right:1px solid var(--line);}
+.row .cell.over{color:var(--late);}
+.band.opening{border-color:var(--line);}
+.band.opening .title{color:var(--ink);}
+.settings-card{border:none;}
+.stat{background:none;border:none;padding:0;flex-direction:row;align-items:baseline;gap:6px;}
+.stat b{font-size:var(--fs-xl);}
+.stat span{font-size:var(--fs-md);text-transform:none;letter-spacing:0;font-weight:500;}
+.shell.simple .stat{background:none;}
+.tp-mi-n{background:var(--well);color:var(--ink);}
+/* The list: the late row says it is late; its heading and the others do not shout. */
+.shell.simple .bl-head.red .bl-h-name,.shell.simple .bl-head.red .bl-h-c{color:var(--ink);}
+.shell.simple .bl-head.red .bl-h-c{background:var(--well);}
+.dk-tab.stg-bill{box-shadow:none;}
+.dk-tab.stg-none{color:var(--mute);border-color:var(--faint);}
+.dk-t.over{color:var(--ink);font-weight:700;}
+.dk-main i.leave{color:var(--mute);}
+.dk-main i.quiet{color:var(--mute);font-weight:600;}
+/* The room: grey, darker grey, blue at the door, red only for late. No rings. */
+.shell.simple .fl-table.stg-late{border:none;}
+.shell.simple .fl-table.over,.shell.simple .fl-table.check,.shell.simple .fl-table.paid{outline:none;}
+.shell.simple .tl-block.check,.shell.simple .tl-block.paid{box-shadow:none;}
+.tl-now{width:1px;background:var(--ink);}
+.tl-now i{background:var(--ink);color:var(--surface);}
+/* Walk-in: the tables that take them are plain keys, not a row of blue slabs. */
+.wk-t{background:var(--well);color:var(--ink);}
+.wk-t.till{background:none;color:var(--mute);border:1px solid var(--line);}
+.fg-sum{margin:0 0 12px;color:var(--mute);font-size:var(--fs-lg);}
+.fg-sum b{color:var(--ink);font-family:var(--font-mono);}
+.shell.simple .flow{border:none;padding:0;}
+.fg-col.quiet .fg-total{visibility:hidden;}
+.btn.add-open{align-self:flex-start;margin-bottom:16px;min-height:var(--tap);padding:0 20px;}
+.btn.add-open svg{width:18px;height:18px;}
+.th.fold-h{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+/* A late booking: the red words say it; no pink box round them. */
+.bk-late,[data-theme="dark"] .bk-late{background:none;padding:0;}
+.bk-late-go{background:var(--well);}
+/* A switch that is on is ink, the way a picked chip is. */
+.switch.on{background:var(--ink);border-color:var(--ink);}
+/* The month: how full a day is, in grey; only today wears the blue ring. */
+.cal .day{border:none;}
+.cal .day .bar i{background:var(--mute);}
+.cal .day.special{box-shadow:inset 0 0 0 var(--ring) var(--faint);}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "02ce172db408aa44413cf77771f5c84c17444bad";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -12430,25 +12491,22 @@ function renderFlow() {
   // host wants of a TOTAL is not "how many are in this list" — it is how the
   // night adds up, which is this screen's whole question. Three that count
   // the night, then three that describe its shape.
+  // QUIET (owner, 7 Oct): one line, not six tiles. The columns already show
+  // when the heavy arrivals are.
   const walkIns = rows.filter(r => r.source === 'walk-in');
+  const hm = (t) => fmtHHMM(t).replace(/\s?[AP]M$/i, '');
+  const said = [`<b>${cf.bookings}</b> bookings`, `<b>${cf.covers}</b> guests`]
+    .concat(walkIns.length ? [`<b>${walkIns.length}</b> walk-in${walkIns.length === 1 ? '' : 's'}`] : [])
+    .concat(cf.busiest ? [`fullest <b>${peak}</b> at ${esc(hm(cf.busiest.time))}${cf.seats ? ` · ${full}% of ${cf.seats} seats` : ''}`] : []);
   return `
-  <div class="grid3">
-    <div class="stat"><b>${cf.bookings}</b><span>Bookings</span></div>
-    <div class="stat"><b>${cf.covers}</b><span>Guests</span></div>
-    <div class="stat"><b>${walkIns.length}</b><span>Walk-ins · ${walkIns.reduce((n, r) => n + (r.partySize || 0), 0)} guests</span></div>
-  </div>
-  <div class="grid3" style="margin-top:var(--hub-edge);">
-    <div class="stat"><b>${peak}</b><span>Fullest · ${cf.busiest ? esc(fmtHHMM(cf.busiest.time)) : '—'}</span></div>
-    <div class="stat"><b>${cf.seats ? full + '%' : '—'}</b><span>Of ${cf.seats} seats, at its peak</span></div>
-    <div class="stat${cf.slots.some(s => s.over) ? ' over' : ''}"><b>${cf.heaviest ? cf.heaviest.covers : 0}</b><span>Heaviest arrival · ${cf.heaviest ? esc(fmtHHMM(cf.heaviest.time)) : '—'}</span></div>
-  </div>
+  <p class="fg-sum">${said.join(' · ')}</p>
   <div class="flow">
     <div class="flowgrid" data-keep="flowgrid" role="img" aria-label="The tables arriving in each slot, and the covers with them">
       ${cf.slots.map((s, i) => {
     const mine = bySlot[s.mins] || [];
     return `<div class="fg-col${s.over ? ' over' : ''}${hour(s) ? ' hour' : ''}${breaks[i] ? ' brk' : ''}${mine.length ? '' : ' quiet'}${state.flowSlot === s.time ? ' sel' : ''}">
         <button class="fg-head" data-act="flow-slot" data-val="${esc(s.time)}" aria-pressed="${state.flowSlot === s.time}" aria-label="${esc(fmtHHMM(s.time))}: ${s.covers} guests${s.cap ? ', limit ' + s.cap : ', no limit'}">
-        <span class="fg-time">${esc(fmtHHMM(s.time))}</span>
+        <span class="fg-time">${esc(hm(s.time))}</span>
         <span class="fg-total"><b>${s.covers}</b>${s.cap ? `<small>/${s.cap}</small>` : ''}</span></button>
         <div class="fg-stack">${mine.map(box).join('')}</div>
       </div>`;
@@ -12630,7 +12688,7 @@ function renderTimeline() {
     // The set menu rides in the title too: a 40px block has no room to show
     // it, and the title is where the whole name always is.
     const sm = setMenuName(r);
-    return `<div class="tl-block ${r.status}${conflicts.has(r.id) ? ' conflict' : ''}${extra ? ' extra' : ''}${isAutoTable(r) ? ' auto' : ''}${canMoveBooking(r) && !extra ? ' movable' : ''}" style="left:${left}px;width:${w}px;" data-act="edit-booking" data-id="${r.id}" title="${esc(r.name)} · ${r.partySize} · ${esc(fmtTime(r.time))}${sm ? ' · ' + esc(sm) : ''}"><small>${esc(hhmmOf(r.time))}</small>${esc(r.name)} <small>${r.partySize}</small>${sm ? `<small class="tl-set">${esc(sm)}</small>` : ''}${(r.tags || []).includes('VIP') ? '<small>★</small>' : ''}</div>`;
+    return `<div class="tl-block ${r.status}${conflicts.has(r.id) ? ' conflict' : ''}${extra ? ' extra' : ''}${isAutoTable(r) ? ' auto' : ''}${canMoveBooking(r) && !extra ? ' movable' : ''}" style="left:${left}px;width:${w}px;" data-act="edit-booking" data-id="${r.id}" title="${esc(r.name)} · ${r.partySize} · ${esc(fmtTime(r.time))}${sm ? ' · ' + esc(sm) : ''}">${esc(r.name)} <small>${r.partySize}</small>${sm ? `<small class="tl-set">${esc(sm)}</small>` : ''}${(r.tags || []).includes('VIP') ? '<small>★</small>' : ''}</div>`;
   };
   const slots = (tid) => { let out = ''; for (let m = start; m < end; m += slotMin) out += `<div class="tl-slot" style="left:${(m - start) * PX_PER_MIN}px;width:${slotMin * PX_PER_MIN}px;" data-act="new-at" data-time="${fromMin(m)}" data-table="${tid || ''}"></div>`; return out; };
   let html = '';
@@ -12641,15 +12699,17 @@ function renderTimeline() {
   // and drew him over Tanaka's block in the one lane that has no rows.
   const unassigned = rows.filter(r => !tablesFor(r).length);
   if (unassigned.length) html += `<div class="tl-label"><span>No table</span><small>${unassigned.length}</small></div><div class="tl-lane unassigned" data-table="" style="width:${width}px;">${slots('')}${unassigned.map(r => block(r)).join('')}</div>`;
+  // A room's name heads its lanes only when there is more than one room with tables in it.
+  const tlRooms = state.floorPlans.filter(fp => (fp.tables || []).some(t => t.kind !== 'decor' && t.type !== 'decor'));
   for (const fp of state.floorPlans) {
-    if (state.floorPlans.length > 1) html += `<div class="tl-label floor">${esc(fp.name)}</div><div class="tl-lane floor" style="width:${width}px;"></div>`;
+    if (tlRooms.length > 1 && tlRooms.includes(fp)) html += `<div class="tl-label floor">${esc(fp.name)}</div><div class="tl-lane floor" style="width:${width}px;"></div>`;
     // Bookable tables only. Walls, the bar and the pass are in the same list
     // — they are part of the drawing — and a lane for a wall is a lane a
     // booking can never land in. The room used to have no decor unless the
     // POS sent some, so this only bit once the desk drew its own.
     for (const t of (fp.tables || []).filter(t => t.kind !== 'decor' && t.type !== 'decor').slice().sort(laneCompare)) {
       const mine = rows.filter(r => tablesFor(r).includes(t.id));
-      html += `<div class="tl-label"><span>${esc(t.label)}</span><small>${t.seats} seats</small></div><div class="tl-lane" data-table="${esc(t.id)}" style="width:${width}px;">${slots(t.id)}${mine.map(r => block(r, t.id)).join('')}</div>`;
+      html += `<div class="tl-label" title="${t.seats} seats"><span>${esc(t.label)}</span></div><div class="tl-lane" data-table="${esc(t.id)}" style="width:${width}px;">${slots(t.id)}${mine.map(r => block(r, t.id)).join('')}</div>`;
     }
   }
   let times = '';
@@ -12841,7 +12901,7 @@ function renderDayList() {
     if (r.status === 'paid') said.push('<i class="leave">Paid</i>');
     if (ended) said.push(esc(statusLabel(r.status)));
     if (late) said.push(`<i class="late">${esc(waitWords(late))} late</i>`);
-    if (busy) said.push(`<i class="late">${esc(tableName(busy))} still eating</i>`);
+    if (busy) said.push(`<i class="quiet">${esc(tableName(busy))} still eating</i>`);
     if ((r.tags || []).some(t => String(t).toLowerCase() === 'allergy')) said.push('<i class="late">Allergy</i>');
     if (held.length > 1) said.push(esc(held.map(tableName).join(' + ')));
     if (setMenuName(r)) said.push(esc(setMenuName(r)));
@@ -12934,7 +12994,7 @@ function renderRunSheet() {
     // The table has a column of its own, so it is not repeated here.
     const meta = opts.dropped
       ? dot([row.phone && esc(row.phone), row.cancelReason && esc(row.cancelReason), row.notes && esc(row.notes)])
-      : dot(['until ' + esc(row.until), row.phone && esc(row.phone), row.ref && esc(row.ref),
+      : dot(['until ' + esc(fmtHHMM(row.until).replace(/\s?[AP]M$/i, '')), row.phone && esc(row.phone), row.ref && esc(row.ref),
         row.notes && esc(row.notes), row.guestNotes && esc(row.guestNotes) + ' <span class="ts">(guest book)</span>']);
     // Booked and confirmed are the ordinary case and say nothing on paper;
     // arrived, seated and done — and every dropped row — are worth the ink.
@@ -12944,7 +13004,7 @@ function renderRunSheet() {
       + (row.setMenu ? `<span class="tag set">${esc(row.setMenu)}</span>` : '')
       + tags(row.tags);
     return `<div class="sheet-line">
-      <span class="sl-time">${esc(row.time)}</span>
+      <span class="sl-time">${esc(fmtHHMM(row.time).replace(/\s?[AP]M$/i, ''))}</span>
       <span class="sl-pax">${row.partySize}</span>
       <span class="sl-main"><span class="sl-name">${esc(row.name) || 'No name'}</span>${chips}${meta ? '<span class="sl-meta">' + meta + '</span>' : ''}</span>
       <span class="sl-table">${esc(row.tableLabel) || '—'}</span>
@@ -12957,7 +13017,7 @@ function renderRunSheet() {
   const allergies = !(s.allergies || []).length ? '' : `<div class="sheet-allergies">
     <div class="section-h">ALLERGIES <span class="count">${s.allergies.length}</span></div>
     ${s.allergies.map(a => `<div class="sheet-allergy">
-      <span class="sl-time">${esc(a.time)}</span>
+      <span class="sl-time">${esc(fmtHHMM(a.time).replace(/\s?[AP]M$/i, ''))}</span>
       <span><b>${esc(a.name) || 'No name'}</b> <span class="ts">${a.partySize} pax${a.tableLabel ? ' · ' + esc(a.tableLabel) : ''}${a.tagged && !a.notes && !a.guestNotes ? ' · tagged Allergy' : ''}</span>
       ${a.notes ? `<span class="sl-eq">${esc(a.notes)}</span>` : ''}
       ${a.guestNotes ? `<span class="sl-eq">${esc(a.guestNotes)} <span class="ts">(guest book)</span></span>` : ''}</span>
@@ -13086,10 +13146,13 @@ function quoteChips(q) {
 function renderWaitlist() {
   const w = state.wl;
   const list = state.waitlist.filter(x => x.status !== 'left');
+  // QUIET (owner, 7 Oct): the add form folds behind one key; it opens itself
+  // when the walk-in menu sends a party here, and folds again once added.
+  const wlOpen = !!(w.open || w.name || w.phone);
   const mins = (t) => Math.max(0, Math.round((Date.now() - t) / 60000));
   return `
-  <div class="settings-card" style="margin-bottom:var(--hub-edge);">
-    <div class="th">Add a walk-in</div>
+  ${wlOpen ? `  <div class="settings-card" style="margin-bottom:var(--hub-edge);">
+    <div class="th fold-h">Add a walk-in<button class="chip sq" data-act="wl-shut" aria-label="Close">${I.cross}</button></div>
     <div class="grid2">
       <div><label class="field-label" for="wl-name">Name</label><input id="wl-name" type="text" value="${esc(w.name)}" data-field="wl.name" placeholder="e.g. Smith" autocomplete="off"></div>
       <div><label class="field-label" for="wl-phone">Phone</label><input id="wl-phone" type="tel" value="${esc(w.phone)}" data-field="wl.phone" placeholder="Optional"></div>
@@ -13103,6 +13166,7 @@ function renderWaitlist() {
       <button class="btn add" data-act="wl-add">${I.plus} Add to list</button>
     </div>
   </div>
+` : `<button class="btn add-open" data-act="wl-open">${I.plus} Add to the waitlist</button>`}
   ${!list.length ? '<div class="empty">Nobody waiting.</div>' : `<div class="rows">${list.map(x => {
     const waited = mins(x.addedAt), over = x.quotedMin && waited > x.quotedMin;
     const seating = !!(state.walkin && state.walkin.wl && state.walkin.wl.id === x.id);
@@ -13172,9 +13236,13 @@ function renderNotify() {
   // An opening with nobody to call is not news; it stays in the store for the
   // audit story and out of the desk's way.
   const opens = (nd.openings || []).filter(o => (o.matches || []).length);
+  const nlOpen = !!(n.open || n.name || n.phone);
+  // Somebody already under an opening is not listed a second time below it.
+  const shown = new Set(opens.flatMap(o => o.matches.map(e => e.id)));
+  const rest = entries.filter(e => !shown.has(e.id));
   return `
-  <div class="settings-card" style="margin-bottom:var(--hub-edge);">
-    <div class="th">Add someone to the notify list</div>
+  ${nlOpen ? `  <div class="settings-card" style="margin-bottom:var(--hub-edge);">
+    <div class="th fold-h">Add someone to the notify list<button class="chip sq" data-act="nl-shut" aria-label="Close">${I.cross}</button></div>
     <div class="grid2">
       <div><label class="field-label" for="nl-name">Name</label><input id="nl-name" type="text" value="${esc(n.name)}" data-field="nl.name" placeholder="e.g. Smith" autocomplete="off"></div>
       <div><label class="field-label" for="nl-phone">Phone</label><input id="nl-phone" type="tel" value="${esc(n.phone)}" data-field="nl.phone" placeholder="How we reach them"></div>
@@ -13191,6 +13259,7 @@ function renderNotify() {
       <button class="btn add" data-act="notify-add">${I.plus} Add to list</button>
     </div>
   </div>
+` : `<button class="btn add-open" data-act="nl-open">${I.plus} Add to the notify list</button>`}
   ${opens.length ? opens.map(o => {
     // Every table it freed, not just the first — a party of eight leaves two
     // joined fours behind, and the tag has to say so or the seat count under
@@ -13206,8 +13275,8 @@ function renderNotify() {
     </div>
     <div class="rows" style="margin-bottom:var(--hub-edge);">${o.matches.map((e, i) => notifyRow(e, o, i === 0)).join('')}</div>`;
   }).join('') : '<div class="empty">No openings right now. Cancellations show up here.</div>'}
-  <div class="section-h">Waiting to hear <span class="count">${entries.length}</span></div>
-  ${entries.length ? `<div class="rows">${entries.map(e => notifyRow(e, null, false)).join('')}</div>` : '<div class="empty">Nobody on the list.</div>'}`;
+  <div class="section-h">Waiting to hear <span class="count">${rest.length}</span></div>
+  ${rest.length ? `<div class="rows">${rest.map(e => notifyRow(e, null, false)).join('')}</div>` : `<div class="empty">${entries.length ? 'Everyone is under an opening above.' : 'Nobody on the list.'}</div>`}`;
 }
 
 // §§ Guests — the book
@@ -13242,7 +13311,7 @@ function renderGuests() {
     </div>` : `
     <div class="row" data-act="open-guest" data-id="${g.id}">
       <div class="cell">${lens === 'noshows' ? g.noShows : g.visits}<small>${lens === 'noshows' ? 'missed' : 'visits'}</small></div>
-      <div class="body"><div class="t1">${esc(g.name)}${(g.tags || []).map(t => `<span class="tag${t === 'Allergy' ? ' hot' : ''}">${esc(t)}</span>`).join('')}${g.noShows ? `<span class="tag hot">${g.noShows} no-show${g.noShows > 1 ? 's' : ''}</span>` : ''}${g.birthdayIn !== null && g.birthdayIn !== undefined && g.birthdayIn <= 14 ? `<span class="tag good">${I.cake}${esc(birthdayWord(g))}</span>` : ''}</div>
+      <div class="body"><div class="t1">${esc(g.name)}${(g.tags || []).map(t => `<span class="tag${t === 'Allergy' ? ' hot' : ''}">${esc(t)}</span>`).join('')}${g.noShows ? `<span class="tag">${g.noShows} no-show${g.noShows > 1 ? 's' : ''}</span>` : ''}${g.birthdayIn !== null && g.birthdayIn !== undefined && g.birthdayIn <= 14 ? `<span class="tag good">${I.cake}${esc(birthdayWord(g))}</span>` : ''}</div>
       <div class="t2">${esc(g.phone || 'No phone')}${g.email ? ' · ' + esc(g.email) : ''}${g.notes ? ' · ' + esc(g.notes) : ''}</div></div>
     </div>`).join('')}</div>`}`;
 }
@@ -14885,7 +14954,7 @@ document.addEventListener('click', async (ev) => {
         const w = state.walkin; if (!w || !w.data) break;
         const n = w.data.next;
         state.walkin = null;
-        state.wl = { name: '', phone: '', partySize: w.size, quotedMin: n ? Math.ceil(n.wait / 5) * 5 : state.wl.quotedMin, worked: !!n };
+        state.wl = { name: '', phone: '', partySize: w.size, quotedMin: n ? Math.ceil(n.wait / 5) * 5 : state.wl.quotedMin, worked: !!n, open: true };
         state.side = 'waitlist';
         // A phone's floor has no book beside it: the list is its own screen.
         if (typeof matchMedia === 'function' && matchMedia('(max-width: 900px)').matches) state.todayMode = 'book';
@@ -15025,6 +15094,10 @@ document.addEventListener('click', async (ev) => {
       case 'op-text': await put('/api/notify/' + id, { status: 'told' }); await loadView(); render(); break;
       case 'wl-notify': { const w = state.waitlist.find(x => x.id === id); await put('/api/waitlist/' + id, { status: w.status === 'notified' ? 'waiting' : 'notified' }); await loadView(); render(); break; }
       case 'wl-remove': await del('/api/waitlist/' + id); await loadView(); render(); break;
+      case 'wl-open': state.wl.open = true; render(); { const f = document.getElementById('wl-name'); if (f) f.focus(); } break;
+      case 'wl-shut': state.wl = { name: '', phone: '', partySize: 2, quotedMin: state.wl.quotedMin }; render(); break;
+      case 'nl-open': state.nl.open = true; render(); { const f = document.getElementById('nl-name'); if (f) f.focus(); } break;
+      case 'nl-shut': state.nl = Object.assign({}, state.nl, { name: '', phone: '', notes: '', open: false }); render(); break;
       case 'notify-add': {
         const n = state.nl;
         if (!n.name.trim()) { toast('A name is needed'); break; }
