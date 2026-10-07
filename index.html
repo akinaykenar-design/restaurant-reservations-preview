@@ -2400,7 +2400,7 @@ a.btn{color:var(--text-primary);text-decoration:none;}
 .bke-sent > button.mono{font-family:var(--font-mono);font-weight:700;}
 .bke-sent > button.none{background:none;border:1px dashed var(--red);color:var(--red);}
 .bke-next{display:flex;gap:8px;}
-.bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--orange);color:#fff;
+.bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--orange);color:var(--on-accent);
   font:inherit;font-size:var(--fs-lg);font-weight:800;}
 .bke-next .go.ink{background:var(--text-primary);color:var(--surface);}
 .bke-alert{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:8px 16px;border:none;border-radius:var(--r-control);
@@ -2429,7 +2429,7 @@ a.btn{color:var(--text-primary);text-decoration:none;}
   --font-body:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
   --bg:#F3F3F1; --ink:#17181B; --mute:#6A6D75; --faint:#A3A6AD; --line:#E4E4E0;
-  --accent:#2D55E6; --accent-wash:#E8EDFD; --late:#C8412D; --late-wash:#FBEAE6;
+  --accent:#2D55E6; --accent-wash:#E8EDFD; --on-accent:#FFFFFF; --late:#C8412D; --late-wash:#FBEAE6;
   --leave:#25925A; --seat:#D9DBE2; --well:#E7E7E3; --tfree:#E9E9E5;
   --surface:#FFFFFF; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#D4D4CF;
   --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
@@ -2442,7 +2442,7 @@ a.btn{color:var(--text-primary);text-decoration:none;}
 }
 body[data-theme="dark"]{
   --bg:#0E0F11; --ink:#F1F1EE; --mute:#9A9DA5; --faint:#62656D; --line:#2A2C31;
-  --accent:#7090FF; --accent-wash:#1C2546; --late:#FF6E58; --late-wash:#3A1F1A;
+  --accent:#7090FF; --accent-wash:#1C2546; --on-accent:#0E0F11; --late:#FF6E58; --late-wash:#3A1F1A;
   --leave:#4BC47E; --seat:#3A3C44; --well:#202227; --tfree:#2A2D34;
   --surface:#18191D; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#33363C;
   --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
@@ -2473,7 +2473,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .tp-when{font-family:var(--font-mono);font-size:var(--fs-md);color:var(--mute);white-space:nowrap;}
 .tp-row2{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
 .tp-seg,.vt{display:flex;gap:4px;padding:4px;border-radius:var(--r-pill);background:var(--well);}
-.tp-seg button,.vt button{min-height:40px;padding:0 16px;border:none;border-radius:var(--r-pill);background:none;
+.tp-seg button,.vt button{min-height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-pill);background:none;
   color:var(--mute);font:inherit;font-weight:600;font-size:var(--fs-lg);white-space:nowrap;}
 .tp-seg button.on,.vt button.on{background:var(--surface);color:var(--ink);box-shadow:var(--lift-1);}
 .tp-shut{color:var(--mute);font-weight:600;}
@@ -2494,7 +2494,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .tp-mi{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 12px;border:none;
   border-radius:var(--r-control);background:none;color:var(--ink);font:inherit;font-weight:600;font-size:var(--fs-lg);text-align:left;}
 .tp-mi.on{background:var(--accent-wash);color:var(--accent);}
-.tp-mi-n{min-width:28px;height:24px;padding:0 8px;border-radius:var(--r-pill);background:var(--accent);color:#fff;
+.tp-mi-n{min-width:28px;height:24px;padding:0 8px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);
   font-family:var(--font-mono);font-size:var(--fs-md);display:flex;align-items:center;justify-content:center;}
 /* Away from tonight the page names itself and the way back. */
 .pg-head{display:flex;align-items:center;gap:12px;padding:4px 0 12px;}
@@ -2537,7 +2537,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .bl-rows > .dk-row:first-child{border-top:none;}
 .shell.simple .dk-row.selected,.shell.simple .dk-row.open{background:var(--accent-wash);box-shadow:none;}
 .dk-tab[class*="stg-"]{background:var(--tfree);color:var(--ink);border-left:none;text-decoration:none;}
-.dk-tab.stg-here{background:var(--accent);color:#fff;}
+.dk-tab.stg-here{background:var(--accent);color:var(--on-accent);}
 .dk-tab.stg-open{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 calc(var(--ring) * 2) var(--accent);}
 .bl-head.opened .bl-h-name{color:var(--accent);}
 .bl-head.opened .bl-h-c{color:var(--accent);background:var(--accent-wash);}
@@ -2565,7 +2565,7 @@ a.dk-k,a.chip{text-decoration:none;}
 .shell.simple .fl-wash{display:none;}
 .shell.simple .fl-in{background:none;box-shadow:none;color:inherit;padding:0;}
 .shell.simple .fl-table.stg-in{background:var(--seat);}
-.shell.simple .fl-table.stg-here{background:var(--accent);color:#fff;}
+.shell.simple .fl-table.stg-here{background:var(--accent);color:var(--on-accent);}
 .shell.simple .fl-table.stg-phere{background:var(--accent-wash);color:var(--accent);border:.25cqw solid var(--accent);}
 .shell.simple .fl-table.stg-late{background:var(--late-wash);color:var(--late);border:.25cqw solid var(--late);outline:none;}
 .shell.simple .fl-table.over{outline:.3cqw solid var(--late);outline-offset:.3cqw;}
@@ -2573,13 +2573,13 @@ a.dk-k,a.chip{text-decoration:none;}
 
 /* The timeline and the flow wear the same few colours. */
 .shell.simple .tl-block{background:var(--tfree);color:var(--ink);}
-.shell.simple .tl-block.arrived{background:var(--accent);color:#fff;}
+.shell.simple .tl-block.arrived{background:var(--accent);color:var(--on-accent);}
 .shell.simple .tl-block.part-arrived{background:var(--accent-wash);color:var(--accent);}
 .shell.simple .tl-block.seated,.shell.simple .tl-block.part-seated{background:var(--seat);color:var(--ink);}
 .shell.simple .tl-block.check,.shell.simple .tl-block.paid{background:var(--seat);color:var(--ink);box-shadow:inset var(--ring) 0 0 var(--leave);}
 .shell.simple .tl-block.done,.shell.simple .tl-block.cancelled,.shell.simple .tl-block.no-show{background:var(--well);color:var(--mute);}
 .shell.simple .fg-tbl{background:var(--tfree);color:var(--ink);}
-.shell.simple .fg-tbl.arrived{background:var(--accent);color:#fff;}
+.shell.simple .fg-tbl.arrived{background:var(--accent);color:var(--on-accent);}
 .shell.simple .fg-tbl.part-arrived{background:var(--accent-wash);color:var(--accent);}
 .shell.simple .fg-tbl.sat{background:var(--seat);color:var(--ink);}
 .shell.simple .stat{border:none;border-radius:var(--r-control);background:var(--well);}
@@ -2824,6 +2824,28 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 /* A message that went through carries no dot; only a failure marks itself, in red. */
 .toast .dot{display:none;}
 .toast .dot.bad{display:block;}
+
+/* §§ HUNT C (daily round, 7 Oct). */
+/* The timeline fills its panel: it moved inside .d2-panel and the old
+   `.desk-main > .tl` stopped matching, so 100vh - 260 cut it short again. */
+.d2-panel > .tl{flex:1 1 auto;min-height:0;max-height:none;}
+/* The phone's bar at the foot is gone, and so is the room kept for it. The
+   desk is what is LEFT under the List · Floor · Timeline · Flow tabs, not a
+   whole pane's height pushed 60 down. */
+@media (max-width:760px){ .shell.simple{padding-bottom:env(safe-area-inset-bottom, 0px);} }
+.shell.simple .pane:has(> .desk){display:flex;flex-direction:column;}
+.shell.simple .pane > .desk{flex:1 1 auto;min-height:0;height:auto;}
+/* A number is never in a box (QUIET). */
+.bl-h-c,.shell.simple .bl-head.red .bl-h-c,.bl-head.opened .bl-h-c,.tp-mi-n{background:none;min-width:0;padding:0;}
+/* A key that does the thing is ink: the guest card's Book wore the gold,
+   which QUIET made a grey that white words do not read on in dark. */
+.shell.simple .icon-action.warn{background:var(--ink);color:var(--surface);}
+/* The tab you are not on still reads: 4.5 to 1 on the well. */
+.tp-seg button:not(.on),.vt button:not(.on){color:color-mix(in srgb, var(--mute) 70%, var(--ink));}
+/* A field a finger taps is 16 or more, or the phone zooms in on it. */
+@media (max-width:900px), (pointer:coarse){
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),textarea,select{font-size:var(--fs-xl);}
+}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "02ce172db408aa44413cf77771f5c84c17444bad";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -5596,13 +5618,14 @@ function coverFlow(ctx, day, opts) {
   const rows = (ctx.reservations || []).filter(r => r && isLive(r) && dayOf(r.time) === day);
   const seats = (ctx.tables || []).reduce((n, t) => n + ((t && t.seats) || 0), 0);
 
+  const key = slotKeyer(settings, day);
   const slots = slotTimes(settings, day).map(time => {
     const t = toMin(time);
     let covers = 0, bookings = 0, inRoom = 0, sittings = 0;
     for (const r of rows) {
       const s = minsOf(r.time);
       const party = r.partySize || 0;
-      if (Math.floor(s / step) * step === t) { covers += party; bookings++; }
+      if (key(s) === t) { covers += party; bookings++; }
       if (s <= t && t < s + durationFor(settings, party, r.durationMin)) { inRoom += party; sittings++; }
     }
     const cap = coverCap(settings, day, time);
@@ -5713,31 +5736,49 @@ function coverCapFrom(settings, day, hhmm) {
 // setting it for tonight leaves the week's alone, because one night is not a
 // reason to change every Tuesday. Nights before `today` are dropped, so the
 // store does not grow a night a day for ever.
-function setSlotCap(pacing, day, hhmm, cap, every, today) {
+function setSlotCap(pacing, day, hhmm, cap, every, today, fromWeek) {
   const p = JSON.parse(JSON.stringify(pacing || {}));
   p.night = p.night && typeof p.night === 'object' && !Array.isArray(p.night) ? p.night : {};
   p.week = p.week && typeof p.week === 'object' && !Array.isArray(p.week) ? p.week : {};
   const wd = String(weekdayOf(day));
   const put = (o, k) => { if (cap === null) { if (o[k]) { delete o[k][hhmm]; if (!Object.keys(o[k]).length) delete o[k]; } } else (o[k] = o[k] || {})[hhmm] = Math.max(0, Math.min(999, parseInt(cap, 10) || 0)); };
   if (every) { if (p.night[day]) { delete p.night[day][hhmm]; if (!Object.keys(p.night[day]).length) delete p.night[day]; } put(p.week, wd); }
-  else put(p.night, day);
+  else {
+    put(p.night, day);
+    // Taking a weekly limit back to tonight MOVES it (daily round, 7 Oct).
+    if (fromWeek && p.week[wd]) { delete p.week[wd][hhmm]; if (!Object.keys(p.week[wd]).length) delete p.week[wd]; }
+  }
   if (today) for (const d of Object.keys(p.night)) if (d < today) delete p.night[d];
   return p;
 }
 
 // Covers and bookings already starting in the same slot (pacing).
+// THE SLOT A TIME FALLS IN is the service's own: the latest of the day's slot
+// times at or before it (daily round, 7 Oct). Flooring to the clock's grid put
+// a :15 service on a 30-minute grid in the wrong bucket, so the Flow counted
+// nothing where a party was booked and a limit set on 17:15 never held. Before
+// the first slot of the day the clock's grid answers, as it always did.
+function slotKeyer(settings, day) {
+  const step = settings.slotMinutes || 15;
+  const times = slotTimes(settings, day).map(toMin);
+  return (min) => {
+    let k = -1;
+    for (const t of times) { if (t <= min) k = t; else break; }
+    return k >= 0 ? k : Math.floor(min / step) * step;
+  };
+}
+function slotOf(settings, day, hhmm) { return fromMin(slotKeyer(settings, day)(toMin(hhmm))); }
 function loadAt(ctx, day, hhmm, ignoreId) {
-  const step = ctx.settings.slotMinutes || 15;
-  const s = Math.floor(toMin(hhmm) / step) * step;
-  const rows = (ctx.reservations || []).filter(r => r.id !== ignoreId && isLive(r) && dayOf(r.time) === day && Math.floor(minsOf(r.time) / step) * step === s);
+  const key = slotKeyer(ctx.settings, day);
+  const s = key(toMin(hhmm));
+  const rows = (ctx.reservations || []).filter(r => r.id !== ignoreId && isLive(r) && dayOf(r.time) === day && key(minsOf(r.time)) === s);
   return { covers: rows.reduce((n, r) => n + (r.partySize || 0), 0), bookings: rows.length };
 }
 
 function pacingReason(ctx, day, hhmm, party, ignoreId) {
   const p = ctx.settings.pacing || {};
   const l = loadAt(ctx, day, hhmm, ignoreId);
-  const step = ctx.settings.slotMinutes || 15;
-  const cap = coverCap(ctx.settings, day, fromMin(Math.floor(toMin(hhmm) / step) * step));
+  const cap = coverCap(ctx.settings, day, slotOf(ctx.settings, day, hhmm));
   if (cap > 0 && l.covers + party > cap) return 'Kitchen full at this time';
   if (p.maxBookingsPer15 > 0 && l.bookings + 1 > p.maxBookingsPer15) return 'Too many arrivals at this time';
   return null;
@@ -6135,10 +6176,14 @@ function openingOpen(ctx, o, opts) {
     // was raised: its seat count was the pair, and offering it would put a
     // party of eight on one four-top.
     const dur = durationFor(ctx.settings, party, null);
+    // The desk's own picks hold their tables here too (daily round, 7 Oct):
+    // an arrived party laid on 14 by the desk took Kim's cancelled 14, and
+    // the opening went on offering it.
+    const book = heldBook(ctx, o.date);
     for (const id of held) {
       const t = (ctx.tables || []).find(x => x.id === id);
       if (!t) return false;
-      if (holdersOf(ctx, id, o.date, toMin(o.time), dur, null).length) return false;
+      if (holdersOf(book, id, o.date, toMin(o.time), dur, null).length) return false;
     }
     return true;
   }
@@ -6370,7 +6415,7 @@ module.exports = {
   statusStamps, mergeTables,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
-  LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
+  LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, walkinTables, walkinNext, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
@@ -6412,8 +6457,12 @@ const STATUS_TEXT = {
   booked: 'Put back to booked',
   confirmed: 'Confirmed',
   arrived: 'Marked arrived',
+  'part-arrived': 'Some arrived',
+  'part-seated': 'Some seated',
   seated: 'Seated',
-  done: 'Finished',
+  check: 'Bill on the table',
+  paid: 'Paid',
+  done: 'Left',
   'no-show': 'Marked a no-show',
   cancelled: 'Cancelled',
 };
@@ -7955,7 +8004,10 @@ function dayGrant(ctx, day, now) {
     const cap = av.coverCap(s, day, hhmm);
     const covers = cap > 0 ? cap - l.covers : NO_CAP.covers;
     const bookings = p.maxBookingsPer15 > 0 ? p.maxBookingsPer15 - l.bookings : NO_CAP.bookings;
-    if (covers > 0 && bookings > 0) g.slots[hhmm] = { covers, bookings };
+    // A slot the limits have filled is sent FULL, not left out: a night with
+    // every time full is still a night, and the guest page strikes its times
+    // rather than dropping the date as if the venue were shut.
+    g.slots[hhmm] = covers > 0 && bookings > 0 ? { covers, bookings } : { covers: 0, bookings: 0 };
   }
   if (Object.keys(g.slots).length) g.room = roomOn(ctx, day);
   return g;
@@ -8401,10 +8453,12 @@ app.put('/api/pacing/slot', (req, res) => {
   const cap = b.cap === null ? null : parseInt(b.cap, 10);
   if (cap !== null && !(cap >= 0)) return res.status(400).json({ error: 'The limit is a number of guests' });
   const data = readData();
-  data.settings.pacing = av.setSlotCap(data.settings.pacing, day, time, cap, !!b.every, av.localDay(new Date()));
+  data.settings.pacing = av.setSlotCap(data.settings.pacing, day, time, cap, !!b.every, av.localDay(new Date()), !!b.fromWeek);
   const wd = new Date(day + 'T12:00').toLocaleDateString('en-AU', { weekday: 'long' });
   logAudit(data, staffFromReq(req), `Limit at ${time} ${b.every ? 'every ' + wd : 'on ' + day}: ${cap === null ? 'the usual' : cap === 0 ? 'none' : cap + ' guests'}`);
   writeData(data);
+  // The relay sells against this limit: tell it now, not at the next 30-second pass.
+  kickRelay();
   res.json({ pacing: data.settings.pacing });
 });
 app.put('/api/settings', async (req, res) => {
@@ -11957,6 +12011,14 @@ function coverCapFromLocal(settings, day, hhmm) {
 }
 // Arrivals and bums on seats, slot by slot. The second one is the one nobody
 // draws and the one the kitchen actually feels.
+// The slot a time falls in: the latest of the day's slot times at or before
+// it, the clock's grid before the first — av.slotOf()'s rule, held to it by
+// test (daily round, 7 Oct: a :15 service on a 30-minute grid counted nothing).
+function flowSlotOf(times, step, min) {
+  let k = -1;
+  for (const t of times) { if (t <= min) k = t; else break; }
+  return k >= 0 ? k : Math.floor(min / step) * step;
+}
 function coverFlowFor() {
   const step = state.settings.slotMinutes || 15;
   const pacing = (state.settings && state.settings.pacing) || {};
@@ -11975,7 +12037,7 @@ function coverFlowFor() {
     let covers = 0, bookings = 0, inRoom = 0, sittings = 0;
     for (const r of rows) {
       const a = toMin(hhmmOf(r.time)), party = r.partySize || 0;
-      if (Math.floor(a / step) * step === t) { covers += party; bookings++; }
+      if (flowSlotOf(times, step, a) === t) { covers += party; bookings++; }
       if (a <= t && t < a + durationOf(r)) { inRoom += party; sittings++; }
     }
     const cap = coverCapLocal(state.settings, state.date, fromMin(t));
@@ -12099,7 +12161,7 @@ function renderFloor() {
       ? `${r.name} · ${r.partySize} · ${hhmmOf(r.time)}${f.over ? ' · ' + f.over + ' min over' : ''}${f.late ? ' · ' + f.late + ' min ' + (f.state === 'arrived' ? 'waiting' : 'late') : ''}`
       : f.state === 'walkin'
         ? `Table ${t.label} · ${f.covers} on it at the till, no booking`
-        : `Table ${t.label} · ${t.seats} seats · free${f.nextAt ? ' until ' + f.nextAt : ''}`
+        : `Table ${t.label} · ${seatsWord(t.seats)} · free${f.nextAt ? ' until ' + f.nextAt : ''}`
     const up = uprightStyle(t);
     // WHAT THE TILL TOOK AT THE TABLE. An allergy a waiter typed into the
     // till, and a VIP marked on the floor — neither is in the book, and the
@@ -12136,7 +12198,7 @@ function renderFloor() {
     const pkWhy = !pk ? why
       : mvSet ? `Move ${pkMove.move.name || 'the booking'} to ${pkMove.move.to.map(tableName).join(' + ')} and seat ${pkBook.name || 'them'} on ${pkMove.tables.map(tableName).join(' + ')}`
       : mine ? `Table ${t.label} — theirs already`
-        : canPick ? `Put ${pkBook.name || 'them'} on table ${t.label} · ${t.seats} seats${pk.free.suggested === t.id ? ' · best fit' : ''}`
+        : canPick ? `Put ${pkBook.name || 'them'} on table ${t.label} · ${seatsWord(t.seats)}${pk.free.suggested === t.id ? ' · best fit' : ''}`
           : `Table ${t.label} — taken at ${hhmmOf(pkBook.time)}`;
     const wkCls = mvSet ? ' wk-ok' : !wkOn ? '' : wk ? (wk.until ? ' wk-short' : ' wk-ok') : ' wk-no';
     const wkPill = wk && wk.until ? pillHtml(t, '', 'till ' + esc(fmtHHMM(wk.until)), `Table ${t.label} — booked at ${fmtHHMM(wk.until)}`) : '';
@@ -12270,10 +12332,10 @@ function renderArrange() {
       return decorEl(t);
     }
     return `<button class="fl-table free arr${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t)}${skinStyle(t)}"
-      data-arrange="${esc(t.id)}" title="Table ${esc(t.label)} \u00b7 ${esc(String(t.seats))} seats \u2014 drag to move">
+      data-arrange="${esc(t.id)}" title="Table ${esc(t.label)} \u00b7 ${esc(seatsWord(t.seats))} \u2014 drag to move">
       <span class="fl-in" style="${uprightStyle(t)}">
         <span class="fl-no">${esc(t.label)}</span>
-        <span class="fl-sub">${esc(String(t.seats))} seats</span>
+        <span class="fl-sub">${esc(seatsWord(t.seats))}</span>
       </span>
     </button>`;
   };
@@ -12498,7 +12560,7 @@ function renderFlow() {
   const rows = state.reservations.filter(isLive).filter(inPickedService);
   const bySlot = {};
   for (const r of rows) {
-    const t = Math.floor(toMin(hhmmOf(r.time)) / step) * step;
+    const t = flowSlotOf(cf.slots.map(x => x.mins), step, toMin(hhmmOf(r.time)));
     (bySlot[t] || (bySlot[t] = [])).push(r);
   }
   for (const t in bySlot) bySlot[t].sort((a, b) => (b.partySize || 0) - (a.partySize || 0) || String(a.name).localeCompare(String(b.name)));
@@ -12572,9 +12634,9 @@ function renderFlowLimit(cf) {
     <button class="fg-lim-close" data-act="flow-slot" data-val="${esc(sl.time)}" aria-label="Close">${I.cross}</button>
   </div>`;
 }
-async function saveSlotCap(time, cap, every) {
+async function saveSlotCap(time, cap, every, fromWeek) {
   try {
-    const got = await put('/api/pacing/slot', { day: state.date, time, cap, every });
+    const got = await put('/api/pacing/slot', { day: state.date, time, cap, every, fromWeek: !!fromWeek });
     state.settings.pacing = got.pacing; render();
   } catch (e) { toastBad(e.message); }
 }
@@ -12748,7 +12810,7 @@ function renderTimeline() {
     // POS sent some, so this only bit once the desk drew its own.
     for (const t of (fp.tables || []).filter(t => t.kind !== 'decor' && t.type !== 'decor').slice().sort(laneCompare)) {
       const mine = rows.filter(r => tablesFor(r).includes(t.id));
-      html += `<div class="tl-label" title="${t.seats} seats"><span>${esc(t.label)}</span></div><div class="tl-lane" data-table="${esc(t.id)}" style="width:${width}px;">${slots(t.id)}${mine.map(r => block(r, t.id)).join('')}</div>`;
+      html += `<div class="tl-label" title="${seatsWord(t.seats)}"><span>${esc(t.label)}</span></div><div class="tl-lane" data-table="${esc(t.id)}" style="width:${width}px;">${slots(t.id)}${mine.map(r => block(r, t.id)).join('')}</div>`;
     }
   }
   let times = '';
@@ -12854,16 +12916,62 @@ const LIST_GROUPS = [
 // person closest to the time they wanted, and one key — Text, then Book once
 // they have been texted. Book is the Notify page's own: the booking form,
 // filled in. Nobody to tell, nothing shown; the rest stay on the Notify page.
+// Minutes left of a sitting, counted from the BOOKED time — the floor's
+// `over`, the timeline's block and the run sheet's "until" all count from
+// there, so the row and the booking do too (daily round, 7 Oct: a party sat
+// half an hour late was ten minutes over on the floor and "23 min" in the
+// row beside it). Negative is over.
+function sitLeft(r, now) {
+  return durationOf(r) - Math.round((now - new Date(r.time).getTime()) / 60000);
+}
+// The first of r's tables somebody is still eating at: another party sat on
+// it, or the till's covers (daily round, 7 Oct). A booking due on the table
+// outranks the covers for the floor's COLOUR — whose table it is — but the
+// people in the chairs are still in the chairs, and the tab must not seat
+// six on top of five.
+function stillEating(room, r) {
+  return tablesFor(r).find(id => { const f = room.find(x => x.id === id); return f && ((f.r && f.r.id !== r.id && isSat(f.r)) || f.state === 'walkin' || f.covers > 0); });
+}
+function seatsWord(n) { return n + (Number(n) === 1 ? ' seat' : ' seats'); }
+// Seat from the row's tab. Part of a party at the door is that part at the
+// table — "2 of 6" stays 2 of 6, with +4 for the rest (daily round, 7 Oct:
+// the tab sat all six). Undo carries the count back with the status.
+function seatBody(r, held) {
+  const b = { status: 'seated', tableId: held[0], tableIds: held.slice(1) };
+  if (r.status === 'part-arrived' && r.partCount) { b.status = 'part-seated'; b.partCount = r.partCount; }
+  return b;
+}
+function undoBody(r) {
+  const b = { status: r.status, tableId: r.tableId || null, tableIds: (r.tableIds || []).slice() };
+  if (r.partCount && /^part-/.test(r.status)) b.partCount = r.partCount;
+  return b;
+}
+// ONE PERSON, ONE OPENING (daily round, 7 Oct). The same guest matches
+// every table that frees inside their window, so two cancellations put them
+// on both lines: one text marked them told on both, and the second table
+// never reached the next person who asked. Each person stands under the
+// first opening they match; `one` keeps only the closest per opening, the
+// desk's line, where the Notify page lists everyone left.
+function openingPeople(opens, one) {
+  const used = new Set();
+  return opens.map(o => {
+    const free = (o.matches || []).filter(e => !used.has(e.id));
+    const people = one ? free.slice(0, 1) : free;
+    people.forEach(e => used.add(e.id));
+    return { o, people };
+  }).filter(x => x.people.length);
+}
 function renderOpened() {
   const nd = state.notify || { openings: [] };
-  const opens = (nd.openings || []).filter(o => o.date === state.date && (o.matches || []).length);
+  const opens = openingPeople((nd.openings || []).filter(o => o.date === state.date), true);
   if (!opens.length) return '';
   const venue = (state.settings || {}).venueName;
-  const lines = opens.map(o => {
-    const e = o.matches[0], told = e.status === 'told';
+  const lines = opens.map(({ o, people }) => {
+    const e = people[0], told = e.status === 'told';
     const ts = [...new Set([o.tableId].concat(o.tableIds || []).filter(Boolean))].map(tableName);
     const hm = (t) => fmtHHMM(t).replace(/\s?[AP]M$/i, '');
-    const when = o.date === tradingDay() ? 'tonight' : 'on ' + fmtDay(o.date);
+    // A lunch table is today's, not tonight's.
+    const when = o.date === tradingDay() ? (o.time >= '17:00' ? 'tonight' : 'today') : 'on ' + fmtDay(o.date);
     const href = smsHref(e.phone, textOpened(e.name, e.partySize, fmtHHMM(o.time), when, venue));
     const key = told || !href ? `<button class="dk-k ink" data-act="notify-book" data-id="${esc(e.id)}" data-op="${esc(o.id)}">Book</button>`
       : `<a class="dk-k txt" href="${esc(href)}" data-act="op-text" data-id="${esc(e.id)}">Text</a>`;
@@ -12908,7 +13016,7 @@ function renderDayList() {
   // says only what is different about them, so most rows are one line.
   const nowM = tradingNowMin(), tonight = state.date === tradingDay();
   const room = tonight ? floorStateAt(pad2(Math.floor(nowM / 60)) + ':' + pad2(nowM % 60), true) : [];
-  const busyOn = (r) => tablesFor(r).find(id => { const f = room.find(x => x.id === id); return f && ((f.r && f.r.id !== r.id && isSat(f.r)) || f.state === 'walkin'); });
+  const busyOn = (r) => stillEating(room, r);
   const row = (r) => {
     const held = tablesFor(r), auto = isAutoTable(r), now = Date.now();
     const ended = !isLive(r), sat = isSat(r), here = isHere(r), late = tonight ? lateBy(r, now) : 0;
@@ -12951,7 +13059,7 @@ function renderDayList() {
     if (tonight && late && String(r.phone || '').trim()) rt = `<a class="dk-k" href="tel:${esc(String(r.phone).replace(/[^\d+]/g, ''))}" aria-label="Call ${esc(r.name || '')}">${I.phone}</a>`;
     if (busy && !here) rt = `<button class="dk-k" data-act="row-here" data-id="${esc(r.id)}">Here</button>`;
     if (tonight && sat) {
-      const start = r.seatedAt || new Date(r.time).getTime(), left = durationOf(r) - Math.round((now - start) / 60000);
+      const left = sitLeft(r, now);
       rt = r.status === 'part-seated' ? `<button class="dk-k ac" data-act="row-rest" data-id="${esc(r.id)}" aria-label="The rest arrived">+${Math.max(1, r.partySize - (r.partCount || 0))}</button>`
         : left >= 0 ? `<span class="dk-t">${esc(waitWords(left))}</span>` : `<span class="dk-t over">+${esc(waitWords(-left))}</span>`;
     }
@@ -13274,10 +13382,10 @@ function renderNotify() {
   const entries = nd.entries || [];
   // An opening with nobody to call is not news; it stays in the store for the
   // audit story and out of the desk's way.
-  const opens = (nd.openings || []).filter(o => (o.matches || []).length);
+  const opens = openingPeople(nd.openings || [], false);
   const nlOpen = !!(n.open || n.name || n.phone);
   // Somebody already under an opening is not listed a second time below it.
-  const shown = new Set(opens.flatMap(o => o.matches.map(e => e.id)));
+  const shown = new Set(opens.flatMap(x => x.people.map(e => e.id)));
   const rest = entries.filter(e => !shown.has(e.id));
   return `
   ${nlOpen ? `  <div class="settings-card" style="margin-bottom:var(--hub-edge);">
@@ -13299,20 +13407,20 @@ function renderNotify() {
     </div>
   </div>
 ` : `<button class="btn add-open" data-act="nl-open">${I.plus} Add to the notify list</button>`}
-  ${opens.length ? opens.map(o => {
+  ${opens.length ? opens.map(({ o, people }) => {
     // Every table it freed, not just the first — a party of eight leaves two
     // joined fours behind, and the tag has to say so or the seat count under
     // it reads like a mistake.
     const ts = [o.tableId].concat(o.tableIds || []).filter(Boolean).map(tableById).filter(Boolean);
     return `<div class="band opening">
       <span class="title">${esc(fmtHHMM(o.time))}</span>
-      <span class="tag">${ts.length ? ts.map(x => esc(x.label)).join(' + ') + ' · ' + o.seats + ' seats' : 'any table'}</span>
+      <span class="tag">${ts.length ? ts.map(x => esc(x.label)).join(' + ') + ' · ' + seatsWord(o.seats) : 'any table'}</span>
       <span class="ts">${esc(fmtDay(o.date))} · ${esc(o.fromName || 'A booking')} ${esc(o.reason)}</span>
       <span class="spacer"></span>
-      <span class="ts mono">${o.matches.length} to call</span>
+      <span class="ts mono">${people.length} to call</span>
       <button class="chip" data-act="op-dismiss" data-id="${esc(o.id)}">Dismiss</button>
     </div>
-    <div class="rows" style="margin-bottom:var(--hub-edge);">${o.matches.map((e, i) => notifyRow(e, o, i === 0)).join('')}</div>`;
+    <div class="rows" style="margin-bottom:var(--hub-edge);">${people.map((e, i) => notifyRow(e, o, i === 0)).join('')}</div>`;
   }).join('') : '<div class="empty">No openings right now. Cancellations show up here.</div>'}
   <div class="section-h">Waiting to hear <span class="count">${rest.length}</span></div>
   ${rest.length ? `<div class="rows">${rest.map(e => notifyRow(e, null, false)).join('')}</div>` : `<div class="empty">${entries.length ? 'Everyone is under an opening above.' : 'Nobody on the list.'}</div>`}`;
@@ -13542,7 +13650,7 @@ function renderSettings() {
     till: `    <div class="settings-card">
       <div class="th">POS link</div>
       <label class="field-label" for="pos-url">POS address</label>
-      <input id="pos-url" type="url" value="${esc(p.baseUrl)}" placeholder="http://192.168.1.42:3000" data-field="settings.pos.baseUrl" data-save="pos">
+      <input id="pos-url" type="url" value="${esc(p.baseUrl)}" placeholder="http://192.168.1.42:3000" data-field="settings.pos.baseUrl" data-save="pos" data-save-on="change">
       <div class="inline" style="margin-top:8px;">
         <button class="btn" data-act="pos-test">Test</button>
         <label class="toggle-row">${switchHtml(!!p.enabled, 'set-toggle', 'pos.enabled')} Link on</label>
@@ -13891,7 +13999,7 @@ function bkeStage(r, b) {
   if (r.status === 'check') return 'Bill';
   if (r.status === 'paid') return 'Paid';
   if (isSat(r)) {
-    const left = durationOf(r) - Math.round((now - (r.seatedAt || new Date(r.time).getTime())) / 60000);
+    const left = sitLeft(r, now);
     return left >= 0 ? `Seated · ${waitWords(left)} left` : `${waitWords(-left)} over`;
   }
   // Late is the late line's headline, under this one; said here too it
@@ -13915,7 +14023,7 @@ function renderBookingEdit(m) {
   let next = '';
   if (r && tonight && isLive(r) && !dirty && !late) {
     const room = floorStateAt(pad2(Math.floor(tradingNowMin() / 60)) + ':' + pad2(tradingNowMin() % 60), true);
-    const occ = !isSat(r) && tablesFor(r).find(id => { const f = room.find(x => x.id === id); return f && ((f.r && f.r.id !== r.id && isSat(f.r)) || f.state === 'walkin'); });
+    const occ = !isSat(r) && stillEating(room, r);
     const id = esc(r.id);
     if (!isSat(r) && tablesFor(r).length && !occ) next = `<button class="go" data-act="row-seat" data-id="${id}">Seat at ${esc(tablesFor(r).map(tableName).join(' + '))}</button>`;
     else if (!isSat(r) && occ && !isHere(r)) next = `<button class="go ink" data-act="row-here" data-id="${id}">Here — ${esc(tableName(occ))} still eating</button>`;
@@ -14120,7 +14228,7 @@ function renderBookingPage(page) {
         const word = on ? (b.tableId === t.id ? 'This booking' : 'Joined on') : t.free ? 'Free' : 'Taken at this time';
         return `<button class="bk-opt${on ? ' on' : ''}${!t.free && !on ? ' off' : ''}" data-act="bk-pick-table" data-val="${t.id}">
           <span class="bk-opt-mark"><i class="fl-dot${t.free ? '' : ' seated'}"></i></span>
-          <span class="bk-opt-text"><b>${esc(t.name || String(t.label))} <span class="bk-seats">${t.seats} seats</span>${m.free.suggested === t.id && !on ? '<span class="tag good">Best fit</span>' : ''}</b><span>${esc(word)}</span></span>
+          <span class="bk-opt-text"><b>${esc(t.name || String(t.label))} <span class="bk-seats">${seatsWord(t.seats)}</span>${m.free.suggested === t.id && !on ? '<span class="tag good">Best fit</span>' : ''}</b><span>${esc(word)}</span></span>
           ${on ? `<span class="bk-opt-tick">${I.tick}</span>` : ''}
         </button>`;
       }).join('')}</div>`;
@@ -14819,14 +14927,15 @@ document.addEventListener('click', async (ev) => {
         const r = (state.reservations || []).find(x => x.id === id);
         const held = r ? tablesFor(r) : [];
         if (!r || !held.length) { toastBad('That booking has gone'); break; }
-        const was = { status: r.status, tableId: r.tableId || null, tableIds: (r.tableIds || []).slice() };
+        const was = undoBody(r), body = seatBody(r, held);
         try {
-          await put('/api/reservations/' + id, { status: 'seated', tableId: held[0], tableIds: held.slice(1) });
+          await put('/api/reservations/' + id, body);
           await loadView();
-          const msg = `${r.name || 'Booking'} seated at ${held.map(tableName).join(' + ')}`;
-          state.toastSome = r.partySize > 1 ? { msg, id, n: r.partySize, open: false } : null;
+          const who = body.partCount ? `${body.partCount} of ${r.partySize}` : (r.name || 'Booking');
+          const msg = `${who} seated at ${held.map(tableName).join(' + ')}`;
+          state.toastSome = r.partySize > 1 && !body.partCount ? { msg, id, n: r.partySize, open: false } : null;
           toastUndo(msg, async () => { await put('/api/reservations/' + id, was); await loadView(); });
-          greet(id, was.status, 'seated');
+          greet(id, was.status, body.status);
         } catch (e) { toastBad(e.message); }
         break;
       }
@@ -14867,7 +14976,7 @@ document.addEventListener('click', async (ev) => {
         const t = state.flowSlot; if (!t) break;
         const cap = coverCapLocal(state.settings, state.date, t);
         if (val === '1') await saveSlotCap(t, cap, true);
-        else if (coverCapFromLocal(state.settings, state.date, t) !== 'night') await saveSlotCap(t, cap, false);
+        else if (coverCapFromLocal(state.settings, state.date, t) !== 'night') await saveSlotCap(t, cap, false, coverCapFromLocal(state.settings, state.date, t) === 'week');
         break;
       }
       case 'row-table': {
@@ -15157,7 +15266,7 @@ document.addEventListener('click', async (ev) => {
         const op = ((state.notify || {}).openings || []).find(x => x.id === el.dataset.op) || null;
         const e = notifyEntry(id, op);
         if (!e) { toast('That entry has gone'); break; }
-        openBooking(null, { name: e.name, phone: e.phone, email: e.email, partySize: e.partySize, date: e.date, time: op ? op.time : e.wanted, tableId: op ? op.tableId : null, notes: e.notes }, { notifyId: e.id });
+        openBooking(null, { name: e.name, phone: e.phone, email: e.email, partySize: e.partySize, date: e.date, time: op ? op.time : e.wanted, tableId: op ? op.tableId : null, tableIds: op ? (op.tableIds || []).slice() : [], notes: e.notes }, { notifyId: e.id });
         break;
       }
       // SEAT FROM THE LIST ON THE ROOM (owner, Oct '26, v21: "Build the
@@ -16106,7 +16215,7 @@ async function moveBooking(r, hhmm, tableId) {
     if (row) Object.assign(row, saved);
     const clash = (saved.conflicts || []).length;
     toast(clash ? conflictLine(saved.conflicts)
-      : `${saved.name} → ${fmtHHMM(hhmmOf(saved.time))}${saved.tableId ? ' · ' + tableName(saved.tableId) : ' · no table'}`,
+      : `${saved.name} → ${fmtHHMM(hhmmOf(saved.time))}${saved.tableId ? ' · ' + [saved.tableId].concat(saved.tableIds || []).filter(Boolean).map(tableName).join(' + ') : ' · no table'}`,
       clash ? 4000 : 2600);
   } catch (e) {
     // Re-find BY ID: a poll may have swapped the array while this was in

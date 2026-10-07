@@ -2385,7 +2385,7 @@ a.btn{color:var(--text-primary);text-decoration:none;}
 .bke-sent > button.mono{font-family:var(--font-mono);font-weight:700;}
 .bke-sent > button.none{background:none;border:1px dashed var(--red);color:var(--red);}
 .bke-next{display:flex;gap:8px;}
-.bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--orange);color:#fff;
+.bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--orange);color:var(--on-accent);
   font:inherit;font-size:var(--fs-lg);font-weight:800;}
 .bke-next .go.ink{background:var(--text-primary);color:var(--surface);}
 .bke-alert{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:8px 16px;border:none;border-radius:var(--r-control);
@@ -2414,7 +2414,7 @@ a.btn{color:var(--text-primary);text-decoration:none;}
   --font-body:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
   --bg:#F3F3F1; --ink:#17181B; --mute:#6A6D75; --faint:#A3A6AD; --line:#E4E4E0;
-  --accent:#2D55E6; --accent-wash:#E8EDFD; --late:#C8412D; --late-wash:#FBEAE6;
+  --accent:#2D55E6; --accent-wash:#E8EDFD; --on-accent:#FFFFFF; --late:#C8412D; --late-wash:#FBEAE6;
   --leave:#25925A; --seat:#D9DBE2; --well:#E7E7E3; --tfree:#E9E9E5;
   --surface:#FFFFFF; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#D4D4CF;
   --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
@@ -2427,7 +2427,7 @@ a.btn{color:var(--text-primary);text-decoration:none;}
 }
 body[data-theme="dark"]{
   --bg:#0E0F11; --ink:#F1F1EE; --mute:#9A9DA5; --faint:#62656D; --line:#2A2C31;
-  --accent:#7090FF; --accent-wash:#1C2546; --late:#FF6E58; --late-wash:#3A1F1A;
+  --accent:#7090FF; --accent-wash:#1C2546; --on-accent:#0E0F11; --late:#FF6E58; --late-wash:#3A1F1A;
   --leave:#4BC47E; --seat:#3A3C44; --well:#202227; --tfree:#2A2D34;
   --surface:#18191D; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#33363C;
   --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
@@ -2458,7 +2458,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .tp-when{font-family:var(--font-mono);font-size:var(--fs-md);color:var(--mute);white-space:nowrap;}
 .tp-row2{flex:1;display:flex;align-items:center;gap:8px;min-width:0;}
 .tp-seg,.vt{display:flex;gap:4px;padding:4px;border-radius:var(--r-pill);background:var(--well);}
-.tp-seg button,.vt button{min-height:40px;padding:0 16px;border:none;border-radius:var(--r-pill);background:none;
+.tp-seg button,.vt button{min-height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-pill);background:none;
   color:var(--mute);font:inherit;font-weight:600;font-size:var(--fs-lg);white-space:nowrap;}
 .tp-seg button.on,.vt button.on{background:var(--surface);color:var(--ink);box-shadow:var(--lift-1);}
 .tp-shut{color:var(--mute);font-weight:600;}
@@ -2479,7 +2479,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .tp-mi{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 12px;border:none;
   border-radius:var(--r-control);background:none;color:var(--ink);font:inherit;font-weight:600;font-size:var(--fs-lg);text-align:left;}
 .tp-mi.on{background:var(--accent-wash);color:var(--accent);}
-.tp-mi-n{min-width:28px;height:24px;padding:0 8px;border-radius:var(--r-pill);background:var(--accent);color:#fff;
+.tp-mi-n{min-width:28px;height:24px;padding:0 8px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);
   font-family:var(--font-mono);font-size:var(--fs-md);display:flex;align-items:center;justify-content:center;}
 /* Away from tonight the page names itself and the way back. */
 .pg-head{display:flex;align-items:center;gap:12px;padding:4px 0 12px;}
@@ -2522,7 +2522,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .bl-rows > .dk-row:first-child{border-top:none;}
 .shell.simple .dk-row.selected,.shell.simple .dk-row.open{background:var(--accent-wash);box-shadow:none;}
 .dk-tab[class*="stg-"]{background:var(--tfree);color:var(--ink);border-left:none;text-decoration:none;}
-.dk-tab.stg-here{background:var(--accent);color:#fff;}
+.dk-tab.stg-here{background:var(--accent);color:var(--on-accent);}
 .dk-tab.stg-open{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 calc(var(--ring) * 2) var(--accent);}
 .bl-head.opened .bl-h-name{color:var(--accent);}
 .bl-head.opened .bl-h-c{color:var(--accent);background:var(--accent-wash);}
@@ -2550,7 +2550,7 @@ a.dk-k,a.chip{text-decoration:none;}
 .shell.simple .fl-wash{display:none;}
 .shell.simple .fl-in{background:none;box-shadow:none;color:inherit;padding:0;}
 .shell.simple .fl-table.stg-in{background:var(--seat);}
-.shell.simple .fl-table.stg-here{background:var(--accent);color:#fff;}
+.shell.simple .fl-table.stg-here{background:var(--accent);color:var(--on-accent);}
 .shell.simple .fl-table.stg-phere{background:var(--accent-wash);color:var(--accent);border:.25cqw solid var(--accent);}
 .shell.simple .fl-table.stg-late{background:var(--late-wash);color:var(--late);border:.25cqw solid var(--late);outline:none;}
 .shell.simple .fl-table.over{outline:.3cqw solid var(--late);outline-offset:.3cqw;}
@@ -2558,13 +2558,13 @@ a.dk-k,a.chip{text-decoration:none;}
 
 /* The timeline and the flow wear the same few colours. */
 .shell.simple .tl-block{background:var(--tfree);color:var(--ink);}
-.shell.simple .tl-block.arrived{background:var(--accent);color:#fff;}
+.shell.simple .tl-block.arrived{background:var(--accent);color:var(--on-accent);}
 .shell.simple .tl-block.part-arrived{background:var(--accent-wash);color:var(--accent);}
 .shell.simple .tl-block.seated,.shell.simple .tl-block.part-seated{background:var(--seat);color:var(--ink);}
 .shell.simple .tl-block.check,.shell.simple .tl-block.paid{background:var(--seat);color:var(--ink);box-shadow:inset var(--ring) 0 0 var(--leave);}
 .shell.simple .tl-block.done,.shell.simple .tl-block.cancelled,.shell.simple .tl-block.no-show{background:var(--well);color:var(--mute);}
 .shell.simple .fg-tbl{background:var(--tfree);color:var(--ink);}
-.shell.simple .fg-tbl.arrived{background:var(--accent);color:#fff;}
+.shell.simple .fg-tbl.arrived{background:var(--accent);color:var(--on-accent);}
 .shell.simple .fg-tbl.part-arrived{background:var(--accent-wash);color:var(--accent);}
 .shell.simple .fg-tbl.sat{background:var(--seat);color:var(--ink);}
 .shell.simple .stat{border:none;border-radius:var(--r-control);background:var(--well);}
@@ -2809,6 +2809,28 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 /* A message that went through carries no dot; only a failure marks itself, in red. */
 .toast .dot{display:none;}
 .toast .dot.bad{display:block;}
+
+/* §§ HUNT C (daily round, 7 Oct). */
+/* The timeline fills its panel: it moved inside .d2-panel and the old
+   `.desk-main > .tl` stopped matching, so 100vh - 260 cut it short again. */
+.d2-panel > .tl{flex:1 1 auto;min-height:0;max-height:none;}
+/* The phone's bar at the foot is gone, and so is the room kept for it. The
+   desk is what is LEFT under the List · Floor · Timeline · Flow tabs, not a
+   whole pane's height pushed 60 down. */
+@media (max-width:760px){ .shell.simple{padding-bottom:env(safe-area-inset-bottom, 0px);} }
+.shell.simple .pane:has(> .desk){display:flex;flex-direction:column;}
+.shell.simple .pane > .desk{flex:1 1 auto;min-height:0;height:auto;}
+/* A number is never in a box (QUIET). */
+.bl-h-c,.shell.simple .bl-head.red .bl-h-c,.bl-head.opened .bl-h-c,.tp-mi-n{background:none;min-width:0;padding:0;}
+/* A key that does the thing is ink: the guest card's Book wore the gold,
+   which QUIET made a grey that white words do not read on in dark. */
+.shell.simple .icon-action.warn{background:var(--ink);color:var(--surface);}
+/* The tab you are not on still reads: 4.5 to 1 on the well. */
+.tp-seg button:not(.on),.vt button:not(.on){color:color-mix(in srgb, var(--mute) 70%, var(--ink));}
+/* A field a finger taps is 16 or more, or the phone zooms in on it. */
+@media (max-width:900px), (pointer:coarse){
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),textarea,select{font-size:var(--fs-xl);}
+}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
@@ -5582,13 +5604,14 @@ function coverFlow(ctx, day, opts) {
   const rows = (ctx.reservations || []).filter(r => r && isLive(r) && dayOf(r.time) === day);
   const seats = (ctx.tables || []).reduce((n, t) => n + ((t && t.seats) || 0), 0);
 
+  const key = slotKeyer(settings, day);
   const slots = slotTimes(settings, day).map(time => {
     const t = toMin(time);
     let covers = 0, bookings = 0, inRoom = 0, sittings = 0;
     for (const r of rows) {
       const s = minsOf(r.time);
       const party = r.partySize || 0;
-      if (Math.floor(s / step) * step === t) { covers += party; bookings++; }
+      if (key(s) === t) { covers += party; bookings++; }
       if (s <= t && t < s + durationFor(settings, party, r.durationMin)) { inRoom += party; sittings++; }
     }
     const cap = coverCap(settings, day, time);
@@ -5699,31 +5722,49 @@ function coverCapFrom(settings, day, hhmm) {
 // setting it for tonight leaves the week's alone, because one night is not a
 // reason to change every Tuesday. Nights before `today` are dropped, so the
 // store does not grow a night a day for ever.
-function setSlotCap(pacing, day, hhmm, cap, every, today) {
+function setSlotCap(pacing, day, hhmm, cap, every, today, fromWeek) {
   const p = JSON.parse(JSON.stringify(pacing || {}));
   p.night = p.night && typeof p.night === 'object' && !Array.isArray(p.night) ? p.night : {};
   p.week = p.week && typeof p.week === 'object' && !Array.isArray(p.week) ? p.week : {};
   const wd = String(weekdayOf(day));
   const put = (o, k) => { if (cap === null) { if (o[k]) { delete o[k][hhmm]; if (!Object.keys(o[k]).length) delete o[k]; } } else (o[k] = o[k] || {})[hhmm] = Math.max(0, Math.min(999, parseInt(cap, 10) || 0)); };
   if (every) { if (p.night[day]) { delete p.night[day][hhmm]; if (!Object.keys(p.night[day]).length) delete p.night[day]; } put(p.week, wd); }
-  else put(p.night, day);
+  else {
+    put(p.night, day);
+    // Taking a weekly limit back to tonight MOVES it (daily round, 7 Oct).
+    if (fromWeek && p.week[wd]) { delete p.week[wd][hhmm]; if (!Object.keys(p.week[wd]).length) delete p.week[wd]; }
+  }
   if (today) for (const d of Object.keys(p.night)) if (d < today) delete p.night[d];
   return p;
 }
 
 // Covers and bookings already starting in the same slot (pacing).
+// THE SLOT A TIME FALLS IN is the service's own: the latest of the day's slot
+// times at or before it (daily round, 7 Oct). Flooring to the clock's grid put
+// a :15 service on a 30-minute grid in the wrong bucket, so the Flow counted
+// nothing where a party was booked and a limit set on 17:15 never held. Before
+// the first slot of the day the clock's grid answers, as it always did.
+function slotKeyer(settings, day) {
+  const step = settings.slotMinutes || 15;
+  const times = slotTimes(settings, day).map(toMin);
+  return (min) => {
+    let k = -1;
+    for (const t of times) { if (t <= min) k = t; else break; }
+    return k >= 0 ? k : Math.floor(min / step) * step;
+  };
+}
+function slotOf(settings, day, hhmm) { return fromMin(slotKeyer(settings, day)(toMin(hhmm))); }
 function loadAt(ctx, day, hhmm, ignoreId) {
-  const step = ctx.settings.slotMinutes || 15;
-  const s = Math.floor(toMin(hhmm) / step) * step;
-  const rows = (ctx.reservations || []).filter(r => r.id !== ignoreId && isLive(r) && dayOf(r.time) === day && Math.floor(minsOf(r.time) / step) * step === s);
+  const key = slotKeyer(ctx.settings, day);
+  const s = key(toMin(hhmm));
+  const rows = (ctx.reservations || []).filter(r => r.id !== ignoreId && isLive(r) && dayOf(r.time) === day && key(minsOf(r.time)) === s);
   return { covers: rows.reduce((n, r) => n + (r.partySize || 0), 0), bookings: rows.length };
 }
 
 function pacingReason(ctx, day, hhmm, party, ignoreId) {
   const p = ctx.settings.pacing || {};
   const l = loadAt(ctx, day, hhmm, ignoreId);
-  const step = ctx.settings.slotMinutes || 15;
-  const cap = coverCap(ctx.settings, day, fromMin(Math.floor(toMin(hhmm) / step) * step));
+  const cap = coverCap(ctx.settings, day, slotOf(ctx.settings, day, hhmm));
   if (cap > 0 && l.covers + party > cap) return 'Kitchen full at this time';
   if (p.maxBookingsPer15 > 0 && l.bookings + 1 > p.maxBookingsPer15) return 'Too many arrivals at this time';
   return null;
@@ -6121,10 +6162,14 @@ function openingOpen(ctx, o, opts) {
     // was raised: its seat count was the pair, and offering it would put a
     // party of eight on one four-top.
     const dur = durationFor(ctx.settings, party, null);
+    // The desk's own picks hold their tables here too (daily round, 7 Oct):
+    // an arrived party laid on 14 by the desk took Kim's cancelled 14, and
+    // the opening went on offering it.
+    const book = heldBook(ctx, o.date);
     for (const id of held) {
       const t = (ctx.tables || []).find(x => x.id === id);
       if (!t) return false;
-      if (holdersOf(ctx, id, o.date, toMin(o.time), dur, null).length) return false;
+      if (holdersOf(book, id, o.date, toMin(o.time), dur, null).length) return false;
     }
     return true;
   }
@@ -6356,7 +6401,7 @@ module.exports = {
   statusStamps, mergeTables,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
-  LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, tablesFrom, heldTables, overlaps, fits, holdersOf,
+  LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, walkinTables, walkinNext, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
@@ -6398,8 +6443,12 @@ const STATUS_TEXT = {
   booked: 'Put back to booked',
   confirmed: 'Confirmed',
   arrived: 'Marked arrived',
+  'part-arrived': 'Some arrived',
+  'part-seated': 'Some seated',
   seated: 'Seated',
-  done: 'Finished',
+  check: 'Bill on the table',
+  paid: 'Paid',
+  done: 'Left',
   'no-show': 'Marked a no-show',
   cancelled: 'Cancelled',
 };
@@ -7941,7 +7990,10 @@ function dayGrant(ctx, day, now) {
     const cap = av.coverCap(s, day, hhmm);
     const covers = cap > 0 ? cap - l.covers : NO_CAP.covers;
     const bookings = p.maxBookingsPer15 > 0 ? p.maxBookingsPer15 - l.bookings : NO_CAP.bookings;
-    if (covers > 0 && bookings > 0) g.slots[hhmm] = { covers, bookings };
+    // A slot the limits have filled is sent FULL, not left out: a night with
+    // every time full is still a night, and the guest page strikes its times
+    // rather than dropping the date as if the venue were shut.
+    g.slots[hhmm] = covers > 0 && bookings > 0 ? { covers, bookings } : { covers: 0, bookings: 0 };
   }
   if (Object.keys(g.slots).length) g.room = roomOn(ctx, day);
   return g;
@@ -8387,10 +8439,12 @@ app.put('/api/pacing/slot', (req, res) => {
   const cap = b.cap === null ? null : parseInt(b.cap, 10);
   if (cap !== null && !(cap >= 0)) return res.status(400).json({ error: 'The limit is a number of guests' });
   const data = readData();
-  data.settings.pacing = av.setSlotCap(data.settings.pacing, day, time, cap, !!b.every, av.localDay(new Date()));
+  data.settings.pacing = av.setSlotCap(data.settings.pacing, day, time, cap, !!b.every, av.localDay(new Date()), !!b.fromWeek);
   const wd = new Date(day + 'T12:00').toLocaleDateString('en-AU', { weekday: 'long' });
   logAudit(data, staffFromReq(req), `Limit at ${time} ${b.every ? 'every ' + wd : 'on ' + day}: ${cap === null ? 'the usual' : cap === 0 ? 'none' : cap + ' guests'}`);
   writeData(data);
+  // The relay sells against this limit: tell it now, not at the next 30-second pass.
+  kickRelay();
   res.json({ pacing: data.settings.pacing });
 });
 app.put('/api/settings', async (req, res) => {
