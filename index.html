@@ -479,7 +479,7 @@ h1,h2,h3{margin:0;}
 .row{display:flex;align-items:center;gap:8px;min-height:54px;padding:0 12px 0 0;background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);cursor:pointer;overflow:hidden;}
 .row.selected{border-color:var(--orange);box-shadow:inset 0 0 0 var(--ring) var(--orange);background:var(--pick-wash);}
 .row .cell{width:var(--tap);min-width:var(--tap);align-self:stretch;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-weight:700;background:var(--steel-500);color:var(--charcoal);border-right:1px solid var(--steel-200);flex-direction:column;line-height:1.1;}
-.row .cell small{font-size:var(--fs-chip);font-weight:500;}
+.row .cell small{font-size:var(--fs-chip);font-weight:500;text-align:center;}
 .row .body{flex:1;min-width:0;padding:8px 0;display:flex;flex-direction:column;gap:2px;}
 .row .t1{font-weight:700;font-size:var(--fs-md);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:8px;}
 .row .t2{font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -2233,8 +2233,9 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
    the Walk-in key itself, right-aligned to it, on the paper with the lift —
    the top bar's own well of 44 keys inside. On the floor, a table that seats
    them for their whole sitting wears the accent ring; one booked sooner keeps
-   its key and says till when on the floor's own pill; the rest are the
-   picker's quiet (`[disabled]`, the one dim). */
+   its key and says till when in plain grey words under itself (a word is
+   never in a pill: QUIET, 8 Oct); the rest are the picker's quiet
+   (`[disabled]`, the one dim). */
 .wk-anchor{position:relative;display:flex;}
 .wk-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:40;width:max-content;max-width:calc(100vw - 16px);
   display:grid;gap:8px;padding:12px;border-radius:var(--r-surface);background:var(--surface);box-shadow:var(--lift-2);}
@@ -2718,6 +2719,30 @@ body.book-page{background:var(--bg);color:var(--ink);font-size:var(--fs-lg);line
 .gp-done .gp-btn{justify-self:center;margin-top:8px;}
 .gp-foot{text-align:center;color:var(--mute);font-size:var(--fs-md);}
 .gp-sub{margin:4px 0 0;font-size:var(--fs-md);font-weight:600;color:var(--ink);}
+/* §§ THE LINE AT THE DOOR (owner, 8 Oct: "7. scans what? a qr code on the
+   desk computer? if so yes i love"). The guests' page in line mode
+   (?line=1): the quiet form, the wait said under the heading, the line ahead
+   as plain lines of party sizes with the guest's own line in ink, and Leave
+   as a grey key the width of the page. */
+.gp.ln{gap:32px;padding-top:40px;}
+.ln .gp-head{gap:8px;}
+.ln-wait{margin:4px 0 0;font-size:var(--fs-xl);line-height:1.4;color:var(--mute);text-wrap:balance;}
+.ln-wait b{color:var(--ink);font-weight:700;}
+.ln .nw{white-space:nowrap;}
+.ln-say{display:block;text-wrap:balance;}
+.ln .gp-who{gap:20px;}
+.ln .gp-f span{font-size:var(--fs-lg);}
+.ln-q{display:grid;margin:0;padding:0;list-style:none;}
+.ln-r{display:flex;align-items:center;min-height:56px;border-top:1px solid var(--line);font-size:var(--fs-xl);color:var(--mute);}
+.ln-r:last-child{border-bottom:1px solid var(--line);}
+.ln-r.me{color:var(--ink);font-weight:700;}
+.ln-leave{width:100%;min-height:56px;padding:12px 20px;border:none;border-radius:var(--r-control);background:var(--well);color:var(--ink);
+  font:inherit;font-size:var(--fs-lg);font-weight:700;}
+.ln-leave:disabled{opacity:var(--dim);}
+/* Asked on the page: the key that does it is ink, with what it means above. */
+.ln-leave.sure{background:var(--ink);color:var(--surface);}
+.ln .ln-sure{margin:0 0 -16px;text-align:center;}
+.ln .gp-btn.ln-again{justify-self:center;align-self:center;}
 /* Pinched in to 200%, a phone is under 200 wide: the page keeps its edge and
    the stepper keeps its keys, and nothing slides sideways. */
 @media (max-width:340px){
@@ -2770,7 +2795,10 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 .shell.simple .tl-block.check,.shell.simple .tl-block.paid{box-shadow:none;}
 .tl-now{width:1px;background:var(--ink);}
 .tl-now i{background:var(--ink);color:var(--surface);}
-/* Walk-in: the tables that take them are plain keys, not a row of blue slabs. */
+/* Walk-in: the tables that take them are plain keys, not a row of blue
+   slabs. The one blue key is a big party's free PAIR (8 Oct, v52/eight): it
+   wears the ring its tables wear in the room, because it IS what you picked
+   there — see A BIG PARTY LIGHTS ITS JOINED TABLES at the foot. */
 .wk-t{background:var(--well);color:var(--ink);}
 .wk-t.till{background:none;color:var(--mute);border:1px solid var(--line);}
 .fg-sum{margin:0 0 12px;color:var(--mute);font-size:var(--fs-lg);}
@@ -2846,6 +2874,134 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 @media (max-width:900px), (pointer:coarse){
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),textarea,select{font-size:var(--fs-xl);}
 }
+
+/* §§ TIDY THE NIGHT IN ONE TAP (owner, 8 Oct: "6. i love!!!" — v52/tidy).
+   The line at the top of tonight's list is quiet like a group heading: the
+   two counts and ONE ink key, lit in the one blue while its lists are open.
+   The lists are the list's own docket lines. On a desk they stand where the
+   room is, side by side on the ground, Never came always in the right-hand
+   column so it does not jump when All left empties the left; up to 900 they
+   are a page of their own with "‹ Tonight" at its head.
+   SIDE BY SIDE ONLY WHEN TWO FIT (review, 8 Oct): a docket line wants about
+   380 to hold its name, its line under and its key, and at 904 two of them
+   were 216 each — every name cut and the name's key 31 wide. The panel is a
+   container and the two stand side by side from 780 of it, a tablet's page
+   included; narrower (a phone, a desk under about 1240) they stack. And the
+   lists end above the toast's band while a toast is up, so no Left or
+   No-show is ever under its Undo. */
+.td-line{display:flex;align-items:center;gap:12px;min-height:60px;margin:0 0 4px;padding:0 0 0 4px;}
+.td-say{flex:1;min-width:0;font-size:var(--fs-lg);font-weight:600;color:var(--mute);line-height:1.35;}
+.td-say b{color:var(--ink);font-weight:700;}
+.td-say > span:not(.td-dot){display:block;}
+.td-say .td-dot{display:none;}
+.dk-k.td-go{flex:none;padding:0 20px;font-size:var(--fs-lg);}
+.dk-k.td-go.on{background:var(--accent-wash);color:var(--accent);}
+.d2-panel.td-panel{background:none;border-radius:0;}
+.td{flex:1;min-height:0;display:flex;flex-direction:column;container:tidy / inline-size;}
+.td-dhead{flex:none;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 0 4px 4px;}
+.td-dhead h2{flex:1;margin:0;font-size:var(--fs-xl);font-weight:700;color:var(--ink);}
+.td-x{flex:none;display:flex;align-items:center;justify-content:center;width:var(--tap);height:var(--tap);padding:0;border:none;
+  border-radius:var(--r-pill);background:var(--well);color:var(--ink);}
+.td-x svg{width:20px;height:20px;}
+.td-phead{display:none;flex:none;}
+.td-body{flex:1;min-height:0;overflow-y:auto;}
+.td-cols{display:grid;grid-template-columns:minmax(0,1fr);gap:0;align-items:start;}
+@container tidy (min-width:780px){
+  .td-cols{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;}
+  .td-g.never{grid-column:2;}
+}
+.shell.simple .bl-head.td-h{position:sticky;top:0;z-index:1;background:var(--bg);}
+.td-h .dk-k.td-all{margin-left:auto;padding:0 16px;font-size:var(--fs-lg);}
+.dk-row.td-row{grid-template-columns:64px minmax(0,1fr) auto;}
+.td-row .dk-rt{padding:0 12px 0 4px;}
+.td-row .dk-k.td-k{min-width:76px;padding:0 16px;font-size:var(--fs-lg);}
+.td-row .dk-main b{display:flex;min-width:0;}
+.td-row .dk-main b > span{font-size:inherit;color:inherit;}
+.td-row .dk-main b > .td-n{flex:none;overflow:visible;}
+.td-k[disabled],.td-all[disabled]{opacity:var(--dim);}
+.shell.simple:has(> .toast) .td{padding-bottom:calc(var(--tap) + 32px + env(safe-area-inset-bottom, 0px));}
+@media (min-width:761px) and (max-width:900px){ .td-say > span:not(.td-dot),.td-say .td-dot{display:inline;} }
+@media (max-width:900px){
+  .shell.simple .desk.td-open > .desk-main{display:flex;}
+  .td-phead{display:flex;}
+  .td-dhead{display:none;}
+}
+
+/* §§ A BIG PARTY LIGHTS ITS JOINED TABLES (owner, 8 Oct: "5 i like" — v52/eight).
+   The walk-in menu's answer for a party no one table seats is ONE key per
+   free pair, the full width of the menu, in the ring its tables wear in the
+   room, its seats small beside it. On the room each lit pair is joined by a
+   line in the GAP between its tables and named beside it; a pair somebody
+   holds is joined in grey and says who, small. Everything inside the room is
+   a share of the room (THE DRAWING IS UNIFORM): the SVG's unit is a cqw, the
+   words are in cqw, nothing in pixels. The pair key is the one blue key in
+   the menu, the exception the QUIET block names; its words never spill
+   (a long combination is said "B1 … B8", and anything longer is cut). */
+.wk-t.join{grid-column:1 / -1;height:56px;flex-direction:row;gap:12px;background:var(--accent-wash);color:var(--accent);
+  box-shadow:inset 0 0 0 var(--tbl-sel-ring) var(--accent);font-size:var(--fs-xl);min-width:0;padding:0 16px;}
+.wk-t.join b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wk-t.join small{flex:none;font-size:var(--fs-md);font-weight:600;}
+.fl-joins{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:0;}
+.fl-joins line{stroke:var(--accent);stroke-linecap:round;}
+.fl-joins line.held{stroke:var(--faint);}
+.fl-join-tag{position:absolute;z-index:350;pointer-events:none;white-space:nowrap;line-height:1.25;
+  font-family:var(--font-mono);font-size:2cqw;font-weight:800;color:var(--accent);}
+.fl-join-tag.held{font-family:var(--font-body);font-size:1.7cqw;font-weight:500;color:var(--mute);}
+/* A word is never in a pill (QUIET): a table that seats them only till a
+   time says so under itself, in plain grey — a share of the room on a drawn
+   room, and the chip's own token in the loose grid, which has no 900 for a
+   length to be a share of (THE DRAWING IS UNIFORM). */
+.fl-pill.word{background:none;border:none;box-shadow:none;padding:0;color:var(--mute);
+  font-family:var(--font-body);font-weight:600;}
+.fl-pill.word:not([data-in]){font-size:1.5cqw;}
+
+/* §§ THE CODE FOR THE DOOR (owner, 8 Oct: "7. scans what? a qr code on the
+   desk computer? if so yes i love" — v53/line). The Waitlist's one key, Show
+   the code, opens the sign for the door as a PAGE, as v53 drew it: the bar
+   stays, "‹ Tonight · Sign for the door · Print" heads it (review, 8 Oct),
+   and under that the paper card the guests scan on the page's own ground —
+   with, only while the code is the desk's own page on the wifi, one line
+   under it saying so. THE SIGN IS ONE DRAWING: an A6 card whose every length
+   inside is a share of its own width (a size container, as the room is), so
+   the screen and the printed card are the same picture at two sizes. The
+   code is dark squares with its own four-module quiet zone (/line.svg): on
+   the white card in light, on the cream plate the table numbers ride in
+   dark — the card itself is dark there and a camera wants light around the
+   squares — and on the paper when printed. Print prints the card alone. */
+.wl-keys{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
+.wl-keys .btn{min-height:var(--tap);padding:0 20px;}
+.wl-keys .btn.add-open{margin-bottom:0;}
+.ln-sign{display:flex;flex-direction:column;align-items:center;gap:16px;padding:0 0 24px;}
+/* The box is the size container and the card fills it, so the card's own
+   padding is a share of the card too (a container's own lengths cannot ask
+   itself). Its height is what the bar and the page's head leave. */
+.ln-card-box{container-type:inline-size;flex:none;width:min(100%, calc((100dvh - 216px) * 105 / 148), 640px);}
+.ln-card{box-sizing:border-box;width:100%;aspect-ratio:105 / 148;
+  padding:10.4cqw 8.6cqw 8.6cqw;border-radius:var(--r-surface);background:var(--surface);box-shadow:var(--lift-1);
+  display:flex;flex-direction:column;align-items:center;text-align:center;}
+.ln-card h2{margin:0;font-size:7.6cqw;font-weight:800;letter-spacing:-.01em;line-height:1.15;color:var(--ink);text-wrap:balance;}
+.ln-card-sub{margin:2.8cqw 0 0;font-size:4.5cqw;color:var(--mute);}
+.ln-qr{display:block;box-sizing:border-box;margin:auto 0;width:70cqw;height:70cqw;padding:0;border-radius:var(--r-control);background:none;}
+body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
+.ln-card-venue{font-size:3.2cqw;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--mute);}
+.ln-sign-note{margin:0;font-size:var(--fs-lg);color:var(--mute);}
+/* The list's own count beside its name, plain: no box, no pill. */
+.sd-head .ln-n{margin-left:-4px;font-family:var(--font-mono);font-size:var(--fs-lg);font-weight:600;color:var(--mute);}
+@media print{
+  /* Paper, not a slab: no ground anywhere, and a light canvas under it — a
+     dark theme's canvas is dark even with every ground taken away. */
+  html:has(.ln-sign){color-scheme:light;}
+  html:has(.ln-sign),body:has(.ln-sign){background:none!important;}
+  #app:has(.ln-sign),.shell:has(.ln-sign),.main:has(.ln-sign),.pane:has(.ln-sign){background:none!important;}
+  .shell:has(.ln-sign) > :not(.main),.pane:has(> .ln-sign) > :not(.ln-sign){display:none!important;}
+  .ln-sign{padding:0;background:none;--ink:#000;--mute:#333;--surface:#fff;}
+  .ln-sign-note{display:none!important;}
+  .ln-card-box{width:105mm;margin:0 auto;}
+  .ln-card{box-shadow:none;border:1px solid var(--steel-300);}
+  .ln-qr{background:none!important;}
+}
+/* A phone keeps the two keys on one line: a step less air inside each. */
+@media (max-width:420px){ .wl-keys .btn{padding:0 16px;} }
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "02ce172db408aa44413cf77771f5c84c17444bad";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -4539,6 +4695,11 @@ const DEFAULT_SETTINGS = {
     notesPrompt: 'Allergies, occasions, pram or high chair — anything we should know?',
     holdTables: false,      // online bookings get a table when staff assign one, unless this is on
     notifyList: true,       // a full day offers "tell me if something opens" instead of a dead end
+    // GUESTS JOIN THE LINE FROM THEIR PHONE (owner, 8 Oct): a code on the
+    // desk's screen and a sign at the door; the guest adds themselves to the
+    // waitlist and is quoted the desk's own wait. Off, the code goes and the
+    // guests' page says "Ask at the door".
+    line: true,
   },
   noShowAfterMinutes: 30,   // the "mark no-show" prompt appears this long after the time
   dayStartsAt: 4,           // the trading day rolls at 4am, like the POS
@@ -4570,7 +4731,19 @@ const DEFAULT_DATA = {
   posCombos: [],
   theme: { accent: '#3692E7', mode: 'auto' },
   reservations: [],
+  // The waitlist — the line at the door tonight.
+  //   { id, name, phone, partySize, quotedMin, notes, status, addedAt,
+  //     addedBy, source, ref }
+  // `source` is WHERE it came from, in the record's one vocabulary (SOURCES):
+  // 'staff' (the host typed it) or 'online' (the guest joined the line on
+  // their own phone, here or on the relay). Only a guest who joined from
+  // their phone has a `ref`: their page holds it. `quotedMin` is the wait
+  // they were told, and null is "nothing frees tonight", not "no wait".
   waitlist: [],
+  // What became of a guest who joined the line from their phone and is no
+  // longer in it — seated, left, removed by the host, or refused — so their
+  // page can say so: { ref, how, at }. Tonight's only matter; a day is kept.
+  lineGone: [],
   // People waiting for a cancellation, and the cancellations themselves.
   //   notify   { id, ref, name, phone, email, partySize, date, from, to,
   //              wanted, notes, source, status, createdAt, createdBy,
@@ -4693,6 +4866,11 @@ function migrate(data) {
   }
   // The generic loop above gives an older store `notify` and `openings`; these
   // fill in the per-record fields a hand-edited or half-written row may lack.
+  if (!Array.isArray(data.waitlist)) data.waitlist = [];
+  // The first build of the line wrote 'desk' and 'phone'; the house's words
+  // for the same two places are 'staff' and 'online' (review, 8 Oct).
+  for (const w of data.waitlist) if (w) w.source = w.source === 'phone' || w.source === 'online' ? 'online' : 'staff';
+  if (!Array.isArray(data.lineGone)) data.lineGone = [];
   if (!Array.isArray(data.notify)) data.notify = [];
   if (!Array.isArray(data.openings)) data.openings = [];
   for (const e of data.notify) {
@@ -4861,14 +5039,23 @@ function isHere(r) { return HERE.includes(r && r.status); }
 // ends. But a party put BACK before the table never sat: a stale stamp from a
 // mistaken press told the till's payment for the party before them that it
 // was theirs, and the next pass marked them Paid (daily round, 6 Oct).
+//
+// LEFT IS ONLY WHILE THEY ARE GONE, and a party PUT BACK keeps its own times
+// (review, 8 Oct). doneAt stayed on a party the tidy's Undo had put back at
+// the table, and the till's close later kept that stale minute, so spend.js
+// ended their window at the tidy. `opts.keep` is the Undo: the bill's, the
+// payment's and the confirmation's times the booking still carries are
+// THEIRS, not the minute Undo was pressed.
 const ENDED = ['done', 'cancelled', 'no-show'];
-function statusStamps(r, now) {
+function statusStamps(r, now, opts) {
+  const keep = !!(opts && opts.keep);
+  const stamp = (k) => { if (!(keep && Number.isFinite(r[k]))) r[k] = now; };
   if (isSat(r) && !r.seatedAt) r.seatedAt = now;
   if (isHere(r) && !r.arrivedAt) r.arrivedAt = now;
-  if (r.status === 'check') r.checkAt = now;
-  if (r.status === 'paid') r.paidAt = now;
-  if (r.status === 'done') r.doneAt = now;
-  if (r.status === 'confirmed') r.confirmedAt = now;
+  if (r.status === 'check') stamp('checkAt');
+  if (r.status === 'paid') stamp('paidAt');
+  if (r.status === 'done') r.doneAt = now; else delete r.doneAt;
+  if (r.status === 'confirmed') stamp('confirmedAt');
   // How many of a PART party came: only while it is part (the clean desk's
   // "Not all here?"). Everybody here, or nobody, and the count means nothing.
   if (!['part-arrived', 'part-seated'].includes(r.status)) delete r.partCount;
@@ -5056,11 +5243,15 @@ function freeTables(ctx, day, hhmm, party, opts) {
   opts = opts || {};
   const dur = durationFor(ctx.settings, party, opts.duration);
   const start = toMin(hhmm);
+  return (ctx.tables || []).filter(t => holdersOf(ctx, t.id, day, start, dur, opts.ignoreId).length === 0 && !walkedIn(ctx, t, day, start, dur));
+}
+// Covers at the till on a table no booking holds now, inside this sitting:
+// somebody the till sat that the book never did.
+function walkedIn(ctx, t, day, start, dur) {
   const now = nowOn(ctx, day);
-  const walkedIn = (t) => now !== null && Number(t.covers) > 0
+  return now !== null && Number(t.covers) > 0
     && overlaps(start, dur, now, durationFor(ctx.settings, Number(t.covers)))
     && holdersOf(ctx, t.id, day, now, 1, null).length === 0;
-  return (ctx.tables || []).filter(t => holdersOf(ctx, t.id, day, start, dur, opts.ignoreId).length === 0 && !walkedIn(t));
 }
 
 // The best table for this party: the tightest fit, and among equals the
@@ -5377,6 +5568,14 @@ function heldBook(ctx, day) {
     ? Object.assign({}, r, { tableId: auto[r.id][0], tableIds: auto[r.id].slice(1) }) : r);
   return Object.assign({}, ctx, { reservations: placed });
 }
+// ONE table seats them, free for their whole sitting — the one test for
+// whether a combination is offered at all. walkinTables() and walkinCombos()
+// each wrote it, in two spellings (review, 8 Oct); a drift between them is a
+// pair key in the menu beside a lit single, or a lit pair with no key.
+function wholeSingle(sub, day, hhmm, size) {
+  const whole = new Set(freeTables(sub, day, hhmm, size).map(t => t.id));
+  return (sub.tables || []).some(t => (t.seats || 0) >= size && whole.has(t.id));
+}
 function walkinTables(ctx, day, hhmm, party) {
   const size = Math.max(1, Number(party) || 1);
   const sub = walkinBook(ctx, day, hhmm);
@@ -5385,7 +5584,7 @@ function walkinTables(ctx, day, hhmm, party) {
   const whole = new Set(freeTables(sub, day, hhmm, size).map(t => t.id));
   const now = new Set(freeTables(sub, day, hhmm, size, { duration: 1 }).map(t => t.id));
   const singles = (ctx.tables || []).filter(t => (t.seats || 0) >= size && now.has(t.id));
-  if (!singles.some(t => whole.has(t.id)) && combosOf(ctx).length) {
+  if (!wholeSingle(sub, day, hhmm, size) && combosOf(ctx).length) {
     const c = freeCombos(sub, day, hhmm, size)[0];
     if (c) {
       const inCombo = c.tables.map(id => ({ id, until: null, combo: c.tables.slice() }));
@@ -5401,6 +5600,59 @@ function walkinTables(ctx, day, hhmm, party) {
   return singles
     .sort((a, b) => (a.seats - b.seats) || (parseInt(a.label) - parseInt(b.label)) || String(a.label).localeCompare(String(b.label)))
     .map(t => ({ id: t.id, until: untilOn(t) }));
+}
+
+// §§ A BIG PARTY LIGHTS ITS JOINED TABLES (owner, 8 Oct: "5 i like" — v52/eight)
+//
+// An eight at the door, and no one table seats eight. walkinTables() offers
+// the FIRST free combination as one key among the rest, and the room says
+// nothing about which tables go together — so a host who knows 41 + 42 is
+// the usual eight cannot see that Ashworth is eating on 41, and one who does
+// not know the room cannot see that 45 + 46 is a pair at all.
+//
+// This is EVERY saved combination that seats them, asked of the walk-in's own
+// book (walkinBook: the desk's picks hold, the till's covers hold, a party
+// running over holds):
+//
+//   free  every table free for their whole sitting — tightest first, so
+//         free[0] is the combination walkinTables() already lights
+//   held  the rest, with WHO: whoever is IN ITS CHAIRS NOW — a party sat or
+//         at the door on one of its tables, then the till's covers on a
+//         table no booking holds now (a Walk-in, freeTables' own walkedIn
+//         test) — and only when nobody is, the first booked in the walk-in's
+//         sitting. As { name, time, status }, so the room can say "Ashworth"
+//         for a party eating and "Sinclair 7:40" for one booked. Ranked by
+//         start alone, four eating on 7 at the till were "Sinclair 7:40" and
+//         Ashworth eating on 6 was "Okafor", forty-five minutes late and not
+//         here (review, 8 Oct).
+//
+// Only when no one table seats them for the whole sitting, which is when a
+// combination is offered at all (wholeSingle(), walkinTables' own test), and
+// only STATED combinations — null otherwise, nothing guessed, and null when
+// no saved combination seats them at all: an answer with nothing in it is
+// nothing to draw. combosOf() is the one place a saved combination is read,
+// so the day the till sends its own joins this follows with no change here.
+function walkinCombos(ctx, day, hhmm, party) {
+  const size = Math.max(1, Number(party) || 1);
+  if (!combosOf(ctx).length) return null;
+  const sub = walkinBook(ctx, day, hhmm);
+  if (wholeSingle(sub, day, hhmm, size)) return null;
+  const start = toMin(hhmm), dur = durationFor(ctx.settings, size), now = nowOn(sub, day);
+  const at = now === null ? start : now;
+  const free = freeCombos(sub, day, hhmm, size);
+  const held = combosOf(ctx)
+    .filter(c => comboSeats(ctx, c) >= size && !free.includes(c))
+    .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length));
+  if (!free.length && !held.length) return null;
+  const first = (rs) => rs.sort((a, b) => heldFrom(a, now, nightMin(a, day)) - heldFrom(b, now, nightMin(b, day)))[0];
+  const holder = (c) => {
+    const inRoom = first([].concat(...c.tables.map(id => holdersOf(sub, id, day, at, 1, null))).filter(r => isSat(r) || isHere(r)));
+    const said = inRoom || (c.tables.some(id => walkedIn(sub, (sub.tables || []).find(t => t.id === id) || {}, day, start, dur)) ? null
+      : first([].concat(...c.tables.map(id => holdersOf(sub, id, day, start, dur, null)))));
+    return said ? { name: said.name || '', time: hhmmOf(said.time), status: said.status } : { name: 'Walk-in', time: null, status: 'walkin' };
+  };
+  const out = (c) => ({ tables: c.tables.slice(), seats: comboSeats(ctx, c) });
+  return { free: free.map(out), held: held.map(c => Object.assign(out(c), { by: holder(c) })) };
 }
 
 // §§ A walk-in nothing can take now: WHEN
@@ -5434,6 +5686,121 @@ function walkinNext(ctx, day, hhmm, party) {
     if (tablesAt && tablesAt.length) return { time: t, wait: toMin(t) - start, tables: tablesAt.slice() };
   }
   return null;
+}
+
+// §§ GUESTS JOIN THE LINE FROM THEIR PHONE (owner, 8 Oct: "7. scans what? a
+// qr code on the desk computer? if so yes i love" — v53/line)
+//
+// A busy night: the host stops at the door for every party, types the name
+// and number into the waitlist while the phone rings, and GUESSES the wait.
+// Now the guest scans the code and puts themselves in the line, and the wait
+// they are quoted is not a guess — it is the desk's own walk-in rule, run
+// over the line in the order it stands:
+//
+//   each party already waiting is seated first — on the walk-in key the desk
+//   would offer them now (walkinTables, free for the whole sitting, fewest
+//   seats), else at the first time a table frees for them (walkinNext), on
+//   those tables — and then the newcomer is asked the same way.
+//
+// A wait is walkinNext's minutes rounded UP to five (LINE_STEP), the walk-in
+// menu's own "Wait list" quote; 0 is a table for them now; null is nothing
+// frees for them tonight. A party ahead that nothing can seat holds nothing
+// for the people behind it. Pure: asked of a book, a moment and a line.
+const LINE_STEP = 5;
+// The line TONIGHT, as the guests and the desk both mean it: everybody on the
+// waitlist who has not gone (waiting, or told their table is ready), put on
+// since this trading day began, in the order they joined. The list itself is
+// never day-scoped, and last night's party nobody cleared is not in front of
+// anybody at the door tonight.
+function lineSince(settings, now) {
+  now = now || new Date();
+  const rolls = rollsOf(settings);
+  const at = (back) => new Date(now.getFullYear(), now.getMonth(), now.getDate() - back, Math.floor(rolls / 60), rolls % 60).getTime();
+  return now.getTime() >= at(0) ? at(0) : at(1);
+}
+// The night that line belongs to, as a date — what the wire says (review,
+// 8 Oct). It said the CALENDAR date, so at ten past twelve a guest who
+// joined at ten to was on last night's line by the desk's reckoning and on
+// nobody's by the wire's: dropped from their own page, or refused.
+function lineNight(settings, now) { return localDay(new Date(lineSince(settings, now))); }
+// The most a party joining the line may be: what guests may book online.
+function lineMax(settings) {
+  const o = (settings && settings.online) || {};
+  return Math.max(1, Math.min(40, parseInt(o.maxPartySize, 10) || 8));
+}
+// WHO MAY JOIN THE LINE (review, 8 Oct: it was written into the desk's
+// route, the relay's route and decide(), three times, and decide() took a
+// one-digit phone the route refused). One rule: a name; a mobile, because it
+// is how they are told their table is ready, so six digits at least; a size
+// from one to `max`; and one place per number — `taken`, the phones already
+// in tonight's line, compared as digits. null, or why not: `code` is the
+// HTTP answer and `why` names the reason, so a route can say a venue's own
+// words for a party too big. The relay keeps a copy (cloud/allocation.js),
+// held to this one by test/line.test.js.
+const LINE_DIGITS = 6;
+function lineRefusal(p, max, taken) {
+  p = p || {};
+  const digits = (x) => String(x || '').replace(/\D/g, '');
+  if (!String(p.name || '').trim()) return { code: 400, why: 'name', error: 'Please tell us your name.' };
+  const d = digits(p.phone);
+  if (d.length < LINE_DIGITS) return { code: 400, why: 'phone', error: 'Please give us your mobile — it is how we tell you your table is ready.' };
+  const n = parseInt(p.partySize, 10);
+  if (!(n >= 1)) return { code: 400, why: 'size', error: 'How many people?' };
+  if (n > max) return { code: 400, why: 'big', error: 'Please ask at the door for that many.' };
+  if ((taken || []).some(t => digits(t) === d)) return { code: 409, why: 'taken', error: 'That number is already in the line.' };
+  return null;
+}
+function lineOf(entries, settings, now) {
+  const from = lineSince(settings, now);
+  return (entries || []).filter(w => w && w.status !== 'left' && Number(w.addedAt) >= from)
+    .map((w, i) => ({ w, i })).sort((a, b) => (Number(a.w.addedAt) - Number(b.w.addedAt)) || (a.i - b.i)).map(x => x.w);
+}
+// The key the walk-in menu would light first for this size: free for the
+// whole sitting, fewest seats, the menu's own order among equals.
+function lineKey(ctx, day, hhmm, size) {
+  const seats = (ids) => ids.reduce((n, id) => n + (((ctx.tables || []).find(t => t.id === id) || {}).seats || 0), 0);
+  const keys = walkinTables(ctx, day, hhmm, size).map((t, i) => ({ ids: t.combo || [t.id], i, until: t.until }))
+    .filter(k => !k.until).map(k => Object.assign(k, { s: seats(k.ids) }))
+    .sort((a, b) => (a.s - b.s) || (a.i - b.i));
+  return keys.length ? keys[0].ids : null;
+}
+// Where one party lands: now, on its key, or at the first time a table frees.
+function lineSeat(ctx, day, hhmm, size) {
+  const key = lineKey(ctx, day, hhmm, size);
+  if (key) return { wait: 0, time: hhmm, tables: key, now: true };
+  const next = walkinNext(ctx, day, hhmm, size);
+  return next ? { wait: Math.ceil(next.wait / LINE_STEP) * LINE_STEP, time: next.time, tables: next.tables, now: false } : null;
+}
+// The line seated in order: the book with every party placed, and the wait
+// each was quoted where it stands — the same answer lineWait() gives a
+// newcomer behind the ones before it.
+function lineRun(ctx, day, hhmm, line) {
+  let book = ctx;
+  const waits = [];
+  (line || []).forEach((w, i) => {
+    const size = Math.max(1, Number(w && w.partySize) || 1);
+    const s = lineSeat(book, day, hhmm, size);
+    waits.push(s ? s.wait : null);
+    if (!s) return;
+    book = Object.assign({}, book, { reservations: (book.reservations || []).concat([{
+      id: 'line:' + ((w && w.id) || i), name: '', partySize: size, time: joinTime(day, s.time), durationMin: null,
+      status: s.now ? 'seated' : 'booked', tableId: s.tables[0], tableIds: s.tables.slice(1), source: 'walk-in',
+    }]) });
+  });
+  return { book, waits };
+}
+// The wait for a party of `size` joining the back of the line now.
+function lineWait(ctx, day, hhmm, line, size) {
+  const s = lineSeat(lineRun(ctx, day, hhmm, line).book, day, hhmm, Math.max(1, Number(size) || 1));
+  return s ? s.wait : null;
+}
+// The line run ONCE, and the wait at its back for every size asked: what the
+// relay is granted, and what the guests' page quotes before they join.
+function lineWaits(ctx, day, hhmm, line, sizes) {
+  const run = lineRun(ctx, day, hhmm, line);
+  const bySize = {};
+  for (const n of sizes || []) { const s = lineSeat(run.book, day, hhmm, n); bySize[n] = s ? s.wait : null; }
+  return { waits: run.waits, bySize };
 }
 
 // ONE MOVE SEATS THEM (owner, Oct '26: "First idea"). A party nothing can
@@ -6091,8 +6458,15 @@ function notifyLive(e, today) {
 // is precisely the booking the list exists to refill. The opening carries
 // `tableId` + `tableIds` in the same shape a booking does, so heldTables()
 // reads one exactly as it reads the other.
+//
+// A WALK-IN IS NEVER AN OPENING (8 Oct). Its time is the minute they came
+// in, so the only way one is taken away while its slot is still "ahead" is
+// the Undo of a seat made by mistake seconds ago — and that offered the very
+// tables it had just put back to the notify list as Just opened. Nobody on
+// the list was waiting for a table that was free all along.
 function openingFrom(tables, r, reason, at) {
   if (!r || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(String(r.time || ''))) return null;
+  if (r.source === 'walk-in') return null;
   const seats = heldTables(r).reduce((n, id) => {
     const t = (tables || []).find(x => x.id === id);
     return n + (t ? (t.seats || 0) : 0);
@@ -6411,18 +6785,159 @@ function runSheet(ctx, day, opts) {
   };
 }
 
+// §§ TIDY THE NIGHT IN ONE TAP (owner, 8 Oct: "6. i love!!!" — v52/tidy)
+// At the end of a service the book is full of parties still marked sat long
+// after they left, and bookings nobody marked as no-shows — so the floor paints
+// empty tables as eating, a walk-in is offered nothing, and the guest book
+// never learns who did not come. Each one is a Left or a No-show a host
+// could press by hand; twenty-four of them at ten to ten is why nobody does.
+//
+// TWO QUESTIONS, BOTH ABOUT TONIGHT:
+//   still marked sat  down at the table (part-seated, seated, the bill,
+//                     paid), and their booked time — or when they sat, if
+//                     that was later — their OWN sitting (durationFor, the
+//                     booking's durationMin first) and TIDY_AFTER more are
+//                     all behind the clock;
+//   never came        booked or confirmed — never through the door — and
+//                     more than the venue's noShowAfterMinutes past their
+//                     time. Somebody at the door is not a no-show, however
+//                     late.
+// Tonight's night only, its tail after midnight included (onNight/nightMin).
+//
+// AND ONLY ONCE A SERVICE IS OVER. Mid-service a late row already carries
+// its own No-show key, and a party past its sitting is OVER — an alarm the
+// floor shouts, not housekeeping. So a booking is asked only once the clock
+// is past the end of its OWN service (the one its minute falls in, else the
+// one before it, the list's own home rule; the tail is the last's), and the
+// line shows only once it is past the end of the service ON SCREEN — the
+// picked one, or the night's last for All night. Lunch looked at during
+// dinner tidies lunch and leaves dinner's alarms alone. A picked service
+// counts the book it shows (tidyOnScreen); All night counts the night.
+const TIDY_AFTER = 15;
+const NEVER_CAME = ['booked', 'confirmed'];
+function noShowWait(settings) {
+  const n = Number(settings && settings.noShowAfterMinutes);
+  return n > 0 ? n : 30;
+}
+// The service a minute of the night belongs to. The tail after midnight runs
+// on past 24:00, so it is after every start and lands on the last.
+function tidyHomeOf(svcs, t) {
+  return svcs.find(s => toMin(s.start) <= t && t < toMin(s.end)) || svcs.filter(s => toMin(s.start) <= t).pop() || svcs[0] || null;
+}
+// THE SITTING RUNS FROM WHEN THEY SAT (review, 8 Oct). The minute of the
+// night the party sat down — seatedAt read the way nowOn() reads the clock,
+// the tail after midnight on past 24:00 — or null when it is not this
+// night's. A four booked for seven who sat at ten to nine has not been at
+// the table long at half past, and All left swept them out mid-meal.
+function tidySeatMin(r, day) {
+  if (!Number.isFinite(r && r.seatedAt)) return null;
+  const d = new Date(r.seatedAt), m = d.getHours() * 60 + d.getMinutes(), on = localDay(d);
+  return on === day ? m : on === addDays(day, 1) ? m + 1440 : null;
+}
+// THE LINE COUNTS THE BOOK ON SCREEN (review, 8 Oct). With a service picked
+// the list is that service's: its own bookings (home), and anybody still down
+// at a table whose sitting reached into it — the desk's onPickedBook() — so a
+// lunch party nobody marked Left is in Dinner's tidy as it is in Dinner's
+// book. Lunch's never-came are not, as they are not in Dinner's list.
+function tidyOnScreen(svcs, sv, r, t) {
+  if (!sv) return true;
+  const home = tidyHomeOf(svcs, t);
+  if (home && home.id === sv.id) return true;
+  return isSat(r) && t < (svcs[svcs.length - 1] === sv ? Infinity : toMin(sv.end));
+}
+// 'sat', 'never' or null, for one booking, at the clock in ctx.now.
+function tidyKind(ctx, day, r, now) {
+  const settings = (ctx && ctx.settings) || {};
+  if (now === undefined) now = nowOn(ctx, day);
+  if (now === null || !r || !onNight(settings, r, day)) return null;
+  const t = nightMin(r, day);
+  const home = tidyHomeOf(servicesInOrder(settings, day), t);
+  if (!home || now < toMin(home.end)) return null;
+  if (isSat(r)) {
+    const sat = tidySeatMin(r, day);
+    return Math.max(t, sat === null ? t : sat) + durationFor(settings, r.partySize, r.durationMin) + TIDY_AFTER < now ? 'sat' : null;
+  }
+  if (NEVER_CAME.includes(r.status)) return now - t > noShowWait(settings) ? 'never' : null;
+  return null;
+}
+// The night's two lists, in time order, and whether the line shows at all.
+// opts.service is the service on screen; empty, or one the day does not
+// have, is All night — the night's last service — as the desk reads it.
+function tidyNight(ctx, day, opts) {
+  opts = opts || {};
+  const out = { show: false, sat: [], never: [] };
+  const settings = (ctx && ctx.settings) || {};
+  const now = nowOn(ctx, day);
+  if (now === null) return out;
+  const svcs = servicesInOrder(settings, day);
+  const picked = (opts.service && svcs.find(s => s.id === opts.service)) || null;
+  const screen = picked || svcs[svcs.length - 1];
+  if (!screen || now < toMin(screen.end)) return out;
+  const rows = (ctx.reservations || []).filter(r => r && onNight(settings, r, day) && tidyOnScreen(svcs, picked, r, nightMin(r, day)))
+    .sort((a, b) => nightMin(a, day) - nightMin(b, day));
+  for (const r of rows) {
+    const k = tidyKind(ctx, day, r, now);
+    if (k === 'sat') out.sat.push(r);
+    else if (k === 'never') out.never.push(r);
+  }
+  out.show = !!(out.sat.length || out.never.length);
+  return out;
+}
+// ALL LEFT AND ALL NO-SHOWS ASK AGAIN. The list a host pressed was drawn a
+// moment ago; the party who walked in since is not a no-show. Every id is
+// put to tidyKind() as the press arrives, once each, and whatever no longer
+// answers to the key that was pressed is counted out rather than changed.
+function tidyPick(ctx, day, kind, ids) {
+  const want = kind === 'left' ? 'sat' : kind === 'no-show' ? 'never' : null;
+  const list = Array.isArray(ids) ? ids : [];
+  const seen = new Set(), take = [];
+  let skipped = 0;
+  const now = nowOn(ctx, day);
+  for (const id of list) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    const r = want && (ctx.reservations || []).find(x => x && x.id === id);
+    if (r && tidyKind(ctx, day, r, now) === want) take.push(r); else skipped++;
+  }
+  return { take, skipped };
+}
+// What the answer names for each one it changed, so the desk can say it
+// back and Undo can put back its part of a party.
+function tidyWas(r) {
+  const was = { id: r.id, status: r.status, name: r.name };
+  if (r.partCount) was.partCount = r.partCount;
+  return was;
+}
+// UNDO READS THE BOOKING'S OWN HISTORY (review, 8 Oct). Only what the tidy
+// took goes back: a Left to the table it was at, a No-show to booked or
+// confirmed, and nobody somebody has moved on since. WHICH is the book's to
+// say, not the desk's copy of the answer: the last status line on the
+// booking is the tidy's own, and its FROM is what goes back. The desk's copy
+// (`b.status`) has to agree with it, or nothing moves — a "back" of paid for
+// a party that was only seated used to be applied, the payment stamped at
+// that minute. Returns the status to put back, or null.
+function tidyBack(r, b) {
+  if (!r || !b || !Array.isArray(r.events)) return null;
+  const last = r.events.filter(e => e && e.field === 'status').pop();
+  if (!last || last.to !== r.status || last.from !== b.status) return null;
+  if (r.status === 'done') return SAT.includes(last.from) ? last.from : null;
+  if (r.status === 'no-show') return NEVER_CAME.includes(last.from) ? last.from : null;
+  return null;
+}
+
 module.exports = {
   statusStamps, mergeTables,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkinTables, walkinNext, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, LINE_STEP, lineSince, lineNight, lineMax, lineRefusal, lineOf, lineKey, lineRun, lineWait, lineWaits, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
   ALLERGY_RE, serviceAt, allergyOf, sheetRow, runSheet,
+  TIDY_AFTER, tidyKind, tidyNight, tidyPick, tidyBack, tidyWas,
 };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
@@ -7635,6 +8150,17 @@ async function run(config, log) {
       data = db.readData();
       const r = data.reservations.find(x => x.id === c.localId);
       if (r) { r.pos = { id: created.id, hash: pos.hashOf(fields), syncedAt: Date.now() }; db.writeData(data); summary.pushed++; }
+      else {
+        // DELETED WHILE IT WAS ON THE WIRE (review, 8 Oct): the walk-in's
+        // Undo lands while a till over the wifi is still answering the
+        // create. Unclaimed, the till's new row was imported on the next
+        // pass and the party just taken back sat on as a till booking. So it
+        // goes the way any deleted booking goes: onto the till's deletes,
+        // and out this same pass.
+        data.posState.pendingDeletes = [...(data.posState.pendingDeletes || []), created.id];
+        db.writeData(data);
+        pending.push(created.id);
+      }
     } catch (e) { data.posState.lastError = e.message; }
   }
   for (const u of plan.updates) {
@@ -7937,6 +8463,10 @@ function infoOf(ctx, opts) {
     timeZone: (() => { try { return Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) { return ''; } })(),
     minNoticeMinutes: s.online.minNoticeMinutes || 0,
     notifyList: s.online.notifyList !== false,
+    // When the trading day rolls (the hour), so the relay can say which
+    // NIGHT it is at the venue: the line at ten past twelve is still the
+    // night before's (review, 8 Oct).
+    dayStartsAt: av.rollsOf(s) / 60,
   };
 }
 
@@ -8024,7 +8554,72 @@ function grantsFor(ctx, opts) {
   for (let i = 0; i < GRANT_DAYS; i++) grants.push(dayGrant(ctx, av.addDays(today, i), now));
   const out = { info: infoOf(ctx, Object.assign({}, opts, { now })), grants, guests: guestsOf(ctx, today) };
   out.replica = opts.office ? replicaOf(ctx, now, opts.tableLabel) : null;
+  out.line = lineGrant(ctx, now);
   return out;
+}
+
+// ---------- the line at the door ----------
+//
+// GUESTS JOIN THE LINE FROM THEIR PHONE (owner, 8 Oct). Off the venue's wifi
+// the code points at the relay, so the relay has to be able to say two
+// things: what the wait is for a party of each size joining now, and where a
+// guest who joined there stands. That is the line as REFERENCES AND SIZES:
+// the wait at the back for every size a guest may book, the queue in order —
+// a reference only for a guest who joined from their phone, '' for one the
+// host typed in — with the wait at each place and whether they have been
+// told, and what became of tonight's phone guests who are no longer in it.
+// No names, no numbers: the relay never learns who anybody in the line is.
+//
+// `date` is the NIGHT the line belongs to (av.lineNight), not the calendar's:
+// at ten past twelve the line is still the night before's, and the relay
+// reads the night off the venue's clock and `dayStartsAt` (review, 8 Oct).
+//
+// SWITCHED OFF, THE LINE STILL STANDS (review, 8 Oct). `open: false` and
+// the relay takes no more names — but the guests already in it are still on
+// the desk's waitlist and will still be texted, so their places are still
+// granted. Sending no line at all told every one of them "You're not in the
+// line", while the desk's own page went on showing theirs.
+function lineGrant(ctx, now) {
+  const s = ctx.settings || {}, o = s.online || {};
+  now = now || new Date();
+  const day = av.localDay(now), hhmm = av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes());
+  const line = av.lineOf(ctx.waitlist, s, now);
+  const most = av.lineMax(s);
+  const sizes = Array.from({ length: most }, (_, i) => i + 1);
+  const run = av.lineWaits(Object.assign({}, ctx, { now }), day, hhmm, line, sizes);
+  const since = av.lineSince(s, now);
+  // No clock time in it: the grant is resent whenever it comes out
+  // different, and a minute hand would resend 120 days of grants every pass.
+  return {
+    date: av.lineNight(s, now), open: o.line !== false, maxPartySize: most, waits: run.bySize,
+    queue: line.map((w, i) => ({ ref: w.ref || '', size: Number(w.partySize) || 1, wait: run.waits[i], told: w.status === 'notified' })),
+    gone: (ctx.lineGone || []).filter(g => g && g.ref && Number(g.at) >= since && LINE_HOW.includes(g.how)).map(g => ({ ref: g.ref, how: g.how })),
+  };
+}
+// What can become of a guest who joined from their phone and is no longer in
+// the line: the desk seated them, they left, the host took them off, or the
+// desk would not take them from the relay (switched off, too big, already in).
+const LINE_HOW = ['seated', 'left', 'removed', 'refused'];
+
+// The waitlist entry for a guest who joined the line on the relay. Their place
+// is WHEN THEY JOINED, not when the desk heard — a party the host typed in a
+// minute later is behind them. The two machines' clocks are never trusted to
+// agree (a PC minutes slow put a guest a place too early), so the relay says
+// how long ago they joined BY ITS OWN CLOCK (`opts.age`, from the pull's
+// `now`) and the desk counts that back from its own: never in the future, and
+// never more than twelve hours. The wait they were quoted is kept as it was
+// said: a null is "nothing frees tonight", never "no wait" (review, 8 Oct).
+// `source: 'online'` — the guest's own page is the online form, the house's
+// word for it everywhere a record says where it came from.
+function lineEntry(payload, opts) {
+  const now = Number(opts.now) || Date.now();
+  const age = Math.min(12 * 3600000, Math.max(0, Number(opts.age) || 0));
+  return {
+    id: opts.id, ref: String(payload.ref || '').toUpperCase(),
+    name: String(payload.name || '').trim().slice(0, 60), phone: String(payload.phone || '').trim().slice(0, 30),
+    partySize: Math.max(1, parseInt(payload.partySize, 10) || 1), quotedMin: opts.wait === null ? null : Math.max(0, parseInt(opts.wait, 10) || 0), notes: '',
+    status: 'waiting', addedAt: now - age, addedBy: 'Online', source: 'online',
+  };
 }
 
 // What the desk did to the bookings guests made on the relay — the time and
@@ -8202,6 +8797,30 @@ function decide(item, diary, now) {
     //   refuse   one it will not (editRefusal says why)
     return editRefusal(item, diary, now || new Date()) ? 'refuse' : 'edit';
   }
+  //   line     a guest who joined the line on the relay, for the waitlist
+  //   line-no  one the desk will not take: switched off here, refused by
+  //            the line's own rule (av.lineRefusal — a name, a mobile, a
+  //            size guests may book, one place per number), or another
+  //            night's — their page is told (lineGone, 'refused')
+  //   unline   a guest leaving the line who is still on the waitlist
+  if (item.kind === 'line') {
+    const lref = String(p.ref || '').toUpperCase();
+    if (!lref) return 'skip';
+    const list = (diary && diary.waitlist) || [];
+    if (list.some(w => w && w.ref === lref) || ((diary && diary.lineGone) || []).some(g => g && g.ref === lref)) return 'dupe';
+    const s = (diary && diary.settings) || {}, o = s.online || {};
+    if (o.line === false) return 'line-no';
+    now = now || new Date();
+    // Tonight's is the NIGHT's: a join stamped at 11:59 PM and collected at
+    // 12:00 is still tonight's line until the day rolls.
+    if (p.date !== av.lineNight(s, now)) return 'line-no';
+    if (av.lineRefusal(p, av.lineMax(s), av.lineOf(list, s, now).map(w => w.phone))) return 'line-no';
+    return 'line';
+  }
+  if (item.kind === 'line-leave') {
+    const lref = String(p.ref || '').toUpperCase();
+    return lref && ((diary && diary.waitlist) || []).some(w => w && w.ref === lref) ? 'unline' : 'skip';
+  }
   if (item.kind === 'notify') {
     if (diary && diary.settings && diary.settings.online && diary.settings.online.notifyList === false) return 'skip';
     if (!p.id || !String(p.name || '').trim() || !DAY_RE.test(p.date)) return 'skip';
@@ -8276,7 +8895,7 @@ function bookingFrom(payload, ctx, opts) {
   };
 }
 
-module.exports = { GRANT_DAYS, officeWasOn, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
+module.exports = { GRANT_DAYS, LINE_HOW, lineGrant, lineEntry, officeWasOn, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relaysync'] = module;
@@ -8578,6 +9197,7 @@ app.put('/api/settings', async (req, res) => {
     if (o.notesPrompt !== undefined) s.online.notesPrompt = String(o.notesPrompt || '').slice(0, 200);
     if (o.holdTables !== undefined) s.online.holdTables = !!o.holdTables;
     if (o.notifyList !== undefined) s.online.notifyList = !!o.notifyList;
+    if (o.line !== undefined) s.online.line = !!o.line;
   }
   if (b.noShowAfterMinutes !== undefined) s.noShowAfterMinutes = Math.max(5, Math.min(180, parseInt(b.noShowAfterMinutes) || 30));
   if (b.dayStartsAt !== undefined) { const h = parseInt(b.dayStartsAt, 10); s.dayStartsAt = Number.isFinite(h) && h >= 0 && h <= 12 ? h : 4; }
@@ -8658,7 +9278,11 @@ app.get('/api/walkin', (req, res) => {
   // Nothing takes them now: say WHEN something will (v19), so the menu can
   // offer the waitlist with that wait and a booking for that time.
   const next = tables.length ? null : av.walkinNext(ctx, day, at, size);
-  res.json({ size, minutes: av.durationFor(ctx.settings, size), day, at, tables, next });
+  // A BIG PARTY LIGHTS ITS JOINED TABLES (8 Oct): no one table seats them,
+  // so every saved combination that does — free, or held and by whom — for
+  // the menu's keys and the room's lines and names (av.walkinCombos).
+  const combos = av.walkinCombos(ctx, day, at, size);
+  res.json(Object.assign({ size, minutes: av.durationFor(ctx.settings, size), day, at, tables, next }, combos ? { combos } : {}));
 });
 app.get('/api/tables', (req, res) => {
   const data = readData();
@@ -8973,46 +9597,118 @@ app.post('/api/reservations', (req, res) => {
   kickPos();
 });
 
-app.put('/api/reservations/:id', (req, res) => {
-  const data = readData();
-  const cur = data.reservations.find(x => x.id === req.params.id);
-  if (!cur) return res.status(404).json({ error: 'Booking not found' });
+// ONE CHANGE, WHEREVER IT IS PRESSED. The PUT below and the night's tidy
+// (POST /api/tidy) change a booking through this and nothing else, so a
+// status set from a row, from the booking page or from All left leaves the
+// same stamps, the same history line, the same guest counts, the same audit
+// and the same opening behind it. It never writes the store: the caller
+// writes once, however many bookings it changed. Returns { error } before
+// touching anything when the change is refused.
+//
+// `keepStamps` is the tidy's Undo: the bill's time and the payment's survive
+// a Left (statusStamps keeps an ended booking's stamps), so putting the
+// party back must not re-stamp them with the minute Undo was pressed
+// (av.statusStamps' `keep`, tested there and end to end in test/tidy).
+function changeReservation(data, cur, body, who, opts) {
+  opts = opts || {};
   // Read off `cur` BEFORE anything assigns to it: a booking cancelled twice
   // must not raise a second opening.
   const wasLive = av.isLive(cur);
-  const next = cleanReservation(data, req.body || {}, cur);
+  const next = cleanReservation(data, body || {}, cur);
   const why = validateReservation(next);
-  if (why) return res.status(400).json({ error: why });
+  if (why) return { error: why };
   pruneTables(data, next);
   const statusChanged = next.status !== cur.status;
   if (statusChanged) {
     // The seating, the arrival, the bill — and none of them left behind on a
-    // party put back before the table (av.statusStamps).
-    av.statusStamps(next, Date.now());
-    if (next.status === 'cancelled') { next.cancelledAt = Date.now(); next.cancelReason = String((req.body && req.body.cancelReason) || '').slice(0, 120); }
+    // party put back before the table, nor a Left on one put back at it
+    // (av.statusStamps).
+    av.statusStamps(next, Date.now(), { keep: !!opts.keepStamps });
+    if (next.status === 'cancelled') { next.cancelledAt = Date.now(); next.cancelReason = String((body && body.cancelReason) || '').slice(0, 120); }
     // A table that was being held and now is not: somebody on the notify list
     // may want exactly this slot.
-    if (wasLive && ['cancelled', 'no-show'].includes(next.status)) raiseOpening(data, next, next.status, staffFromReq(req));
+    if (wasLive && ['cancelled', 'no-show'].includes(next.status)) raiseOpening(data, next, next.status, who);
   }
   // Read the change off `cur` BEFORE the assign below overwrites it — after
   // it, `cur` and `next` are the same row and every edit records nothing.
   const now = Date.now();
-  const evs = history.changeEvents(cur, next, { by: staffFromReq(req), at: now }, evOpts(data));
+  const evs = history.changeEvents(cur, next, { by: who, at: now }, evOpts(data));
   next.updatedAt = now;
   Object.assign(cur, next);
   // A stamp statusStamps() took away has to go from the stored row too — the
   // assign above only ever adds.
-  if (statusChanged) for (const k of ['seatedAt', 'arrivedAt', 'checkAt', 'paidAt', 'billStale', 'partCount']) if (!(k in next)) delete cur[k];
+  if (statusChanged) for (const k of ['seatedAt', 'arrivedAt', 'checkAt', 'paidAt', 'doneAt', 'billStale', 'partCount']) if (!(k in next)) delete cur[k];
   // `next` was a shallow copy, so next.events IS cur.events — append returns
   // a new array rather than growing that shared one.
   if (evs.length) cur.events = history.append(cur.events, evs);
   if (cur.name !== next.name || cur.phone !== next.phone) touchGuest(data, cur);
   if (!cur.guestId) touchGuest(data, cur);
   recountGuest(data, cur.guestId);
-  logAudit(data, staffFromReq(req), statusChanged ? `${cur.name}: ${cur.status}` : `Edited booking for ${cur.name}`);
+  logAudit(data, who, statusChanged ? `${cur.name}: ${cur.status}` : `Edited booking for ${cur.name}`);
+  return { r: cur };
+}
+
+app.put('/api/reservations/:id', (req, res) => {
+  const data = readData();
+  const cur = data.reservations.find(x => x.id === req.params.id);
+  if (!cur) return res.status(404).json({ error: 'Booking not found' });
+  const out = changeReservation(data, cur, req.body || {}, staffFromReq(req));
+  if (out.error) return res.status(400).json({ error: out.error });
   writeData(data);
   res.json(withWarnings(data, cur));
   kickPos();
+});
+
+// §§ TIDY THE NIGHT IN ONE TAP (owner, 8 Oct: "6. i love!!!"). All left and
+// All no-shows, and the one Left or No-show on a row of the tidy: every id
+// is put to the rule AGAIN as the press arrives (av.tidyPick — a party that
+// walked in a second ago is no longer "never came" and is skipped), and each
+// one that still answers is changed through changeReservation(), the PUT's
+// own path. One write, one POS pass, and the answer names what each was so
+// Undo can put exactly that back.
+app.post('/api/tidy', (req, res) => {
+  const data = readData();
+  const body = req.body || {};
+  const to = body.kind === 'left' ? 'done' : body.kind === 'no-show' ? 'no-show' : null;
+  if (!to) return res.status(400).json({ error: 'Left or no-show?' });
+  const ids = Array.isArray(body.ids) ? body.ids.filter(x => typeof x === 'string').slice(0, 500) : [];
+  if (!ids.length) return res.status(400).json({ error: 'Nobody to tidy' });
+  const ctx = ctxOf(data);
+  const day = tradingDay(data);
+  const pick = av.tidyPick(ctx, day, body.kind, ids);
+  const who = staffFromReq(req), changed = [];
+  let skipped = pick.skipped;
+  for (const r of pick.take) {
+    const was = av.tidyWas(r);
+    const out = changeReservation(data, r, { status: to }, who);
+    if (out.error) { skipped++; continue; }
+    changed.push(was);
+  }
+  if (changed.length) writeData(data);
+  res.json({ changed, skipped });
+  if (changed.length) kickPos();
+});
+// Undo: each one back to what it was, its part of a party too — and only
+// while it is still the Left or the No-show the tidy made. WHAT it was is
+// the booking's own last status line (av.tidyBack), and the desk's copy of
+// the answer has to agree with it; anybody moved on since is skipped, not
+// dragged back.
+app.post('/api/tidy/undo', (req, res) => {
+  const data = readData();
+  const back = Array.isArray((req.body || {}).back) ? req.body.back.slice(0, 500) : [];
+  const who = staffFromReq(req);
+  let changed = 0, skipped = 0;
+  for (const b of back) {
+    const r = b && typeof b.id === 'string' ? data.reservations.find(x => x.id === b.id) : null;
+    const to = av.tidyBack(r, b);
+    if (!to) { skipped++; continue; }
+    const out = changeReservation(data, r, { status: to, partCount: b.partCount }, who, { keepStamps: true });
+    if (out.error) { skipped++; continue; }
+    changed++;
+  }
+  if (changed) writeData(data);
+  res.json({ changed, skipped });
+  if (changed) kickPos();
 });
 
 // No history line here on purpose: the row goes, so an append-only array on
@@ -9298,11 +9994,12 @@ app.post('/api/waitlist', (req, res) => {
   const b = req.body || {};
   const name = String(b.name || '').trim().slice(0, 60);
   if (!name) return res.status(400).json({ error: 'A name is required' });
-  const w = { id: newId('w'), name, phone: String(b.phone || '').trim().slice(0, 30), partySize: Math.max(1, parseInt(b.partySize) || 2), quotedMin: Math.max(0, parseInt(b.quotedMin) || 0), notes: pos.plainText(b.notes).trim().slice(0, 200), status: 'waiting', addedAt: Date.now(), addedBy: staffFromReq(req) };
+  const w = { id: newId('w'), name, phone: String(b.phone || '').trim().slice(0, 30), partySize: Math.max(1, parseInt(b.partySize) || 2), quotedMin: Math.max(0, parseInt(b.quotedMin) || 0), notes: pos.plainText(b.notes).trim().slice(0, 200), status: 'waiting', addedAt: Date.now(), addedBy: staffFromReq(req), source: 'staff' };
   data.waitlist.push(w);
   logAudit(data, staffFromReq(req), `Waitlist: ${w.name} (${w.partySize})`);
   writeData(data);
   res.json(w);
+  kickRelay(); // the line the relay quotes from has moved
 });
 
 app.put('/api/waitlist/:id', (req, res) => {
@@ -9318,6 +10015,7 @@ app.put('/api/waitlist/:id', (req, res) => {
   if (b.status !== undefined && ['waiting', 'notified', 'left'].includes(b.status)) { w.status = b.status; if (b.status === 'notified') w.notifiedAt = Date.now(); }
   writeData(data);
   res.json(w);
+  kickRelay();
 });
 
 app.delete('/api/waitlist/:id', (req, res) => {
@@ -9325,8 +10023,11 @@ app.delete('/api/waitlist/:id', (req, res) => {
   const w = data.waitlist.find(x => x.id === req.params.id);
   data.waitlist = data.waitlist.filter(x => x.id !== req.params.id);
   if (w) logAudit(data, staffFromReq(req), `Waitlist: removed ${w.name}`);
+  // A guest who joined from their phone is told they are not in the line.
+  if (w && w.ref) lineGoneAs(data, w.ref, 'removed');
   writeData(data);
   res.json({ ok: true });
+  kickRelay();
 });
 
 // Seat a walk-in: they become a booking that is already seated, on the
@@ -9347,6 +10048,8 @@ app.post('/api/waitlist/:id/seat', (req, res) => {
   data.reservations.push(r);
   recountGuest(data, g.id);
   data.waitlist = data.waitlist.filter(x => x.id !== w.id);
+  // Their phone, if they joined from it, says they are at their table.
+  if (w.ref) lineGoneAs(data, w.ref, 'seated');
   logAudit(data, staffFromReq(req), `Seated walk-in ${w.name} (${w.partySize})${r.tableId ? ' on ' + r.tableId : ''}`);
   writeData(data);
   // Kept in memory for the Undo on the message, and only for a while: the
@@ -9355,7 +10058,7 @@ app.post('/api/waitlist/:id/seat', (req, res) => {
   wlSeated.set(r.id, { w, at: Date.now() });
   for (const [k, v] of wlSeated) if (Date.now() - v.at > WL_UNDO_MS) wlSeated.delete(k);
   res.json(withWarnings(data, r));
-  kickPos();
+  kickPos(); // and the relay, which kickPos() tells too
 });
 
 // UNDO A SEAT FROM THE LIST. The party walking off before they sit, or the
@@ -9373,6 +10076,8 @@ app.post('/api/waitlist/unseat/:id', (req, res) => {
   data.reservations = data.reservations.filter(x => x.id !== r.id);
   if (r.pos && r.pos.id) data.posState.pendingDeletes = [...(data.posState.pendingDeletes || []), r.pos.id];
   if (!data.waitlist.some(x => x.id === kept.w.id)) data.waitlist.push(kept.w);
+  // Back in the line on their phone too.
+  if (kept.w.ref) data.lineGone = (data.lineGone || []).filter(g => g.ref !== kept.w.ref);
   wlSeated.delete(r.id);
   recountGuest(data, r.guestId);
   logAudit(data, staffFromReq(req), `Waitlist: ${kept.w.name} back on the list`);
@@ -9626,7 +10331,7 @@ app.get('/api/public/info', (req, res) => {
   // times. Windowed to the horizon, and the array is capped at 120 on save.
   const today = av.localDay(new Date());
   const horizon = av.addDays(today, s.online.maxDaysAhead || 60);
-  res.json({ venueName: s.venueName || 'Our restaurant', venueAddress: s.venueAddress, venuePhone: s.venuePhone, enabled: !!s.online.enabled, notifyList: !!s.online.notifyList, maxPartySize: s.online.maxPartySize, largerPartyMessage: s.online.largerPartyMessage, notesPrompt: s.online.notesPrompt, maxDaysAhead: s.online.maxDaysAhead, services: s.services, exceptions: (s.exceptions || []).filter(x => x.date >= today && x.date <= horizon).map(({ date, closed, note }) => ({ date, closed, note })), theme: data.theme });
+  res.json({ venueName: s.venueName || 'Our restaurant', venueAddress: s.venueAddress, venuePhone: s.venuePhone, enabled: !!s.online.enabled, notifyList: !!s.online.notifyList, line: s.online.line !== false, maxPartySize: s.online.maxPartySize, largerPartyMessage: s.online.largerPartyMessage, notesPrompt: s.online.notesPrompt, maxDaysAhead: s.online.maxDaysAhead, services: s.services, exceptions: (s.exceptions || []).filter(x => x.date >= today && x.date <= horizon).map(({ date, closed, note }) => ({ date, closed, note })), theme: data.theme });
 });
 
 app.get('/api/public/availability', (req, res) => {
@@ -9777,6 +10482,129 @@ app.post('/api/public/booking/:ref/cancel', (req, res) => {
   writeData(data);
   res.json({ ok: true });
   kickPos();
+});
+
+// ---------- the line at the door: guests join from their phone ----------
+// GUESTS JOIN THE LINE FROM THEIR PHONE (owner, 8 Oct: "7. scans what? a qr
+// code on the desk computer? if so yes i love"). The code on the desk's
+// screen, or the sign printed from it, opens /book?line=1 — here on the
+// venue's wifi, or on the relay when it is linked (relaysync.lineGrant). The
+// guest asks the wait, joins, and their page reads where they stand; the
+// desk's Waitlist fills itself and its Text and Seat keys do the rest.
+// Who may join is one tested rule (av.lineRefusal, the relay's copy held to
+// it), the line keeps its own budget (below), and nothing a guest's page is
+// told ever names another guest: the line ahead is party sizes.
+const LINE_ALPHABET = 'ABCDEFGHJKLMNPQRTUVWXYZ2346789';
+function lineRef(data) {
+  for (;;) {
+    const r = 'L' + Array.from(crypto.randomBytes(6), b => LINE_ALPHABET[b % LINE_ALPHABET.length]).join('');
+    if (!data.waitlist.some(w => w.ref === r) && !(data.lineGone || []).some(g => g.ref === r)) return r;
+  }
+}
+const lineOn = (s) => !(s && s.online && s.online.line === false);
+// THE DOOR HAS ITS OWN BUDGET (review, 8 Oct). A join spent the booking
+// route's ten an hour, BEFORE anything was checked, so ten slips of the
+// thumb at the stand and a guest read "Too many bookings from this device.
+// Please call us." The line counts the joins it MADE, as the relay does, in
+// its own words; and a loose cap on every try stops a sweep of numbers.
+const LINE_BUDGET = 10, LINE_TRIES = 60, LINE_HOUR = 3600000;
+const LINE_TOO_MANY = 'Too many from this phone. Please ask at the door.';
+const lineMade = new Map(), lineTried = new Map(); // ip -> [ts]
+function lineHits(map, req, add) {
+  const ip = ipOf(req), now = Date.now();
+  const arr = (map.get(ip) || []).filter(t => now - t < LINE_HOUR);
+  if (add) arr.push(now);
+  map.set(ip, arr);
+  return arr.length;
+}
+// The book, the clock and tonight's line: what every wait is asked of.
+function lineState(data) {
+  const ctx = ctxOf(data), now = ctx.now;
+  return { ctx, now, day: av.localDay(now), hhmm: av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), line: av.lineOf(data.waitlist, ctx.settings, now) };
+}
+// What became of a phone guest who is no longer in the line, for their page
+// — tonight's only is ever read back. A day and a half is kept, and never
+// many. The NAME is kept for one who left by their own hand, so the desk can
+// say so (it never travels: the relay is granted the reference and the how).
+function lineGoneAs(data, ref, how, name) {
+  if (!ref) return;
+  const keep = Date.now() - 36 * 3600000;
+  data.lineGone = (data.lineGone || []).filter(g => g && g.ref !== ref && Number(g.at) >= keep)
+    .concat(Object.assign({ ref, how, at: Date.now() }, how === 'left' && name ? { name: String(name).slice(0, 60) } : {})).slice(-300);
+}
+// Tonight's guests who left the line from their own phone, for the desk's
+// one plain message when they do (review, 8 Oct).
+app.get('/api/line/left', (req, res) => {
+  const data = readData(), since = av.lineSince(effectiveSettings(data), new Date());
+  res.json((data.lineGone || []).filter(g => g && g.how === 'left' && Number(g.at) >= since).map(g => ({ ref: g.ref, name: g.name || 'A guest', at: g.at })));
+});
+const LINE_SHUT = 'The line is not taking names from phones right now. Please ask at the door.';
+app.get('/api/public/line', (req, res) => {
+  const data = readData(), s = effectiveSettings(data);
+  if (!lineOn(s)) return res.json({ open: false, venueName: s.venueName || '', say: 'Ask at the door' });
+  const max = av.lineMax(s), size = parseInt(req.query.size, 10) || 2;
+  if (size < 1 || size > max) return res.status(400).json({ error: s.online.largerPartyMessage || 'Please ask at the door for that many.' });
+  const st = lineState(data);
+  res.json({ open: true, venueName: s.venueName || '', maxPartySize: max, size, ahead: st.line.length, wait: av.lineWait(st.ctx, st.day, st.hhmm, st.line, size) });
+});
+app.post('/api/public/line', (req, res) => {
+  const data = readData(), s = effectiveSettings(data);
+  if (!lineOn(s)) return res.status(400).json({ error: LINE_SHUT });
+  if (lineHits(lineMade, req) >= LINE_BUDGET || lineHits(lineTried, req, true) > LINE_TRIES) return res.status(429).json({ error: LINE_TOO_MANY });
+  const b = req.body || {};
+  const name = String(b.name || '').trim().slice(0, 60);
+  const phone = String(b.phone || '').trim().slice(0, 30);
+  const party = parseInt(b.partySize, 10) || 0;
+  const st = lineState(data);
+  const no = av.lineRefusal({ name, phone, partySize: party }, av.lineMax(s), st.line.map(w => w.phone));
+  if (no) return res.status(no.code).json({ error: no.why === 'big' && s.online.largerPartyMessage ? s.online.largerPartyMessage : no.error });
+  // What they are told is what is kept: null is nothing frees tonight.
+  const wait = av.lineWait(st.ctx, st.day, st.hhmm, st.line, party);
+  const w = { id: newId('w'), ref: lineRef(data), name, phone, partySize: party, quotedMin: wait, notes: '', status: 'waiting', addedAt: Date.now(), addedBy: 'Online', source: 'online' };
+  data.waitlist.push(w);
+  logAudit(data, 'Online', `Line: ${w.name} (${w.partySize}) joined from their phone`);
+  writeData(data);
+  lineHits(lineMade, req, true);
+  // Hand-built, like the booking reply: never anything of the desk's.
+  res.json({ ok: true, ref: w.ref, name: w.name, partySize: w.partySize, venueName: s.venueName || '' });
+  kickRelay();
+});
+// Where a guest stands: their place, the line ahead as SIZES, their wait —
+// or what became of them TONIGHT. Last night's answer is no answer (review,
+// 8 Oct): a regular seated from the line yesterday scanned the sign again
+// and was told "You're at your table", with no way to join; a reference
+// from another night is not found, and their page starts afresh.
+app.get('/api/public/line/:ref', (req, res) => {
+  const data = readData(), s = effectiveSettings(data);
+  const ref = String(req.params.ref || '').toUpperCase();
+  const st = lineState(data);
+  const i = st.line.findIndex(w => w.ref === ref);
+  if (i >= 0) {
+    const waits = av.lineRun(st.ctx, st.day, st.hhmm, st.line.slice(0, i + 1)).waits;
+    const me = st.line[i];
+    return res.json({ ref, status: me.status === 'notified' ? 'told' : 'waiting', place: i + 1, ahead: st.line.slice(0, i).map(w => Number(w.partySize) || 1), wait: waits[i], partySize: me.partySize, venueName: s.venueName || '' });
+  }
+  const since = av.lineSince(st.ctx.settings, st.now);
+  const g = (data.lineGone || []).find(x => x.ref === ref && Number(x.at) >= since);
+  if (g) return res.json({ ref, status: g.how, venueName: s.venueName || '' });
+  // On the list tonight but not in the line: marked left by the host.
+  if (data.waitlist.some(w => w.ref === ref && Number(w.addedAt) >= since)) return res.json({ ref, status: 'removed', venueName: s.venueName || '' });
+  res.status(404).json({ error: 'No place in the line with that reference' });
+});
+app.post('/api/public/line/:ref/leave', (req, res) => {
+  const data = readData();
+  const ref = String(req.params.ref || '').toUpperCase();
+  const w = data.waitlist.find(x => x.ref === ref);
+  if (!w) {
+    if ((data.lineGone || []).some(g => g.ref === ref)) return res.json({ ok: true });
+    return res.status(404).json({ error: 'No place in the line with that reference' });
+  }
+  data.waitlist = data.waitlist.filter(x => x !== w);
+  lineGoneAs(data, ref, 'left', w.name);
+  logAudit(data, 'Online', `Line: ${w.name} left the line`);
+  writeData(data);
+  res.json({ ok: true });
+  kickRelay();
 });
 
 // ---------- housekeeping, audit, version ----------
@@ -10055,7 +10883,9 @@ function keepRecent(list) {
 // One item from the relay, written into the diary. Decided against the diary
 // as it stands after the item before it (relaysync.decide), so a booking and
 // its own cancel in one pull come out right, and one delivered twice is one.
-function applyRelayItem(data, item, asWas) {
+// `relayNow`: the relay's clock as it answered the pull, so how long ago a
+// guest joined its line is counted on ONE clock (relaysync.lineEntry).
+function applyRelayItem(data, item, asWas, relayNow) {
   const p = item.payload || {};
   const seen = asWas && asWas.office ? relaysync.officeWasOn(data) : data;
   const what = relaysync.decide(item, seen, new Date());
@@ -10111,6 +10941,22 @@ function applyRelayItem(data, item, asWas) {
   } else if (what === 'keep') {
     const r = data.reservations.find(x => x.ref === String(p.ref).toUpperCase());
     logAudit(data, 'Online', `${r.name} tried to cancel online, but they are already here — nothing changed`);
+  } else if (what === 'line') {
+    // A guest who joined the line on the relay: on the waitlist where they
+    // stood when they joined, quoted the wait the desk works out now.
+    const st = lineState(data);
+    const wait = av.lineWait(st.ctx, st.day, st.hhmm, st.line, parseInt(p.partySize, 10) || 1);
+    const w = relaysync.lineEntry(p, { id: newId('w'), now, wait, age: Number(relayNow) > 0 && Number(p.at) > 0 ? Number(relayNow) - Number(p.at) : 0 });
+    data.waitlist.push(w);
+    logAudit(data, 'Online', `Line: ${w.name} (${w.partySize}) joined from their phone`);
+  } else if (what === 'line-no') {
+    lineGoneAs(data, String(p.ref || '').toUpperCase(), 'refused');
+    logAudit(data, 'Online', `Line: ${String(p.name || 'a guest').slice(0, 60)} not added from the relay`);
+  } else if (what === 'unline') {
+    const ref = String(p.ref || '').toUpperCase(), w = data.waitlist.find(x => x.ref === ref);
+    data.waitlist = data.waitlist.filter(x => x !== w);
+    lineGoneAs(data, ref, 'left', w.name);
+    logAudit(data, 'Online', `Line: ${w.name} left the line`);
   } else if (what === 'notify') {
     const s = effectiveSettings(data), slots = av.slotTimes(s, p.date);
     const from = HHMM.test(String(p.fromTime || '')) ? p.fromTime : (slots[0] || '17:00');
@@ -10139,7 +10985,7 @@ async function collectFrom(cfg, waiting, out, asWas) {
     if (!items.length) break;
     const data = readData();
     const done = items.map(it => {
-      const d = applyRelayItem(data, it, asWas);
+      const d = applyRelayItem(data, it, asWas, got.now);
       relaysync.remember(data, it, d.what); // written with it, so a lost ack repeats nothing
       return Object.assign({ seq: it.seq }, d);
     });
@@ -10210,7 +11056,7 @@ async function relayPass(forceGrant) {
     // GRANT: what may be sold from here on, when it changed, and at least
     // hourly so the relay never goes a day thinking the venue has vanished.
     data = readData();
-    const body = relaysync.grantsFor(Object.assign(ctxOf(data), { released: keepRecent(data.relayState.released), gone: keepRecent(data.relayState.gone) }),
+    const body = relaysync.grantsFor(Object.assign(ctxOf(data), { released: keepRecent(data.relayState.released), gone: keepRecent(data.relayState.gone), waitlist: data.waitlist, lineGone: data.lineGone }),
       { now: new Date(), accent: (data.theme && data.theme.accent) || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel });
     const hash = crypto.createHash('sha1').update(JSON.stringify(body)).digest('hex');
     const st = data.relayState;
@@ -10321,6 +11167,34 @@ function lanAddresses() {
   return out;
 }
 app.get('/api/lan-info', (req, res) => { res.json({ port: PORT, addresses: lanAddresses() }); });
+// THE CODE FOR THE LINE, on the desk's own screen and the sign at the door.
+// Guests on mobile data cannot reach a desk on the venue's wifi, and the desk
+// is never opened to the internet — so with the relay linked the code is the
+// relay's page in line mode, and without it the desk's own page on the wifi,
+// which the sign then says in one short line. The address the desk is being
+// looked at on when that is the wifi, else the first wifi address.
+function lineSignOf(req, data) {
+  const c = data.settings.relay, rs = data.relayState;
+  if (relay.ready(c) && rs.bookingPath) return { url: c.baseUrl + rs.bookingPath + '?line=1', wifi: false };
+  const host = String(req.headers.host || '').replace(/[^A-Za-z0-9.:\-\[\]]/g, '');
+  const loop = !host || /^(localhost|127\.|\[::1\]|0\.0\.0\.0)/.test(host);
+  const addrs = lanAddresses();
+  return { url: (loop ? (addrs.length ? `http://${addrs[0]}:${PORT}` : `http://localhost:${PORT}`) : 'http://' + host) + '/book?line=1', wifi: true };
+}
+app.get('/api/line/sign', (req, res) => {
+  const data = readData(), s = effectiveSettings(data);
+  res.json(Object.assign({ on: lineOn(s), venueName: s.venueName || '' }, lineSignOf(req, data)));
+});
+app.get('/line.svg', async (req, res) => {
+  const { url } = lineSignOf(req, readData());
+  try {
+    // No ground of its own, and its OWN QUIET ZONE, the four modules a
+    // camera asks for (review, 8 Oct: a plate padded in CSS gave about two
+    // on a dark screen): on the white card in light, on the cream plate the
+    // table numbers ride in dark, on the paper when printed.
+    res.type('image/svg+xml').send(await require('qrcode').toString(url, { type: 'svg', margin: 4, errorCorrectionLevel: 'M', color: { dark: '#17181B', light: '#0000' } }));
+  } catch (e) { res.status(500).type('text/plain').send(url); }
+});
 // QR of an address — ?to=book gives the guests' booking page.
 app.get('/connect.svg', async (req, res) => {
   const addrs = lanAddresses();
@@ -10660,6 +11534,13 @@ const state = {
   // are in, and a lens is a question you asked once. A desk opened tomorrow
   // is not still asking it.
   floorLens: '', lensOpen: false,
+  // The night's tidy is open (v52/tidy). Never stored: it is a job you do once
+  // the service is over, and it closes itself when there is nothing left.
+  tidy: false,
+  // The live tidy Undo's own lists, so All no-shows can join All left's
+  // Undo rather than take it away. Tied to its message by name, as the
+  // Undo is; never stored.
+  tidyUndo: null,
   // Which Settings group is open; '' is the hub of groups itself.
   setGroup: '',
   // The render gate for a live timeline drag, and nothing else about the
@@ -10882,6 +11763,54 @@ function inPickedService(r) {
   if (!sv) return true;
   const t = toMin(hhmmOf(r.time));
   return toMin(sv.start) <= t && t < toMin(sv.end);
+}
+// §§ TIDY THE NIGHT (owner, 8 Oct: "6. i love!!!" — v52/tidy). The browser's
+// copy of availability.js:tidyNight(), because the line is drawn from the
+// night the list already holds; test/tidy.test.js runs THIS source against
+// that one, every status at every clock, for every service a desk can be on.
+// Still marked sat: down at the table and their time (or when they sat, if
+// later) + their sitting + 15 behind the clock. Never came: booked or
+// confirmed and more than the venue's no-show wait past their time. Only
+// tonight, only bookings whose own service is over, only the book on screen
+// (a picked service's own, and anybody still down at a table), and only once
+// the service on screen is over (All night is the last) — mid-service a late
+// row has its own No-show key and a party past its sitting is an alarm, not
+// housekeeping.
+const TIDY_AFTER_LOCAL = 15;
+function tidyHomeOf(svcs, t) {
+  return svcs.find(s => toMin(s.start) <= t && t < toMin(s.end)) || svcs.filter(s => toMin(s.start) <= t).pop() || svcs[0] || null;
+}
+function tidySeatMin(r, day) {
+  if (!Number.isFinite(r && r.seatedAt)) return null;
+  const d = new Date(r.seatedAt), m = d.getHours() * 60 + d.getMinutes(), on = localDay(d);
+  return on === day ? m : on === addDays(day, 1) ? m + 1440 : null;
+}
+function tidyOnScreen(svcs, sv, r, t) {
+  if (!sv) return true;
+  const home = tidyHomeOf(svcs, t);
+  if (home && home.id === sv.id) return true;
+  return isSat(r) && t < (svcs[svcs.length - 1] === sv ? Infinity : toMin(sv.end));
+}
+function tidyNightLocal() {
+  const out = { show: false, sat: [], never: [] };
+  const day = state.date;
+  if (day !== tradingDay()) return out;
+  const now = tradingNowMin();
+  const svcs = servicesInOrderOn(day);
+  const picked = pickedService();
+  const sv = picked && svcs.find(s => s.id === picked.id) || null;
+  const screen = sv || svcs[svcs.length - 1];
+  if (!screen || now < toMin(screen.end)) return out;
+  const n = Number((state.settings || {}).noShowAfterMinutes), wait = n > 0 ? n : 30;
+  const rows = (state.reservations || []).filter(r => r && onNightOf(r, day) && tidyOnScreen(svcs, sv, r, nightMinOf(r))).sort((a, b) => nightMinOf(a) - nightMinOf(b));
+  for (const r of rows) {
+    const t = nightMinOf(r), home = tidyHomeOf(svcs, t);
+    if (!home || now < toMin(home.end)) continue;
+    if (isSat(r)) { const sat = tidySeatMin(r, day); if (Math.max(t, sat === null ? t : sat) + durationOf(r) + TIDY_AFTER_LOCAL < now) out.sat.push(r); }
+    else if (['booked', 'confirmed'].includes(r.status) && now - t > wait) out.never.push(r);
+  }
+  out.show = !!(out.sat.length || out.never.length);
+  return out;
 }
 
 // The set menu a booking carries, or ''. availability.js:setMenuNameOf() on
@@ -11182,6 +12111,37 @@ function insetWalkin() {
   }
   const want = pad ? pad + 'px' : '';
   if (wrap.style.paddingTop !== want) wrap.style.paddingTop = want;
+  // AND THE PAIRS ARE NEVER UNDER THE MENU (8 Oct). While the room draws a
+  // big party's pairs, the pairs and who holds them ARE the answer, and the
+  // open menu lay over 11 + 12 and Marchetti's name on a desk at 1280 by
+  // 800. So the room steps down by however far the menu reaches into what the
+  // ANSWER draws — the lit tables, the tables of a held pair it names, the
+  // names — and only while a line or a name IS drawn: a nine no pair seats
+  // stepped the room down to draw nothing (review, 8 Oct). A step moves the
+  // room and shrinks it, so it is measured again after each, and it STOPS
+  // before a table the answer is about — a lit one, or a held pair's — would
+  // go under the finger law's 44: three free pairs took a desk's room from
+  // 792 wide to 517 and its lit keys to 31 pixels. What the menu still
+  // covers, it covers.
+  const open = !m && state.walkin && state.walkin.data && document.querySelector('.fl-room .fl-joins, .fl-room .fl-join-tag') ? document.querySelector('.wk-menu:not(.folded)') : null;
+  if (!open) return;
+  const tap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--tap')) || 44;
+  const a = open.getBoundingClientRect(), b = wrap.getBoundingClientRect(), cap = Math.floor(b.height / 8) * 4;
+  const set = (p) => { wrap.style.paddingTop = p ? p + 'px' : ''; };
+  const fits = () => [...wrap.querySelectorAll('.fl-table.wk-ok, .fl-table.wk-held')].every(e => { const r = e.getBoundingClientRect(); return Math.min(r.width, r.height) >= tap; });
+  for (let i = 0; i < 6 && pad < cap; i++) {
+    const tops = [...wrap.querySelectorAll('.fl-table.wk-ok, .fl-table.wk-held, .fl-join-tag')].map(e => e.getBoundingClientRect())
+      .filter(r => r.width && r.left < a.right && r.right > a.left && r.top < a.bottom + 8).map(r => r.top);
+    if (!tops.length) break;
+    const next = Math.min(cap, pad + Math.max(8, Math.ceil((a.bottom + 8 - Math.min(...tops)) / 4) * 4));
+    set(next);
+    if (fits()) { pad = next; continue; }
+    // A step too far: the most the lit tables allow, found by halves on the four.
+    let lo = pad, hi = next;
+    while (hi - lo > 4) { const mid = Math.round((lo + hi) / 8) * 4; set(mid); if (fits()) lo = mid; else hi = mid; }
+    set(lo);
+    break;
+  }
 }
 
 function toastFail(msg) { state.toastFailed = msg; return msg; }
@@ -11290,6 +12250,7 @@ async function loadView() {
   else if (state.view === 'notify') { state.notify = await api('/api/notify'); state.today = await api('/api/today'); }
   else if (state.view === 'guests') await loadGuests();
   else if (state.view === 'settings') { state.posStatus = await api('/api/pos/status'); state.relayStatus = await api('/api/relay/status'); state.audit = await api('/api/audit'); }
+  else if (state.view === 'sign') state.sign = await api('/api/line/sign');
 }
 // The list down the left can be the waitlist or the notify list instead of
 // the book, and each keeps its own data: fetched when it is on screen.
@@ -11636,9 +12597,11 @@ function renderMenu() {
 // where it is and the way back, because the bar no longer has tabs to light.
 function renderPageHead() {
   const name = state.view === 'guests' ? 'Guests' : state.view === 'settings' ? 'Settings'
+    : state.view === 'sign' ? 'Sign for the door'
     : state.view === 'today' && state.todayMode === 'sheet' ? 'Run sheet' : '';
   if (!name) return '';
-  return `<div class="pg-head"><button class="pg-back" data-act="menu-go" data-val="desk">${I.left}<span>Tonight</span></button><h1>${esc(name)}</h1>${name === 'Run sheet' ? `<button class="tp-btn" data-act="print-sheet" ${state.sheet && state.sheet.date === state.date ? '' : 'disabled'}>Print</button>` : ''}</div>`;
+  return `<div class="pg-head"><button class="pg-back" data-act="menu-go" data-val="desk">${I.left}<span>Tonight</span></button><h1>${esc(name)}</h1>${name === 'Run sheet' ? `<button class="tp-btn" data-act="print-sheet" ${state.sheet && state.sheet.date === state.date ? '' : 'disabled'}>Print</button>`
+    : name === 'Sign for the door' ? `<button class="tp-btn" data-act="line-print"${state.sign ? '' : ' disabled'}>Print</button>` : ''}</div>`;
 }
 
 // THE VIEWS ARE TABS IN THE BAR, AND THERE IS NO RAIL. The owner, Sep '26:
@@ -11667,24 +12630,167 @@ function renderPageHead() {
 // The answer for the size ASKED, not the size picked: tap 2, then + twice,
 // with the 2's answer arriving last, lit two-tops for a four.
 async function walkinAsk(w) {
-  try { const d = await api('/api/walkin?size=' + w.size); if (state.walkin === w && d.size === w.size) { w.data = d; render(); } }
+  try { const d = await api('/api/walkin?size=' + w.size); if (state.walkin === w && d.size === w.size) { w.data = d; render(); showJoins(); } }
   catch (e) { toastBad(e.message); }
 }
 // The tightest eight: free for the whole sitting first, then the fewest
 // seats, so a two is offered the two-tops before the eights. The room still
 // lights every table that takes them.
 const WALKIN_KEYS = 8;
+// A BIG PARTY LIGHTS ITS JOINED TABLES (owner, 8 Oct: "5 i like" — v52/eight).
+// No one table seats them, and the server answers with every saved
+// combination that does (av.walkinCombos): each FREE one is ONE key, its
+// tables and its seats, "45 + 46 · 8 seats", ahead of the tables that seat
+// them only till a time. The pair is the answer; a key per table of it was
+// two keys for one thing.
 function walkinKeys(d) {
+  const joins = (d.combos && d.combos.free) || [];
   const seen = new Set();
   const seats = (t) => (t.combo || [t.id]).reduce((a, id) => a + ((state.tables.find(x => x.id === id) || {}).seats || 0), 0);
-  return d.tables.filter(t => { const k = (t.combo || [t.id]).join(); if (seen.has(k)) return false; seen.add(k); return true; })
+  const pairs = joins.map(c => {
+    const names = c.tables.map(tableName);
+    return `<button class="wk-t join" data-act="walkin-seat" data-table="${esc(c.tables[0])}" data-tables="${esc(c.tables.join(','))}" aria-label="Seat at ${esc(names.join(' + '))}, ${c.seats} seats"><b>${esc(joinLabel(names))}</b><small>${c.seats} seats</small></button>`;
+  });
+  return pairs.concat(d.tables.filter(t => !(joins.length && t.combo)).filter(t => { const k = (t.combo || [t.id]).join(); if (seen.has(k)) return false; seen.add(k); return true; })
     .map((t, i) => ({ t, i, n: seats(t) }))
     .sort((a, b) => (a.t.until ? 1 : 0) - (b.t.until ? 1 : 0) || a.n - b.n || a.i - b.i)
-    .slice(0, WALKIN_KEYS).map(x => x.t)
+    .map(x => x.t)
     .map(t => {
       const label = (t.combo || [t.id]).map(tableName).join('+');
       return `<button class="wk-t${t.until ? ' till' : ''}" data-act="walkin-seat" data-table="${esc(t.id)}" aria-label="Seat at ${esc(label)}${t.until ? ' till ' + esc(fmtHHMM(t.until)) : ''}"><b>${esc(label)}</b>${t.until ? `<small>till ${esc(fmtHHMM(t.until).replace(/\s?[AP]M$/i, ''))}</small>` : ''}</button>`;
-    }).join('');
+    })).slice(0, WALKIN_KEYS).join('');
+}
+// THE ROOM SAYS EACH TABLE ONCE. The free combinations, tightest first, are
+// lit; one sharing a table with a pair already lit is left to its key in the
+// menu, so a tap on a lit table always means one pair. Then the held ones,
+// with who holds them — never over a lit table, and never a table said twice:
+// two lines and two names on one table is the clutter this takes away.
+// A table that seats them only till a time already says so under itself
+// ("till 8:10"), so a pair held over it is not said again beside it — one
+// fact, one table, once (review, 8 Oct: 16 said "till 8:10" under itself and
+// "Maguire 8:10" beside 16 + 17).
+function walkinJoins(d) {
+  const c = d && d.combos;
+  if (!c) return { lit: [], held: [] };
+  const used = new Set(((d && d.tables) || []).filter(t => t.until).map(t => t.id));
+  const take = (list) => (list || []).filter(x => {
+    if (x.tables.some(id => used.has(id))) return false;
+    x.tables.forEach(id => used.add(id));
+    return true;
+  });
+  const lit = take(c.free);
+  return { lit, held: take(c.held) };
+}
+// A combination's words. Up to three tables every one is said, "24 + 25 +
+// 26"; past that a key and a name beside the tables are no place for a list
+// — "B1 + B2 + … + B8" ran out of its key and across table 31 (review, 8
+// Oct) — so it is the first and the last, "B1 … B8", and the whole list is
+// the key's spoken label.
+function joinLabel(names) {
+  return names.length > 3 ? names[0] + ' … ' + names[names.length - 1] : names.join(' + ');
+}
+// What a phone brings into view when the answer lands: ONE pair, the menu's
+// first key — or, with nothing lit, the tables the menu names as the first
+// to free, else the first pair somebody holds. It took the pair from the
+// first lit table in page order and the name from the first lit name, and
+// centred a box spanning the room between them (review, 8 Oct).
+function joinsFocus(d) {
+  if (!d || !d.combos) return null;
+  const j = walkinJoins(d);
+  if (j.lit.length) return j.lit[0].tables;
+  if (d.next && d.next.tables && d.next.tables.length) return d.next.tables;
+  return j.held.length ? j.held[0].tables : null;
+}
+// The tables a seat lands on: the key's own pair, else the lit pair the
+// tapped table belongs to, else the one table. A pair in its OWN order,
+// whichever of its tables was tapped, so the message names the pair the
+// room named — "45 + 46", never "46 + 45".
+function walkinSet(d, tid, list) {
+  if (list) return String(list).split(',').filter(Boolean);
+  const join = walkinJoins(d).lit.find(c => c.tables.includes(tid));
+  const hit = ((d && d.tables) || []).find(x => x.id === tid);
+  return (join ? join.tables : hit && hit.combo ? hit.combo : [tid]).slice();
+}
+// Who holds a pair, said small beside it: a party eating is its name, one
+// still to sit is its name and time — "Ashworth", "Sinclair 7:40".
+function joinWho(by) {
+  if (!by) return '';
+  const name = by.name || 'Booked';
+  return isSat(by) || !by.time ? name : name + ' ' + fmtHHMM(by.time).replace(/\s?[AP]M$/i, '');
+}
+// THE LINE AND THE NAME, IN THE ROOM'S OWN SHARES (THE DRAWING IS UNIFORM).
+// One SVG laid over the room whose width is 100 units, so a unit IS a cqw and
+// the line's stroke scales with the tables. Each line runs between two
+// tables' centres and is cut to the GAP between their edges, so nothing is
+// drawn over a table — a quiet table shows what is under it. The name stands
+// beside the pair on the first side with room for it — beside a pair that
+// runs down the room, over or under one that runs across — clear of every
+// other table and every name already placed, and where no side is clear it
+// is LEFT OUT: the ring, the line and the key still say a lit pair, and a
+// name laid across another table says nothing (review, 8 Oct). Words are
+// measured roughly (a mono figure is .6 of its size), which is all a
+// clearance needs.
+//
+// A TURNED TABLE IS MEASURED TURNED, the till's own law for the hug: the
+// table's box is tableBox(), the one placeStyle() draws, turned the way it is
+// drawn, so the line leaves it at its drawn edge and a name keeps clear of
+// its corners — "Whitfield 5:55" sat on the corner of a turned 1 (review).
+function joinMarks(room, joins, arw) {
+  const H = 100 / arw, r3 = (v) => +v.toFixed(3);
+  const byId = {};
+  for (const t of room || []) if (t.kind !== 'decor' && t.type !== 'decor' && Number.isFinite(t.x) && Number.isFinite(t.y)) byId[t.id] = t;
+  const box = (t) => {
+    const b = tableBox(t), rad = b.rot * Math.PI / 180, c = Math.cos(rad), s = Math.sin(rad);
+    const hw = b.w / 2, hh = b.h * H / 200;
+    return { x: b.x, y: b.y * H / 100, hw, hh, c, s, bw: Math.abs(hw * c) + Math.abs(hh * s), bh: Math.abs(hw * s) + Math.abs(hh * c),
+      round: ['round', 'oval', 'circle'].includes(t.shape) };
+  };
+  // How far along (dx, dy) from its centre a table's drawn edge is, as a share
+  // of (dx, dy): the direction is turned into the table's own frame first.
+  const exit = (b, dx, dy) => {
+    const lx = dx * b.c + dy * b.s, ly = dy * b.c - dx * b.s;
+    return b.round
+      ? 1 / Math.sqrt((lx / b.hw) ** 2 + (ly / b.hh) ** 2)
+      : Math.min(lx ? b.hw / Math.abs(lx) : Infinity, ly ? b.hh / Math.abs(ly) : Infinity);
+  };
+  const rect = (b) => ({ l: b.x - b.bw, r: b.x + b.bw, t: b.y - b.bh, b: b.y + b.bh });
+  const hits = (a, b) => a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
+  const lines = [], tags = [], placed = [];
+  const draw = (c, kind, words, fs, em) => {
+    const ts = c.tables.map(id => byId[id]);
+    if (ts.some(t => !t)) return;
+    const bs = ts.map(box);
+    const xs = bs.map(b => b.x), ys = bs.map(b => b.y);
+    const down = Math.max(...ys) - Math.min(...ys) >= Math.max(...xs) - Math.min(...xs);
+    bs.sort((a, b) => down ? a.y - b.y : a.x - b.x);
+    for (let i = 1; i < bs.length; i++) {
+      const a = bs[i - 1], b = bs[i], dx = b.x - a.x, dy = b.y - a.y;
+      const ta = exit(a, dx, dy), tb = exit(b, dx, dy);
+      if (ta + tb >= 1) continue;
+      lines.push(`<line class="${kind}" x1="${r3(a.x + dx * ta)}" y1="${r3(a.y + dy * ta)}" x2="${r3(b.x - dx * tb)}" y2="${r3(b.y - dy * tb)}" stroke-width="${kind === 'lit' ? '.4' : '.25'}"/>`);
+    }
+    const all = bs.map(rect), L = Math.min(...all.map(q => q.l)), R = Math.max(...all.map(q => q.r));
+    const T = Math.min(...all.map(q => q.t)), B = Math.max(...all.map(q => q.b));
+    const w = words.length * fs * em, h = fs * 1.25, g = 1.2, cx = (L + R) / 2, cy = (T + B) / 2;
+    const sides = {
+      left: { at: [L - g, cy], q: { l: L - g - w, r: L - g, t: cy - h / 2, b: cy + h / 2 }, tf: 'translate(-100%,-50%)' },
+      right: { at: [R + g, cy], q: { l: R + g, r: R + g + w, t: cy - h / 2, b: cy + h / 2 }, tf: 'translate(0,-50%)' },
+      over: { at: [cx, T - g], q: { l: cx - w / 2, r: cx + w / 2, t: T - g - h, b: T - g }, tf: 'translate(-50%,-100%)' },
+      under: { at: [cx, B + g], q: { l: cx - w / 2, r: cx + w / 2, t: B + g, b: B + g + h }, tf: 'translate(-50%,0)' },
+    };
+    const order = (down ? ['left', 'right', 'over', 'under'] : ['over', 'under', 'left', 'right']).map(k => sides[k]);
+    const inRoom = (s) => s.q.l >= 0 && s.q.r <= 100 && s.q.t >= 0 && s.q.b <= H;
+    const others = Object.values(byId).filter(t => !c.tables.includes(t.id)).map(t => rect(box(t)));
+    const s = order.find(s => inRoom(s) && !others.concat(placed).some(o => hits(s.q, o)));
+    if (!s) return;
+    placed.push(s.q);
+    tags.push(`<span class="fl-join-tag ${kind}" data-tables="${esc(c.tables.join(','))}" style="left:${r3(s.at[0])}%;top:${r3(s.at[1] / H * 100)}%;transform:${s.tf}">${esc(words)}</span>`);
+  };
+  // The room's own numbers: inside one room a table needs no room's name.
+  for (const c of (joins && joins.lit) || []) draw(c, 'lit', joinLabel(c.tables.map(id => byId[id] ? byId[id].label : id)), 2, .6);
+  for (const c of (joins && joins.held) || []) draw(c, 'held', joinWho(c.by), 1.7, .55);
+  if (!lines.length && !tags.length) return '';
+  return `<svg class="fl-joins" viewBox="0 0 100 ${r3(H)}" preserveAspectRatio="none" aria-hidden="true">${lines.join('')}</svg>${tags.join('')}`;
 }
 function renderWalkinMenu() {
   const w = state.walkin;
@@ -11769,7 +12875,10 @@ function renderViewTabs(phone) {
 // switch at its head — the SevenRooms shape the owner asked for.
 function renderSide() {
   if (state.side === 'waitlist' || state.side === 'notify') {
-    const head = `<div class="sd-head"><button class="pg-back" data-act="side" data-val="book">${I.left}<span>Bookings</span></button><b>${state.side === 'waitlist' ? 'Waitlist' : 'Notify'}</b></div>`;
+    // The list's own count beside its name, plain (v53): on a phone there is
+    // no open menu to read it from, and a line that fills itself grows here.
+    const n = state.side === 'waitlist' ? (state.waitlist || []).filter(w => w.status !== 'left').length : null;
+    const head = `<div class="sd-head"><button class="pg-back" data-act="side" data-val="book">${I.left}<span>Bookings</span></button><b>${state.side === 'waitlist' ? 'Waitlist' : 'Notify'}</b>${n ? `<span class="ln-n">${n}</span>` : ''}</div>`;
     return head + `<div class="side-body">${state.side === 'waitlist' ? renderWaitlist() : renderNotify()}</div>`;
   }
   return `<div class="side-body">${renderDayList()}</div>`;
@@ -11815,6 +12924,7 @@ function renderView() {
     case 'notify': return renderNotify();
     case 'guests': return renderGuests();
     case 'settings': return renderSettings();
+    case 'sign': return renderSign();
   }
   return '';
 }
@@ -12118,6 +13228,8 @@ function renderFloor() {
   // move is for. Anywhere else the room is the picker it always was.
   const pkStuck = !!pkBook && !pkMine.length && !pkFree.size;
   const pkMove = pkStuck && pk.move ? pk.move : null;
+  // The pairs a walk-in can take, and the ones somebody holds (walkinJoins).
+  const wkJoins = !pk && state.walkin && state.walkin.data ? walkinJoins(state.walkin.data) : null;
 
   // ONE ROOM AT A TIME. The desk used to stack every floor plan down the pane
   // with a heading over each, so a venue with an Inside and an Outside got two
@@ -12132,6 +13244,8 @@ function renderFloor() {
   const fp = holder || rooms.find(x => x.id === state.plan)
     || rooms.find(x => (x.tables || []).length) || rooms[0];
   const placed = !!fp && (fp.tables || []).some(t => t.kind !== 'decor' && t.type !== 'decor' && Number.isFinite(t.x) && Number.isFinite(t.y));
+  const hug = placed ? floorHug(fp) : null;
+  const roomTables = fp ? (fp.tables || []).map(t => hug ? hugObject(t, hug) : t) : [];
 
   const tableEl = (t) => {
     if (t.kind === 'decor') {
@@ -12190,24 +13304,31 @@ function renderFloor() {
     const ring = pk ? mine : state.highlightTable === t.id;
     // A WALK-IN IS BEING SEATED: the tables that can take them are the only
     // keys, the rest go quiet — the picker's own grammar, asked of the door.
-    const wk = !pk && state.walkin && state.walkin.data ? state.walkin.data.tables.find(x => x.id === t.id) : null;
+    // A BIG PARTY LIGHTS ITS JOINED TABLES (8 Oct): every table of a lit
+    // pair is a key that seats them on the whole pair, the pair it is drawn
+    // in — carried on the table, so a poll landing between the paint and the
+    // tap cannot put them on another.
+    const wkJoin = wkJoins ? wkJoins.lit.find(c => c.tables.includes(t.id)) : null;
+    const wk = wkJoin ? { id: t.id, until: null } : !pk && state.walkin && state.walkin.data ? state.walkin.data.tables.find(x => x.id === t.id) : null;
     const wkOn = !pk && !!(state.walkin && state.walkin.data);
     const act = pk ? (mvSet ? `data-act="one-move" data-id="${esc(pk.id)}"` : canPick ? `data-act="pick-seat" data-id="${esc(pk.id)}" data-table="${esc(t.id)}"` : 'disabled')
-      : wkOn ? (wk ? `data-act="walkin-seat" data-table="${esc(t.id)}"` : 'disabled')
+      : wkOn ? (wk ? `data-act="walkin-seat" data-table="${esc(t.id)}"${wkJoin ? ` data-tables="${esc(wkJoin.tables.join(','))}"` : ''}` : 'disabled')
       : `data-act="${r ? 'edit-booking' : 'new-at'}" ${r ? `data-id="${esc(r.id)}"` : `data-time="${esc(at)}" data-table="${esc(t.id)}"`}`;
     const pkWhy = !pk ? why
       : mvSet ? `Move ${pkMove.move.name || 'the booking'} to ${pkMove.move.to.map(tableName).join(' + ')} and seat ${pkBook.name || 'them'} on ${pkMove.tables.map(tableName).join(' + ')}`
       : mine ? `Table ${t.label} — theirs already`
         : canPick ? `Put ${pkBook.name || 'them'} on table ${t.label} · ${seatsWord(t.seats)}${pk.free.suggested === t.id ? ' · best fit' : ''}`
           : `Table ${t.label} — taken at ${hhmmOf(pkBook.time)}`;
-    const wkCls = mvSet ? ' wk-ok' : !wkOn ? '' : wk ? (wk.until ? ' wk-short' : ' wk-ok') : ' wk-no';
-    const wkPill = wk && wk.until ? pillHtml(t, '', 'till ' + esc(fmtHHMM(wk.until)), `Table ${t.label} — booked at ${fmtHHMM(wk.until)}`) : '';
+    const wkCls = mvSet ? ' wk-ok' : !wkOn ? '' : wk ? (wk.until ? ' wk-short' : ' wk-ok') : ' wk-no'
+      + (wkJoins && wkJoins.held.some(c => c.tables.includes(t.id)) ? ' wk-held' : '');
+    // A word is never in a pill (QUIET): "till 8:10" is said under the table.
+    const wkPill = wk && wk.until ? pillHtml(t, 'word', 'till ' + esc(fmtHHMM(wk.until).replace(/\s?[AP]M$/i, '')), `Table ${t.label} — booked at ${fmtHHMM(wk.until)}`) : '';
     const pill = mvFrom ? pillHtml(t, '', esc((pkMove.move.name || 'Booking') + ' → ' + pkMove.move.to.map(tableName).join(' + ')), `${pkMove.move.name || 'Booking'} moves to ${pkMove.move.to.map(tableName).join(' + ')}`)
       : wkOn ? wkPill : floorPill(t, f, at);
     // The simple design's few colours, the list tab's own (owner, 6 Oct).
     const stage = f.state === 'late' ? 'late' : f.state === 'arrived' ? (r && r.status === 'part-arrived' ? 'phere' : 'here')
       : ['seated', 'over', 'walkin', 'check', 'paid'].includes(f.state) ? 'in' : '';
-    return `<button class="fl-table ${f.state}${stage ? ' stg-' + stage : ''}${wkCls}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
+    return `<button data-tid="${esc(t.id)}" class="fl-table ${f.state}${stage ? ' stg-' + stage : ''}${wkCls}${r && heldTables(r).length > 1 ? ' joined' : ''}${ring ? ' picked' : ''}${Number(t.rotation) ? ' turned' : ''}" style="${placeStyle(t, ring)}${skinStyle(t)}"
       ${act}
       title="${esc(pkWhy)}">
       ${f.state === 'free' ? '' : `<span class="fl-wash ${esc(r ? r.status : f.state)}"></span>`}
@@ -12246,7 +13367,7 @@ function renderFloor() {
   return `
   ${fp ? `
     <div class="fl-box${pkStuck ? ' mv' : ''}"><div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : ''}><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
-      ${(() => { const hug = placed ? floorHug(fp) : null; return (fp.tables || []).map(t => hug ? hugObject(t, hug) : t).map(tableEl).join(''); })()}
+      ${hug && wkJoins ? joinMarks(roomTables, wkJoins, roomShape(hug).arw) : ''}${roomTables.map(tableEl).join('')}
     </div></div></div>${pkStuck ? moveOfferHtml(pkBook, pkMove) : ''}</div>`
     : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>'}`;
 }
@@ -12292,6 +13413,23 @@ function showRinged() {
   const w = wrap.getBoundingClientRect(), b = t.getBoundingClientRect();
   if (b.left >= w.left && b.right <= w.right) return;
   wrap.scrollLeft += (b.left + b.width / 2) - (w.left + w.width / 2);
+}
+// A PAIR NOBODY CAN SEE IS NO ANSWER. On a phone the room runs on sideways,
+// and the lit pair for an eight stood off the right-hand edge: when the
+// answer lands, ONE pair is brought into view — the menu's first key, its
+// tables and its own name (joinsFocus) — or with nothing lit, the tables the
+// menu names. Once: after that the scroll is the room's own (data-keep).
+function showJoins() {
+  const wrap = document.querySelector('.desk-main .fl-wrap');
+  const ids = state.walkin && joinsFocus(state.walkin.data);
+  if (!wrap || !ids || wrap.scrollWidth <= wrap.clientWidth + 1) return;
+  const els = ids.map(id => wrap.querySelector(`.fl-table[data-tid="${CSS.escape(id)}"]`))
+    .concat(wrap.querySelector(`.fl-join-tag[data-tables="${CSS.escape(ids.join(','))}"]`)).filter(Boolean);
+  if (!els.length) return;
+  const rs = els.map(e => e.getBoundingClientRect()), w = wrap.getBoundingClientRect();
+  const l = Math.min(...rs.map(r => r.left)), r = Math.max(...rs.map(q => q.right));
+  if (l >= w.left && r <= w.right) return;
+  wrap.scrollLeft += (l + r) / 2 - (w.left + w.width / 2);
 }
 function flStage() { return document.querySelector('.desk-main .fl-wrap .fl-stage'); }
 function flPaint(z, x, y) {
@@ -12492,14 +13630,27 @@ function wallArmStyle(view) {
 // The shape of the hugged room, and the two lengths the layout needs off it:
 // how wide it is per unit of height — the width the pane's HEIGHT allows,
 // which is what the desk fits to and what a phone scrolls sideways.
-function roomStyle(fp) {
-  const hug = floorHug(fp);
+//
+// ONE SOURCE FOR BOTH (review, 8 Oct): the drawing laid over the room — a big
+// party's joins — reads roomShape() and tableBox() too, never a copy of the
+// arithmetic, so the day the till grows its canvas again the lines and the
+// names move with the tables.
+function roomShape(hug) {
   const w = 900 * hug.w / 100, h = 560 * hug.h / 100;
-  return `--fl-arw:${(w / h).toFixed(4)};aspect-ratio:${w.toFixed(2)} / ${h.toFixed(2)};` + wallArmStyle(hug);
+  return { w, h, arw: w / h };
+}
+function roomStyle(fp) {
+  const hug = floorHug(fp), s = roomShape(hug);
+  return `--fl-arw:${s.arw.toFixed(4)};aspect-ratio:${s.w.toFixed(2)} / ${s.h.toFixed(2)};` + wallArmStyle(hug);
+}
+// Where a table stands, how big it is and how far it is turned, as shares of
+// the room: the box placeStyle() draws.
+function tableBox(t) {
+  return { x: t.x, y: t.y, w: t.width || 6, h: t.height || 9.8, rot: Number(t.rotation) || 0 };
 }
 function placeStyle(t, picked) {
   if (!Number.isFinite(t.x) || !Number.isFinite(t.y)) return '';
-  const rot = Number(t.rotation) || 0;
+  const b = tableBox(t), rot = b.rot;
   // THE FLOOR STACKS FROM THE BOTTOM UP, the till's rule: a table higher on
   // the map paints over the one under it, so anything hanging off a table's
   // foot lands ON its neighbour below rather than under it.
@@ -12507,7 +13658,7 @@ function placeStyle(t, picked) {
   const stack = decor ? '' : 'z-index:' + ((picked ? 300 : 100) - Math.round(t.y || 0)) + ';';
   // `circle` is the desk's own seed word for the till's `round`.
   const radius = decor ? decorRadius(t) : tableRadiusFor(t.shape === 'circle' ? Object.assign({}, t, { shape: 'round' }) : t);
-  return 'position:absolute;left:' + t.x + '%;top:' + t.y + '%;width:' + (t.width || 6) + '%;height:' + (t.height || 9.8) + '%;'
+  return 'position:absolute;left:' + b.x + '%;top:' + b.y + '%;width:' + b.w + '%;height:' + b.h + '%;'
     + 'transform:translate(-50%,-50%)' + (rot ? ' rotate(' + rot + 'deg)' : '') + ';'
     + 'border-radius:' + radius + ';' + stack;
 }
@@ -12680,6 +13831,20 @@ function renderToday() {
   // run sheet is: a MODE is state and re-renders anyway, so there is nothing
   // for a resize to catch out. (The desk/phone split stays in CSS, because
   // that one must be right on the first frame with nothing listening.)
+  // TIDY UP (v52/tidy) stands where the room is on a desk, the book still
+  // beside it with its line lit; up to 900 it is a page of its own (the
+  // stylesheet hides the column and the tabs). When nothing is left to tidy
+  // the lists close themselves — on the next paint, wherever it came from.
+  const tidy = state.tidy && state.todayMode !== 'sheet' ? tidyNightLocal() : null;
+  // The walk-in and the table pick light the ROOM, so the room comes back.
+  if (state.tidy && (!(tidy && tidy.show) || state.walkin || state.picking)) state.tidy = false;
+  if (state.tidy) {
+    const room = isRoomView(state.todayMode) ? state.todayMode : (state.roomMode || 'floor');
+    return `${notice}<div class="desk mode-${esc(room)} td-open">
+    <div class="desk-col" data-keep="desk-col">${renderSide()}</div>
+    <div class="desk-main"><div class="d2-panel td-panel">${renderTidy(tidy)}</div></div>
+  </div>`;
+  }
   if (state.todayMode === 'book') return `${notice}${renderViewTabs(true)}<div class="desk mode-book">
     <div class="desk-col" data-keep="desk-col">${renderSide()}</div>
   </div>`;
@@ -12985,6 +14150,109 @@ function renderOpened() {
   });
   return `<div class="bl-head opened"><span class="bl-h-name">Just opened</span><span class="bl-h-c">${opens.length}</span></div><div class="bl-rows">${lines.join('')}</div>`;
 }
+// THE LINE (v52/tidy). One quiet line at the top of tonight's list, below
+// Just opened and above No table and Upcoming, the way a group heading is
+// quiet: how many are still marked sat and how many never came — only the
+// parts with somebody in them — and ONE ink key. Nothing to tidy, no line.
+function renderTidyLine() {
+  const t = tidyNightLocal();
+  if (!t.show) return '';
+  const bits = [];
+  if (t.sat.length) bits.push(`<span><b>${t.sat.length}</b> still marked sat</span>`);
+  if (t.never.length) bits.push(`<span><b>${t.never.length}</b> never came</span>`);
+  return `<div class="td-line"><span class="td-say">${bits.join('<span class="td-dot"> · </span>')}</span>
+    <button class="dk-k ink td-go${state.tidy ? ' on' : ''}" data-act="tidy" aria-expanded="${!!state.tidy}">Tidy up</button></div>`;
+}
+// A line of the tidy is the list's own docket line: the table as the tab
+// (the darker grey of sat, the light grey of still to come — a record to
+// close, not a call to make, so the late red stays off this page), the name
+// and how many, the one thing under it, and the one key. What is DIFFERENT
+// leads the line under — Bill, Paid, 2 of 6 — the list's own order, and only
+// the name is ever cut, so a phone's ellipsis takes the clock and a long
+// name, never the Paid or the party's size (review, 8 Oct).
+function tidyRow(r, kind, now) {
+  const held = tablesFor(r);
+  const label = held.length ? tableName(held[0]) + (held.length > 1 ? '+' : '') : '—';
+  const hm = (hhmm) => fmtHHMM(hhmm).replace(/\s?[AP]M$/i, '');
+  let said = `booked ${hm(hhmmOf(r.time))}`;
+  if (kind === 'sat') {
+    const from = Number.isFinite(r.seatedAt) ? r.seatedAt : new Date(r.time).getTime(), d = new Date(from);
+    const lead = r.status === 'check' ? 'Bill · ' : r.status === 'paid' ? 'Paid · '
+      : r.status === 'part-seated' ? `${r.partCount ? r.partCount + ' of ' + r.partySize : 'Not all'} · ` : '';
+    said = `${lead}sat ${hm(pad2(d.getHours()) + ':' + pad2(d.getMinutes()))}, ${waitWords(Math.max(0, Math.round((now - from) / 60000)))} ago`;
+  }
+  const key = kind === 'sat' ? 'left' : 'no-show';
+  return `<div class="dk-row td-row">
+    <span class="dk-tab stg-${kind === 'sat' ? 'in' : 'wait'}">${esc(label)}</span>
+    <button class="dk-main" data-act="edit-booking" data-id="${esc(r.id)}" aria-label="${esc((r.name || 'No name') + ', ' + r.partySize + ', ' + said)}"><b><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></b><span>${esc(said)}</span></button>
+    <span class="dk-rt"><button class="dk-k td-k" data-act="tidy-one" data-val="${key}" data-id="${esc(r.id)}"${_tidyBusy ? ' disabled' : ''}>${kind === 'sat' ? 'Left' : 'No-show'}</button></span>
+  </div>`;
+}
+// THE TWO LISTS. On a desk they stand where the room is; up to 900 they are
+// a page of their own with "‹ Tonight" at its head. Either way they stand
+// side by side only once the panel holds two docket lines whole (the
+// stylesheet's container query), and one above the other below that. Both
+// heads are drawn and the stylesheet keeps one, so a tablet turned sideways
+// is right on the first frame.
+function renderTidy(t) {
+  const now = Date.now();
+  const group = (key, name, list, all) => !list.length ? '' : `<section class="td-g ${key === 'left' ? 'sat' : 'never'}">
+    <div class="bl-head td-h"><span class="bl-h-name">${name}</span><span class="bl-h-c">${list.length}</span><button class="dk-k ink td-all" data-act="tidy-all" data-val="${key}"${_tidyBusy ? ' disabled' : ''}>${all}</button></div>
+    <div class="bl-rows">${list.map(r => tidyRow(r, key === 'left' ? 'sat' : 'never', now)).join('')}</div></section>`;
+  return `<div class="td">
+    <div class="pg-head td-phead"><button class="pg-back" data-act="tidy-close">${I.left}<span>Tonight</span></button><h1>Tidy up</h1></div>
+    <div class="td-dhead"><h2>Tidy up</h2><button class="td-x" data-act="tidy-close" aria-label="Close">${I.cross}</button></div>
+    <div class="td-body" data-keep="td-body"><div class="td-cols">${group('left', 'Still marked sat', t.sat, 'All left')}${group('no-show', 'Never came', t.never, 'All no-shows')}</div></div>
+  </div>`;
+}
+// ONE PRESS AT A TIME (review, 8 Oct). A second tap on All left while the
+// first was still on the wire posted the same ids again, and its answer —
+// nobody changed — laid a red "nothing changed" over the first one's Undo.
+// And a list that has just lost a group closes up: up to 900 Never came
+// slides into the very spot All left stood in, and the second half of a
+// double tap marked six no-shows. So the tidy's keys are dead while a tidy
+// is on the wire (drawn so, the Save keys' way) and for TIDY_SETTLE after
+// the list it leaves behind is drawn — longer than a double tap, shorter
+// than reading the next name.
+const TIDY_SETTLE = 600;
+let _tidyBusy = false, _tidySettle = 0;
+function tidyLocked() { return _tidyBusy || Date.now() < _tidySettle; }
+// ALL LEFT, ALL NO-SHOWS, and the one key on a line: one route that asks the
+// rule again about every id as it lands (a party that walked in a second ago
+// is skipped, and the answer says how many), changing each the way a PUT
+// does. Undo puts back exactly what each was, its part of a party too.
+//
+// ONE UNDO FOR THE NIGHT'S TIDY (the v52 mockup: "11 marked left, 13
+// no-shows · Undo"). All no-shows pressed while All left's Undo is still up
+// joins it — one message, one Undo for both — where it used to take the
+// first Undo away. A row's own key never joins: its Undo is that one party.
+async function tidyDo(kind, ids, all) {
+  if (tidyLocked()) return;
+  _tidyBusy = true; render();
+  let out, err = null;
+  try { out = await post('/api/tidy', { kind, ids }); try { await loadView(); } catch (e) {} } catch (e) { err = e; }
+  _tidyBusy = false; _tidySettle = Date.now() + TIDY_SETTLE;
+  if (err) { toastBad(err.message); return; }
+  const n = out.changed.length;
+  if (!n) { render(); toastBad(ids.length === 1 ? 'They have moved on since — nothing changed' : 'They have all moved on since — nothing changed'); return; }
+  const prev = all && state.tidyUndo && state.toastUndo && state.toastUndo.msg === state.toast && state.tidyUndo.msg === state.toast ? state.tidyUndo : null;
+  const left = (prev ? prev.left : []).concat(kind === 'left' ? out.changed : []);
+  const gone = (prev ? prev.gone : []).concat(kind === 'no-show' ? out.changed : []);
+  const skipped = (prev ? prev.skipped : 0) + (out.skipped || 0);
+  const one = !all && ids.length === 1 ? (out.changed[0].name || 'Booking') : '';
+  const said = one ? (kind === 'left' ? `${one} marked left` : `${one} · no-show`)
+    : [left.length ? `${left.length} marked left` : '', gone.length ? `${gone.length} ${gone.length === 1 ? 'no-show' : 'no-shows'}` : ''].filter(Boolean).join(', ');
+  const msg = said + (skipped ? ` · ${skipped} skipped` : '');
+  const back = left.concat(gone);
+  state.tidyUndo = all ? { msg, left, gone, skipped } : null;
+  toastUndo(msg, async () => {
+    state.tidyUndo = null;
+    const res = await post('/api/tidy/undo', { back });
+    await loadView();
+    if (!res.changed) toastBad('They have moved on since — nothing put back');
+    else toast(one && res.changed === 1 ? `${one} · ${statusLabel(back[0].status)} again` : `${res.changed} put back${res.skipped ? ' · ' + res.skipped + ' had moved on' : ''}`);
+  });
+}
 function coversOf(list) { return list.reduce((a, r) => a + (r.partySize || 0), 0); }
 // How close a party has to be before a busy table is worth saying.
 const DESK_DUE_SOON = 15;
@@ -13001,7 +14269,7 @@ function renderDayList() {
   if (!all.length) {
     const sv = pickedService();
     // A cancellation can leave a service with nobody else on it; it still says so.
-    return find + renderOpened() + `<div class="empty">${sv ? 'Nothing booked for ' + esc(sv.name) + '.' : 'No bookings this day.'}</div>`;
+    return find + renderOpened() + renderTidyLine() + `<div class="empty">${sv ? 'Nothing booked for ' + esc(sv.name) + '.' : 'No bookings this day.'}</div>`;
   }
   if (q.on && !rows.length) return find + `<div class="empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d.
     <div style="margin-top:12px;"><button class="btn" data-act="find-every-day">${I.search} Look on every day</button></div></div>`;
@@ -13089,7 +14357,7 @@ function renderDayList() {
   // night. The night's totals are a question about the NIGHT, not about this
   // list, and they live on the Flow now, where there is a row for them.
   return find + `<div class="bl">
-    ${q.on ? '' : renderOpened()}
+    ${q.on ? '' : renderOpened() + renderTidyLine()}
     ${(() => {
       // A group with a PICK takes its rows out of the day before the rest see
       // it, so nothing is listed twice.
@@ -13297,8 +14565,11 @@ function renderWaitlist() {
   // when the walk-in menu sends a party here, and folds again once added.
   const wlOpen = !!(w.open || w.name || w.phone);
   const mins = (t) => Math.max(0, Math.round((Date.now() - t) / 60000));
+  // GUESTS JOIN THE LINE FROM THEIR PHONE (owner, 8 Oct): one key puts the
+  // code on this screen for the door, and goes with the switch in Settings.
+  const lineKey = ((state.settings || {}).online || {}).line !== false ? '<button class="btn" data-act="line-sign">Show the code</button>' : '';
   return `
-  ${wlOpen ? `  <div class="settings-card" style="margin-bottom:var(--hub-edge);">
+  ${wlOpen ? `${lineKey ? `<div class="wl-keys">${lineKey}</div>` : ''}  <div class="settings-card" style="margin-bottom:var(--hub-edge);">
     <div class="th fold-h">Add a walk-in<button class="chip sq" data-act="wl-shut" aria-label="Close">${I.cross}</button></div>
     <div class="grid2">
       <div><label class="field-label" for="wl-name">Name</label><input id="wl-name" type="text" value="${esc(w.name)}" data-field="wl.name" placeholder="e.g. Smith" autocomplete="off"></div>
@@ -13313,14 +14584,14 @@ function renderWaitlist() {
       <button class="btn add" data-act="wl-add">${I.plus} Add to list</button>
     </div>
   </div>
-` : `<button class="btn add-open" data-act="wl-open">${I.plus} Add to the waitlist</button>`}
+` : `<div class="wl-keys"><button class="btn add-open" data-act="wl-open">${I.plus} Add to the waitlist</button>${lineKey}</div>`}
   ${!list.length ? '<div class="empty">Nobody waiting.</div>' : `<div class="rows">${list.map(x => {
     const waited = mins(x.addedAt), over = x.quotedMin && waited > x.quotedMin;
     const seating = !!(state.walkin && state.walkin.wl && state.walkin.wl.id === x.id);
     // The row being seated is the Row law's picked while the room is lit for it.
     return `<div class="row keys3${seating ? ' selected' : ''}" data-act="wl-seat" data-id="${x.id}">
-      <div class="cell${over ? ' over' : ''}">${waited}m<small>${x.quotedMin ? 'of ' + x.quotedMin : 'wait'}</small></div>
-      <div class="body"><div class="t1"><span class="wl-name">${esc(x.name)}</span> <span class="tag">${x.partySize} pax</span>${x.status === 'notified' ? `<span class="status-chip confirmed">${x.phone ? esc(textedWords(x.notifiedAt)) : 'Told'}</span>` : ''}</div><div class="t2">Added ${esc(fmtTime(x.addedAt))}${x.phone ? ' · ' + esc(x.phone) : ''}${x.notes ? ' · ' + esc(x.notes) : ''}</div></div>
+      <div class="cell${over ? ' over' : ''}">${waited}m<small>${x.quotedMin === null ? 'no table' : x.quotedMin ? 'of ' + x.quotedMin : x.source === 'online' ? 'no wait' : 'wait'}</small></div>
+      <div class="body"><div class="t1"><span class="wl-name">${esc(x.name)}</span> <span class="tag">${x.partySize} pax</span>${x.status === 'notified' ? `<span class="status-chip confirmed">${x.phone ? esc(textedWords(x.notifiedAt)) : 'Told'}</span>` : ''}</div><div class="t2">${x.source === 'online' ? `Joined from their phone · ${waited ? waited + ' min' : 'just now'}` : `Added ${esc(fmtTime(x.addedAt))}${x.phone ? ' · ' + esc(x.phone) : ''}`}${x.notes ? ' · ' + esc(x.notes) : ''}</div></div>
       <div class="actions" data-stop="1">
         ${smsHref(x.phone, '') ? `<a class="chip${x.status === 'notified' ? ' active' : ''}" href="${esc(smsHref(x.phone, textReady(x.name, x.partySize, (state.settings || {}).venueName)))}" data-act="wl-text" data-id="${x.id}">Text</a>`
           : `<button class="chip${x.status === 'notified' ? ' active' : ''}" data-act="wl-notify" data-id="${x.id}">Told</button>`}
@@ -13343,6 +14614,34 @@ function textedWords(ts) { return Date.now() - (ts || 0) < 60000 ? 'Texted just 
 function firstName(name) { return String(name || '').trim().split(/\s+/)[0] || 'there'; }
 function textReady(name, size, venue) {
   return `Hi ${firstName(name)}, your table for ${size} is ready. See you at the front${venue ? ' of ' + venue : ''}.`;
+}
+// §§ THE CODE FOR THE DOOR (owner, 8 Oct: "7. scans what? a qr code on the
+// desk computer? if so yes i love"). Show the code turns this screen into the
+// sign — "Waiting for a table?", "Scan to join the line", the code, the
+// venue's name — so a guest at the stand scans the desk itself, and Print
+// gives the same sign on paper for the door and nothing else of the desk.
+// The code is the server's (/line.svg, the qrcode package Settings' own QR
+// comes from): the relay's page in line mode while the relay is linked, the
+// desk's own page on the wifi otherwise — and then the screen says so in one
+// line, because a guest on mobile data cannot reach this desk. The sign is
+// ONE DRAWING: everything on it is a share of its own width, so the screen
+// and the printed card are the same picture at two sizes.
+//
+// IT IS A PAGE, AS v53 DREW IT (review, 8 Oct): the bar stays, and its head
+// is "‹ Tonight · Sign for the door · Print", like every page away from
+// tonight. It was an overlay over the bar with a × in its corner.
+function renderSign() {
+  const m = state.sign;
+  if (!m) return '<div class="empty">Loading…</div>';
+  return `<div class="ln-sign">
+    <div class="ln-card-box"><div class="ln-card">
+      <h2>Waiting for a table?</h2>
+      <p class="ln-card-sub">Scan to join the line</p>
+      <img class="ln-qr" src="/line.svg?u=${encodeURIComponent(m.url)}" alt="QR code for ${esc(m.url)}">
+      <div class="ln-card-venue">${esc(m.venueName || '')}</div>
+    </div></div>
+    ${m.wifi ? '<p class="ln-sign-note">Guests need the venue’s wifi</p>' : ''}
+  </div>`;
 }
 function textOpened(name, size, time, when, venue) {
   return `Hi ${firstName(name)}, a table for ${size} at ${time} ${when} just opened${venue ? ' at ' + venue : ''}. Reply YES and it's yours.`;
@@ -13564,6 +14863,7 @@ function renderSettings() {
       <label class="field-label" for="on-prompt">Notes prompt</label><input id="on-prompt" type="text" value="${esc(s.online.notesPrompt)}" data-field="settings.online.notesPrompt" data-save="online">
       <label class="toggle-row">${switchHtml(!!s.online.holdTables, 'set-toggle', 'online.holdTables')} Online bookings take a table straight away</label>
       <label class="toggle-row">${switchHtml(!!s.online.notifyList, 'set-toggle', 'online.notifyList')} Offer a notify list when a day is full</label>
+      <label class="toggle-row">${switchHtml(s.online.line !== false, 'set-toggle', 'online.line')} Guests can join the line from their phone</label>
       <div class="inline" style="margin-top:8px;"><img class="qr" src="${rs.bookingUrl ? '/connect.svg?host=' + encodeURIComponent(rs.bookingUrl) : '/connect.svg?to=book&host=' + encodeURIComponent(origin)}" alt="QR code for the booking page">${rs.bookingUrl ? `<div class="ts mono">${esc(rs.bookingUrl)}</div>` : '<div class="ts">This computer&rsquo;s address, on the wifi only</div>'}</div>
     </div>
     <div class="settings-card">
@@ -14821,9 +16121,17 @@ function nextTableLabel(tables) {
 
 // §§ Taps
 function closest(el, sel) { return el && el.closest ? el.closest(sel) : null; }
+// A DOUBLE TAP SEATS ONCE (review, 8 Oct). A seat puts the menu away and the
+// room steps back up under the finger, so the second tap of a double landed
+// on table 14 and opened Adeyemi's booking on a desk, and on 16 and started a
+// new booking over the Undo on a phone. For a moment after a seat the only
+// key that answers is the message's own.
+const SEAT_SETTLE_MS = 450;
+let _seatedAt = 0;
 document.addEventListener('click', async (ev) => {
   const el = closest(ev.target, '[data-act]');
   if (!el) return;
+  if (Date.now() - _seatedAt < SEAT_SETTLE_MS && !closest(el, '.toast')) return;
   const act = el.dataset.act, val = el.dataset.val, id = el.dataset.id;
   // A tap inside a marked region never bubbles to the row/backdrop behind it.
   if (act === 'close-modal' && closest(ev.target, '[data-stop]') && closest(ev.target, '[data-stop]') !== el && !el.matches('.icon-action, .chip')) return;
@@ -14841,6 +16149,7 @@ document.addEventListener('click', async (ev) => {
       case 'day': state.walkin = null; state.nightOpen = false; state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.picking = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'mode': {
+        state.tidy = false;
         // A section carries its own place. The rail shows Service's five from
         // every screen, so pressing Timeline on the waitlist goes to Service's
         // timeline in ONE press — it does not ask you to find Service first.
@@ -14894,6 +16203,19 @@ document.addEventListener('click', async (ev) => {
       }
       // No-show from the late banner: one PUT carrying only the status, the
       // row key's own rule, and Undo puts back what it was.
+      // §§ TIDY THE NIGHT (v52/tidy). The line's key opens the two lists and
+      // puts them away again; All left / All no-shows and each line's own key
+      // go through tidyDo(), one route, the rule asked again as they land.
+      case 'tidy': state.tidy = !state.tidy; state.picking = null; state.walkin = null; render(); break;
+      case 'tidy-close': state.tidy = false; render(); break;
+      case 'tidy-all': {
+        if (tidyLocked()) break;
+        const t = tidyNightLocal(), list = val === 'left' ? t.sat : t.never;
+        if (!list.length) { render(); break; }
+        await tidyDo(val, list.map(r => r.id), true);
+        break;
+      }
+      case 'tidy-one': await tidyDo(val, [id], false); break;
       case 'late-noshow': {
         const r = (state.reservations || []).find(x => x.id === id);
         if (!r) { toastBad('That booking has gone'); break; }
@@ -15127,14 +16449,15 @@ document.addEventListener('click', async (ev) => {
       }
       case 'walkin-seat': {
         const w = state.walkin; if (!w || !w.data) break;
-        const tid = el.dataset.table, d = w.data;
+        const d = w.data;
         // A party no one table seats is offered a stated combination: a tap on
-        // any of its tables seats them on all of them.
-        const hit = d.tables.find(x => x.id === tid);
+        // any of its tables, or on its key, seats them on all of them.
+        const ids = walkinSet(d, el.dataset.table, el.dataset.tables);
+        _seatedAt = Date.now();
         state.walkin = null; render();
         if (w.wl) {
           try {
-            const r = await post('/api/waitlist/' + w.wl.id + '/seat', { tableId: tid, tableIds: hit && hit.combo ? hit.combo.filter(x => x !== tid) : [] });
+            const r = await post('/api/waitlist/' + w.wl.id + '/seat', { tableId: ids[0], tableIds: ids.slice(1) });
             await loadView(); state.waitlist = await api('/api/waitlist'); render();
             const where = [r.tableId].concat(r.tableIds || []).filter(Boolean).map(tableName).join(' + ');
             toastUndo(`${r.name} seated at ${where}`, async () => {
@@ -15144,12 +16467,20 @@ document.addEventListener('click', async (ev) => {
           } catch (e) { toastBad(e.message); }
           break;
         }
+        // SAID WHERE, AND TAKEN BACK (8 Oct): "Walk-in, 8, seated at 45 +
+        // 46", and Undo DELETES the booking — one that existed for ten
+        // seconds by mistake is not a cancellation, and is no opening either
+        // (av.openingFrom).
         try {
           const n = new Date();
-          await post('/api/reservations', { name: 'Walk-in', partySize: w.size, time: localDay(n) + 'T' + pad2(n.getHours()) + ':' + pad2(n.getMinutes()), tableId: tid, tableIds: (hit && hit.combo ? hit.combo.filter(x => x !== tid) : []),
+          const r = await post('/api/reservations', { name: 'Walk-in', partySize: w.size, time: localDay(n) + 'T' + pad2(n.getHours()) + ':' + pad2(n.getMinutes()), tableId: ids[0], tableIds: ids.slice(1),
             status: 'seated', source: 'walk-in', autoTable: false, tags: [], notes: '' });
           await loadView(); render();
-          toast(`${tableName(tid)} · ${w.size} seated`);
+          const where = [r.tableId].concat(r.tableIds || []).filter(Boolean).map(tableName).join(' + ');
+          toastUndo(`${r.name}, ${r.partySize}, seated at ${where}`, async () => {
+            await del('/api/reservations/' + r.id);
+            await loadView();
+          });
         } catch (e) { toastBad(e.message); }
         break;
       }
@@ -15243,6 +16574,8 @@ document.addEventListener('click', async (ev) => {
       case 'wl-notify': { const w = state.waitlist.find(x => x.id === id); await put('/api/waitlist/' + id, { status: w.status === 'notified' ? 'waiting' : 'notified' }); await loadView(); render(); break; }
       case 'wl-remove': await del('/api/waitlist/' + id); await loadView(); render(); break;
       case 'wl-open': state.wl.open = true; render(); { const f = document.getElementById('wl-name'); if (f) f.focus(); } break;
+      case 'line-sign': state.sign = null; setView('sign'); break;
+      case 'line-print': window.print(); break;
       case 'wl-shut': state.wl = { name: '', phone: '', partySize: 2, quotedMin: state.wl.quotedMin }; render(); break;
       case 'nl-open': state.nl.open = true; render(); { const f = document.getElementById('nl-name'); if (f) f.focus(); } break;
       case 'nl-shut': state.nl = Object.assign({}, state.nl, { name: '', phone: '', notes: '', open: false }); render(); break;
@@ -15290,7 +16623,7 @@ document.addEventListener('click', async (ev) => {
         state.service = defaultService(state.date);
         render();
         if (moved) { await loadDay(); render(); }
-        try { const d = await api('/api/walkin?size=' + wk.size); if (state.walkin === wk) { wk.data = d; render(); } }
+        try { const d = await api('/api/walkin?size=' + wk.size); if (state.walkin === wk) { wk.data = d; render(); showJoins(); } }
         catch (e) { toastBad(e.message); }
         break;
       }
@@ -15348,7 +16681,7 @@ document.addEventListener('click', async (ev) => {
       // take the list's column and the room stays beside them; the rest are
       // pages of their own.
       case 'menu-go': {
-        state.menuOpen = false; state.walkin = null;
+        state.menuOpen = false; state.walkin = null; state.tidy = false;
         if (val === 'waitlist' || val === 'notify') {
           state.view = 'today'; state.side = val;
           if (!isRoomView(state.todayMode)) state.todayMode = 'floor';
@@ -16303,6 +17636,7 @@ document.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape' && state.lensOpen) { state.lensOpen = false; render(); return; }
   if (ev.key === 'Escape' && state.picking) { state.picking = null; render(); return; }
   if (ev.key === 'Escape' && state.walkin) { state.walkin = null; render(); return; }
+  if (ev.key === 'Escape' && state.tidy && !typingInField()) { state.tidy = false; render(); return; }
   if (!state.modal && !typingInField() && (ev.key === '/' || ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k'))) { ev.preventDefault(); openFind(true); }
 });
 
@@ -16311,6 +17645,19 @@ async function refreshWalkin() {
   w.busy = true;
   try { const d = await api('/api/walkin?size=' + w.size); if (state.walkin === w && d.size === w.size) { w.data = d; render(); } }
   catch (e) {} finally { w.busy = false; }
+}
+// A GUEST WHO LEAVES THE LINE FROM THEIR PHONE IS SAID (review, 8 Oct). The
+// row simply went, and a host holding a table for a party they had texted
+// was never told to give it away. Tonight's leavers ride the poll whenever
+// the store moves: the first answer is what was already so, and each one
+// after it is said once, in one plain message.
+let _lineLeftSeen = null;
+async function lineLeftNews() {
+  let left;
+  try { left = await api('/api/line/left'); } catch (e) { return; }
+  const fresh = _lineLeftSeen ? left.filter(g => !_lineLeftSeen.has(g.ref)) : [];
+  _lineLeftSeen = new Set(left.map(g => g.ref));
+  if (fresh.length) toast(fresh.map(g => g.name).join(' and ') + ' left the line', 6000);
 }
 // §§ The poll — ask before fetching, never repaint under fingers
 setInterval(async () => {
@@ -16328,7 +17675,7 @@ setInterval(async () => {
     // still lit a table somebody was now due at (daily round, 30 Sep).
     if (state.walkin && state.walkin.size && state.walkin.data && !state.walkin.busy) refreshWalkin();
     if (same) { if (!state.modal && !typingInField()) render(); return; }
-    await loadBase(); await loadView();
+    await loadBase(); await loadView(); await lineLeftNews();
     if (!typingInField()) render();
   } catch (e) { render(); }
 }, 10000);
@@ -16431,6 +17778,7 @@ function openTill(tableId) {
   state.date = tradingDay();
   render();
   await refreshAll();
+  lineLeftNews();
   const l = state.pendingLink; state.pendingLink = null; await applyDeepLink(l);
   // In a sandboxed frame READING navigator.serviceWorker throws outright, so
   // the `in` test passes and the property access is what fails — a rejected
