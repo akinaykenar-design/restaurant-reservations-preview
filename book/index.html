@@ -5627,7 +5627,7 @@ function walkinCombos(ctx, day, hhmm, party) {
   const at = now === null ? start : now;
   const free = freeCombos(sub, day, hhmm, size);
   const held = combosOf(ctx)
-    .filter(c => comboSeats(ctx, c) >= size && !free.includes(c))
+    .filter(c => comboFits(ctx, c, size) && !free.includes(c))
     .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length));
   if (!free.length && !held.length) return null;
   const first = (rs) => rs.sort((a, b) => heldFrom(a, now, nightMin(a, day)) - heldFrom(b, now, nightMin(b, day)))[0];
@@ -5817,7 +5817,7 @@ function oneMove(ctx, r) {
   const dur = durationFor(ctx.settings, party, ask.duration);
   const byLabel = (a, b) => (parseInt(a.label) - parseInt(b.label)) || String(a.label).localeCompare(String(b.label));
   const singles = (ctx.tables || []).filter(t => fits(t, party, slack)).sort((a, b) => (a.seats - b.seats) || byLabel(a, b)).map(t => [t.id]);
-  const combos = combosOf(ctx).filter(c => comboSeats(ctx, c) >= party)
+  const combos = combosOf(ctx).filter(c => comboFits(ctx, c, party))
     .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length)).map(c => c.tables.slice());
   for (const set of singles.concat(combos)) {
     const holders = new Map();
@@ -6026,6 +6026,41 @@ function combosOf(ctx) {
 function comboSeats(ctx, combo) {
   return combo.seats > 0 ? combo.seats : seatsOf(ctx, combo.tables);
 }
+// A JOIN IS FOR A RANGE OF PARTIES (owner, 8 Oct: "yes can we link?"). The
+// till states the smallest party a join is for as well as what it seats —
+// nobody sits four across two four-tops pushed together, they take one — so
+// a combination fits when it seats the party AND the party is at least its
+// min. Every place that judges a combination asks this one rule.
+function comboFits(ctx, combo, party) {
+  return comboSeats(ctx, combo) >= party && party >= (combo.min > 0 ? combo.min : 1);
+}
+// THE TILL'S JOINED TABLES ARE THE COMBINATIONS (owner, 8 Oct: "yes can we
+// link?"). The till records which tables push together on its own layout —
+// joining them with the chain in its floor editor, fp.joins {id, tables,
+// min, max} (SUITE.md, Sep '26) — and the floor plan the desk already pulls
+// carries them. So while the desk is linked and draws the till's floor, its
+// combinations ARE the till's: max is the seats the till states, min the
+// smallest party. A one-table "join" is a table, not a combination.
+function tillJoins(floorPlans) {
+  const out = [];
+  for (const fp of floorPlans || []) {
+    for (const j of (fp && fp.joins) || []) {
+      const tables = Array.isArray(j && j.tables) ? [...new Set(j.tables.map(String))] : [];
+      if (tables.length < 2) continue;
+      const max = parseInt(j.max, 10), min = parseInt(j.min, 10);
+      out.push({ id: String(j.id || tables.join('+')), tables, seats: max > 0 ? max : 0, min: min > 0 ? min : 1 });
+    }
+  }
+  return out;
+}
+// ONE WRITER PER FIELD. Linked: the till's list, and only the till's — a till
+// with none saved has none, and the desk does not fall back to a list of its
+// own, which would be the second source POS-LINK.md forbids. Not linked (a
+// desk with no till, or one not drawing the till's floor): the desk's own,
+// set in Settings.
+function combinationsOf(settings, floorPlans, linked) {
+  return linked ? { list: tillJoins(floorPlans), fromTill: true } : { list: ((settings || {}).tableCombos) || [], fromTill: false };
+}
 // The combinations whose every table is free at this time and which seat the
 // party, tightest first.
 //
@@ -6039,7 +6074,7 @@ function comboSeats(ctx, combo) {
 function freeCombos(ctx, day, hhmm, party, opts) {
   const free = new Set(freeTables(ctx, day, hhmm, party, opts).map(t => t.id));
   return combosOf(ctx)
-    .filter(c => c.tables.every(id => free.has(id)) && comboSeats(ctx, c) >= party)
+    .filter(c => c.tables.every(id => free.has(id)) && comboFits(ctx, c, party))
     .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length));
 }
 
@@ -6350,7 +6385,7 @@ function movedTables(ctx, r, tableId) {
   // for. It is not a different code path, it is this one stopping early.
   if (!tlRules(ctx).join) return alone;
   const fits2 = combosOf(ctx)
-    .filter(c => c.tables.includes(tableId) && comboSeats(ctx, c) >= party)
+    .filter(c => c.tables.includes(tableId) && comboFits(ctx, c, party))
     .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length));
   if (!fits2.length) return alone;
   const day = dayOf(r.time), start = minsOf(r.time), dur = durationFor(ctx.settings, party, r.durationMin);
@@ -6916,7 +6951,7 @@ module.exports = {
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, LINE_STEP, lineSince, lineNight, lineMax, lineRefusal, lineOf, lineKey, lineRun, lineWait, lineWaits, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, LINE_STEP, lineSince, lineNight, lineMax, lineRefusal, lineOf, lineKey, lineRun, lineWait, lineWaits, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -8998,6 +9033,11 @@ function effectiveSettings(data) {
   } else {
     s.tillColours = [];
   }
+  // WHICH TABLES PUSH TOGETHER: the till's own joins while linked (fp.joins on
+  // the floor plan the pass already pulls), the desk's own list otherwise.
+  const cb = av.combinationsOf(s, data.floorPlans, pos.ready(s.pos) && s.pos.useFloor !== false);
+  s.tableCombos = cb.list;
+  s.combosFromTill = cb.fromTill;
   return s;
 }
 function tablesOf(data) { return av.tablesFrom(data.floorPlans); }
@@ -9146,7 +9186,10 @@ app.put('/api/settings', async (req, res) => {
   // floor plan here: the plan comes from the till and can change under us, so
   // availability.js drops a combination naming a table that has gone rather
   // than the settings losing it the next time the till is offline.
-  if (Array.isArray(b.tableCombos)) {
+  // While the till is linked its joins ARE the combinations: a save leaves the
+  // desk's own list alone rather than writing a second copy of the till's.
+  const combosLinked = pos.ready(data.settings.pos) && data.settings.pos.useFloor !== false;
+  if (Array.isArray(b.tableCombos) && !combosLinked) {
     s.tableCombos = b.tableCombos.slice(0, 40).map((c, i) => ({
       id: String((c && c.id) || 'tc' + (i + 1)).slice(0, 40),
       tables: Array.isArray(c && c.tables) ? [...new Set(c.tables.filter(x => typeof x === 'string' && x).map(x => x.slice(0, 60)))].slice(0, 8) : [],
