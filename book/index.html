@@ -748,25 +748,27 @@ body[data-theme="dark"] .row .cell.over{color:var(--steel-100);}
 .toast .dot{width:9px;height:9px;border-radius:50%;background:var(--green);flex:none;}
 .toast .dot.bad{background:var(--red-btn);}
 /* §§ WELCOME BACK — what a host has to know at the door (renderWelcome()).
-   EVERY FLAG WEARS THE COLOUR ITS OWN TAG ALREADY WEARS, so the card teaches
-   nothing new: the VIP is the gold chip the floor puts in a VIP table's
-   corner (--st-due under --tbl-num-ink), the allergy is the floor's red "!"
-   (--st-late under --on-scrim), the occasion is the birthday tag's green, and
-   a need — a wheelchair, a high chair — is the plain tag's outline.
+   EVERY FLAG IS A PLAIN WORD (QUIET: never a word in a pill, and ink and
+   greys, one blue, red only for late, an allergy, a delete and a failure):
+   the VIP, the occasion and a need — a wheelchair, a high chair — in ink,
+   each with its mark, and the allergy in the allergy's red. They were a gold
+   pill, a green one, a red one and an outlined one (8 Oct).
    The CARD takes the colour of whichever flag LEADS (search.welcomeFor()'s
-   `kind`: allergy, then VIP, then occasion, then a regular, who wears
-   arrived's own blue because arriving is what just happened). The disc and
+   `kind`: the allergy in red, then the VIP and the occasion in ink, then a
+   regular, who wears arrived's own blue — the desk's one blue, the accent —
+   because arriving is what just happened; the VIP's card was the Due gold
+   and a regular's a second, older blue). The disc and
    the timer are that colour; the card is a wash of it on the paper, and in
    dark only a breath of it, because a colour mixed into slate goes to mud.
    It stands on a dock of the book's own paper at the foot of the book,
    where the eye already is, flush to the column and its seam, so no row
    shows round it and it never lands on the room. */
-.wb{--wb-c:var(--st-arrived);--wb-on:var(--on-scrim);}
-.wb.vip{--wb-c:var(--st-due);--wb-on:var(--tbl-num-ink);}
-.wb.allergy{--wb-c:var(--st-late);--wb-on:var(--on-scrim);}
-.wb.occasion{--wb-c:var(--green);--wb-on:var(--tbl-num-ink);}
+.wb{--wb-c:var(--accent);--wb-on:var(--on-accent);}
+.wb.vip{--wb-c:var(--ink);--wb-on:var(--surface);}
+.wb.allergy{--wb-c:var(--late);--wb-on:var(--on-accent);}
+.wb.occasion{--wb-c:var(--ink);--wb-on:var(--surface);}
 .wb.note{--wb-c:var(--steel-500);--wb-on:var(--on-scrim);}
-.wb{position:fixed;left:var(--rail-x);bottom:0;width:calc(var(--deskcol-w) - 1px);padding:8px;
+.wb{position:fixed;left:calc(var(--sd-x) + var(--sd-pad));bottom:0;width:var(--sd-col);padding:8px;
   background:var(--surface);z-index:var(--z-toast);animation:wb-rise .32s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--wb-gone);}
 @keyframes wb-rise{from{transform:translateY(24px);opacity:0;}to{transform:none;opacity:1;}}
 .wb-card{position:relative;display:block;width:100%;margin:0;padding:16px 52px 16px 16px;text-align:left;
@@ -781,14 +783,14 @@ div.wb-card{cursor:default;}
 .wb-name{display:flex;min-width:0;font-size:var(--fs-xl);line-height:1.2;}
 .wb-name b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .wb-hello{font-size:var(--fs-md);font-weight:600;color:var(--text-secondary);}
-.wb-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
-.wb-chip{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:var(--r-pill);
-  border:1px solid var(--steel-300);color:var(--text-primary);font-size:var(--fs-md);font-weight:700;}
+.wb-chips{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:12px;}
+.wb-chip{display:inline-flex;align-items:center;gap:4px;padding:0;border:none;background:none;
+  color:var(--ink);font-size:var(--fs-md);font-weight:700;}
 .wb-chip svg{width:14px;height:14px;flex:none;}
-.wb-chip.vip{background:var(--st-due);border-color:var(--st-due);color:var(--tbl-num-ink);}
+.wb-chip.vip{color:var(--ink);}
 .wb-chip.vip svg{fill:currentColor;}
-.wb-chip.al{background:var(--st-late);border-color:var(--st-late);color:var(--on-scrim);}
-.wb-chip.occ{background:var(--green);border-color:var(--green);color:var(--tbl-num-ink);}
+.wb-chip.al{color:var(--late);}
+.wb-chip.occ{color:var(--ink);}
 .wb-facts{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
 .wb-facts li{display:flex;align-items:flex-start;gap:10px;font-size:var(--fs-lg);line-height:1.35;}
 .wb-facts li span{min-width:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
@@ -796,7 +798,7 @@ div.wb-card{cursor:default;}
 /* The allergy line is the one a kitchen can hurt somebody over: its words are
    bold and its mark is the allergy's red, whatever colour the card is. */
 .wb-facts li.al{font-weight:700;}
-.wb-facts li.al svg{color:var(--st-late);}
+.wb-facts li.al svg{color:var(--late);}
 /* It goes by itself, and the time it has left runs out along its own foot. */
 .wb-timer{position:absolute;left:0;bottom:0;width:100%;height:4px;background:var(--wb-c);transform-origin:left;
   animation:wb-run var(--wb-ms) linear both;animation-delay:var(--wb-gone);}
@@ -806,17 +808,27 @@ div.wb-card{cursor:default;}
 .wb-x svg{width:20px;height:20px;}
 body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, var(--surface));}
 @media (prefers-reduced-motion:reduce){ .wb,.wb-timer{animation:none;} }
-/* A phone has no book column: the card takes the width, clear of the bar. */
-@media (max-width:760px){
-  .wb{left:0;right:0;width:auto;bottom:calc(var(--rail-w) + var(--ring) + env(safe-area-inset-bottom, 0px));}
+/* THE SIMPLE DESK'S FOOT (daily round, 8 Oct). On a desk the card stands on
+   the list column itself — its left, its 400 — read from the desk's own
+   measures, not the old rail's 340 (it stood 0–339 beside a list at 20–420).
+   Up to 900 the list is a TAB the width of the pane, so the card is too, at
+   the window's foot: the old stacked tablet's "38vh up" put it in the middle
+   of the List tab, over the late parties' Call keys. No bar stands at a
+   phone's foot any more, so nothing to stand clear of there either. */
+@media (max-width:900px){
+  .wb{left:var(--sd-pad);right:var(--sd-pad);width:auto;bottom:0;padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px));}
 }
-/* A tablet STACKS the book over the room, so the book's foot is 38vh down,
-   not the window's: on the window's foot the card lay over the room's views
-   (daily round, 2 Oct). It stands on the book's foot, the width of the book.
-   Only where it stacks: a phone turned sideways keeps the two columns, and
-   there the card lay over the bar and the room (3 Oct). */
-@media (min-width:761px) and (max-width:900px) and (min-height:521px){
-  .wb{left:0;right:0;width:auto;bottom:calc(100vh - var(--deck-h) - 38vh);}
+/* A seat from the tab raises its Undo as well. Up to 900 the card spans the
+   pane, so the dock runs on under it to hold the toast: the toast covers
+   none of the card and no row shows between them. On a desk the toast
+   stands over the ROOM instead, centred on it and no wider than it, so it
+   never reaches the card at any width and the card keeps no dock — 76 px of
+   blank paper that hid three more rows at 1920 for nothing (review, 8 Oct). */
+@media (max-width:900px){
+  .shell.simple:has(> .toast) > .wb{padding-bottom:calc(var(--tap) + 32px + env(safe-area-inset-bottom, 0px));}
+}
+@media (min-width:901px){
+  .shell.simple:has(> .wb) > .toast{left:calc(var(--sd-x) + (var(--sd-col) + var(--sd-gap) + min(100vw, var(--sd-max))) / 2);max-width:calc(min(100vw, var(--sd-max)) - 2 * var(--sd-pad) - var(--sd-col) - var(--sd-gap));}
 }
 .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--charcoal);color:#fff;padding:12px 20px;border-radius:var(--r-pill);font-weight:600;font-size:var(--fs-md);z-index:var(--z-toast);display:flex;align-items:center;gap:8px;max-width:calc(100vw - 32px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;box-shadow:var(--lift-1);}
 body[data-theme="dark"] .toast{background:#EDE6D6;color:#26231F;}
@@ -1555,7 +1567,7 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
    The veil over the book is barely there on purpose: the whole point is that
    the night stays READABLE beside the booking. It is still a veil and still
    closes on a tap, because that is what every other popup here does. */
-@media (min-width:900px){
+@media (min-width:901px){
   .modal-bg.bk-sheet{padding:0;align-items:stretch;justify-content:flex-end;background:rgba(20,24,25,.10);}
   .modal.bk-sheet{border-radius:var(--r-surface) 0 0 var(--r-surface);margin:0;
     position:fixed;top:calc(var(--deck-h) + var(--hub-edge));right:0;bottom:var(--hub-edge);
@@ -2227,8 +2239,11 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .wk-head{display:flex;align-items:center;gap:12px;padding-left:4px;}
 .wk-head b{font-size:var(--fs-md);color:var(--text-primary);}
 .wk-head span{flex:1;font-size:var(--fs-md);color:var(--charcoal-soft);}
-/* One line at any name or size: the words cut rather than wrap (5 Oct). */
-.wk-head > span{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* One line at any name or size (5 Oct) — and what gives way is the NAME:
+   how many and how long always read whole (8 Oct). */
+.wk-head{min-width:0;}
+.wk-head b{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.wk-head > span{flex:1 0 auto;white-space:nowrap;}
 .wk-x{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
   border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);}
 .wk-x svg{width:20px;height:20px;}
@@ -2393,9 +2408,8 @@ a.btn{color:var(--text-primary);text-decoration:none;}
   background:color-mix(in srgb, var(--red) 12%, var(--surface));color:var(--red);font:inherit;font-weight:700;text-align:left;}
 .bke-alert svg{flex:none;width:20px;height:20px;}
 .bke-tags{display:flex;flex-wrap:wrap;gap:8px;}
-.bke-tags > button{height:36px;padding:0 12px;border:none;border-radius:var(--r-pill);background:var(--deck-pill-bg);
+.bke-tags > button{height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-pill);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-size:var(--fs-md);font-weight:600;}
-.bke-tags > button.vip{background:color-mix(in srgb, var(--gold) 28%, var(--surface));}
 .bke-tags > button.add{background:none;border:1px solid var(--steel-300);color:var(--charcoal-soft);}
 .bke-note{padding:12px 16px;border:none;border-radius:var(--r-control);background:var(--deck-pill-bg);color:var(--text-primary);
   font:inherit;font-size:var(--fs-md);line-height:1.45;text-align:left;white-space:pre-wrap;}
@@ -2410,13 +2424,16 @@ a.btn{color:var(--text-primary);text-decoration:none;}
    at all" — the v47 prototype, its colours, one menu key, none of the old
    extras). Everything below re-points the page to the prototype's palette
    and lays the shell out its way. It REPEALS the POS tokens' look, the rail,
-   the pill, the room bar and lens, the pacing strip and the view dock. */
+   the pill, the room bar and lens, the pacing strip and the view dock.
+   --leave was the prototype's green for the bill; QUIET (7 Oct) has no green
+   anywhere, so it is ink, as seated is — and --green reads it, so nothing
+   that still names either can paint green (daily round, 8 Oct). */
 :root{
   --font-body:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
   --bg:#F3F3F1; --ink:#17181B; --mute:#6A6D75; --faint:#A3A6AD; --line:#E4E4E0;
   --accent:#2D55E6; --accent-wash:#E8EDFD; --on-accent:#FFFFFF; --late:#C8412D; --late-wash:#FBEAE6;
-  --leave:#25925A; --seat:#D9DBE2; --well:#E7E7E3; --tfree:#E9E9E5;
+  --leave:var(--ink); --seat:#D9DBE2; --well:#E7E7E3; --tfree:#E9E9E5;
   --surface:#FFFFFF; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#D4D4CF;
   --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
   --orange:var(--accent); --red:var(--late); --red-btn:var(--late); --green:var(--leave);
@@ -2425,11 +2442,16 @@ a.btn{color:var(--text-primary);text-decoration:none;}
   --pick-wash:var(--accent-wash); --steel-500:var(--faint);
   --r-control:12px; --r-surface:20px;
   --lift-1:0 1px 3px rgba(0,0,0,.08); --lift-2:0 18px 48px rgba(0,0,0,.14);
+  /* The desk's own measures: the shell's widest, the pane's gutter, the
+     list's column and the gap to the room. What lands beside the list (the
+     booking sheet, the welcome card) reads these, never the old rail's. */
+  --sd-max:1440px; --sd-pad:20px; --sd-col:400px; --sd-gap:16px;
+  --sd-x:max(0px, (100vw - var(--sd-max)) / 2);
 }
 body[data-theme="dark"]{
   --bg:#0E0F11; --ink:#F1F1EE; --mute:#9A9DA5; --faint:#62656D; --line:#2A2C31;
   --accent:#7090FF; --accent-wash:#1C2546; --on-accent:#0E0F11; --late:#FF6E58; --late-wash:#3A1F1A;
-  --leave:#4BC47E; --seat:#3A3C44; --well:#202227; --tfree:#2A2D34;
+  --leave:var(--ink); --seat:#3A3C44; --well:#202227; --tfree:#2A2D34;
   --surface:#18191D; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#33363C;
   --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
   --orange:var(--accent); --red:var(--late); --red-btn:var(--late); --green:var(--leave);
@@ -2441,9 +2463,9 @@ body[data-theme="dark"]{
 body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 
 /* The shell: the bar over the work, the work in a column 1440 at most. */
-.shell.simple{flex-direction:column;max-width:1440px;margin:0 auto;width:100%;}
+.shell.simple{flex-direction:column;max-width:var(--sd-max);margin:0 auto;width:100%;}
 .shell.simple .main{background:var(--bg);}
-.shell.simple .pane{padding:0 20px 20px;}
+.shell.simple .pane{padding:0 var(--sd-pad) var(--sd-pad);}
 .rail{display:none;}
 
 /* §§ The bar: the night, the service, the two make keys, the menu key. */
@@ -2492,8 +2514,16 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .sd-head b{font-size:var(--fs-lg);}
 
 /* §§ The desk: the night's list down the left, the room beside it. */
-.pane:has(> .desk){padding:0 20px 20px;}
-.shell.simple .desk{display:grid;grid-template-columns:400px minmax(0,1fr);gap:16px;background:none;overflow:hidden;height:100%;}
+.pane:has(> .desk){padding:0 var(--sd-pad) var(--sd-pad);}
+.shell.simple .desk{display:grid;grid-template-columns:var(--sd-col) minmax(0,1fr);gap:var(--sd-gap);background:none;overflow:hidden;height:100%;}
+/* A booking opened beside the list lands on the SEAM — the list's real right
+   edge in the centred shell, half the gap on — so the night's times and its
+   Call and Here keys stay readable beside it. It landed at the old rail's
+   340 column: over every row's right end at 1280, over every name at 1920
+   (daily round, 8 Oct). Up to 900 the desk is tabs and there is no seam. */
+@media (min-width:901px){
+  .shell.simple .modal.bk-sheet:not(.pane-wide){left:calc(var(--sd-x) + var(--sd-pad) + var(--sd-col) + var(--sd-gap) / 2);}
+}
 .shell.simple .desk-col{max-height:none;overflow-y:auto;border-right:none;background:none;padding-bottom:16px;}
 .shell.simple .desk.mode-book{grid-template-columns:minmax(0,900px);justify-content:center;}
 .shell.simple .desk-main{display:flex;flex-direction:column;gap:12px;min-height:0;}
@@ -2577,6 +2607,7 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
 /* §§ A phone: the bar wraps to two lines and the views are tabs under it —
    List · Floor · Timeline · Flow — with no bar at the foot. */
 @media (max-width:760px){
+  :root{--sd-pad:16px;}
   .tp{padding:8px 16px;gap:8px;}
   .tp-night{flex:1;order:0;justify-content:space-between;}
   .tp-menu-a{order:1;}
@@ -2586,18 +2617,16 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
   .tp-date{align-items:center;text-align:center;}
   .tp-big{font-size:var(--fs-xl);}
   .tp-lg{display:none;} .tp-sh{display:inline;}
-  .shell.simple .pane{padding:0 16px 16px;}
-  .pane:has(> .desk){padding:0 16px 16px;}
   .toast{bottom:calc(16px + env(safe-area-inset-bottom, 0px));}
 }
 
 /* Where a booking is up to, named in the same few colours: blue at the door,
-   ink sat down, green at the bill, red for the two that went wrong, grey for
-   still to come and for done. */
+   ink sat down and at the bill (QUIET: no green), red for the two that went
+   wrong, grey for still to come and for done. */
 .shell.simple .st-ink.booked,.shell.simple .st-ink.confirmed,.shell.simple .st-ink.done{--st-ink:var(--mute);}
 .shell.simple .st-ink.part-arrived,.shell.simple .st-ink.arrived{--st-ink:var(--accent);}
 .shell.simple .st-ink.part-seated,.shell.simple .st-ink.seated{--st-ink:var(--ink);}
-.shell.simple .st-ink.check,.shell.simple .st-ink.paid{--st-ink:var(--leave);}
+.shell.simple .st-ink.check,.shell.simple .st-ink.paid{--st-ink:var(--ink);}
 .shell.simple .st-ink.cancelled,.shell.simple .st-ink.no-show{--st-ink:var(--late);}
 .shell.simple .st-ink{--st-wash:var(--well);}
 /* A popup's keys are the design's round keys: Save in ink, Cancel on the
@@ -2956,11 +2985,18 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 .wl-keys{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
 .wl-keys .btn{min-height:var(--tap);padding:0 20px;}
 .wl-keys .btn.add-open{margin-bottom:0;}
+/* Left over from an earlier night (daily round, 8 Oct): one quiet heading
+   at the foot of the waitlist, and rows that can only come off. */
+.wl-earlier-h{margin:24px 0 8px;padding:0 4px;font-size:var(--fs-md);font-weight:700;color:var(--mute);}
+.row.wl-old{cursor:default;padding-left:12px;}
 .ln-sign{display:flex;flex-direction:column;align-items:center;gap:16px;padding:0 0 24px;}
 /* The box is the size container and the card fills it, so the card's own
    padding is a share of the card too (a container's own lengths cannot ask
-   itself). Its height is what the bar and the page's head leave. */
-.ln-card-box{container-type:inline-size;flex:none;width:min(100%, calc((100dvh - 216px) * 105 / 148), 640px);}
+   itself). Its height is what the bar and the page's head leave — but never
+   under 280 wide: a phone turned sideways drew a 123 card with its venue in
+   4-pixel type (8 Oct). There the PAGE scrolls instead; the sign stays a
+   sign. */
+.ln-card-box{container-type:inline-size;flex:none;width:min(100%, max(280px, calc((100dvh - 216px) * 105 / 148)), 640px);}
 .ln-card{box-sizing:border-box;width:100%;aspect-ratio:105 / 148;
   padding:10.4cqw 8.6cqw 8.6cqw;border-radius:var(--r-surface);background:var(--surface);box-shadow:var(--lift-1);
   display:flex;flex-direction:column;align-items:center;text-align:center;}
@@ -2990,7 +3026,7 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
-<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "02ce172db408aa44413cf77771f5c84c17444bad";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = true;</script>
+<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "60d44852a01333aa6678561909c07ef91509d641";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = true;</script>
 <script>(function () {
   'use strict';
   // preview/shim.js — the front desk, running with no server.
@@ -3125,6 +3161,14 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
       return h;
     },
     randomUUID: function () { return 'p' + Math.random().toString(36).slice(2) + Date.now().toString(36); },
+    // The line's references are random bytes (server.js lineRef). The page's
+    // own crypto gives them; only a page with none falls back to Math.random.
+    randomBytes: function (n) {
+      var b = new Uint8Array(n);
+      if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(b);
+      else for (var i = 0; i < n; i++) b[i] = Math.floor(Math.random() * 256);
+      return b;
+    },
   };
 
   // Only reached from streamOrders(), which needs a POS. Here for the same
@@ -5071,11 +5115,19 @@ function durationFor(settings, party, override) {
 //
 // Now it is refused by name and never stored. Returns one line a human can
 // act on for each window that is wrong.
+//
+// AND A TIME THAT IS NOT A TIME IS REFUSED TOO, never filled in. The route
+// used to put 17:00 for a start it could not read and 21:30 for an end, so a
+// blanked Lunch end was stored as Lunch 11:30 to 21:30 with a 200 (daily
+// round, 8 Oct).
+const CLOCK_HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 function badWindows(list) {
   const out = [];
   for (const w of (list || [])) {
     if (!w) continue;
     const name = String(w.name || 'Sitting').trim() || 'Sitting';
+    const blank = !CLOCK_HHMM.test(String(w.start == null ? '' : w.start)) ? 'a start' : !CLOCK_HHMM.test(String(w.end == null ? '' : w.end)) ? 'an end' : '';
+    if (blank) { out.push({ name, start: w.start, end: w.end, says: `“${name}” needs ${blank} time.` }); continue; }
     if (toMin(w.end) > toMin(w.start)) continue;
     out.push({
       name, start: w.start, end: w.end,
@@ -5709,6 +5761,45 @@ function lineSince(settings, now) {
 // joined at ten to was on last night's line by the desk's reckoning and on
 // nobody's by the wire's: dropped from their own page, or refused.
 function lineNight(settings, now) { return localDay(new Date(lineSince(settings, now))); }
+// THE LINE IS OPEN WHILE THE KITCHEN IS (daily round, 8 Oct). The sign
+// stays on the door all day, and at half past eleven at night it took names
+// and promised "Any minute now" — the walk-in rule asked of an empty room, at
+// an hour nobody is seated. The line takes names while one of tonight's
+// services is running, or from LINE_EARLY minutes before one starts (a party
+// at the door at twenty to five is waiting for dinner); shut on a closed day,
+// between services, and once the night is over — before the trading day
+// rolls, the calendar's services are tomorrow's, as walkinNext() says. Shut
+// is no new names and nothing else: whoever is already in the line keeps
+// their place. `opens` is when it takes names again tonight, or null. The
+// host's own walk-ins and waitlist ask none of this.
+const LINE_EARLY = 30;
+// The night's services as minutes, and none before the trading day rolls:
+// what lineOpen() and lineFrom() both read.
+function lineServices(settings, day, t) {
+  if (t < rollsOf(settings)) return [];
+  return servicesOn(settings || {}, day).map(s => ({ a: toMin(s.start), b: toMin(s.end) }));
+}
+function lineOpen(settings, now) {
+  now = now || new Date();
+  const t = now.getHours() * 60 + now.getMinutes();
+  const from = lineServices(settings, localDay(now), t).map(s => ({ a: Math.max(0, s.a - LINE_EARLY), b: s.b }));
+  if (from.some(s => s.a <= t && t < s.b)) return { open: true, opens: null };
+  const next = from.filter(s => s.a > t).map(s => s.a).sort((x, y) => x - y)[0];
+  return { open: false, opens: next === undefined ? null : fromMin(next) };
+}
+// AND THE WAIT IS COUNTED FROM WHEN THE KITCHEN OPENS (review, 8 Oct). The
+// line opens half an hour early, and at 4:35 with dinner at five it said
+// "No wait for 2 right now" and "You're next in line · Any minute now" — the
+// walk-in rule asked of a room nobody is seated in until five. The moment a
+// wait is asked from: now while a service is on, else the start of the next
+// one still to come tonight (the early window, and a guest still in the line
+// between lunch and dinner). Once the night is over it is now, as it was.
+function lineFrom(settings, day, hhmm) {
+  const t = toMin(hhmm), svc = lineServices(settings, day, t);
+  if (svc.some(s => s.a <= t && t < s.b)) return hhmm;
+  const next = svc.filter(s => s.a > t).map(s => s.a).sort((x, y) => x - y)[0];
+  return next === undefined ? hhmm : fromMin(next);
+}
 // The most a party joining the line may be: what guests may book online.
 function lineMax(settings) {
   const o = (settings && settings.online) || {};
@@ -5724,6 +5815,14 @@ function lineMax(settings) {
 // words for a party too big. The relay keeps a copy (cloud/allocation.js),
 // held to this one by test/line.test.js.
 const LINE_DIGITS = 6;
+// ONE NUMBER, HOWEVER IT IS WRITTEN (daily round, 8 Oct). Marco joined on
+// 0412 555 001 and again on +61 412 555 001 — what a phone's autofill
+// writes — and one phone held two places. A number is its digits, and the
+// international form of an Australian number (+61, 0061, +61 (0)) is the
+// national one the venue writes: 0412 555 001.
+function lineNumber(x) {
+  return String(x == null ? '' : x).replace(/\D/g, '').replace(/^(?:00)?610?(?=[1-9]\d{8}$)/, '0');
+}
 function lineRefusal(p, max, taken) {
   p = p || {};
   const digits = (x) => String(x || '').replace(/\D/g, '');
@@ -5733,7 +5832,8 @@ function lineRefusal(p, max, taken) {
   const n = parseInt(p.partySize, 10);
   if (!(n >= 1)) return { code: 400, why: 'size', error: 'How many people?' };
   if (n > max) return { code: 400, why: 'big', error: 'Please ask at the door for that many.' };
-  if ((taken || []).some(t => digits(t) === d)) return { code: 409, why: 'taken', error: 'That number is already in the line.' };
+  const mine = lineNumber(p.phone);
+  if ((taken || []).some(t => lineNumber(t) === mine)) return { code: 409, why: 'taken', error: 'That number is already in the line.' };
   return null;
 }
 function lineOf(entries, settings, now) {
@@ -5750,12 +5850,16 @@ function lineKey(ctx, day, hhmm, size) {
     .sort((a, b) => (a.s - b.s) || (a.i - b.i));
   return keys.length ? keys[0].ids : null;
 }
-// Where one party lands: now, on its key, or at the first time a table frees.
+// Where one party lands: now, on its key, or at the first time a table frees
+// — asked from when the kitchen opens (lineFrom), and the minutes until then
+// are part of the wait.
 function lineSeat(ctx, day, hhmm, size) {
-  const key = lineKey(ctx, day, hhmm, size);
-  if (key) return { wait: 0, time: hhmm, tables: key, now: true };
-  const next = walkinNext(ctx, day, hhmm, size);
-  return next ? { wait: Math.ceil(next.wait / LINE_STEP) * LINE_STEP, time: next.time, tables: next.tables, now: false } : null;
+  const at = lineFrom(ctx.settings, day, hhmm), lead = toMin(at) - toMin(hhmm);
+  const up = (m) => Math.ceil(m / LINE_STEP) * LINE_STEP;
+  const key = lineKey(ctx, day, at, size);
+  if (key) return { wait: up(lead), time: at, tables: key, now: !lead };
+  const next = walkinNext(ctx, day, at, size);
+  return next ? { wait: up(lead + next.wait), time: next.time, tables: next.tables, now: false } : null;
 }
 // The line seated in order: the book with every party placed, and the wait
 // each was quoted where it stands — the same answer lineWait() gives a
@@ -5779,6 +5883,23 @@ function lineRun(ctx, day, hhmm, line) {
 function lineWait(ctx, day, hhmm, line, size) {
   const s = lineSeat(lineRun(ctx, day, hhmm, line).book, day, hhmm, Math.max(1, Number(size) || 1));
   return s ? s.wait : null;
+}
+// THE HOST'S SCREEN AND THE GUEST'S PHONE GIVE ONE ANSWER (daily round,
+// 8 Oct). Nothing free for six and Nguyen's six already waiting: the walk-in
+// menu's "First table" was walkinNext() of the plain book — Nguyen's own
+// table, at Nguyen's own time — while the line told a six asking through it
+// "nothing frees tonight". Two parties promised one table. The first table a
+// walk-in is offered is asked of the book with the line ahead of them seated
+// first (lineRun), so it is the line's own wait unrounded; the tables free
+// NOW stay the plain book's. `lineAhead()` is the line in front of one
+// waiting party, for the Seat on their row; one not in tonight's line is
+// behind all of it.
+function lineNext(ctx, day, hhmm, line, size) {
+  return walkinNext(lineRun(ctx, day, hhmm, line).book, day, hhmm, size);
+}
+function lineAhead(line, id) {
+  const i = (line || []).findIndex(w => w && w.id === id);
+  return i >= 0 ? line.slice(0, i) : (line || []).slice();
 }
 // The line run ONCE, and the wait at its back for every size asked: what the
 // relay is granted, and what the guests' page quotes before they join.
@@ -6951,7 +7072,7 @@ module.exports = {
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, LINE_STEP, lineSince, lineNight, lineMax, lineRefusal, lineOf, lineKey, lineRun, lineWait, lineWaits, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, lineOf, lineKey, lineRun, lineWait, lineWaits, lineNext, lineAhead, oneMove, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -8609,10 +8730,17 @@ function lineGrant(ctx, now) {
   const sizes = Array.from({ length: most }, (_, i) => i + 1);
   const run = av.lineWaits(Object.assign({}, ctx, { now }), day, hhmm, line, sizes);
   const since = av.lineSince(s, now);
+  // OPEN WHILE THE KITCHEN IS (daily round, 8 Oct): the switch, and a service
+  // on or about to start (av.lineOpen) — and when it opens again tonight, so
+  // the relay's page can say so. Both change at a service's edge, not by
+  // the minute.
+  const hours = o.line !== false ? av.lineOpen(s, now) : { open: false, opens: null };
   // No clock time in it: the grant is resent whenever it comes out
   // different, and a minute hand would resend 120 days of grants every pass.
+  // The waits are in fives, so before a service (counted from its start,
+  // av.lineFrom) they step down once every five minutes and no oftener.
   return {
-    date: av.lineNight(s, now), open: o.line !== false, maxPartySize: most, waits: run.bySize,
+    date: av.lineNight(s, now), open: hours.open, opens: hours.opens, maxPartySize: most, waits: run.bySize,
     queue: line.map((w, i) => ({ ref: w.ref || '', size: Number(w.partySize) || 1, wait: run.waits[i], told: w.status === 'notified' })),
     gone: (ctx.lineGone || []).filter(g => g && g.ref && Number(g.at) >= since && LINE_HOW.includes(g.how)).map(g => ({ ref: g.ref, how: g.how })),
   };
@@ -8620,7 +8748,9 @@ function lineGrant(ctx, now) {
 // What can become of a guest who joined from their phone and is no longer in
 // the line: the desk seated them, they left, the host took them off, or the
 // desk would not take them from the relay (switched off, too big, already in).
-const LINE_HOW = ['seated', 'left', 'removed', 'refused'];
+// `already`: the desk would not take them because their number is already in
+// the line (daily round, 8 Oct) — they are in it, and are told so.
+const LINE_HOW = ['seated', 'left', 'removed', 'refused', 'already'];
 
 // The waitlist entry for a guest who joined the line on the relay. Their place
 // is WHEN THEY JOINED, not when the desk heard — a party the host typed in a
@@ -8823,6 +8953,10 @@ function decide(item, diary, now) {
   //            the line's own rule (av.lineRefusal — a name, a mobile, a
   //            size guests may book, one place per number), or another
   //            night's — their page is told (lineGone, 'refused')
+  //   line-already  refused because that number is already in the line —
+  //            the host typed them in, or they joined on the wifi — and
+  //            their page says so (lineGone, 'already'), never "you're not
+  //            in the line" (daily round, 8 Oct)
   //   unline   a guest leaving the line who is still on the waitlist
   if (item.kind === 'line') {
     const lref = String(p.ref || '').toUpperCase();
@@ -8835,7 +8969,8 @@ function decide(item, diary, now) {
     // Tonight's is the NIGHT's: a join stamped at 11:59 PM and collected at
     // 12:00 is still tonight's line until the day rolls.
     if (p.date !== av.lineNight(s, now)) return 'line-no';
-    if (av.lineRefusal(p, av.lineMax(s), av.lineOf(list, s, now).map(w => w.phone))) return 'line-no';
+    const no = av.lineRefusal(p, av.lineMax(s), av.lineOf(list, s, now).map(w => w.phone));
+    if (no) return no.why === 'taken' ? 'line-already' : 'line-no';
     return 'line';
   }
   if (item.kind === 'line-leave') {
@@ -9115,11 +9250,13 @@ app.put('/api/settings', async (req, res) => {
   // a 400 halfway through would leave the desk holding a half-saved settings
   // object nobody asked for — and a backwards sitting used to be dropped in
   // silence, which is how a venue's New Year's Eve became "Closed". See
-  // av.badWindows().
+  // av.badWindows(). A time that is not HH:MM is one of the things it refuses:
+  // a blanked end used to be stored as 21:30 with a 200 (daily round, 8 Oct).
+  const clock = (t) => (t == null ? '' : String(t));
   const nextServices = Array.isArray(b.services) ? b.services.slice(0, 6).map(x => ({
     id: x.id || newId('sv'), name: String(x.name || 'Service').trim().slice(0, 20) || 'Service',
     days: Array.isArray(x.days) ? x.days.map(Number).filter(d => d >= 0 && d <= 6) : [],
-    start: HHMM.test(x.start) ? x.start : '17:00', end: HHMM.test(x.end) ? x.end : '21:30',
+    start: clock(x.start), end: clock(x.end),
   })) : null;
   let nextExceptions = null;
   if (Array.isArray(b.exceptions)) {
@@ -9129,7 +9266,7 @@ app.put('/api/settings', async (req, res) => {
       .map(x => {
         const wins = (Array.isArray(x.services) ? x.services : []).slice(0, 6).map(w => ({
           id: (w && w.id) || newId('sv'), name: String((w && w.name) || 'Sitting').trim().slice(0, 20) || 'Sitting',
-          start: HHMM.test(w && w.start) ? w.start : '17:00', end: HHMM.test(w && w.end) ? w.end : '21:30',
+          start: clock(w && w.start), end: clock(w && w.end),
         }));
         const closed = !!x.closed || !wins.length;
         return { id: x.id || newId('ex'), date: String(x.date), closed, note: String(x.note || '').trim().slice(0, 60), services: closed ? [] : wins };
@@ -9305,8 +9442,12 @@ app.get('/api/walkin', (req, res) => {
   const day = av.localDay(n);
   const tables = av.walkinTables(ctx, day, at, size);
   // Nothing takes them now: say WHEN something will (v19), so the menu can
-  // offer the waitlist with that wait and a booking for that time.
-  const next = tables.length ? null : av.walkinNext(ctx, day, at, size);
+  // offer the waitlist with that wait and a booking for that time — asked
+  // AFTER the line already waiting is seated (av.lineNext, daily round,
+  // 8 Oct), so the host's screen and the guest's phone give one answer.
+  // A waitlist Seat (`wl`) runs only the line in front of that party.
+  const line = av.lineOf(data.waitlist, ctx.settings, n);
+  const next = tables.length ? null : av.lineNext(ctx, day, at, req.query.wl ? av.lineAhead(line, String(req.query.wl)) : line, size);
   // A BIG PARTY LIGHTS ITS JOINED TABLES (8 Oct): no one table seats them,
   // so every saved combination that does — free, or held and by whom — for
   // the menu's keys and the room's lines and names (av.walkinCombos).
@@ -10016,6 +10157,10 @@ app.get('/api/reservations/:id/spend', async (req, res) => {
 });
 
 // ---------- waitlist (walk-ins) ----------
+// What a party was told. An explicit null is "no table" — nothing frees for
+// them tonight, the walk-in menu said so — and is kept as said, the way a
+// phone guest's is (daily round, 8 Oct); anything else is minutes, 0 at least.
+const quoteOf = (q) => q === null ? null : Math.max(0, parseInt(q) || 0);
 app.get('/api/waitlist', (req, res) => { res.json((readData().waitlist || []).slice().sort((a, b) => a.addedAt - b.addedAt)); });
 
 app.post('/api/waitlist', (req, res) => {
@@ -10023,7 +10168,7 @@ app.post('/api/waitlist', (req, res) => {
   const b = req.body || {};
   const name = String(b.name || '').trim().slice(0, 60);
   if (!name) return res.status(400).json({ error: 'A name is required' });
-  const w = { id: newId('w'), name, phone: String(b.phone || '').trim().slice(0, 30), partySize: Math.max(1, parseInt(b.partySize) || 2), quotedMin: Math.max(0, parseInt(b.quotedMin) || 0), notes: pos.plainText(b.notes).trim().slice(0, 200), status: 'waiting', addedAt: Date.now(), addedBy: staffFromReq(req), source: 'staff' };
+  const w = { id: newId('w'), name, phone: String(b.phone || '').trim().slice(0, 30), partySize: Math.max(1, parseInt(b.partySize) || 2), quotedMin: quoteOf(b.quotedMin), notes: pos.plainText(b.notes).trim().slice(0, 200), status: 'waiting', addedAt: Date.now(), addedBy: staffFromReq(req), source: 'staff' };
   data.waitlist.push(w);
   logAudit(data, staffFromReq(req), `Waitlist: ${w.name} (${w.partySize})`);
   writeData(data);
@@ -10039,7 +10184,7 @@ app.put('/api/waitlist/:id', (req, res) => {
   if (b.name !== undefined && String(b.name).trim()) w.name = String(b.name).trim().slice(0, 60);
   if (b.phone !== undefined) w.phone = String(b.phone || '').trim().slice(0, 30);
   if (b.partySize !== undefined) w.partySize = Math.max(1, parseInt(b.partySize) || 1);
-  if (b.quotedMin !== undefined) w.quotedMin = Math.max(0, parseInt(b.quotedMin) || 0);
+  if (b.quotedMin !== undefined) w.quotedMin = quoteOf(b.quotedMin);
   if (b.notes !== undefined) w.notes = pos.plainText(b.notes).trim().slice(0, 200);
   if (b.status !== undefined && ['waiting', 'notified', 'left'].includes(b.status)) { w.status = b.status; if (b.status === 'notified') w.notifiedAt = Date.now(); }
   writeData(data);
@@ -10568,9 +10713,15 @@ app.get('/api/line/left', (req, res) => {
   res.json((data.lineGone || []).filter(g => g && g.how === 'left' && Number(g.at) >= since).map(g => ({ ref: g.ref, name: g.name || 'A guest', at: g.at })));
 });
 const LINE_SHUT = 'The line is not taking names from phones right now. Please ask at the door.';
+// OPEN WHILE THE KITCHEN IS (daily round, 8 Oct): the switch, then the hours
+// (av.lineOpen) — a service on, or starting within half an hour. Shut takes
+// no new names; the guests already in the line keep their places below.
+function lineHours(s) { return lineOn(s) ? av.lineOpen(s, new Date()) : { open: false, opens: null }; }
+const twelve = (hhmm) => { const [h, m] = String(hhmm).split(':').map(Number); return ((h % 12) || 12) + ':' + av.pad2(m) + ' ' + (h < 12 ? 'AM' : 'PM'); };
 app.get('/api/public/line', (req, res) => {
   const data = readData(), s = effectiveSettings(data);
-  if (!lineOn(s)) return res.json({ open: false, venueName: s.venueName || '', say: 'Ask at the door' });
+  const hours = lineHours(s);
+  if (!hours.open) return res.json({ open: false, venueName: s.venueName || '', say: 'Ask at the door', opens: hours.opens });
   const max = av.lineMax(s), size = parseInt(req.query.size, 10) || 2;
   if (size < 1 || size > max) return res.status(400).json({ error: s.online.largerPartyMessage || 'Please ask at the door for that many.' });
   const st = lineState(data);
@@ -10578,7 +10729,8 @@ app.get('/api/public/line', (req, res) => {
 });
 app.post('/api/public/line', (req, res) => {
   const data = readData(), s = effectiveSettings(data);
-  if (!lineOn(s)) return res.status(400).json({ error: LINE_SHUT });
+  const hours = lineHours(s);
+  if (!hours.open) return res.status(400).json({ error: hours.opens ? `The line opens at ${twelve(hours.opens)}. Please ask at the door.` : LINE_SHUT });
   if (lineHits(lineMade, req) >= LINE_BUDGET || lineHits(lineTried, req, true) > LINE_TRIES) return res.status(429).json({ error: LINE_TOO_MANY });
   const b = req.body || {};
   const name = String(b.name || '').trim().slice(0, 60);
@@ -10651,8 +10803,9 @@ app.get('/api/run-sheet', (req, res) => {
   const day = String(req.query.date || tradingDay(data));
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return res.status(400).json({ error: 'A date is required' });
   const s = effectiveSettings(data);
+  // The waiting it prints is tonight's line, as the desk counts it.
   res.json(Object.assign({ venueName: s.venueName || '', venuePhone: s.venuePhone || '', generatedAt: Date.now() },
-    av.runSheet(ctxOf(data), day, { waitlist: data.waitlist, guests: data.guests, now: Date.now() })));
+    av.runSheet(ctxOf(data), day, { waitlist: av.lineOf(data.waitlist, s, new Date()), guests: data.guests, now: Date.now() })));
 });
 
 app.get('/api/today', (req, res) => {
@@ -10677,7 +10830,9 @@ app.get('/api/today', (req, res) => {
     date: day, bookings: live.length, covers: live.reduce((n, r) => n + r.partySize, 0),
     seated: rows.filter(r => av.isSat(r)).length,
     done: rows.filter(r => r.status === 'done').length,
-    waiting: (data.waitlist || []).filter(w => w.status !== 'left').length,
+    // Tonight's line, the one the guests are told (daily round, 8 Oct):
+    // last night's party nobody cleared is not waiting tonight.
+    waiting: av.lineOf(data.waitlist, ctx.settings, new Date()).length,
     noShows: rows.filter(r => r.status === 'no-show').length,
     notify: waitingList.length, openings,
     room: { tables: floor.length, free: count('free'), seated: count('seated'), over: count('over'), due: count('due'), check: count('check'), paid: count('paid') },
@@ -10855,6 +11010,10 @@ app.post('/api/relay/test', async (req, res) => {
 app.post('/api/relay/sync', async (req, res) => {
   const data = readData();
   if (!relay.ready(data.settings.relay)) return res.status(400).json({ error: 'The relay link is off' });
+  // SYNC NOW SYNCS (review, 8 Oct): a pass already in flight made this one
+  // return at once, nothing collected and nothing granted. It waits for that
+  // pass, then runs its own — nothing awaits between the check and the call.
+  while (_relayBusy) await new Promise(r => setTimeout(r, 50));
   const out = await relayPass(true);
   const st = readData().relayState;
   if (!st.connected) return res.status(502).json({ error: st.lastError || 'The relay did not answer' });
@@ -10978,9 +11137,12 @@ function applyRelayItem(data, item, asWas, relayNow) {
     const w = relaysync.lineEntry(p, { id: newId('w'), now, wait, age: Number(relayNow) > 0 && Number(p.at) > 0 ? Number(relayNow) - Number(p.at) : 0 });
     data.waitlist.push(w);
     logAudit(data, 'Online', `Line: ${w.name} (${w.partySize}) joined from their phone`);
-  } else if (what === 'line-no') {
-    lineGoneAs(data, String(p.ref || '').toUpperCase(), 'refused');
-    logAudit(data, 'Online', `Line: ${String(p.name || 'a guest').slice(0, 60)} not added from the relay`);
+  } else if (what === 'line-no' || what === 'line-already') {
+    // Already in the line (the host typed them in) is said as that, not as
+    // "not in the line" (daily round, 8 Oct).
+    const ref = String(p.ref || '').toUpperCase();
+    lineGoneAs(data, ref, what === 'line-already' ? 'already' : 'refused');
+    logAudit(data, 'Online', `Line: ${String(p.name || 'a guest').slice(0, 60)} not added from the relay${what === 'line-already' ? ' — that number is already in the line' : ''}`);
   } else if (what === 'unline') {
     const ref = String(p.ref || '').toUpperCase(), w = data.waitlist.find(x => x.ref === ref);
     data.waitlist = data.waitlist.filter(x => x !== w);
@@ -11041,6 +11203,11 @@ async function relayPass(forceGrant) {
     // queue stranded them, told "booked" and never in the diary — and then
     // one last grant with nothing in it. Asked again each pass until the
     // relay takes it. (`true` is the 1 Oct shape: the relay in Settings.)
+    // THE LINE STILL STANDS THERE (daily round, 8 Oct): that last grant
+    // carries tonight's REAL line, shut (`line: false`), so a guest already
+    // in it keeps reading their place on the page they joined on. It carried
+    // no waitlist, the line went empty, and every one of them read "You're
+    // not in the line" while the desk still had them and would text them.
     // Every relay owed a close is paid in turn, and its office is switched
     // off too. The 1 Oct single slot (`closeOwed`) folds into the list. A
     // relay that answers 401/403/404 cannot be closed with what we hold —
@@ -11059,8 +11226,8 @@ async function relayPass(forceGrant) {
       try {
         await collectFrom(oc, (await relay.ping(oc)).waiting, out, { office: !!old.office });
         data = readData();
-        const ctx = ctxOf(data);
-        ctx.settings = Object.assign({}, ctx.settings, { online: Object.assign({}, ctx.settings.online, { enabled: false }) });
+        const ctx = Object.assign(ctxOf(data), { waitlist: data.waitlist, lineGone: data.lineGone });
+        ctx.settings = Object.assign({}, ctx.settings, { online: Object.assign({}, ctx.settings.online, { enabled: false, line: false }) });
         // `closed`: the relay refuses guests' changes from now on — a cancel
         // there would sit in a queue nobody collects (3 Oct).
         await relay.grant(oc, Object.assign(relaysync.grantsFor(ctx, { now: new Date(), office: false }), { closed: true }));
@@ -11431,12 +11598,27 @@ function slotGroups(slots) {
   if (groups.length < 2) groups.forEach(g => { g.name = ''; });
   return groups;
 }
+// THE FIELD THE GUEST IS TYPING IN, KEPT (daily round, 8 Oct). A rebuild
+// put the focus back and the caret at the start, so typing on went in front
+// of what was there: "Priya" then " Raman" read " RamanPriya". The caret and
+// the selection come back with the focus.
+function keepFocus() {
+  const a = document.activeElement, id = a && a.id;
+  let sel = null;
+  try { if (a && typeof a.selectionStart === 'number') sel = [a.selectionStart, a.selectionEnd]; } catch (e) {}
+  return () => {
+    const el = id && document.getElementById(id);
+    if (!el) return;
+    el.focus();
+    if (sel) try { el.setSelectionRange(sel[0], sel[1]); } catch (e) {}
+  };
+}
 const shortDay = (day) => parseDay(day).toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
 function render() {
   const app = document.getElementById('app');
-  const focus = document.activeElement && document.activeElement.id;
+  const back = keepFocus();
   if (!st.info) { app.innerHTML = '<main class="gp"><p class="gp-quiet">Loading…</p></main>'; return; }
-  if (LINE) { renderLine(app); if (focus) { const el = document.getElementById(focus); if (el) el.focus(); } return; }
+  if (LINE) { renderLine(app); back(); return; }
   const i = st.info;
   const head = `<header class="gp-head"><div class="gp-venue">${esc(i.venueName)}</div>`;
   const foot = (i.venueAddress || i.venuePhone) ? `<footer class="gp-foot">${esc(i.venueAddress || '')}${i.venueAddress && i.venuePhone ? '<br>' : ''}${i.venuePhone ? `<a href="tel:${esc(i.venuePhone)}">${esc(i.venuePhone)}</a>` : ''}</footer>` : '';
@@ -11505,7 +11687,7 @@ function render() {
     </details></section>
     ${foot}
   </main>`;
-  if (focus) { const el = document.getElementById(focus); if (el) el.focus(); }
+  back();
 }
 
 // §§ THE LINE AT THE DOOR (owner, 8 Oct: "7. scans what? a qr code on the
@@ -11518,7 +11700,7 @@ function render() {
 // SIZES (never anybody's name), and Leave the line. It keeps itself current,
 // gently, and says when their table is ready and when they have been sat.
 const LINE = new URLSearchParams(location.search).get('line') === '1';
-const ln = { open: null, venue: '', max: 8, size: 2, wait: undefined, ahead: 0, ref: '', phone: '', spot: null, error: '', busy: false, timer: null, seatedAt: 0, leaving: false, leaveTimer: null };
+const ln = { open: null, opens: null, venue: '', max: 8, size: 2, wait: undefined, ahead: 0, ref: '', phone: '', spot: null, error: '', busy: false, timer: null, seatedAt: 0, leaving: false, leaveTimer: null };
 // The desk's Undo on a seat is five minutes (WL_UNDO_MS); a seated page goes
 // on asking through it and a poll more, so a name tapped by mistake is put
 // back on the guest's phone as well as on the list (review, 8 Oct).
@@ -11543,7 +11725,7 @@ function lineSave() {
 async function lineWait() {
   try {
     const r = await lineApi('?size=' + ln.size);
-    ln.open = !!r.open; ln.venue = r.venueName || r.name || ln.venue;
+    ln.open = !!r.open; ln.opens = r.open ? null : (r.opens || null); ln.venue = r.venueName || r.name || ln.venue;
     if (r.open) { ln.max = r.maxPartySize || ln.max; ln.wait = r.wait; ln.ahead = r.ahead || 0; }
   } catch (e) { ln.wait = undefined; ln.error = e.message; }
 }
@@ -11566,6 +11748,15 @@ function lineLive() {
   if (['waiting', 'told', 'unknown'].includes(s.status)) return true;
   return s.status === 'seated' && Date.now() - ln.seatedAt < LINE_UNDO_MS;
 }
+// TYPING IS NEVER DISTURBED (daily round, 8 Oct). The half-minute poll and
+// the phone coming back to the page rebuilt the whole join form under the
+// guest's fingers; while a join field has focus only the wait words move.
+function lineTyping() { const a = document.activeElement; return !ln.ref && !!a && (a.id === 'l-name' || a.id === 'l-phone'); }
+function lineShow() {
+  const words = lineTyping() && document.querySelector('.ln-wait');
+  if (words) { words.innerHTML = lineSay(); return; }
+  render();
+}
 // Every half minute while there is something to watch, and at once when the
 // phone comes back to the page; nothing while it is in a pocket.
 function linePoll() {
@@ -11573,8 +11764,8 @@ function linePoll() {
   ln.timer = setTimeout(async () => {
     if (!document.hidden) {
       if (lineLive()) await lineSpot();
-      else if (!ln.ref && ln.open) await lineWait();
-      render();
+      else if (!ln.ref && (ln.open || ln.opens)) await lineWait();
+      lineShow();
     }
     linePoll();
   }, 30000);
@@ -11582,7 +11773,7 @@ function linePoll() {
 document.addEventListener('visibilitychange', async () => {
   if (!LINE || document.hidden) return;
   if (ln.ref) await lineSpot(); else await lineWait();
-  render();
+  lineShow();
 });
 async function lineBoot() {
   document.title = 'Join the line';
@@ -11630,6 +11821,14 @@ async function lineAgain() {
   ln.ref = ''; ln.spot = null; ln.error = ''; ln.seatedAt = 0; ln.leaving = false; lineSave();
   await lineWait(); render();
 }
+// The words at the head of the join form: the wait for their size now, or —
+// shut until a service is about to start — when the line opens.
+function lineSay() {
+  const n = ln.size;
+  if (!ln.open) return ln.opens ? `<b>The line opens at ${esc(fmtHHMM(ln.opens))}</b><span class="ln-say">Until then, please ask at the door.</span>` : '<b>Ask at the door</b><span class="ln-say">The line isn’t taking names from phones right now.</span>';
+  return ln.wait === undefined ? 'Finding the wait…' : ln.wait === 0 ? `<b>No wait for ${n}</b> right now`
+    : ln.wait == null ? `<b>Nothing frees for ${n}</b> tonight` : `<b>About ${esc(waitWords(ln.wait))}</b> <span class="nw">for ${n} right now</span>`;
+}
 function renderLine(app) {
   const head = (h1) => `<header class="gp-head"><div class="gp-venue">${esc(ln.venue)}</div><h1>${h1}</h1>`;
   const s = ln.spot;
@@ -11638,6 +11837,9 @@ function renderLine(app) {
     const leave = (ln.leaving ? '<p class="gp-say gp-quiet ln-sure">Your place goes to the next party.</p>' : '')
       + `<button class="ln-leave${ln.leaving ? ' sure' : ''}" data-act="ln-leave" ${ln.busy ? 'disabled' : ''}>${ln.leaving ? 'Yes, leave the line' : 'Leave the line'}</button>`;
     if (s.status === 'seated') { app.innerHTML = `<main class="gp ln">${head('You’re at your table')}<p class="ln-wait">Enjoy your meal.</p></header>${again}</main>`; return; }
+    // Their number is already in the line — the host typed them in, or
+    // they joined on the wifi — so they ARE in it (daily round, 8 Oct).
+    if (s.status === 'already') { app.innerHTML = `<main class="gp ln">${head('That number is already in the line')}<p class="ln-wait">Please ask at the door.</p></header></main>`; return; }
     if (s.status === 'left') { app.innerHTML = `<main class="gp ln">${head('You’ve left the line')}<p class="ln-wait">Thanks for letting us know.</p></header>${again}</main>`; return; }
     if (s.status === 'told') {
       app.innerHTML = `<main class="gp ln">${head('Your table is ready')}<p class="ln-wait"><b>Come to the front</b><span class="ln-say">and we’ll seat you.</span></p></header>${ln.error ? `<p class="gp-err">${esc(ln.error)}</p>` : ''}${leave}</main>`;
@@ -11657,11 +11859,10 @@ function renderLine(app) {
     return;
   }
   if (ln.open === null) { app.innerHTML = '<main class="gp ln"><p class="gp-quiet">Loading…</p></main>'; return; }
-  if (!ln.open) { app.innerHTML = `<main class="gp ln">${head('Join the line')}<p class="ln-wait"><b>Ask at the door</b><span class="ln-say">The line isn’t taking names from phones right now.</span></p></header></main>`; return; }
+  // Shut until a service is about to start: when it opens, said plainly.
+  if (!ln.open) { app.innerHTML = `<main class="gp ln">${head('Join the line')}<p class="ln-wait">${lineSay()}</p></header></main>`; return; }
   const n = ln.size;
-  const say = ln.wait === undefined ? 'Finding the wait…' : ln.wait === 0 ? `<b>No wait for ${n}</b> right now`
-    : ln.wait == null ? `<b>Nothing frees for ${n}</b> tonight` : `<b>About ${esc(waitWords(ln.wait))}</b> <span class="nw">for ${n} right now</span>`;
-  app.innerHTML = `<main class="gp ln">${head('Join the line')}<p class="ln-wait">${say}</p></header>
+  app.innerHTML = `<main class="gp ln">${head('Join the line')}<p class="ln-wait">${lineSay()}</p></header>
     <section class="gp-sec"><div class="gp-pax" role="group" aria-label="How many people">
       <button data-act="ln-size" data-val="${n - 1}" aria-label="One fewer"${n <= 1 ? ' disabled' : ''}>−</button>
       <b aria-live="polite">${n}</b><span>${n === 1 ? 'person' : 'people'}</span>
