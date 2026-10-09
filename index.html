@@ -37,6 +37,13 @@
 @font-face{font-family:'Noto Sans';font-style:normal;font-weight:100 900;font-display:swap;src:url('fonts/notosans-var.woff2') format('woff2');}
 @font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/plexmono-500.woff2') format('woff2');}
 @font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/plexmono-700.woff2') format('woff2');}
+/* THE FACE THE PALETTE NAMES (9 Oct). The simple desk's tokens ask for Geist
+   and Geist Mono, and no file of either shipped, so every device drew its own
+   system face — DejaVu on a Linux till, SF on the owner's iPad — and the two
+   above went unused. Both are the OFL `geist` package's variable files, 1.3.1
+   (fonts/geist-OFL.txt), one file each for every weight. */
+@font-face{font-family:'Geist';font-style:normal;font-weight:100 900;font-display:swap;src:url('fonts/geist-var.woff2') format('woff2');}
+@font-face{font-family:'Geist Mono';font-style:normal;font-weight:100 900;font-display:swap;src:url('fonts/geistmono-var.woff2') format('woff2');}
 
 /* §§ Palette — :root is LIGHT, body[data-theme="dark"] is DARK. Literals on
    purpose (see the POS: a var() inside a token resolves where declared). */
@@ -766,8 +773,9 @@ body[data-theme="dark"] .row .cell.over{color:var(--steel-100);}
    EVERY FLAG IS A PLAIN WORD (QUIET: never a word in a pill, and ink and
    greys, one blue, red only for late, an allergy, a delete and a failure):
    the VIP, the occasion and a need — a wheelchair, a high chair — in ink,
-   each with its mark, and the allergy in the allergy's red. They were a gold
-   pill, a green one, a red one and an outlined one (8 Oct).
+   and the allergy in the allergy's red. They were a gold pill, a green one,
+   a red one and an outlined one (8 Oct), and then a word with a glyph where
+   a need beside it had none (9 Oct): the word alone.
    The CARD takes the colour of whichever flag LEADS (search.welcomeFor()'s
    `kind`: the allergy in red, then the VIP and the occasion in ink, then a
    regular, who wears arrived's own blue — the desk's one blue, the accent —
@@ -801,9 +809,7 @@ div.wb-card{cursor:default;}
 .wb-chips{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:12px;}
 .wb-chip{display:inline-flex;align-items:center;gap:4px;padding:0;border:none;background:none;
   color:var(--ink);font-size:var(--fs-md);font-weight:700;}
-.wb-chip svg{width:14px;height:14px;flex:none;}
 .wb-chip.vip{color:var(--ink);}
-.wb-chip.vip svg{fill:currentColor;}
 .wb-chip.al{color:var(--late);}
 .wb-chip.occ{color:var(--ink);}
 .wb-facts{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
@@ -814,12 +820,25 @@ div.wb-card{cursor:default;}
    bold and its mark is the allergy's red, whatever colour the card is. */
 .wb-facts li.al{font-weight:700;}
 .wb-facts li.al svg{color:var(--late);}
+/* And it is never cut: the other lines stop at two, and "…the whole tabl…"
+   at 390 was the allergy losing its last words (9 Oct). */
+.wb-facts li.al span{display:block;-webkit-line-clamp:unset;overflow:visible;}
 /* It goes by itself, and the time it has left runs out along its own foot. */
 .wb-timer{position:absolute;left:0;bottom:0;width:100%;height:4px;background:var(--wb-c);transform-origin:left;
   animation:wb-run var(--wb-ms) linear both;animation-delay:var(--wb-gone);}
 @keyframes wb-run{from{transform:scaleX(1);}to{transform:scaleX(0);}}
+/* EVERY CLOSE ON THE FRONT PAGE IS ONE KEY (review, 9 Oct): round, on the
+   well, a finger square — the walk-in menu's, Tidy up's and the booking's.
+   This one was a bare glyph, the flow's limit line's and the one-move
+   line's 8-cornered squares: three shapes for one job. On the card its
+   well is a breath of ink over the card's own wash — the plain well was the
+   card's own grey, 1.0 to 1 on an ink-led card — so it reads on any lead
+   and in either theme. Its ground now shows, so the head stops the 8 of
+   air short of it. */
 .wb-x{position:absolute;top:12px;right:12px;width:var(--tap);height:var(--tap);display:flex;align-items:center;
-  justify-content:center;padding:0;border:none;border-radius:var(--r-btn);background:none;color:var(--text-primary);cursor:pointer;}
+  justify-content:center;padding:0;border:none;border-radius:var(--r-pill);background:color-mix(in srgb, var(--ink) 8%, transparent);
+  color:var(--ink);cursor:pointer;}
+.wb-head{margin-right:12px;}
 .wb-x svg{width:20px;height:20px;}
 body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, var(--surface));}
 @media (prefers-reduced-motion:reduce){ .wb,.wb-timer{animation:none;} }
@@ -833,6 +852,12 @@ body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, v
 @media (max-width:900px){
   .wb{left:var(--sd-pad);right:var(--sd-pad);width:auto;bottom:0;padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px));}
 }
+/* ON A DESK IT STANDS ON THE LIST'S OWN FOOT, AT ITS WIDTH (9 Oct). The
+   dock ran to the window's foot, 20 past the list's and the room's, and
+   held the card 8 in at either side: a 384 card on a 400 list. It is the
+   list's 400 now, its foot the list's foot, with the page's ground for the
+   8 above it. Up to 900 the dock is as it was. */
+@media (min-width:901px){ .wb{bottom:var(--sd-pad);padding:8px 0 0;background:var(--bg);} }
 /* A seat from the tab raises its Undo as well. Up to 900 the card spans the
    pane, so the dock runs on under it to hold the toast: the toast covers
    none of the card and no row shows between them. On a desk the toast
@@ -848,6 +873,10 @@ body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, v
 @media (max-width:900px){
   .shell.simple:has(> .toast) > .wb{padding-bottom:calc(var(--toast-h, var(--tap)) + 32px + env(safe-area-inset-bottom, 0px));}
 }
+/* AND ITS FOOT IS THE ROOM'S INSET (9 Oct). At the window's 26 it was off
+   the 4 and its foot stood 6 above the room panel's: over the room it sits
+   the panel's own 16 inside the panel's foot. */
+@media (min-width:901px){ .shell.simple > .toast:not(.tl-hint){bottom:calc(var(--sd-pad) + 16px);} }
 @media (min-width:901px){
   .shell.simple:has(> .wb) > .toast,.shell.simple:has(.desk-main) > .toast{left:calc(var(--sd-x) + (var(--sd-col) + var(--sd-gap) + min(100vw, var(--sd-max))) / 2);max-width:calc(min(100vw, var(--sd-max)) - 2 * var(--sd-pad) - var(--sd-col) - var(--sd-gap));}
 }
@@ -872,8 +901,7 @@ body[data-theme="dark"] .toast{background:#EDE6D6;color:#26231F;}
   background:color-mix(in srgb,var(--st-late) 10%,var(--surface));}
 [data-theme="dark"] .bk-late{background:color-mix(in srgb,var(--st-late) 6%,var(--surface));}
 .bk-late-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;}
-.bk-late-head b{font-size:var(--fs-num);font-weight:800;line-height:1;color:var(--st-late);}
-.bk-late-head span{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.bk-late-head b{font-size:var(--fs-num);font-weight:800;line-height:1;color:var(--late);}
 .bk-late-keys{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .bk-late-keys.one{grid-template-columns:1fr;}
 .bk-late-go{display:grid;justify-items:center;align-content:center;gap:4px;min-height:56px;padding:8px 16px;border:none;
@@ -1326,7 +1354,7 @@ body.book-page #app{display:block;height:auto;}
 .fg-lim-x{height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);background:none;color:var(--charcoal-soft);
   font:inherit;font-weight:700;font-size:var(--fs-md);}
 .fg-lim-close{margin-left:auto;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;
-  border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);}
+  border:none;border-radius:var(--r-pill);background:var(--deck-pill-bg);color:var(--text-primary);}
 .fg-lim-close svg{width:20px;height:20px;}
 .stat.over{border-color:var(--red);}
 .stat.over b{color:var(--red);}
@@ -1514,7 +1542,7 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .dk-main i{font-style:normal;font-weight:700;}
 .dk-main i.here{color:var(--st-arrived);} .dk-main i.late{color:var(--red);}
 .dk-main i.leave{color:var(--st-check);} .dk-main i.ink{color:var(--text-primary);}
-.dk-rt{display:flex;align-items:center;justify-content:center;padding-right:8px;}
+.dk-rt{display:flex;align-items:center;justify-content:flex-end;padding-right:12px;}
 .dk-t{font-family:var(--font-mono);font-weight:600;font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;}
 .dk-t.over{color:var(--red);font-weight:800;}
 .dk-k{display:flex;align-items:center;justify-content:center;min-width:56px;height:var(--tap);padding:0 8px;
@@ -2301,7 +2329,7 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .wk-head b{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .wk-head > span{flex:1 0 auto;white-space:nowrap;}
 .wk-x{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
-  border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);}
+  border-radius:var(--r-pill);background:var(--deck-pill-bg);color:var(--text-primary);}
 .wk-x svg{width:20px;height:20px;}
 .wk-menu{width:360px;}
 /* How many: the new booking's own stepper, starting on two. */
@@ -2312,7 +2340,7 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .wk-pax b{min-width:32px;text-align:center;font-family:var(--font-mono);font-size:var(--fs-num);font-weight:800;}
 .wk-pax span{margin-left:-4px;color:var(--charcoal-soft);font-size:var(--fs-md);}
 .wk-more{margin-left:auto;height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);background:none;color:var(--charcoal-soft);
-  font:inherit;font-weight:700;font-size:var(--fs-md);}
+  font:inherit;font-weight:700;font-size:var(--fs-md);white-space:nowrap;}
 /* The tables that take them, as keys: the accent the room lights them in. */
 .wk-ts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
 .wk-t{height:52px;border:none;border-radius:var(--r-control);background:var(--orange);color:#fff;padding:0 4px;
@@ -2325,9 +2353,20 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
   border-radius:inherit;box-shadow:inset 0 0 0 var(--tbl-sel-ring) var(--orange);}
 @media (max-width:760px){
   /* A phone's key sits at the screen's edge: the sizes hang from the whole
-     bar instead, edge to edge, still straight under the finger. */
+     bar instead, gutter to gutter, still straight under the finger — and
+     the bar's own 8 under its keys, where the other two menus hang (it ran
+     8–382 past the 16 gutter and hung 12 below, 9 Oct). */
   .wk-anchor{position:static;}
-  .wk-menu{left:8px;right:8px;width:auto;top:calc(100% + 4px);}
+  .wk-menu{left:16px;right:16px;width:auto;top:100%;}
+}
+/* A NARROW PHONE KEEPS THE MENU IN ITS GUTTERS (review, 9 Oct). "With a
+   name" on one line asked 337 of the row, 9 past a 360 phone's menu, so
+   the close key and table 46 were cut at its edge, and at 320 the page
+   scrolled sideways. There the row's air closes to the 8 and the word may
+   take two lines in its key: one still at 360, two at 320. */
+@media (max-width:380px){
+  .wk-pax{gap:8px;}
+  .wk-more{padding:0 8px;white-space:normal;line-height:1.2;text-align:right;}
 }
 
 /* §§ A NEW BOOKING IS ONE PAGE (v13): how many, which day, what time, who.
@@ -2413,7 +2452,7 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .mv-bar > button{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-weight:800;font-size:var(--fs-md);white-space:nowrap;}
 .mv-bar > .mv-go{background:var(--text-primary);color:var(--surface);}
-.mv-bar > .mv-x{width:var(--tap);padding:0;display:flex;align-items:center;justify-content:center;}
+.mv-bar > .mv-x{width:var(--tap);padding:0;display:flex;align-items:center;justify-content:center;border-radius:var(--r-pill);}
 .mv-x svg{width:20px;height:20px;}
 @media (max-width:760px){
   .mv-bar{left:8px;right:8px;bottom:8px;max-width:none;flex-wrap:wrap;padding:4px;}
@@ -2456,8 +2495,11 @@ a.btn{color:var(--text-primary);text-decoration:none;}
   color:var(--text-primary);font:inherit;font-size:var(--fs-lg);font-weight:600;white-space:nowrap;}
 .bke-sent > button.mono{font-family:var(--font-mono);font-weight:700;}
 .bke-sent > button.none{background:none;border:1px dashed var(--red);color:var(--red);}
+/* The next step is a key that does the thing, so it is ink — Seat at 31
+   and The other 2 arrived were a 56-tall slab of the one blue beside Here,
+   Bill, Paid and Left in ink (QUIET, 9 Oct). */
 .bke-next{display:flex;gap:8px;}
-.bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--orange);color:var(--on-accent);
+.bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--ink);color:var(--surface);
   font:inherit;font-size:var(--fs-lg);font-weight:800;}
 .bke-next .go.ink{background:var(--text-primary);color:var(--surface);}
 .bke-alert{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:8px 16px;border:none;border-radius:var(--r-control);
@@ -2503,6 +2545,9 @@ a.btn{color:var(--text-primary);text-decoration:none;}
      booking sheet, the welcome card) reads these, never the old rail's. */
   --sd-max:1440px; --sd-pad:20px; --sd-col:400px; --sd-gap:16px;
   --sd-x:max(0px, (100vw - var(--sd-max)) / 2);
+  /* The bar's height, the deck's 8 + 52 + 8: the bar is drawn to it and the
+     booking sheet lands on its foot, one number for both (9 Oct). */
+  --tp-h:68px;
 }
 body[data-theme="dark"]{
   --bg:#0E0F11; --ink:#F1F1EE; --mute:#9A9DA5; --faint:#62656D; --line:#2A2C31;
@@ -2525,7 +2570,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .rail{display:none;}
 
 /* §§ The bar: the night, the service, the two make keys, the menu key. */
-.tp{position:relative;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;background:var(--bg);}
+.tp{position:relative;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 20px;background:var(--bg);}
 .tp-night{display:flex;align-items:center;gap:4px;}
 .tp-ar{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
   border-radius:50%;background:var(--well);color:var(--ink);padding:0;}
@@ -2553,7 +2598,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .tp-sh{display:none;}
 .tp-menu-a{position:relative;display:flex;}
 .tp-veil{position:fixed;inset:0;z-index:39;}
-.tp-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:40;width:240px;display:grid;padding:8px;
+.tp-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:40;width:260px;display:grid;padding:8px;
   border-radius:var(--r-surface);background:var(--surface);box-shadow:var(--lift-2);}
 .tp-mi{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 12px;border:none;
   border-radius:var(--r-control);background:none;color:var(--ink);font:inherit;font-weight:600;font-size:var(--fs-lg);text-align:left;}
@@ -2579,6 +2624,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
    (daily round, 8 Oct). Up to 900 the desk is tabs and there is no seam. */
 @media (min-width:901px){
   .shell.simple .modal.bk-sheet:not(.pane-wide){left:calc(var(--sd-x) + var(--sd-pad) + var(--sd-col) + var(--sd-gap) / 2);}
+  /* And it is the room panel's own box otherwise (9 Oct): its top the bar's
+     foot (--tp-h, the bar's own height), its foot and its right edge the pane's
+     gutter, every corner the panel's. It ran 72–788 against a panel at
+     68–780, and at 1920 to the window's edge, 260 past the room and outside
+     the 1440 shell. */
+  .shell.simple .modal.bk-sheet:not(.pane-wide){top:var(--tp-h);bottom:var(--sd-pad);right:calc(var(--sd-x) + var(--sd-pad));border-radius:var(--r-surface);}
 }
 .shell.simple .desk-col{max-height:none;overflow-y:auto;border-right:none;background:none;padding-bottom:16px;}
 /* Up to 900 the message stands at the window's foot over the list, so the
@@ -2597,9 +2648,17 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .fl-box > .fl-wrap{background:var(--surface);padding:16px;}
 .shell.simple .timeline,.shell.simple .tl-card{border:none;border-radius:0;}
 
-/* The search well and the groups, the prototype's own. */
+/* The search well and the groups, the prototype's own. The list's
+   nothing-here line reads like the list: from its left edge, in the
+   heads' weight, quiet — not the app's centred block 48 down (9 Oct). */
+.shell.simple .desk-col .bl-find ~ .empty{text-align:left;padding:12px 4px;font-weight:600;color:var(--mute);}
 .shell.simple .desk-col .bl-find{position:sticky;top:0;margin:0 0 16px;padding:0 4px 0 16px;min-height:48px;border:none;
   border-radius:var(--r-pill);background:var(--surface);}
+/* THE PINNED SEARCH KEEPS ITS ROUND ENDS, AND THE ROWS SLIDE STRAIGHT UNDER
+   IT (9 Oct). The till settled this: a pinned card keeps its corners and
+   nothing stands between it and what passes beneath (its DESIGN.md,
+   Alignment law 5 — a band of ground was one of the four it turned down).
+   So no band: the rows show beside its round ends as they go under. */
 .shell.simple .desk-col .side-sw{display:none;}
 .shell.simple .bl-head{display:flex;align-items:center;gap:8px;min-height:52px;padding:0 4px;border:none;background:none;}
 .shell.simple .bl-h-name{flex:none;font-size:var(--fs-lg);font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);}
@@ -2612,16 +2671,20 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .bl-rows{display:block;padding:0;margin-bottom:16px;border-radius:var(--r-control);background:var(--surface);overflow:hidden;}
 
 /* The docket line in the design's few colours. */
-.shell.simple .dk-row{border-radius:0;border-top:1px solid var(--line);}
+/* The right column is as wide as what it says, never under 72, and ends
+   12 in from the row's edge on every row — a time, a count, a key — where
+   centred it wandered 12 px down one list (9 Oct). */
+.shell.simple .dk-row{grid-template-columns:64px minmax(0,1fr) minmax(72px,auto);border-radius:0;border-top:1px solid var(--line);}
 .shell.simple .bl-rows > .dk-row:first-child{border-top:none;}
 .shell.simple .dk-row.selected,.shell.simple .dk-row.open{background:var(--accent-wash);box-shadow:none;}
 .dk-tab[class*="stg-"]{background:var(--tfree);color:var(--ink);border-left:none;text-decoration:none;}
 .dk-tab.stg-here{background:var(--accent);color:var(--on-accent);}
-.dk-tab.stg-open{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 calc(var(--ring) * 2) var(--accent);}
-.bl-head.opened .bl-h-name{color:var(--accent);}
-.bl-head.opened .bl-h-c{color:var(--accent);background:var(--accent-wash);}
+/* Just opened spends the one blue once: the tab's ring. Its head is a head,
+   its words ink and its Text the ink key that does the thing (9 Oct: one
+   row wore the blue five times). */
+.dk-tab.stg-open{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 var(--ring) var(--accent);}
 .dk-k.ink{background:var(--ink);color:var(--surface);}
-.dk-k.txt{background:var(--accent-wash);color:var(--accent);}
+.dk-k.txt{background:var(--ink);color:var(--surface);}
 a.dk-k,a.chip{text-decoration:none;}
 .dk-tab.stg-phere{background:var(--accent-wash);color:var(--accent);box-shadow:inset var(--ring) 0 0 var(--accent);}
 .dk-tab.stg-late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
@@ -2629,7 +2692,11 @@ a.dk-k,a.chip{text-decoration:none;}
 .dk-tab.stg-bill{background:var(--seat);box-shadow:inset var(--ring) 0 0 var(--leave);}
 .dk-tab.stg-gone{color:var(--mute);}
 .dk-tab.stg-none{background:none;color:var(--late);border:1px dashed var(--late);}
-.dk-tab.busy{color:var(--faint);text-decoration:line-through;text-decoration-thickness:2px;}
+.dk-tab.busy{color:var(--mute);text-decoration:line-through;text-decoration-thickness:2px;}
+/* Struck on the blue — a party at the door whose table is still eating, the
+   tab's main use — the number keeps the blue's own ink: grey on the blue
+   was 1.14 to 1 (9 Oct). */
+.dk-tab.stg-here.busy{color:var(--on-accent);}
 .dk-main b{font-size:var(--fs-lg);font-weight:600;}
 .dk-main i.here{color:var(--accent);} .dk-main i.late{color:var(--late);} .dk-main i.leave{color:var(--leave);}
 .dk-t{font-size:var(--fs-md);color:var(--mute);}
@@ -2647,6 +2714,11 @@ a.dk-k,a.chip{text-decoration:none;}
 .shell.simple .fl-table.stg-here{background:var(--accent);color:var(--on-accent);}
 .shell.simple .fl-table.stg-phere{background:var(--accent-wash);color:var(--accent);border:.25cqw solid var(--accent);}
 .shell.simple .fl-table.stg-late{background:var(--late-wash);color:var(--late);border:.25cqw solid var(--late);outline:none;}
+/* A table's number is what a host reads across a room: 2 of the room's
+   width, about 0.3 of a table as the till draws it (17–20 px), where 1.5
+   was 0.2 — 11.9 px at 1280 and 8 at 1024 (9 Oct). The loose grid keeps
+   its token: it has no width to take a share of. */
+.shell.simple .fl-room:not(.loose) .fl-no{font-size:2cqw;}
 .shell.simple .fl-table.over{outline:.3cqw solid var(--late);outline-offset:.3cqw;}
 .shell.simple .fl-table.check,.shell.simple .fl-table.paid{outline:.3cqw solid var(--leave);outline-offset:.3cqw;}
 
@@ -2657,6 +2729,28 @@ a.dk-k,a.chip{text-decoration:none;}
 .shell.simple .tl-block.seated,.shell.simple .tl-block.part-seated{background:var(--seat);color:var(--ink);}
 .shell.simple .tl-block.check,.shell.simple .tl-block.paid{background:var(--seat);color:var(--ink);box-shadow:inset var(--ring) 0 0 var(--leave);}
 .shell.simple .tl-block.done,.shell.simple .tl-block.cancelled,.shell.simple .tl-block.no-show{background:var(--well);color:var(--mute);}
+/* A late party is the tab's own late: the wash, the red, a red edge. */
+.shell.simple .tl-block.late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
+/* EVERY BLOCK IS A FINGER TALL (9 Oct). A block opens the booking and is
+   the drag's handle, and it was 34 tall: the finger law says nothing on the
+   desk is under 44. A 44 block with 4 of air in a 52 lane, and the drop mark
+   the same box the block will land in. */
+.shell.simple .tl-lane:not(.floor),.shell.simple .tl-label:not(.floor){min-height:52px;}
+.shell.simple .tl-block,.shell.simple .tl-drop{top:4px;height:44px;}
+/* THE LIFTED BLOCK WEARS THE SAME FEW COLOURS (review, 9 Oct). It is a
+   clone carried on <body>, outside the shell, because it must outlive the
+   paint that follows a refused drop while it floats home — so the rules
+   above never reached it and a confirmed party rode the finger in the old
+   palette's teal-green, the one green on the page. It wears them by its own
+   name. Its lift is its one edge — a late block's red edge as well would
+   be a shadow inside and outside at once — so late is its wash and its red. */
+.tl-block.tl-drag-ghost{background:var(--tfree);color:var(--ink);}
+.tl-block.tl-drag-ghost.arrived{background:var(--accent);color:var(--on-accent);}
+.tl-block.tl-drag-ghost.part-arrived{background:var(--accent-wash);color:var(--accent);}
+.tl-block.tl-drag-ghost.seated,.tl-block.tl-drag-ghost.part-seated{background:var(--seat);color:var(--ink);}
+.tl-block.tl-drag-ghost.check,.tl-block.tl-drag-ghost.paid{background:var(--seat);color:var(--ink);}
+.tl-block.tl-drag-ghost.done,.tl-block.tl-drag-ghost.cancelled,.tl-block.tl-drag-ghost.no-show{background:var(--well);color:var(--mute);}
+.tl-block.tl-drag-ghost.late{background:var(--late-wash);color:var(--late);}
 .shell.simple .fg-tbl{background:var(--tfree);color:var(--ink);}
 .shell.simple .fg-tbl.arrived{background:var(--accent);color:var(--on-accent);}
 .shell.simple .fg-tbl.part-arrived{background:var(--accent-wash);color:var(--accent);}
@@ -2670,7 +2764,7 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
 /* §§ A phone: the bar wraps to two lines and the views are tabs under it —
    List · Floor · Timeline · Flow — with no bar at the foot. */
 @media (max-width:760px){
-  :root{--sd-pad:16px;}
+  :root{--sd-pad:16px;--tp-h:60px;}
   .tp{padding:8px 16px;gap:8px;}
   .tp-night{flex:1;order:0;justify-content:space-between;}
   .tp-menu-a{order:1;}
@@ -2705,8 +2799,10 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
 /* Up to 900 the list and the room do not both fit beside each other, so the
    desk is the phone's: List · Floor · Timeline · Flow as tabs, one at a time. */
 @media (max-width:900px){
-  .vt-phone{display:flex;margin-bottom:12px;}
-  .vt-phone button{flex:1;}
+  /* Four equal keys in the groove, the till's own: as a flex row they were
+     63/75/104/72 at 360 and Flow ran 2 px past the well (9 Oct). */
+  .vt-phone{display:grid;grid-template-columns:repeat(4,1fr);margin-bottom:12px;}
+  .vt-phone button{padding:0 4px;min-width:0;}
   .vt-row .vt:not(.vt-rooms){display:none;}
   .vt-row:not(:has(.vt-rooms)){display:none;}
   .shell.simple .desk{grid-template-columns:minmax(0,1fr);}
@@ -2721,11 +2817,10 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
 .tp-ar{background:none;width:36px;}
 .tp-night-a{position:relative;display:flex;}
 .tp-date.on .tp-big svg{transform:rotate(180deg);}
-.tp-views .vt{background:var(--well);}
 .tp-menu-l{left:0;right:auto;width:260px;}
 .tp-mi-t{font-family:var(--font-mono);font-size:var(--fs-md);color:var(--mute);font-weight:500;}
 .tp-mi.on .tp-mi-t{color:var(--accent);}
-.tp-mi-sep{display:block;height:1px;margin:4px 8px;background:var(--line);}
+.tp-mi-sep{display:block;height:8px;margin:0 8px;background:linear-gradient(var(--line), var(--line)) 0 4px / 100% 1px no-repeat;}
 @media (max-width:900px){ .tp-views{display:none;} }
 @media (max-width:1100px){ .tp-lg{display:none;} .tp-btn:not(.icon){width:var(--tap);padding:0;justify-content:center;} }
 @media (max-width:760px){
@@ -2864,10 +2959,12 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 .dk-tab.stg-bill{box-shadow:none;}
 .dk-tab.stg-none{color:var(--mute);border-color:var(--faint);}
 .dk-t.over{color:var(--ink);font-weight:700;}
-.dk-main i.leave{color:var(--mute);}
+.dk-main i.leave{color:var(--ink);}
 .dk-main i.quiet{color:var(--mute);font-weight:600;}
-/* The room: grey, darker grey, blue at the door, red only for late. No rings. */
-.shell.simple .fl-table.stg-late{border:none;}
+/* The room: grey, darker grey, blue at the door, red only for late. No rings.
+   The late table keeps the simple desk's red EDGE — an inside edge, not a
+   ring — or it was the faintest thing in the room (1.17 to 1) while its tab
+   in the list wore a red edge (9 Oct: "make the floor match the list"). */
 .shell.simple .fl-table.over,.shell.simple .fl-table.check,.shell.simple .fl-table.paid{outline:none;}
 .shell.simple .tl-block.check,.shell.simple .tl-block.paid{box-shadow:none;}
 .tl-now{width:1px;background:var(--ink);}
@@ -2877,8 +2974,17 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
    wears the ring its tables wear in the room, because it IS what you picked
    there — see A BIG PARTY LIGHTS ITS JOINED TABLES at the foot. */
 .wk-t{background:var(--well);color:var(--ink);}
-.wk-t.till{background:none;color:var(--mute);border:1px solid var(--line);}
+/* A table that takes them only till a time is the same grey key, its number
+   and its time quiet: an outline was a fourth key shape, and in dark it all
+   but vanished (1.26 to 1, 9 Oct). */
+.wk-t.till{background:var(--well);color:var(--mute);border:none;}
 .fg-sum{margin:0 0 12px;color:var(--mute);font-size:var(--fs-lg);}
+/* Each part of the totals is one unit: a line breaks between them, never
+   inside one (9 Oct). */
+.fg-u{white-space:nowrap;}
+/* The totals and the strip start on the panel's one 16 inset: the strip sat
+   12 further in, on a margin of its own (9 Oct). */
+.shell.simple .dm-scroll > .flow{margin:0;}
 .fg-sum b{color:var(--ink);font-family:var(--font-mono);}
 .shell.simple .flow{border:none;padding:0;}
 .fg-col.quiet .fg-total{visibility:hidden;}
@@ -2900,8 +3006,35 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
    under it in plain type; the day is stepped from its menu, not from arrows
    either side of it. The views beside it on a desk. Walk-in and New booking
    are words, the same pill, grey and ink; the menu is a plain key. */
-.tp{gap:16px;min-height:68px;}
+.tp{gap:16px;min-height:var(--tp-h);}
 .tp-night{gap:0;}
+/* THE BAR, MEASURED AGAINST THE TILL'S DECK (owner, 9 Oct: "have a look at
+   the pos design … every detail"). Eight of air above and below, so the
+   height follows the well and not the other way: 8 + 52 + 8 is the 68 it
+   already claimed (it was 12 + 52 + 12, a 76 nobody chose). From 1200 the
+   night is the list's own width, so with the bar's 16 — the desk's gap —
+   the views stand over the room's left edge whatever the title says; it
+   moved 46 px between Friday and Last night. And the menu key's glyph ends
+   as far in from the right as the title's first letter starts on the left:
+   the key's own 12 round its glyph is air the edge already gives. */
+@media (min-width:1200px){ .tp-night{flex:none;width:var(--sd-col);} }
+/* And there, standing over the room, Floor · Timeline · Flow are one width,
+   the widest word's. Under 1200 the night takes its own width and the views
+   follow it across the seam, so there they keep their words' own widths:
+   equal, the well hung 32 into the room's corner from 901 to 1199, and at
+   their own widths it ends over the list, 5 short of its edge (review, 9 Oct). */
+@media (min-width:1200px){ .tp-views .vt{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;} }
+.tp > .tp-menu-a:last-child{margin-right:-8px;}
+.tp > .tp-menu-a:last-child > .tp-menu{right:8px;}
+/* DARK IS LIFTED, NOT SUNK (9 Oct). The segment you are on was the paper,
+   #18191D, inside a #202227 well — darker than its own groove, a hole,
+   where light lifts it white — so in dark it is the free table's grey, a
+   step ABOVE the well. And a menu was the paper over the paper, 1.0 to 1:
+   in dark it carries a hairline edge under its lift, and its table keys
+   stand off it in the same grey the lit segment wears. */
+body[data-theme="dark"] .tp-seg button.on,body[data-theme="dark"] .vt button.on{background:var(--tfree);}
+body[data-theme="dark"] .tp-menu,body[data-theme="dark"] .wk-menu{box-shadow:0 0 0 var(--ring) var(--line), var(--lift-2);}
+body[data-theme="dark"] .wk-t:not(.join){background:var(--tfree);}
 .tp-date{padding:0 4px;}
 .tp-big{font-size:var(--fs-num);}
 .tp-when{font-family:var(--font-body);font-size:var(--fs-md);font-weight:500;}
@@ -2912,7 +3045,7 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 .tp-sh{display:none;}
 @media (max-width:1100px){ .tp-lg{display:inline;} .tp-btn:not(.icon){width:auto;padding:0 20px;} }
 @media (max-width:760px){
-  .tp{gap:8px;min-height:60px;}
+  .tp{gap:8px;}
   .tp-lg{display:none;} .tp-sh{display:inline;}
   .tp-btn:not(.icon){padding:0 16px;}
   .tp-big{font-size:var(--fs-xl);}
@@ -2942,6 +3075,15 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 .shell.simple .pane > .desk{flex:1 1 auto;min-height:0;height:auto;}
 /* A number is never in a box (QUIET). */
 .bl-h-c,.shell.simple .bl-head.red .bl-h-c,.bl-head.opened .bl-h-c,.tp-mi-n{background:none;min-width:0;padding:0;}
+/* AND IT STANDS ON ITS WORD'S LINE (9 Oct). With the box gone its centred
+   24-tall frame only lifted the smaller mono digits 1.5 above the word
+   beside them, in the list's heads and in the menu alike. The line is
+   centred in its row (one line, wrapped so align-content can centre it)
+   and the word, the count and the people share one baseline in it. */
+.bl-h-c,.tp-mi-n{height:auto;}
+.shell.simple .bl-head{flex-wrap:wrap;align-content:center;}
+.shell.simple .bl-head > .bl-h-name,.shell.simple .bl-head > .bl-h-c,.shell.simple .bl-head > .bl-h-p{align-self:baseline;}
+.tp-mi{flex-wrap:wrap;align-content:center;align-items:baseline;}
 /* A key that does the thing is ink: the guest card's Book wore the gold,
    which QUIET made a grey that white words do not read on in dark. */
 .shell.simple .icon-action.warn{background:var(--ink);color:var(--surface);}
@@ -12069,6 +12211,9 @@ function toMin(hhmm) { const [h, m] = String(hhmm || '0:0').split(':').map(Numbe
 function fromMin(min) { return pad2(Math.floor(min / 60) % 24) + ':' + pad2(((min % 60) + 60) % 60); }
 function addDays(day, n) { const [y, m, d] = day.split('-').map(Number); return localDay(new Date(y, m - 1, d + n)); }
 function parseDay(day) { const [y, m, d] = day.split('-').map(Number); return new Date(y, m - 1, d); }
+// The day then the month, "7 Oct", whatever order the tablet's locale puts
+// them in: the law's words are "Wed 7 Oct", and an en-US tablet read "Oct 7".
+function dayMonth(day) { const d = parseDay(day); return d.getDate() + ' ' + d.toLocaleDateString([], { month: 'short' }); }
 function fmtTime(t) { return new Date(t).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
 function fmtStamp(ms) { const d = new Date(ms); return isNaN(d.getTime()) ? '—' : d.toLocaleString([], { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }); }
 // A time in a row's 44-wide block, the way the rest of the app says it:
@@ -12079,6 +12224,14 @@ function cellTime(hhmm, party) {
   return `${esc(clock)}<small>${half ? esc(half) + ' · ' + party : party + ' pax'}</small>`;
 }
 function fmtHHMM(hhmm) { const d = new Date(); d.setHours(...hhmm.split(':').map(Number), 0, 0); return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+// A range says its half of the day once when both ends share it — "5:30–10:00
+// PM" — and at each end when they do not, "11:30 AM–2:30 PM": cutting it off
+// the start always made a lunch 11:30 PM, and keeping both doubled a slot's
+// "8:00 PM–8:15 PM" (9 Oct).
+function fmtRange(a, b) {
+  const x = fmtHHMM(a), y = fmtHHMM(b), half = (t) => ((t.match(/\s?([AP]M)$/i) || [])[1] || '').toUpperCase();
+  return (half(x) && half(x) === half(y) ? x.replace(/\s?[AP]M$/i, '') : x) + '–' + y;
+}
 function fmtDay(day, long) { return parseDay(day).toLocaleDateString([], long ? { weekday: 'long', day: 'numeric', month: 'long' } : { weekday: 'short', day: 'numeric', month: 'short' }); }
 // Money is written the POS's way, character for character (its own money() in
 // public/app.js) — no thousands separator, two decimals. One system, one
@@ -12863,6 +13016,22 @@ document.addEventListener('focusin', (e) => {
   if (k) { k.focus(); _focusAuto = true; }
 });
 function canFocus(el) { return el.tabIndex >= 0 && el.getClientRects().length > 0; }
+// A SCROLL IS KEPT WHERE IT WAS LAST SEEN (9 Oct). Every paint read each
+// [data-keep] box's scroll and put it back — including a box that was not
+// on screen: up to 900 the list is display:none on the Floor, Timeline and
+// Flow tabs, so it read 0 there, and List → Timeline → List put a host back
+// at the top of the night. Only a box that is DRAWN writes its place down;
+// a hidden one keeps the place it had, and a box that has left the page
+// altogether forgets it, as it always did.
+const _keptScroll = {};
+function keepScroll(els) {
+  const here = new Set();
+  els.forEach(el => { const k = el.dataset.keep; here.add(k); if (el.getClientRects().length) _keptScroll[k] = [el.scrollTop, el.scrollLeft]; });
+  Object.keys(_keptScroll).forEach(k => { if (!here.has(k)) delete _keptScroll[k]; });
+}
+function putScroll(els) {
+  els.forEach(el => { const s = _keptScroll[el.dataset.keep]; if (s) { el.scrollTop = s[0]; el.scrollLeft = s[1]; } });
+}
 function render() {
   // NEVER rebuild the DOM while a block is being dragged: it destroys the
   // element under the live pointer and Chromium answers with pointercancel,
@@ -12882,14 +13051,14 @@ function render() {
   // the ten-second poll (daily round, 30 Sep).
   const focusKey = !focusId && !focusField && focus && focus !== document.body && focus.dataset && focus.dataset.act
     ? `[data-act="${CSS.escape(focus.dataset.act)}"]` + ['val', 'id', 'field', 'table'].map(k => focus.dataset[k] !== undefined ? `[data-${k}="${CSS.escape(focus.dataset[k])}"]` : '').join('') : null;
-  const scrolls = {}; document.querySelectorAll('[data-keep]').forEach(el => { scrolls[el.dataset.keep] = [el.scrollTop, el.scrollLeft]; });
+  keepScroll(document.querySelectorAll('[data-keep]'));
   // A field that saves on leaving is not left by a repaint (savedOnLeave()).
   const typed = focusField && focus.dataset.saveOn === 'blur' && focus.dataset.save ? { field: focusField, value: focus.value, save: focus.dataset.save } : null;
   _rebuilding = true;
   try {
   app.innerHTML = `<div class="shell simple">${renderTop()}<div class="main"><div class="pane" data-keep="pane">${renderPageHead()}${state.view === 'guests' ? renderSecBand() : ''}${renderView()}</div></div>${state.modal ? renderModal() : ''}${state.welcome ? renderWelcome() : ''}${renderToast()}</div>`;
   } finally { _rebuilding = false; }
-  document.querySelectorAll('[data-keep]').forEach(el => { const s = scrolls[el.dataset.keep]; if (s) { el.scrollTop = s[0]; el.scrollLeft = s[1]; } });
+  putScroll(document.querySelectorAll('[data-keep]'));
   // A day drawn for the first time opens where the work is; after that the
   // line above has already put the desk's own scroll back and this does
   // nothing. Runs after the restore, so it wins on the day that changed.
@@ -12898,11 +13067,23 @@ function render() {
   dockToast();
   tlTick();                       // the line lands on the second, not on the paint
   const tlEl = state.dayLoaded === state.date ? document.querySelector('.tl[data-keep="tl"]') : null;
-  const tlKey = state.view + ':' + state.todayMode + ':' + state.date;
+  // The service is part of the key: Lunch picked from Dinner's flow opened on
+  // Dinner's scroll, 11:30 and 11:45 cut (review, 9 Oct).
+  const tlKey = state.view + ':' + state.todayMode + ':' + state.date + ':' + (state.service || '');
   // On the next frame, not this one: at first paint the grid has not finished
   // laying out, so the browser clamps the scroll against a width that is not
   // the final one and the timeline lands short of where it was aimed.
   if (tlEl && _tlAnchored !== tlKey) { _tlAnchored = tlKey; requestAnimationFrame(() => tlOpenAt(tlEl)); }
+  // The flow opens where the work is too, as the timeline does; while it
+  // stays on the page the strip's scroll is its own (data-keep).
+  const fgEl = state.dayLoaded === state.date ? document.querySelector('.flowgrid') : null;
+  if (fgEl && _flowAnchored !== tlKey) { _flowAnchored = tlKey; requestAnimationFrame(() => flowOpenAt(fgEl)); }
+  // A view that has left the page forgets it was opened, as its scroll
+  // already has: Floor → Flow again opened on the empty 5:00 slots, the
+  // anchor still set and the place it kept gone (review, 9 Oct). Coming back
+  // is opening it again, where the work is.
+  if (!tlEl) _tlAnchored = null;
+  if (!fgEl) _flowAnchored = null;
   // A key that can TAKE focus: the popup's veil carries close-modal too and
   // came first, so a repaint "lost" the focus on Cancel and threw it to the
   // popup's first key (daily round, 2 Oct).
@@ -12958,6 +13139,38 @@ function playSheet() {
 // is today and now is inside the window, otherwise to the first booking on
 // it. After that the desk's own scrolling is remembered, like every pane.
 let _tlAnchored = null;
+// THE FLOW OPENS WHERE THE WORK IS (9 Oct). At 7:46 it opened on 5:00 with
+// three empty slots and cut the columns from 7:15 on, while the timeline
+// beside it opened at now. Tonight the column half an hour back from now
+// stands at the strip's left — the timeline's own run-up — and any other
+// night the first slot with somebody in it.
+let _flowAnchored = null;
+function flowOpenAt(grid) {
+  const cols = [...grid.querySelectorAll('.fg-col[data-m]')];
+  if (!cols.length) return;
+  let to = null;
+  if (state.date === tradingDay()) {
+    const back = tradingNowMin() - 30;
+    const before = cols.filter(c => Number(c.dataset.m) <= back);
+    if (before.length && before.length < cols.length) to = before[before.length - 1];
+  }
+  if (!to) to = cols.find(c => !c.classList.contains('quiet')) || null;
+  // Nothing to aim at: the strip's own start, never a scroll left over.
+  if (!to) { grid.scrollLeft = 0; return; }
+  // ONE FADE DEPTH SHORT, AND THE CUT AT THE END (review, 9 Oct). Flush at
+  // the strip's edge the column stood under the start's fade: "10" read
+  // "0" and "7:15" ":15". So it lands the fade's depth further on, the fade
+  // falling on the column before; and where the strip cannot scroll that
+  // far, on the last column that can, so what is cut is cut at the END,
+  // where the end's fade says there is more — never half a column at the
+  // start (":30" at 1920).
+  const fade = parseFloat(getComputedStyle(grid).getPropertyValue('--rail-fade')) || 0;
+  const at = (c) => c.offsetLeft - cols[0].offsetLeft - fade;
+  const max = grid.scrollWidth - grid.clientWidth;
+  let x = at(to);
+  if (x > max) { const fit = cols.filter(c => at(c) <= max); x = fit.length ? at(fit[fit.length - 1]) : 0; }
+  grid.scrollLeft = Math.max(0, x);
+}
 function tlOpenAt(el) {
   const grid = el.querySelector('.tl-grid');
   if (!grid) return;
@@ -12966,9 +13179,11 @@ function tlOpenAt(el) {
   // WHERE AN OPENED TIMELINE RESTS. Now is the default and falls back to the
   // first booking, because a day that is not today has no now in it; `first`
   // asks for the first booking whatever day it is, which is what a venue
-  // setting up tomorrow night wants; `start` never scrolls at all.
+  // setting up tomorrow night wants; `start` rests at the window's start.
   const openAt = (((state.settings || {}).timeline) || {}).openAt || 'now';
-  if (openAt === 'start') return;
+  // Each answer is set, never left to a scroll restored from another
+  // service's ruler.
+  if (openAt === 'start') { el.scrollLeft = 0; return; }
   let at = null;
   if (openAt !== 'first' && state.date === localDay(new Date())) {
     const now = new Date();
@@ -12980,10 +13195,16 @@ function tlOpenAt(el) {
     if (times.length) at = Math.min.apply(null, times);
   }
   // Nothing to aim at: the start of the day is already the right answer.
-  if (at === null) return;
+  if (at === null) { el.scrollLeft = 0; return; }
   // Half an hour of run-up, so whatever we aimed at is not flush against the
-  // table names.
-  el.scrollLeft = Math.max(0, (at - start - 30) * PX_PER_MIN);
+  // table names — and then back to the hour line before it, so no hour's
+  // label opens half under the names (review, 9 Oct: at 1280 a 30 px
+  // overshoot opened on "› pm"; at 1024 on "…00 pm"). Where the ruler cannot
+  // scroll that far the hour line is the last one it can reach, and the cut
+  // falls at the night's end. The ruler is the one the paint drew.
+  const ppm = Number(grid.dataset.ppm) || PX_PER_MIN, hour = 60 * ppm;
+  const x = Math.min((at - start - 30) * ppm, el.scrollWidth - el.clientWidth);
+  el.scrollLeft = Math.max(0, Math.floor(x / hour) * hour);
 }
 
 // §§ Rail — the sections of the panel you are in
@@ -13120,7 +13341,7 @@ function renderTop() {
   // A phone drops the weekday so the line is never cut.
   const sub = esc(on ? on.name + ' · ' : servicesInOrderOn(d).length ? 'All night · ' : 'Closed · ')
     + `<span class="tp-wd">${esc(parseDay(d).toLocaleDateString([], { weekday: 'short' }))} </span>`
-    + esc(parseDay(d).toLocaleDateString([], { day: 'numeric', month: 'short' }));
+    + esc(dayMonth(d));
   // The views sit in the bar on a desk, so the room starts one line higher.
   const views = state.view === 'today' && state.todayMode !== 'sheet' ? `<span class="tp-views">${renderViewTabs(false)}</span>` : '';
   // FIX THE TOP BAR (owner, 7 Oct: "it looks messy and confusing"). Three
@@ -13143,7 +13364,7 @@ function renderNightMenu() {
   const svcs = servicesInOrderOn(state.date), on = pickedService();
   const isNow = state.date === tradingDay() && (state.service || '') === defaultService(tradingDay());
   return `<div class="tp-veil" data-act="night-menu"></div><div class="tp-menu tp-menu-l" role="menu">
-    ${svcs.map(x => `<button class="tp-mi${on && on.id === x.id ? ' on' : ''}" data-act="svc-pick" data-val="${esc(x.id)}">${esc(x.name)}<span class="tp-mi-t">${esc(fmtHHMM(x.start).replace(/\s?[AP]M$/i, ''))}–${esc(fmtHHMM(x.end))}</span></button>`).join('')}
+    ${svcs.map(x => `<button class="tp-mi${on && on.id === x.id ? ' on' : ''}" data-act="svc-pick" data-val="${esc(x.id)}">${esc(x.name)}<span class="tp-mi-t">${esc(fmtRange(x.start, x.end))}</span></button>`).join('')}
     ${svcs.length > 1 ? `<button class="tp-mi${on ? '' : ' on'}" data-act="svc-pick" data-val="">All night</button>` : ''}
     <i class="tp-mi-sep"></i>
     ${isNow ? '' : '<button class="tp-mi" data-act="now">Back to tonight</button>'}
@@ -14346,17 +14567,22 @@ function renderFlow() {
   // when the heavy arrivals are.
   const walkIns = rows.filter(r => r.source === 'walk-in');
   const hm = (t) => fmtHHMM(t).replace(/\s?[AP]M$/i, '');
-  const said = [`<b>${cf.bookings}</b> bookings`, `<b>${cf.covers}</b> guests`]
+  // PEOPLE, as the list says it (it said guests here), and each part of the
+  // line is one unit that never breaks inside itself, its dot leading it: at
+  // 390 the second line started with a lone "·" (9 Oct). The space between
+  // two units stays outside them — it is where the line may break.
+  const said = [`<b>${cf.bookings}</b> bookings`, `<b>${cf.covers}</b> people`]
     .concat(walkIns.length ? [`<b>${walkIns.length}</b> walk-in${walkIns.length === 1 ? '' : 's'}`] : [])
-    .concat(cf.busiest ? [`fullest <b>${peak}</b> at ${esc(hm(cf.busiest.time))}${cf.seats ? ` · ${full}% of ${cf.seats} seats` : ''}`] : []);
+    .concat(cf.busiest ? [`fullest <b>${peak}</b> at ${esc(hm(cf.busiest.time))}`] : [])
+    .concat(cf.busiest && cf.seats ? [`${full}% of ${cf.seats} seats`] : []);
   return `
-  <p class="fg-sum">${said.join(' · ')}</p>
+  <p class="fg-sum">${said.map((x, i) => `<span class="fg-u">${i ? '· ' : ''}${x}</span>`).join(' ')}</p>
   <div class="flow">
     <div class="flowgrid" data-keep="flowgrid" role="img" aria-label="The tables arriving in each slot, and the covers with them">
       ${cf.slots.map((s, i) => {
     const mine = bySlot[s.mins] || [];
-    return `<div class="fg-col${s.over ? ' over' : ''}${hour(s) ? ' hour' : ''}${breaks[i] ? ' brk' : ''}${mine.length ? '' : ' quiet'}${state.flowSlot === s.time ? ' sel' : ''}">
-        <button class="fg-head" data-act="flow-slot" data-val="${esc(s.time)}" aria-pressed="${state.flowSlot === s.time}" aria-label="${esc(fmtHHMM(s.time))}: ${s.covers} guests${s.cap ? ', limit ' + s.cap : ', no limit'}">
+    return `<div class="fg-col${s.over ? ' over' : ''}${hour(s) ? ' hour' : ''}${breaks[i] ? ' brk' : ''}${mine.length ? '' : ' quiet'}${state.flowSlot === s.time ? ' sel' : ''}" data-m="${s.mins}">
+        <button class="fg-head" data-act="flow-slot" data-val="${esc(s.time)}" aria-pressed="${state.flowSlot === s.time}" aria-label="${esc(fmtHHMM(s.time))}: ${s.covers} ${s.covers === 1 ? 'person' : 'people'}${s.cap ? ', limit ' + s.cap : ', no limit'}">
         <span class="fg-time">${esc(hm(s.time))}</span>
         <span class="fg-total"><b>${s.covers}</b>${s.cap ? `<small>/${s.cap}</small>` : ''}</span></button>
         <div class="fg-stack">${mine.map(box).join('')}</div>
@@ -14377,10 +14603,10 @@ function renderFlowLimit(cf) {
   const from = coverCapFromLocal(state.settings, state.date, sl.time);
   const wd = parseDay(state.date).toLocaleDateString([], { weekday: 'long' });
   return `<div class="fg-lim" role="group" aria-label="Limit at ${esc(fmtHHMM(sl.time))}">
-    <span class="fg-lim-t"><b>${esc(fmtHHMM(sl.time))}–${esc(fmtHHMM(fromMin(sl.mins + cf.step)))}</b><span>${sl.covers} ${sl.covers === 1 ? 'guest' : 'guests'} arriving</span></span>
-    <span class="fg-lim-n"><button data-act="flow-cap" data-val="-1" aria-label="One fewer"${sl.cap === 1 ? ' disabled' : ''}>−</button><b class="${sl.cap ? '' : 'none'}">${sl.cap || 'None'}</b><small>limit</small><button data-act="flow-cap" data-val="1" aria-label="One more">+</button></span>
+    <span class="fg-lim-t"><b>${esc(fmtRange(sl.time, fromMin(sl.mins + cf.step)))}</b><span>${sl.covers} ${sl.covers === 1 ? 'person' : 'people'} arriving</span></span>
+    <span class="fg-lim-n"><button data-act="flow-cap" data-val="-1" aria-label="One fewer"${sl.cap === 1 ? ' disabled' : ''}>−</button>${sl.cap ? `<b>${sl.cap}</b><small>limit</small>` : '<b class="none">No limit</b>'}<button data-act="flow-cap" data-val="1" aria-label="One more">+</button></span>
     <span class="fg-lim-seg"><button class="${from === 'week' ? '' : 'on'}" data-act="flow-every" data-val="0" aria-pressed="${from !== 'week'}">Tonight</button><button class="${from === 'week' ? 'on' : ''}" data-act="flow-every" data-val="1" aria-pressed="${from === 'week'}">Every ${esc(wd)}</button></span>
-    <button class="fg-lim-x" data-act="flow-cap" data-val="none">No limit</button>
+    ${sl.cap ? '<button class="fg-lim-x" data-act="flow-cap" data-val="none">No limit</button>' : ''}
     <button class="fg-lim-close" data-act="flow-slot" data-val="${esc(sl.time)}" aria-label="Close">${I.cross}</button>
   </div>`;
 }
@@ -14391,6 +14617,23 @@ async function saveSlotCap(time, cap, every, fromWeek) {
   } catch (e) { toastBad(e.message); }
 }
 
+// A day off the weekly pattern says so once, above the numbers. A special
+// day says its hours the desk's way — its name, then each sitting's range —
+// where it said "Special hours — Christmas Eve. Dinner 17:30–22:00": the only
+// 24-hour times on the page, and two full stops (9 Oct). It is ONE line of
+// words in the notice's flex row, each part a unit led by its dot as the
+// flow's totals are: as two flex items the row's gap stood between the name
+// and its dot, and a phone broke "pm" off on a line of its own (review,
+// 9 Oct). A closed day says so the same way, with no full stop and no
+// "call them" — the count is the news, what to do about it is the host's.
+function dayNotice(svcs, ex, live) {
+  const unit = (x, i) => `<span class="fg-u">${i ? '· ' : ''}${x}</span>`;
+  const line = (parts) => `<span>${parts.map(unit).join(' ')}</span>`;
+  if (!svcs.length) return `<div class="notice closed">${line([`<b>Closed${ex && ex.note ? ' · ' + esc(ex.note) : ''}</b>`,
+    live.length ? live.length + ' booking' + (live.length > 1 ? 's' : '') + ' still on the book' : 'No bookings offered'])}</div>`;
+  if (ex && !ex.closed) return `<div class="notice special">${line([`<b>${esc(ex.note || 'Special hours')}</b>`].concat(svcs.map(x => esc(x.name) + ' ' + esc(fmtRange(x.start, x.end)))))}</div>`;
+  return '';
+}
 function renderToday() {
   const isToday = state.date === localDay(new Date());
   const live = state.reservations.filter(isLive);
@@ -14406,11 +14649,7 @@ function renderToday() {
   // A day off the weekly pattern says so once, above the numbers. The stats,
   // the timeline and the list below are unchanged, so a booking on a day that
   // has since closed is right there under the sentence.
-  const notice = !svcs.length
-    ? `<div class="notice closed"><b>Closed${ex && ex.note ? ' — ' + esc(ex.note) : ''}.</b> ${live.length ? live.length + ' booking' + (live.length > 1 ? 's' : '') + ' still on the book — call them.' : 'No bookings are offered for this day.'}</div>`
-    : ex && !ex.closed
-      ? `<div class="notice special"><b>Special hours${ex.note ? ' — ' + esc(ex.note) : ''}.</b> ${svcs.map(x => esc(x.name) + ' ' + esc(x.start) + '–' + esc(x.end)).join(' · ')}</div>`
-      : '';
+  const notice = dayNotice(svcs, ex, live);
   // THE BOOK STANDS BESIDE THE ROOM, AND ONLY THE ROOM. The desk used to be
   // two columns whatever the rail pointed at, on the idea that a host holds
   // the book in one hand and looks at the room with the other. That is true
@@ -14482,11 +14721,19 @@ let PX_PER_MIN = PX_PER_MIN_FLOOR;
 // the very first paint, where the rail's width is the only chrome to take off.
 function tlScale(mins) {
   const pane = document.querySelector('.pane');
-  const edge = 12, border = 2, scrollbar = 2;
-  // The book stands beside the timeline now, so its column comes off too.
+  const border = 2, scrollbar = 2;
+  // The pane's own gutters come off, and — while the book stands beside the
+  // timeline — its column and the gap to it. It took off a 12 a side the
+  // pane no longer has and never the gap, so the ruler overshot its panel by
+  // 28–30 at every desk width, opened scrolled by 30 and hid the first
+  // hour's label under the names (9 Oct).
+  const ps = pane ? getComputedStyle(pane) : null;
+  const pad = ps ? (parseFloat(ps.paddingLeft) || 0) + (parseFloat(ps.paddingRight) || 0) : 0;
   const col = document.querySelector('.desk > .desk-col');
-  const colW = col && col.offsetParent && getComputedStyle(col.parentNode).flexDirection === 'row' ? col.offsetWidth : 0;
-  const room = (pane ? pane.clientWidth : window.innerWidth) - colW - edge * 2 - border - TL_LABEL_W - scrollbar;
+  const desk = col && col.parentNode, ds = desk ? getComputedStyle(desk) : null;
+  const beside = !!(col && col.offsetParent && ds && ds.gridTemplateColumns.trim().split(/\s+/).length > 1);
+  const colW = beside ? col.offsetWidth + (parseFloat(ds.columnGap) || 0) : 0;
+  const room = (pane ? pane.clientWidth : window.innerWidth) - pad - colW - border - TL_LABEL_W - scrollbar;
   if (!(mins > 0) || !(room > 0)) return PX_PER_MIN_FLOOR;
   return Math.max(PX_PER_MIN_FLOOR, Math.floor((room / mins) * 100) / 100);
 }
@@ -14554,7 +14801,13 @@ function renderTimeline() {
     // The set menu rides in the title too: a 40px block has no room to show
     // it, and the title is where the whole name always is.
     const sm = setMenuName(r);
-    return `<div class="tl-block ${r.status}${conflicts.has(r.id) ? ' conflict' : ''}${extra ? ' extra' : ''}${isAutoTable(r) ? ' auto' : ''}${canMoveBooking(r) && !extra ? ' movable' : ''}" style="left:${left}px;width:${w}px;" data-act="edit-booking" data-id="${r.id}" title="${esc(r.name)} · ${r.partySize} · ${esc(fmtTime(r.time))}${sm ? ' · ' + esc(sm) : ''}">${esc(r.name)} <small>${r.partySize}</small>${sm ? `<small class="tl-set">${esc(sm)}</small>` : ''}${(r.tags || []).includes('VIP') ? '<small>★</small>' : ''}</div>`;
+    // A late party wears the late red edge here as its tab and its table do
+    // (Whitfield, 51 late, was a plain grey block, 9 Oct). The block says the
+    // name and how many, as the row does: the set menu in a pill and a VIP
+    // star that read as a dot were a word in a pill and a mark nobody could
+    // see (QUIET) — the title still names the set menu.
+    const late = state.date === tradingDay() && lateBy(r, Date.now());
+    return `<div class="tl-block ${r.status}${late ? ' late' : ''}${conflicts.has(r.id) ? ' conflict' : ''}${extra ? ' extra' : ''}${isAutoTable(r) ? ' auto' : ''}${canMoveBooking(r) && !extra ? ' movable' : ''}" style="left:${left}px;width:${w}px;" data-act="edit-booking" data-id="${r.id}" title="${esc(r.name)} · ${r.partySize} · ${esc(fmtTime(r.time))}${sm ? ' · ' + esc(sm) : ''}">${esc(r.name)} · ${r.partySize}</div>`;
   };
   const slots = (tid) => { let out = ''; for (let m = start; m < end; m += slotMin) out += `<div class="tl-slot" style="left:${(m - start) * PX_PER_MIN}px;width:${slotMin * PX_PER_MIN}px;" data-act="new-at" data-time="${fromMin(m)}" data-table="${tid || ''}"></div>`; return out; };
   let html = '';
@@ -14663,9 +14916,9 @@ setInterval(tlTick, 15000);
 // and not `autoAssign()`, which lays out everything it can — so it is the one
 // row on the list that will not sort itself out. It cuts ACROSS the statuses,
 // so it takes its rows out of the groups below rather than repeating them,
-// and it is the only group that does not appear when it is empty: a heading
-// that is always there saying nought is noise, and one that turns up is the
-// whole point.
+// and like every group it does not appear when it is empty: a heading that is
+// always there saying nought is noise, and one that turns up is the whole
+// point.
 // THE CLEAN DESK'S GROUPS (owner, 6 Oct: "Build it" — the clean prototype,
 // v34–v39): everyone not sitting down is UPCOMING, the room is SEATED, and the
 // three ways a night ends are one FINISHED, folded. No table still stands
@@ -14740,8 +14993,8 @@ function renderOpened() {
     const href = smsHref(e.phone, textOpened(e.name, e.partySize, fmtHHMM(o.time), when, venue));
     const key = told || !href ? `<button class="dk-k ink" data-act="notify-book" data-id="${esc(e.id)}" data-op="${esc(o.id)}">Book</button>`
       : `<a class="dk-k txt" href="${esc(href)}" data-act="op-text" data-id="${esc(e.id)}">Text</a>`;
-    const said = told ? `<i class="here">${esc(textedWords(e.notifiedAt))}</i>`
-      : `<i class="here">${esc(hm(o.time))} opened</i> · asked ${esc(hm(e.from).replace(/:00$/, ''))}–${esc(hm(e.to).replace(/:00$/, ''))}`;
+    const said = told ? `<i class="ink">${esc(textedWords(e.notifiedAt))}</i>`
+      : `<i class="ink">${esc(hm(o.time))} opened</i> · asked ${esc(fmtRange(e.from, e.to))}`;
     return `<div class="dk-row">
       <span class="dk-tab stg-open">${esc(ts.length ? ts[0] + (ts.length > 1 ? '+' : '') : '—')}</span>
       <button class="dk-main" data-act="notify-book" data-id="${esc(e.id)}" data-op="${esc(o.id)}"><b>${esc(e.name)} · ${e.partySize}</b><span>${said}</span></button>
@@ -14779,7 +15032,7 @@ function tidyRow(r, kind, now) {
     const from = Number.isFinite(r.seatedAt) ? r.seatedAt : new Date(r.time).getTime(), d = new Date(from);
     const lead = r.status === 'check' ? 'Bill · ' : r.status === 'paid' ? 'Paid · '
       : r.status === 'part-seated' ? `${r.partCount ? r.partCount + ' of ' + r.partySize : 'Not all'} · ` : '';
-    said = `${lead}sat ${hm(pad2(d.getHours()) + ':' + pad2(d.getMinutes()))}, ${waitWords(Math.max(0, Math.round((now - from) / 60000)))} ago`;
+    said = `${lead}sat ${hm(pad2(d.getHours()) + ':' + pad2(d.getMinutes()))}`;
   }
   const key = kind === 'sat' ? 'left' : 'no-show';
   return `<div class="dk-row td-row">
@@ -14978,9 +15231,9 @@ function renderDayList() {
   if (!all.length && !lineAll.length) {
     const sv = pickedService();
     // A cancellation can leave a service with nobody else on it; it still says so.
-    return find + renderOpened() + renderTidyLine() + `<div class="empty">${sv ? 'Nothing booked for ' + esc(sv.name) + '.' : 'No bookings this day.'}</div>`;
+    return find + renderOpened() + renderTidyLine() + `<div class="empty">${sv ? 'Nothing booked for ' + esc(sv.name) : 'No bookings this day'}</div>`;
   }
-  if (q.on && !rows.length && !line.length) return find + `<div class="empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d.
+  if (q.on && !rows.length && !line.length) return find + `<div class="empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d
     <div style="margin-top:12px;"><button class="btn" data-act="find-every-day">${I.search} Look on every day</button></div></div>`;
 
   // THE DOCKET LINE (the clean desk, v38): the till's docket carries its
@@ -15018,6 +15271,9 @@ function renderDayList() {
     // The line under the name: only what is different.
     const said = [];
     const part = r.partCount ? `${r.partCount} of ${r.partySize}` : 'Some';
+    // The allergy leads: an ellipsis takes the line's end, and "Here · 13
+    // still eating · Al…" ate the one word a kitchen can hurt somebody over.
+    if ((r.tags || []).some(t => String(t).toLowerCase() === 'allergy')) said.push('<i class="late">Allergy</i>');
     if (r.status === 'arrived') said.push('<i class="here">Here</i>');
     if (r.status === 'part-arrived') said.push(`<i class="here">${part} here</i>`);
     if (r.status === 'part-seated') said.push(`<i class="ink">${part} seated</i>`);
@@ -15026,7 +15282,6 @@ function renderDayList() {
     if (ended) said.push(esc(statusLabel(r.status)));
     if (late) said.push(`<i class="late">${esc(waitWords(late))} late</i>`);
     if (busy) said.push(`<i class="quiet">${esc(tableName(busy))} still eating</i>`);
-    if ((r.tags || []).some(t => String(t).toLowerCase() === 'allergy')) said.push('<i class="late">Allergy</i>');
     if (held.length > 1) said.push(esc(held.map(tableName).join(' + ')));
     if (setMenuName(r)) said.push(esc(setMenuName(r)));
     if (String(r.notes || '').trim()) said.push(esc(String(r.notes).trim().slice(0, 60)));
@@ -15037,8 +15292,12 @@ function renderDayList() {
     if (busy && !here) rt = `<button class="dk-k" data-act="row-here" data-id="${esc(r.id)}">Here</button>`;
     if (tonight && sat) {
       const left = sitLeft(r, now);
-      rt = r.status === 'part-seated' ? `<button class="dk-k ac" data-act="row-rest" data-id="${esc(r.id)}" aria-label="The rest arrived">+${Math.max(1, r.partySize - (r.partCount || 0))}</button>`
-        : left >= 0 ? `<span class="dk-t">${esc(waitWords(left))}</span>` : `<span class="dk-t over">+${esc(waitWords(-left))}</span>`;
+      // The minutes say what they are: "4 min" at the door, "39 min left"
+      // of a sitting, "36 min over" — one column said all three as bare
+      // minutes, the last with a + (9 Oct). The rest of a party is the
+      // plain key Here is, not a blue pill (QUIET).
+      rt = r.status === 'part-seated' ? `<button class="dk-k" data-act="row-rest" data-id="${esc(r.id)}" aria-label="The rest arrived">+${Math.max(1, r.partySize - (r.partCount || 0))}</button>`
+        : left >= 0 ? `<span class="dk-t">${esc(waitWords(left))} left</span>` : `<span class="dk-t over">${esc(waitWords(-left))} over</span>`;
     }
     return `<div class="dk-row${state.highlightTable && held.includes(state.highlightTable) ? ' selected' : ''}${state.modal && state.modal.kind === 'booking' && state.modal.b && state.modal.b.id === r.id ? ' open' : ''}">
       ${tab.replace('class="dk-tab', `class="dk-tab stg-${stage}`)}
@@ -15088,10 +15347,14 @@ function renderDayList() {
         const now = Date.now();
         const rank = (r) => key !== 'upcoming' ? 0 : isHere(r) ? 0 : lateBy(r, now) ? 1 : 2;
         const list = mine.slice().sort((a, b) => rank(a) - rank(b));
-        if (pick && !list.length) return '';
         // THE LINE STANDS RIGHT AFTER THE PARTIES AT THE DOOR (v55): here,
         // the line in its order, the late, then everybody as they come.
         const waiting = key === 'upcoming' ? line : [];
+        // AN EMPTY GROUP IS NOT DRAWN (v47's own group(); 9 Oct): "Seated 0
+        // · 0 people" stood on Tomorrow and under every search, and
+        // "Upcoming 0" on last night. What a group lists is what it counts,
+        // the line included.
+        if (!list.length && !waiting.length) return '';
         const at = list.filter(isHere).length;
         const body = list.slice(0, at).map(row).concat(waiting.map(w => lineRow(w, w.place, now)), list.slice(at).map(row));
         return head(key, name, list, waiting) + (state.listShut[key] || !body.length ? '' : `<div class="bl-rows">${body.join('')}</div>`);
@@ -15907,6 +16170,22 @@ function renderFindModal() {
     <div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Close</span></button></div>
   </div></div>`;
 }
+// "/" IS THE LIST'S OWN SEARCH (9 Oct). It opened a second search popup,
+// with a help sentence, beside the list's own box; the law is that find is
+// "/" and the list's own search box. Where the column shows tonight's book,
+// "/" goes into that box (up to 900 the List tab comes first); anywhere
+// else — the run sheet, the guests, the waitlist — and Cmd-K always, it is
+// the every-day find. A box that is in the page but not DRAWN — up to 900
+// with Tidy up open over the list — is not the list's search either, and
+// "/" there is the find again (review, 9 Oct: it focused nothing).
+function slashFind() {
+  if (state.view !== 'today' || state.todayMode === 'sheet' || (state.side && state.side !== 'book')) return false;
+  if (window.matchMedia('(max-width:900px)').matches && state.todayMode !== 'book') { state.todayMode = 'book'; render(); }
+  const el = document.getElementById('desk-q');
+  if (!el || !canFocus(el)) return false;
+  el.focus(); el.select();
+  return true;
+}
 // Focus AFTER the render, never before — the element does not exist until then.
 // From the deck, typing replaces the old query; coming back from a booking it
 // survives, because the call is still going on.
@@ -15971,6 +16250,9 @@ function phoneSpaced(p) {
   const d = String(p || '').replace(/\D/g, '');
   return d.length === 10 ? d.replace(/^(\d{4})(\d{3})(\d{3})$/, '$1 $2 $3') : String(p || '').trim();
 }
+// How late, in the late red, and the two keys. The small print under it —
+// "booked 6:55 pm · 6 people · table 1" — said again the three keys right
+// above it (9 Oct).
 function renderLateBanner(r) {
   const late = lateBy(r, Date.now());
   if (!late) return '';
@@ -15978,7 +16260,7 @@ function renderLateBanner(r) {
   const phone = String(r.phone || '').trim();
   const call = phone ? `<a class="bk-late-go ink" href="tel:${esc(phone.replace(/[^\d+]/g, ''))}">Call<small>${esc(phoneSpaced(phone))}</small></a>` : '';
   return `<div class="bk-late" role="status">
-    <div class="bk-late-head"><b>${esc(waitWords(late))} late</b><span>booked ${esc(fmtHHMM(hhmmOf(r.time)))} · ${r.partySize} ${r.partySize === 1 ? 'person' : 'people'}${t ? ' · table ' + esc(t) : ''}</span></div>
+    <div class="bk-late-head"><b>${esc(waitWords(late))} late</b></div>
     <div class="bk-late-keys${call ? '' : ' one'}">${call}<button class="bk-late-go" data-act="late-noshow" data-id="${esc(r.id)}">No-show<small>${t ? 'frees table ' + esc(t) : 'marks them not coming'}</small></button></div>
   </div>`;
 }
@@ -16066,10 +16348,11 @@ function renderBookingEdit(m) {
   const b = m.b, r = (state.reservations || []).find(x => x.id === b.id) || null;
   const tonight = b.date === tradingDay(), now = Date.now();
   const held = tablesFor(b), tables = held.map(tableName).join(' + ');
-  const end = b.time ? fmtHHMM(fromMin(toMin(b.time) + durationOf(b))) : '';
+  // Its sitting is one range, its half of the day said once (fmtRange).
+  const end = b.time ? fromMin(toMin(b.time) + durationOf(b)) : '';
   const late = r ? lateBy(r, now) : 0;
   const k = (page, txt, cls) => `<button class="${cls || ''}" data-act="bk-page" data-val="${page}">${txt}</button>`;
-  const sent = `<div class="bke-sent">${k('party', `${b.partySize} ${b.partySize === 1 ? 'person' : 'people'}`)}${k('when', esc(bkqDayWord(b.date)))}${k('when', b.time ? `${esc(fmtHHMM(b.time))}–${esc(end)}` : 'No time', 'mono')}${k('table', tables ? (held.length > 1 ? 'Tables ' : 'Table ') + esc(tables) : 'No table', held.length ? '' : 'none')}</div>`;
+  const sent = `<div class="bke-sent">${k('party', `${b.partySize} ${b.partySize === 1 ? 'person' : 'people'}`)}${k('when', esc(bkqDayWord(b.date)))}${k('when', b.time ? esc(fmtRange(b.time, end)) : 'No time', 'mono')}${k('table', tables ? (held.length > 1 ? 'Tables ' : 'Table ') + esc(tables) : 'No table', held.length ? '' : 'none')}</div>`;
   // The next step — the same one the row's tab offers, and only while
   // nothing on the page is unsaved: a step that closed the page would drop
   // what was typed into it. A late party's two keys are the late line's.
@@ -16446,9 +16729,9 @@ async function greet(id, prev, next) {
     return true;
   } catch (e) { return false; }
 }
-const ORDINALS = ['first', 'second', 'third', 'fourth', 'fifth', 'sixth', 'seventh', 'eighth', 'ninth', 'tenth', 'eleventh', 'twelfth'];
+// A visit is counted in digits, always: "tenth visit" for one guest and
+// "16th visit" for the next was two ways of saying one thing (9 Oct).
 function ordinal(n) {
-  if (n >= 1 && n <= ORDINALS.length) return ORDINALS[n - 1];
   const t = n % 100, u = n % 10;
   return n + (t >= 11 && t <= 13 ? 'th' : u === 1 ? 'st' : u === 2 ? 'nd' : u === 3 ? 'rd' : 'th');
 }
@@ -16473,13 +16756,14 @@ function renderWelcome() {
   // Written at the booking in whatever case the desk typed it; it leads a
   // line here, so it starts like one.
   const cap = (t) => t ? t[0].toUpperCase() + t.slice(1) : '';
-  // THE CHIPS are the flags, each a plain word with its mark (QUIET): the
-  // VIP, the occasion and a need in ink, the allergy in its red. The LINES
-  // under them say the rest.
+  // THE CHIPS are the flags, each a plain word (QUIET): the VIP, the
+  // occasion and a need in ink, the allergy in its red. "★ VIP" wore a
+  // glyph where "Window" beside it did not (9 Oct). The LINES under them
+  // say the rest.
   const chips = [
-    w.vip ? `<span class="wb-chip vip">${I.star}${esc(w.vip)}</span>` : '',
-    w.allergy ? `<span class="wb-chip al">${I.alert}Allergy</span>` : '',
-    w.occasion ? `<span class="wb-chip occ">${I.cake}${esc(w.occasion)}</span>` : '',
+    w.vip ? `<span class="wb-chip vip">${esc(w.vip)}</span>` : '',
+    w.allergy ? `<span class="wb-chip al">Allergy</span>` : '',
+    w.occasion ? `<span class="wb-chip occ">${esc(w.occasion)}</span>` : '',
   ].concat((w.needs || []).map(n => `<span class="wb-chip">${esc(n)}</span>`)).join('');
   const facts = [
     w.allergy ? `<li class="al">${I.alert}<span>${esc(cap(w.allergy.text) || 'Allergy on file — ask before they order')}</span></li>` : '',
@@ -16812,7 +17096,9 @@ async function setStatus(id, status) {
     const prev = ((state.reservations || []).find(x => x.id === id) || {}).status;
     const r = await put('/api/reservations/' + id, { status });
     await loadView();
-    if (!await greet(id, prev, status)) toast(`${r.name}: ${statusLabel(status)}`);
+    // "Sinclair · Arrived", the messages' own grammar ("Whitfield ·
+    // no-show"): the colon was the only one among them (9 Oct).
+    if (!await greet(id, prev, status)) toast(`${r.name} · ${statusLabel(status)}`);
   } catch (e) { toastBad(e.message); }
 }
 
@@ -17094,8 +17380,11 @@ document.addEventListener('click', async (ev) => {
         } catch (e) { await loadView().catch(() => {}); render(); toastBad(e.message); }
         break;
       }
-      case 'row-here': if (state.modal && state.modal.kind === 'booking') state.modal = null; await setStatus(id, 'arrived'); break;
-      case 'row-rest': if (state.modal && state.modal.kind === 'booking') state.modal = null; await setStatus(id, 'seated'); break;
+      // Both re-sort the list under the finger, as the tab's seat does, so
+      // they settle the way it does: a double tap's second lands on nothing
+      // but the message (9 Oct).
+      case 'row-here': if (state.modal && state.modal.kind === 'booking') state.modal = null; _seatedAt = Date.now(); await setStatus(id, 'arrived'); _seatedAt = Date.now(); break;
+      case 'row-rest': if (state.modal && state.modal.kind === 'booking') state.modal = null; _seatedAt = Date.now(); await setStatus(id, 'seated'); _seatedAt = Date.now(); break;
       // The booking's own next step past the chair: Bill, Paid, Left.
       case 'bke-step': state.modal = null; await setStatus(id, val); break;
       case 'flow-slot': state.flowSlot = state.flowSlot === val ? null : val; render(); break;
@@ -18516,7 +18805,8 @@ document.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape' && state.picking) { state.picking = null; render(); return; }
   if (ev.key === 'Escape' && state.walkin) { state.walkin = null; render(); return; }
   if (ev.key === 'Escape' && state.tidy && !typingInField()) { state.tidy = false; render(); return; }
-  if (!state.modal && !typingInField() && (ev.key === '/' || ((ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k'))) { ev.preventDefault(); openFind(true); }
+  if (!state.modal && !typingInField() && ev.key === '/') { ev.preventDefault(); if (!slashFind()) openFind(true); return; }
+  if (!state.modal && !typingInField() && (ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); openFind(true); }
 });
 
 async function refreshWalkin() {

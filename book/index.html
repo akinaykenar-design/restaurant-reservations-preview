@@ -22,6 +22,13 @@
 @font-face{font-family:'Noto Sans';font-style:normal;font-weight:100 900;font-display:swap;src:url('../fonts/notosans-var.woff2') format('woff2');}
 @font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('../fonts/plexmono-500.woff2') format('woff2');}
 @font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:700;font-display:swap;src:url('../fonts/plexmono-700.woff2') format('woff2');}
+/* THE FACE THE PALETTE NAMES (9 Oct). The simple desk's tokens ask for Geist
+   and Geist Mono, and no file of either shipped, so every device drew its own
+   system face — DejaVu on a Linux till, SF on the owner's iPad — and the two
+   above went unused. Both are the OFL `geist` package's variable files, 1.3.1
+   (fonts/geist-OFL.txt), one file each for every weight. */
+@font-face{font-family:'Geist';font-style:normal;font-weight:100 900;font-display:swap;src:url('../fonts/geist-var.woff2') format('woff2');}
+@font-face{font-family:'Geist Mono';font-style:normal;font-weight:100 900;font-display:swap;src:url('../fonts/geistmono-var.woff2') format('woff2');}
 
 /* §§ Palette — :root is LIGHT, body[data-theme="dark"] is DARK. Literals on
    purpose (see the POS: a var() inside a token resolves where declared). */
@@ -751,8 +758,9 @@ body[data-theme="dark"] .row .cell.over{color:var(--steel-100);}
    EVERY FLAG IS A PLAIN WORD (QUIET: never a word in a pill, and ink and
    greys, one blue, red only for late, an allergy, a delete and a failure):
    the VIP, the occasion and a need — a wheelchair, a high chair — in ink,
-   each with its mark, and the allergy in the allergy's red. They were a gold
-   pill, a green one, a red one and an outlined one (8 Oct).
+   and the allergy in the allergy's red. They were a gold pill, a green one,
+   a red one and an outlined one (8 Oct), and then a word with a glyph where
+   a need beside it had none (9 Oct): the word alone.
    The CARD takes the colour of whichever flag LEADS (search.welcomeFor()'s
    `kind`: the allergy in red, then the VIP and the occasion in ink, then a
    regular, who wears arrived's own blue — the desk's one blue, the accent —
@@ -786,9 +794,7 @@ div.wb-card{cursor:default;}
 .wb-chips{display:flex;flex-wrap:wrap;gap:4px 16px;margin-top:12px;}
 .wb-chip{display:inline-flex;align-items:center;gap:4px;padding:0;border:none;background:none;
   color:var(--ink);font-size:var(--fs-md);font-weight:700;}
-.wb-chip svg{width:14px;height:14px;flex:none;}
 .wb-chip.vip{color:var(--ink);}
-.wb-chip.vip svg{fill:currentColor;}
 .wb-chip.al{color:var(--late);}
 .wb-chip.occ{color:var(--ink);}
 .wb-facts{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column;gap:8px;}
@@ -799,12 +805,25 @@ div.wb-card{cursor:default;}
    bold and its mark is the allergy's red, whatever colour the card is. */
 .wb-facts li.al{font-weight:700;}
 .wb-facts li.al svg{color:var(--late);}
+/* And it is never cut: the other lines stop at two, and "…the whole tabl…"
+   at 390 was the allergy losing its last words (9 Oct). */
+.wb-facts li.al span{display:block;-webkit-line-clamp:unset;overflow:visible;}
 /* It goes by itself, and the time it has left runs out along its own foot. */
 .wb-timer{position:absolute;left:0;bottom:0;width:100%;height:4px;background:var(--wb-c);transform-origin:left;
   animation:wb-run var(--wb-ms) linear both;animation-delay:var(--wb-gone);}
 @keyframes wb-run{from{transform:scaleX(1);}to{transform:scaleX(0);}}
+/* EVERY CLOSE ON THE FRONT PAGE IS ONE KEY (review, 9 Oct): round, on the
+   well, a finger square — the walk-in menu's, Tidy up's and the booking's.
+   This one was a bare glyph, the flow's limit line's and the one-move
+   line's 8-cornered squares: three shapes for one job. On the card its
+   well is a breath of ink over the card's own wash — the plain well was the
+   card's own grey, 1.0 to 1 on an ink-led card — so it reads on any lead
+   and in either theme. Its ground now shows, so the head stops the 8 of
+   air short of it. */
 .wb-x{position:absolute;top:12px;right:12px;width:var(--tap);height:var(--tap);display:flex;align-items:center;
-  justify-content:center;padding:0;border:none;border-radius:var(--r-btn);background:none;color:var(--text-primary);cursor:pointer;}
+  justify-content:center;padding:0;border:none;border-radius:var(--r-pill);background:color-mix(in srgb, var(--ink) 8%, transparent);
+  color:var(--ink);cursor:pointer;}
+.wb-head{margin-right:12px;}
 .wb-x svg{width:20px;height:20px;}
 body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, var(--surface));}
 @media (prefers-reduced-motion:reduce){ .wb,.wb-timer{animation:none;} }
@@ -818,6 +837,12 @@ body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, v
 @media (max-width:900px){
   .wb{left:var(--sd-pad);right:var(--sd-pad);width:auto;bottom:0;padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px));}
 }
+/* ON A DESK IT STANDS ON THE LIST'S OWN FOOT, AT ITS WIDTH (9 Oct). The
+   dock ran to the window's foot, 20 past the list's and the room's, and
+   held the card 8 in at either side: a 384 card on a 400 list. It is the
+   list's 400 now, its foot the list's foot, with the page's ground for the
+   8 above it. Up to 900 the dock is as it was. */
+@media (min-width:901px){ .wb{bottom:var(--sd-pad);padding:8px 0 0;background:var(--bg);} }
 /* A seat from the tab raises its Undo as well. Up to 900 the card spans the
    pane, so the dock runs on under it to hold the toast: the toast covers
    none of the card and no row shows between them. On a desk the toast
@@ -833,6 +858,10 @@ body[data-theme="dark"] .wb-card{background:color-mix(in srgb, var(--wb-c) 6%, v
 @media (max-width:900px){
   .shell.simple:has(> .toast) > .wb{padding-bottom:calc(var(--toast-h, var(--tap)) + 32px + env(safe-area-inset-bottom, 0px));}
 }
+/* AND ITS FOOT IS THE ROOM'S INSET (9 Oct). At the window's 26 it was off
+   the 4 and its foot stood 6 above the room panel's: over the room it sits
+   the panel's own 16 inside the panel's foot. */
+@media (min-width:901px){ .shell.simple > .toast:not(.tl-hint){bottom:calc(var(--sd-pad) + 16px);} }
 @media (min-width:901px){
   .shell.simple:has(> .wb) > .toast,.shell.simple:has(.desk-main) > .toast{left:calc(var(--sd-x) + (var(--sd-col) + var(--sd-gap) + min(100vw, var(--sd-max))) / 2);max-width:calc(min(100vw, var(--sd-max)) - 2 * var(--sd-pad) - var(--sd-col) - var(--sd-gap));}
 }
@@ -857,8 +886,7 @@ body[data-theme="dark"] .toast{background:#EDE6D6;color:#26231F;}
   background:color-mix(in srgb,var(--st-late) 10%,var(--surface));}
 [data-theme="dark"] .bk-late{background:color-mix(in srgb,var(--st-late) 6%,var(--surface));}
 .bk-late-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 12px;}
-.bk-late-head b{font-size:var(--fs-num);font-weight:800;line-height:1;color:var(--st-late);}
-.bk-late-head span{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.bk-late-head b{font-size:var(--fs-num);font-weight:800;line-height:1;color:var(--late);}
 .bk-late-keys{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .bk-late-keys.one{grid-template-columns:1fr;}
 .bk-late-go{display:grid;justify-items:center;align-content:center;gap:4px;min-height:56px;padding:8px 16px;border:none;
@@ -1311,7 +1339,7 @@ body.book-page #app{display:block;height:auto;}
 .fg-lim-x{height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);background:none;color:var(--charcoal-soft);
   font:inherit;font-weight:700;font-size:var(--fs-md);}
 .fg-lim-close{margin-left:auto;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;
-  border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);}
+  border:none;border-radius:var(--r-pill);background:var(--deck-pill-bg);color:var(--text-primary);}
 .fg-lim-close svg{width:20px;height:20px;}
 .stat.over{border-color:var(--red);}
 .stat.over b{color:var(--red);}
@@ -1499,7 +1527,7 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .dk-main i{font-style:normal;font-weight:700;}
 .dk-main i.here{color:var(--st-arrived);} .dk-main i.late{color:var(--red);}
 .dk-main i.leave{color:var(--st-check);} .dk-main i.ink{color:var(--text-primary);}
-.dk-rt{display:flex;align-items:center;justify-content:center;padding-right:8px;}
+.dk-rt{display:flex;align-items:center;justify-content:flex-end;padding-right:12px;}
 .dk-t{font-family:var(--font-mono);font-weight:600;font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;}
 .dk-t.over{color:var(--red);font-weight:800;}
 .dk-k{display:flex;align-items:center;justify-content:center;min-width:56px;height:var(--tap);padding:0 8px;
@@ -2286,7 +2314,7 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .wk-head b{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .wk-head > span{flex:1 0 auto;white-space:nowrap;}
 .wk-x{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
-  border-radius:var(--r-btn);background:var(--deck-pill-bg);color:var(--text-primary);}
+  border-radius:var(--r-pill);background:var(--deck-pill-bg);color:var(--text-primary);}
 .wk-x svg{width:20px;height:20px;}
 .wk-menu{width:360px;}
 /* How many: the new booking's own stepper, starting on two. */
@@ -2297,7 +2325,7 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .wk-pax b{min-width:32px;text-align:center;font-family:var(--font-mono);font-size:var(--fs-num);font-weight:800;}
 .wk-pax span{margin-left:-4px;color:var(--charcoal-soft);font-size:var(--fs-md);}
 .wk-more{margin-left:auto;height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);background:none;color:var(--charcoal-soft);
-  font:inherit;font-weight:700;font-size:var(--fs-md);}
+  font:inherit;font-weight:700;font-size:var(--fs-md);white-space:nowrap;}
 /* The tables that take them, as keys: the accent the room lights them in. */
 .wk-ts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
 .wk-t{height:52px;border:none;border-radius:var(--r-control);background:var(--orange);color:#fff;padding:0 4px;
@@ -2310,9 +2338,20 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
   border-radius:inherit;box-shadow:inset 0 0 0 var(--tbl-sel-ring) var(--orange);}
 @media (max-width:760px){
   /* A phone's key sits at the screen's edge: the sizes hang from the whole
-     bar instead, edge to edge, still straight under the finger. */
+     bar instead, gutter to gutter, still straight under the finger — and
+     the bar's own 8 under its keys, where the other two menus hang (it ran
+     8–382 past the 16 gutter and hung 12 below, 9 Oct). */
   .wk-anchor{position:static;}
-  .wk-menu{left:8px;right:8px;width:auto;top:calc(100% + 4px);}
+  .wk-menu{left:16px;right:16px;width:auto;top:100%;}
+}
+/* A NARROW PHONE KEEPS THE MENU IN ITS GUTTERS (review, 9 Oct). "With a
+   name" on one line asked 337 of the row, 9 past a 360 phone's menu, so
+   the close key and table 46 were cut at its edge, and at 320 the page
+   scrolled sideways. There the row's air closes to the 8 and the word may
+   take two lines in its key: one still at 360, two at 320. */
+@media (max-width:380px){
+  .wk-pax{gap:8px;}
+  .wk-more{padding:0 8px;white-space:normal;line-height:1.2;text-align:right;}
 }
 
 /* §§ A NEW BOOKING IS ONE PAGE (v13): how many, which day, what time, who.
@@ -2398,7 +2437,7 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .mv-bar > button{flex:none;height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-btn);background:var(--deck-pill-bg);
   color:var(--text-primary);font:inherit;font-weight:800;font-size:var(--fs-md);white-space:nowrap;}
 .mv-bar > .mv-go{background:var(--text-primary);color:var(--surface);}
-.mv-bar > .mv-x{width:var(--tap);padding:0;display:flex;align-items:center;justify-content:center;}
+.mv-bar > .mv-x{width:var(--tap);padding:0;display:flex;align-items:center;justify-content:center;border-radius:var(--r-pill);}
 .mv-x svg{width:20px;height:20px;}
 @media (max-width:760px){
   .mv-bar{left:8px;right:8px;bottom:8px;max-width:none;flex-wrap:wrap;padding:4px;}
@@ -2441,8 +2480,11 @@ a.btn{color:var(--text-primary);text-decoration:none;}
   color:var(--text-primary);font:inherit;font-size:var(--fs-lg);font-weight:600;white-space:nowrap;}
 .bke-sent > button.mono{font-family:var(--font-mono);font-weight:700;}
 .bke-sent > button.none{background:none;border:1px dashed var(--red);color:var(--red);}
+/* The next step is a key that does the thing, so it is ink — Seat at 31
+   and The other 2 arrived were a 56-tall slab of the one blue beside Here,
+   Bill, Paid and Left in ink (QUIET, 9 Oct). */
 .bke-next{display:flex;gap:8px;}
-.bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--orange);color:var(--on-accent);
+.bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--ink);color:var(--surface);
   font:inherit;font-size:var(--fs-lg);font-weight:800;}
 .bke-next .go.ink{background:var(--text-primary);color:var(--surface);}
 .bke-alert{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:8px 16px;border:none;border-radius:var(--r-control);
@@ -2488,6 +2530,9 @@ a.btn{color:var(--text-primary);text-decoration:none;}
      booking sheet, the welcome card) reads these, never the old rail's. */
   --sd-max:1440px; --sd-pad:20px; --sd-col:400px; --sd-gap:16px;
   --sd-x:max(0px, (100vw - var(--sd-max)) / 2);
+  /* The bar's height, the deck's 8 + 52 + 8: the bar is drawn to it and the
+     booking sheet lands on its foot, one number for both (9 Oct). */
+  --tp-h:68px;
 }
 body[data-theme="dark"]{
   --bg:#0E0F11; --ink:#F1F1EE; --mute:#9A9DA5; --faint:#62656D; --line:#2A2C31;
@@ -2510,7 +2555,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .rail{display:none;}
 
 /* §§ The bar: the night, the service, the two make keys, the menu key. */
-.tp{position:relative;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 20px;background:var(--bg);}
+.tp{position:relative;display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:8px 20px;background:var(--bg);}
 .tp-night{display:flex;align-items:center;gap:4px;}
 .tp-ar{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
   border-radius:50%;background:var(--well);color:var(--ink);padding:0;}
@@ -2538,7 +2583,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .tp-sh{display:none;}
 .tp-menu-a{position:relative;display:flex;}
 .tp-veil{position:fixed;inset:0;z-index:39;}
-.tp-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:40;width:240px;display:grid;padding:8px;
+.tp-menu{position:absolute;top:calc(100% + 8px);right:0;z-index:40;width:260px;display:grid;padding:8px;
   border-radius:var(--r-surface);background:var(--surface);box-shadow:var(--lift-2);}
 .tp-mi{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 12px;border:none;
   border-radius:var(--r-control);background:none;color:var(--ink);font:inherit;font-weight:600;font-size:var(--fs-lg);text-align:left;}
@@ -2564,6 +2609,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
    (daily round, 8 Oct). Up to 900 the desk is tabs and there is no seam. */
 @media (min-width:901px){
   .shell.simple .modal.bk-sheet:not(.pane-wide){left:calc(var(--sd-x) + var(--sd-pad) + var(--sd-col) + var(--sd-gap) / 2);}
+  /* And it is the room panel's own box otherwise (9 Oct): its top the bar's
+     foot (--tp-h, the bar's own height), its foot and its right edge the pane's
+     gutter, every corner the panel's. It ran 72–788 against a panel at
+     68–780, and at 1920 to the window's edge, 260 past the room and outside
+     the 1440 shell. */
+  .shell.simple .modal.bk-sheet:not(.pane-wide){top:var(--tp-h);bottom:var(--sd-pad);right:calc(var(--sd-x) + var(--sd-pad));border-radius:var(--r-surface);}
 }
 .shell.simple .desk-col{max-height:none;overflow-y:auto;border-right:none;background:none;padding-bottom:16px;}
 /* Up to 900 the message stands at the window's foot over the list, so the
@@ -2582,9 +2633,17 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .fl-box > .fl-wrap{background:var(--surface);padding:16px;}
 .shell.simple .timeline,.shell.simple .tl-card{border:none;border-radius:0;}
 
-/* The search well and the groups, the prototype's own. */
+/* The search well and the groups, the prototype's own. The list's
+   nothing-here line reads like the list: from its left edge, in the
+   heads' weight, quiet — not the app's centred block 48 down (9 Oct). */
+.shell.simple .desk-col .bl-find ~ .empty{text-align:left;padding:12px 4px;font-weight:600;color:var(--mute);}
 .shell.simple .desk-col .bl-find{position:sticky;top:0;margin:0 0 16px;padding:0 4px 0 16px;min-height:48px;border:none;
   border-radius:var(--r-pill);background:var(--surface);}
+/* THE PINNED SEARCH KEEPS ITS ROUND ENDS, AND THE ROWS SLIDE STRAIGHT UNDER
+   IT (9 Oct). The till settled this: a pinned card keeps its corners and
+   nothing stands between it and what passes beneath (its DESIGN.md,
+   Alignment law 5 — a band of ground was one of the four it turned down).
+   So no band: the rows show beside its round ends as they go under. */
 .shell.simple .desk-col .side-sw{display:none;}
 .shell.simple .bl-head{display:flex;align-items:center;gap:8px;min-height:52px;padding:0 4px;border:none;background:none;}
 .shell.simple .bl-h-name{flex:none;font-size:var(--fs-lg);font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);}
@@ -2597,16 +2656,20 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .bl-rows{display:block;padding:0;margin-bottom:16px;border-radius:var(--r-control);background:var(--surface);overflow:hidden;}
 
 /* The docket line in the design's few colours. */
-.shell.simple .dk-row{border-radius:0;border-top:1px solid var(--line);}
+/* The right column is as wide as what it says, never under 72, and ends
+   12 in from the row's edge on every row — a time, a count, a key — where
+   centred it wandered 12 px down one list (9 Oct). */
+.shell.simple .dk-row{grid-template-columns:64px minmax(0,1fr) minmax(72px,auto);border-radius:0;border-top:1px solid var(--line);}
 .shell.simple .bl-rows > .dk-row:first-child{border-top:none;}
 .shell.simple .dk-row.selected,.shell.simple .dk-row.open{background:var(--accent-wash);box-shadow:none;}
 .dk-tab[class*="stg-"]{background:var(--tfree);color:var(--ink);border-left:none;text-decoration:none;}
 .dk-tab.stg-here{background:var(--accent);color:var(--on-accent);}
-.dk-tab.stg-open{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 calc(var(--ring) * 2) var(--accent);}
-.bl-head.opened .bl-h-name{color:var(--accent);}
-.bl-head.opened .bl-h-c{color:var(--accent);background:var(--accent-wash);}
+/* Just opened spends the one blue once: the tab's ring. Its head is a head,
+   its words ink and its Text the ink key that does the thing (9 Oct: one
+   row wore the blue five times). */
+.dk-tab.stg-open{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 var(--ring) var(--accent);}
 .dk-k.ink{background:var(--ink);color:var(--surface);}
-.dk-k.txt{background:var(--accent-wash);color:var(--accent);}
+.dk-k.txt{background:var(--ink);color:var(--surface);}
 a.dk-k,a.chip{text-decoration:none;}
 .dk-tab.stg-phere{background:var(--accent-wash);color:var(--accent);box-shadow:inset var(--ring) 0 0 var(--accent);}
 .dk-tab.stg-late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
@@ -2614,7 +2677,11 @@ a.dk-k,a.chip{text-decoration:none;}
 .dk-tab.stg-bill{background:var(--seat);box-shadow:inset var(--ring) 0 0 var(--leave);}
 .dk-tab.stg-gone{color:var(--mute);}
 .dk-tab.stg-none{background:none;color:var(--late);border:1px dashed var(--late);}
-.dk-tab.busy{color:var(--faint);text-decoration:line-through;text-decoration-thickness:2px;}
+.dk-tab.busy{color:var(--mute);text-decoration:line-through;text-decoration-thickness:2px;}
+/* Struck on the blue — a party at the door whose table is still eating, the
+   tab's main use — the number keeps the blue's own ink: grey on the blue
+   was 1.14 to 1 (9 Oct). */
+.dk-tab.stg-here.busy{color:var(--on-accent);}
 .dk-main b{font-size:var(--fs-lg);font-weight:600;}
 .dk-main i.here{color:var(--accent);} .dk-main i.late{color:var(--late);} .dk-main i.leave{color:var(--leave);}
 .dk-t{font-size:var(--fs-md);color:var(--mute);}
@@ -2632,6 +2699,11 @@ a.dk-k,a.chip{text-decoration:none;}
 .shell.simple .fl-table.stg-here{background:var(--accent);color:var(--on-accent);}
 .shell.simple .fl-table.stg-phere{background:var(--accent-wash);color:var(--accent);border:.25cqw solid var(--accent);}
 .shell.simple .fl-table.stg-late{background:var(--late-wash);color:var(--late);border:.25cqw solid var(--late);outline:none;}
+/* A table's number is what a host reads across a room: 2 of the room's
+   width, about 0.3 of a table as the till draws it (17–20 px), where 1.5
+   was 0.2 — 11.9 px at 1280 and 8 at 1024 (9 Oct). The loose grid keeps
+   its token: it has no width to take a share of. */
+.shell.simple .fl-room:not(.loose) .fl-no{font-size:2cqw;}
 .shell.simple .fl-table.over{outline:.3cqw solid var(--late);outline-offset:.3cqw;}
 .shell.simple .fl-table.check,.shell.simple .fl-table.paid{outline:.3cqw solid var(--leave);outline-offset:.3cqw;}
 
@@ -2642,6 +2714,28 @@ a.dk-k,a.chip{text-decoration:none;}
 .shell.simple .tl-block.seated,.shell.simple .tl-block.part-seated{background:var(--seat);color:var(--ink);}
 .shell.simple .tl-block.check,.shell.simple .tl-block.paid{background:var(--seat);color:var(--ink);box-shadow:inset var(--ring) 0 0 var(--leave);}
 .shell.simple .tl-block.done,.shell.simple .tl-block.cancelled,.shell.simple .tl-block.no-show{background:var(--well);color:var(--mute);}
+/* A late party is the tab's own late: the wash, the red, a red edge. */
+.shell.simple .tl-block.late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
+/* EVERY BLOCK IS A FINGER TALL (9 Oct). A block opens the booking and is
+   the drag's handle, and it was 34 tall: the finger law says nothing on the
+   desk is under 44. A 44 block with 4 of air in a 52 lane, and the drop mark
+   the same box the block will land in. */
+.shell.simple .tl-lane:not(.floor),.shell.simple .tl-label:not(.floor){min-height:52px;}
+.shell.simple .tl-block,.shell.simple .tl-drop{top:4px;height:44px;}
+/* THE LIFTED BLOCK WEARS THE SAME FEW COLOURS (review, 9 Oct). It is a
+   clone carried on <body>, outside the shell, because it must outlive the
+   paint that follows a refused drop while it floats home — so the rules
+   above never reached it and a confirmed party rode the finger in the old
+   palette's teal-green, the one green on the page. It wears them by its own
+   name. Its lift is its one edge — a late block's red edge as well would
+   be a shadow inside and outside at once — so late is its wash and its red. */
+.tl-block.tl-drag-ghost{background:var(--tfree);color:var(--ink);}
+.tl-block.tl-drag-ghost.arrived{background:var(--accent);color:var(--on-accent);}
+.tl-block.tl-drag-ghost.part-arrived{background:var(--accent-wash);color:var(--accent);}
+.tl-block.tl-drag-ghost.seated,.tl-block.tl-drag-ghost.part-seated{background:var(--seat);color:var(--ink);}
+.tl-block.tl-drag-ghost.check,.tl-block.tl-drag-ghost.paid{background:var(--seat);color:var(--ink);}
+.tl-block.tl-drag-ghost.done,.tl-block.tl-drag-ghost.cancelled,.tl-block.tl-drag-ghost.no-show{background:var(--well);color:var(--mute);}
+.tl-block.tl-drag-ghost.late{background:var(--late-wash);color:var(--late);}
 .shell.simple .fg-tbl{background:var(--tfree);color:var(--ink);}
 .shell.simple .fg-tbl.arrived{background:var(--accent);color:var(--on-accent);}
 .shell.simple .fg-tbl.part-arrived{background:var(--accent-wash);color:var(--accent);}
@@ -2655,7 +2749,7 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
 /* §§ A phone: the bar wraps to two lines and the views are tabs under it —
    List · Floor · Timeline · Flow — with no bar at the foot. */
 @media (max-width:760px){
-  :root{--sd-pad:16px;}
+  :root{--sd-pad:16px;--tp-h:60px;}
   .tp{padding:8px 16px;gap:8px;}
   .tp-night{flex:1;order:0;justify-content:space-between;}
   .tp-menu-a{order:1;}
@@ -2690,8 +2784,10 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
 /* Up to 900 the list and the room do not both fit beside each other, so the
    desk is the phone's: List · Floor · Timeline · Flow as tabs, one at a time. */
 @media (max-width:900px){
-  .vt-phone{display:flex;margin-bottom:12px;}
-  .vt-phone button{flex:1;}
+  /* Four equal keys in the groove, the till's own: as a flex row they were
+     63/75/104/72 at 360 and Flow ran 2 px past the well (9 Oct). */
+  .vt-phone{display:grid;grid-template-columns:repeat(4,1fr);margin-bottom:12px;}
+  .vt-phone button{padding:0 4px;min-width:0;}
   .vt-row .vt:not(.vt-rooms){display:none;}
   .vt-row:not(:has(.vt-rooms)){display:none;}
   .shell.simple .desk{grid-template-columns:minmax(0,1fr);}
@@ -2706,11 +2802,10 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
 .tp-ar{background:none;width:36px;}
 .tp-night-a{position:relative;display:flex;}
 .tp-date.on .tp-big svg{transform:rotate(180deg);}
-.tp-views .vt{background:var(--well);}
 .tp-menu-l{left:0;right:auto;width:260px;}
 .tp-mi-t{font-family:var(--font-mono);font-size:var(--fs-md);color:var(--mute);font-weight:500;}
 .tp-mi.on .tp-mi-t{color:var(--accent);}
-.tp-mi-sep{display:block;height:1px;margin:4px 8px;background:var(--line);}
+.tp-mi-sep{display:block;height:8px;margin:0 8px;background:linear-gradient(var(--line), var(--line)) 0 4px / 100% 1px no-repeat;}
 @media (max-width:900px){ .tp-views{display:none;} }
 @media (max-width:1100px){ .tp-lg{display:none;} .tp-btn:not(.icon){width:var(--tap);padding:0;justify-content:center;} }
 @media (max-width:760px){
@@ -2849,10 +2944,12 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 .dk-tab.stg-bill{box-shadow:none;}
 .dk-tab.stg-none{color:var(--mute);border-color:var(--faint);}
 .dk-t.over{color:var(--ink);font-weight:700;}
-.dk-main i.leave{color:var(--mute);}
+.dk-main i.leave{color:var(--ink);}
 .dk-main i.quiet{color:var(--mute);font-weight:600;}
-/* The room: grey, darker grey, blue at the door, red only for late. No rings. */
-.shell.simple .fl-table.stg-late{border:none;}
+/* The room: grey, darker grey, blue at the door, red only for late. No rings.
+   The late table keeps the simple desk's red EDGE — an inside edge, not a
+   ring — or it was the faintest thing in the room (1.17 to 1) while its tab
+   in the list wore a red edge (9 Oct: "make the floor match the list"). */
 .shell.simple .fl-table.over,.shell.simple .fl-table.check,.shell.simple .fl-table.paid{outline:none;}
 .shell.simple .tl-block.check,.shell.simple .tl-block.paid{box-shadow:none;}
 .tl-now{width:1px;background:var(--ink);}
@@ -2862,8 +2959,17 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
    wears the ring its tables wear in the room, because it IS what you picked
    there — see A BIG PARTY LIGHTS ITS JOINED TABLES at the foot. */
 .wk-t{background:var(--well);color:var(--ink);}
-.wk-t.till{background:none;color:var(--mute);border:1px solid var(--line);}
+/* A table that takes them only till a time is the same grey key, its number
+   and its time quiet: an outline was a fourth key shape, and in dark it all
+   but vanished (1.26 to 1, 9 Oct). */
+.wk-t.till{background:var(--well);color:var(--mute);border:none;}
 .fg-sum{margin:0 0 12px;color:var(--mute);font-size:var(--fs-lg);}
+/* Each part of the totals is one unit: a line breaks between them, never
+   inside one (9 Oct). */
+.fg-u{white-space:nowrap;}
+/* The totals and the strip start on the panel's one 16 inset: the strip sat
+   12 further in, on a margin of its own (9 Oct). */
+.shell.simple .dm-scroll > .flow{margin:0;}
 .fg-sum b{color:var(--ink);font-family:var(--font-mono);}
 .shell.simple .flow{border:none;padding:0;}
 .fg-col.quiet .fg-total{visibility:hidden;}
@@ -2885,8 +2991,35 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
    under it in plain type; the day is stepped from its menu, not from arrows
    either side of it. The views beside it on a desk. Walk-in and New booking
    are words, the same pill, grey and ink; the menu is a plain key. */
-.tp{gap:16px;min-height:68px;}
+.tp{gap:16px;min-height:var(--tp-h);}
 .tp-night{gap:0;}
+/* THE BAR, MEASURED AGAINST THE TILL'S DECK (owner, 9 Oct: "have a look at
+   the pos design … every detail"). Eight of air above and below, so the
+   height follows the well and not the other way: 8 + 52 + 8 is the 68 it
+   already claimed (it was 12 + 52 + 12, a 76 nobody chose). From 1200 the
+   night is the list's own width, so with the bar's 16 — the desk's gap —
+   the views stand over the room's left edge whatever the title says; it
+   moved 46 px between Friday and Last night. And the menu key's glyph ends
+   as far in from the right as the title's first letter starts on the left:
+   the key's own 12 round its glyph is air the edge already gives. */
+@media (min-width:1200px){ .tp-night{flex:none;width:var(--sd-col);} }
+/* And there, standing over the room, Floor · Timeline · Flow are one width,
+   the widest word's. Under 1200 the night takes its own width and the views
+   follow it across the seam, so there they keep their words' own widths:
+   equal, the well hung 32 into the room's corner from 901 to 1199, and at
+   their own widths it ends over the list, 5 short of its edge (review, 9 Oct). */
+@media (min-width:1200px){ .tp-views .vt{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;} }
+.tp > .tp-menu-a:last-child{margin-right:-8px;}
+.tp > .tp-menu-a:last-child > .tp-menu{right:8px;}
+/* DARK IS LIFTED, NOT SUNK (9 Oct). The segment you are on was the paper,
+   #18191D, inside a #202227 well — darker than its own groove, a hole,
+   where light lifts it white — so in dark it is the free table's grey, a
+   step ABOVE the well. And a menu was the paper over the paper, 1.0 to 1:
+   in dark it carries a hairline edge under its lift, and its table keys
+   stand off it in the same grey the lit segment wears. */
+body[data-theme="dark"] .tp-seg button.on,body[data-theme="dark"] .vt button.on{background:var(--tfree);}
+body[data-theme="dark"] .tp-menu,body[data-theme="dark"] .wk-menu{box-shadow:0 0 0 var(--ring) var(--line), var(--lift-2);}
+body[data-theme="dark"] .wk-t:not(.join){background:var(--tfree);}
 .tp-date{padding:0 4px;}
 .tp-big{font-size:var(--fs-num);}
 .tp-when{font-family:var(--font-body);font-size:var(--fs-md);font-weight:500;}
@@ -2897,7 +3030,7 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 .tp-sh{display:none;}
 @media (max-width:1100px){ .tp-lg{display:inline;} .tp-btn:not(.icon){width:auto;padding:0 20px;} }
 @media (max-width:760px){
-  .tp{gap:8px;min-height:60px;}
+  .tp{gap:8px;}
   .tp-lg{display:none;} .tp-sh{display:inline;}
   .tp-btn:not(.icon){padding:0 16px;}
   .tp-big{font-size:var(--fs-xl);}
@@ -2927,6 +3060,15 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 .shell.simple .pane > .desk{flex:1 1 auto;min-height:0;height:auto;}
 /* A number is never in a box (QUIET). */
 .bl-h-c,.shell.simple .bl-head.red .bl-h-c,.bl-head.opened .bl-h-c,.tp-mi-n{background:none;min-width:0;padding:0;}
+/* AND IT STANDS ON ITS WORD'S LINE (9 Oct). With the box gone its centred
+   24-tall frame only lifted the smaller mono digits 1.5 above the word
+   beside them, in the list's heads and in the menu alike. The line is
+   centred in its row (one line, wrapped so align-content can centre it)
+   and the word, the count and the people share one baseline in it. */
+.bl-h-c,.tp-mi-n{height:auto;}
+.shell.simple .bl-head{flex-wrap:wrap;align-content:center;}
+.shell.simple .bl-head > .bl-h-name,.shell.simple .bl-head > .bl-h-c,.shell.simple .bl-head > .bl-h-p{align-self:baseline;}
+.tp-mi{flex-wrap:wrap;align-content:center;align-items:baseline;}
 /* A key that does the thing is ink: the guest card's Book wore the gold,
    which QUIET made a grey that white words do not read on in dark. */
 .shell.simple .icon-action.warn{background:var(--ink);color:var(--surface);}
