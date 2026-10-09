@@ -1539,6 +1539,14 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
   background:none;border:none;text-align:left;cursor:pointer;color:var(--text-primary);}
 .dk-main b{font-size:var(--fs-lg);font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .dk-main span{font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+/* A NAME GIVES WAY, A PARTY'S SIZE NEVER DOES (daily round, 9 Oct). One
+   ellipsed run cut "Lindqvist-Featherstonehaugh · 5" to "Lindqvist-Featherst…"
+   and the host could not tell how many. The name is its own span and takes
+   the ellipsis; " · 5" stands beside it, the tidy's rows' own markup, on every
+   row of the list: a booking, the line, Just opened, the tidy. */
+.dk-main b{display:flex;min-width:0;}
+.dk-main b > span{font-size:inherit;color:inherit;}
+.dk-main b > .td-n{flex:none;overflow:visible;}
 .dk-main i{font-style:normal;font-weight:700;}
 .dk-main i.here{color:var(--st-arrived);} .dk-main i.late{color:var(--red);}
 .dk-main i.leave{color:var(--st-check);} .dk-main i.ink{color:var(--text-primary);}
@@ -1563,6 +1571,18 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .toast.open .toast-msg{line-height:var(--tap);}
 .toast.open > .toast-undo,.toast.open .toast-count{margin:0;}
 .toast-keys{display:flex;gap:4px;}
+/* AND NEVER A KEY CUT, NOR A CLASH (daily round, 9 Oct). Over the room on
+   an iPad held sideways a party of eight's keys ran past the message — 11 a
+   third gone at 1024, all three sizes more at 901 — and "· shares it with
+   Whitfield-Montgo…" lost its time. Above a phone too, a key the message
+   cannot hold takes the next line under the keys, the question standing on
+   their first; and any message takes up to three lines before it is cut,
+   the phone's rule (below), at every width. */
+.toast-keys{flex-wrap:wrap;}
+.toast.open .toast-q{flex:none;align-self:flex-start;line-height:var(--tap);white-space:nowrap;}
+.toast{width:max-content;white-space:normal;border-radius:calc(var(--tap) / 2);}
+.toast-undo{white-space:nowrap;}
+.toast-msg{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;}
 /* Wrapped, the question under the name starts where the name does (fitToast
    marks it), not a step in from it. */
 .toast.open.two .toast-q{padding-left:0;}
@@ -1574,11 +1594,9 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
    the edge. And any message there takes a second line before it is cut:
    "Nothing seats 6 now · stay on 13" was "Nothing seats 6 now · stay o…" —
    and a third, since a clash is said after it: "· shares it with Whitfield
-   at 8:45 PM" was "shares it with…", the one word that mattered gone. */
+   at 8:45 PM" was "shares it with…", the one word that mattered gone.
+   (The three lines hold at every width now: above.) */
 @media (max-width:760px){
-  .toast{width:max-content;white-space:normal;border-radius:calc(var(--tap) / 2);}
-  .toast-undo{white-space:nowrap;}
-  .toast-msg{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;}
   .toast.ask{width:calc(100vw - 32px);flex-wrap:wrap;row-gap:0;padding:0 8px 0 20px;border-radius:var(--r-surface);}
   .toast.ask .toast-msg{flex:1 1 0;padding:12px 0;line-height:20px;}
   .toast.ask > .toast-undo{margin:0;}
@@ -3059,6 +3077,22 @@ body[data-theme="dark"] .wk-t:not(.join){background:var(--tfree);}
 }
 @media (max-width:760px){ .tp-sp{display:none;} }
 @media (max-width:760px){ .tp-wd{display:none;} }
+/* THE NIGHT KEEPS ITS DATE (daily round, 9 Oct). At 320 "Dinner · 9 Oct" had
+   78 px for its 86 and read "Dinner · 9 …": the date, the one thing a host
+   opens the night's menu to check, was what the ellipsis took. The date is
+   laid first and the service word after it, on one line a line tall; where
+   both do not fit the service word wraps onto a second line nobody sees,
+   and row-reverse draws what is left in reading order from the left. So the
+   date is always whole, and the service word is said whole or not at all. */
+.tp-when{display:flex;flex-flow:row-reverse wrap;justify-content:flex-end;line-height:1.2;height:1.2em;overflow:hidden;}
+.tp-dm{flex:none;order:-1;}
+.tp-svc{flex:none;}
+/* AND "WALK-IN" IS A WORD, NOT A NAME (daily round, 9 Oct). At 320 the
+   menu stepped to nine read "Wa…" beside "Nothing free for 9 tonight": the
+   name-gives-way rule of the Seat line (8 Oct) was cutting the menu's own
+   title. The title holds; the hint takes a second line where it must. */
+.wk-menu:not(.folded) .wk-head b{flex:none;}
+.wk-menu:not(.folded) .wk-head > span{flex:1 1 0;min-width:0;white-space:normal;}
 /* A message that went through carries no dot; only a failure marks itself, in red. */
 .toast .dot{display:none;}
 .toast .dot.bad{display:block;}
@@ -3134,9 +3168,6 @@ body[data-theme="dark"] .wk-t:not(.join){background:var(--tfree);}
 .dk-row.td-row{grid-template-columns:64px minmax(0,1fr) auto;}
 .td-row .dk-rt{padding:0 12px 0 4px;}
 .td-row .dk-k.td-k{min-width:76px;padding:0 16px;font-size:var(--fs-lg);}
-.td-row .dk-main b{display:flex;min-width:0;}
-.td-row .dk-main b > span{font-size:inherit;color:inherit;}
-.td-row .dk-main b > .td-n{flex:none;overflow:visible;}
 .td-k[disabled],.td-all[disabled]{opacity:var(--dim);}
 .shell.simple:has(> .toast) .td{padding-bottom:calc(var(--toast-h, var(--tap)) + 32px + env(safe-area-inset-bottom, 0px));}
 @media (min-width:761px) and (max-width:900px){ .td-say > span:not(.td-dot),.td-say .td-dot{display:inline;} }
@@ -4995,7 +5026,10 @@ const DEFAULT_DATA = {
   openings: [],
   guests: [],
   auditLog: [],
-  posState: { lastSyncAt: 0, lastError: '', version: null, connected: false, wiped: 0 },
+  // `floorFrom`: the till address the floor plans last came from, '' while
+  // the room is the desk's own — the till's joins are the combinations only
+  // then (daily round, 9 Oct).
+  posState: { lastSyncAt: 0, lastError: '', version: null, connected: false, wiped: 0, floorFrom: '' },
   // The relay link's last word: whether it answered, the booking page's
   // address it reported, and when the desk last told it what it may sell.
   relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0, released: [], gone: [], officeOffOwed: false, closeOwed: false, closesOwed: [] },
@@ -5057,6 +5091,11 @@ function migrate(data) {
   for (const k of Object.keys(DEFAULT_SETTINGS.pos)) if (s.pos[k] === undefined) s.pos[k] = DEFAULT_SETTINGS.pos[k];
   for (const k of Object.keys(DEFAULT_SETTINGS.relay)) if (s.relay[k] === undefined) s.relay[k] = DEFAULT_SETTINGS.relay[k];
   for (const k of Object.keys(DEFAULT_DATA.relayState)) if (data.relayState[k] === undefined) data.relayState[k] = DEFAULT_DATA.relayState[k];
+  // A store from before the floor was stamped: a pass that succeeded took the
+  // floor from the address the link holds, unless the floor was never taken.
+  if (data.posState.floorFrom === undefined) {
+    data.posState.floorFrom = data.posState.version && s.pos.baseUrl && s.pos.useFloor !== false ? String(s.pos.baseUrl) : '';
+  }
   for (const k of Object.keys(DEFAULT_SETTINGS.pacing)) if (s.pacing[k] === undefined) s.pacing[k] = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.pacing[k]));
   for (const k of ['night', 'week']) if (!s.pacing[k] || typeof s.pacing[k] !== 'object' || Array.isArray(s.pacing[k])) s.pacing[k] = {};
   // The loop above already gives an older store `exceptions: []`; this catches
@@ -5125,6 +5164,10 @@ function migrate(data) {
   return data;
 }
 
+// Every write this process made, counted: two writes inside one tick of the
+// file system's clock share a last-write time, and a thing worked out once
+// per version of the store (the night's line) must not outlive either.
+let _writes = 0;
 function writeData(data) {
   ensureStore();
   const json = JSON.stringify(data, null, 2);
@@ -5134,7 +5177,9 @@ function writeData(data) {
   try { fs.writeFileSync(DB_FILE + '.bak.tmp', json); fs.renameSync(DB_FILE + '.bak.tmp', DB_FILE + '.bak'); } catch (e) {}
   _cache = data;
   _cacheMtime = statMs(DB_FILE);
+  _writes++;
 }
+function writeCount() { return _writes; }
 
 // What the client's poll asks instead of fetching everything: the store's
 // last-write time. Any write moves it.
@@ -5225,7 +5270,7 @@ const COLOUR_KEYS = {
   over: '--st-over',
   online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
 };
-module.exports = { readData, writeData, dataVersion, newId, migrate, TILL_COLOURS, tillOwns, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
+module.exports = { readData, writeData, dataVersion, writeCount, newId, migrate, TILL_COLOURS, tillOwns, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./db'] = module;
@@ -5463,10 +5508,13 @@ function heldFrom(r, now, s) {
 // party sat at 00:30 is stored on the next date, and asked about at 24:40 it
 // held nothing, so the table key offered the table they were eating at
 // (daily round, 6 Oct). Their minute is counted on from this midnight.
+// The table is asked before the night (daily round, 9 Oct): the night is a
+// date sum, asked of every booking in the store for every table, and was
+// half of what a busy night's line cost. The same answer, in that order.
 function holdersOf(ctx, tableId, day, startMin, dur, ignoreId) {
   const now = nowOn(ctx, day);
   return (ctx.reservations || []).filter(r => {
-    if (r.id === ignoreId || !isLive(r) || !onNight(ctx.settings, r, day) || !heldTables(r).includes(tableId)) return false;
+    if (r.id === ignoreId || !isLive(r) || !heldTables(r).includes(tableId) || !onNight(ctx.settings, r, day)) return false;
     const s = nightMin(r, day), from = heldFrom(r, now, s);
     return overlaps(startMin, dur, from, heldFor(ctx, r, now, s) + s - from);
   });
@@ -5897,9 +5945,9 @@ function walkinTables(ctx, day, hhmm, party) {
 //   free  every table free for their whole sitting — tightest first, so
 //         free[0] is the combination walkinTables() already lights
 //   held  the rest, with WHO: whoever is IN ITS CHAIRS NOW — a party sat or
-//         at the door on one of its tables, then the till's covers on a
-//         table no booking holds now (a Walk-in, freeTables' own walkedIn
-//         test) — and only when nobody is, the first booked in the walk-in's
+//         at the door on one of its tables, then the till's covers on any
+//         of them (a Walk-in, whoever is booked there later or late) — and
+//         only when nobody is, the first booked in the walk-in's
 //         sitting. As { name, time, status }, so the room can say "Ashworth"
 //         for a party eating and "Sinclair 7:40" for one booked. Ranked by
 //         start alone, four eating on 7 at the till were "Sinclair 7:40" and
@@ -5925,9 +5973,16 @@ function walkinCombos(ctx, day, hhmm, party) {
     .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length));
   if (!free.length && !held.length) return null;
   const first = (rs) => rs.sort((a, b) => heldFrom(a, now, nightMin(a, day)) - heldFrom(b, now, nightMin(b, day)))[0];
+  // The till's covers, in the chairs now and inside this sitting. NOT
+  // walkedIn(): that gives a table to any booking holding it now — the
+  // floor's colour rule — so from 7:41 Sinclair, booked on 7 for 7:40 and
+  // not here, was said over the four eating there (daily round, 9 Oct).
+  // With nobody sat or at the door, the people in the chairs are the till's.
+  const tillOn = (id) => { const t = (sub.tables || []).find(x => x.id === id) || {};
+    return now !== null && Number(t.covers) > 0 && overlaps(start, dur, now, durationFor(ctx.settings, Number(t.covers))); };
   const holder = (c) => {
     const inRoom = first([].concat(...c.tables.map(id => holdersOf(sub, id, day, at, 1, null))).filter(r => isSat(r) || isHere(r)));
-    const said = inRoom || (c.tables.some(id => walkedIn(sub, (sub.tables || []).find(t => t.id === id) || {}, day, start, dur)) ? null
+    const said = inRoom || (c.tables.some(tillOn) ? null
       : first([].concat(...c.tables.map(id => holdersOf(sub, id, day, start, dur, null)))));
     return said ? { name: said.name || '', time: hhmmOf(said.time), status: said.status } : { name: 'Walk-in', time: null, status: 'walkin' };
   };
@@ -6151,9 +6206,10 @@ function lineRun(ctx, day, hhmm, line) {
   });
   return { book, waits, seats };
 }
-// The wait for a party of `size` joining the back of the line now.
-function lineWait(ctx, day, hhmm, line, size) {
-  const s = lineSeat(lineRun(ctx, day, hhmm, line).book, day, hhmm, Math.max(1, Number(size) || 1));
+// The wait for a party of `size` joining the back of the line now. `run`:
+// lineRun() of this book, moment and line, when the caller already has it.
+function lineWait(ctx, day, hhmm, line, size, run) {
+  const s = lineSeat((run || lineRun(ctx, day, hhmm, line)).book, day, hhmm, Math.max(1, Number(size) || 1));
   return s ? s.wait : null;
 }
 // THE HOST'S SCREEN AND THE GUEST'S PHONE GIVE ONE ANSWER (daily round,
@@ -6166,8 +6222,8 @@ function lineWait(ctx, day, hhmm, line, size) {
 // NOW stay the plain book's. `lineAhead()` is the line in front of one
 // waiting party, for the Seat on their row; one not in tonight's line is
 // behind all of it.
-function lineNext(ctx, day, hhmm, line, size) {
-  return walkinNext(lineRun(ctx, day, hhmm, line).book, day, hhmm, size);
+function lineNext(ctx, day, hhmm, line, size, run) {
+  return walkinNext((run || lineRun(ctx, day, hhmm, line)).book, day, hhmm, size);
 }
 function lineAhead(line, id) {
   const i = (line || []).findIndex(w => w && w.id === id);
@@ -9523,10 +9579,21 @@ function effectiveSettings(data) {
   }
   // WHICH TABLES PUSH TOGETHER: the till's own joins while linked (fp.joins on
   // the floor plan the pass already pulls), the desk's own list otherwise.
-  const cb = av.combinationsOf(s, data.floorPlans, pos.ready(s.pos) && s.pos.useFloor !== false);
+  const cb = av.combinationsOf(s, data.floorPlans, tillFloor(data, s));
   s.tableCombos = cb.list;
   s.combosFromTill = cb.fromTill;
   return s;
+}
+// THE ROOM IS THE TILL'S ONCE ITS FLOOR HAS COME (daily round, 9 Oct): linked,
+// drawing the till's floor, and the floor plans the desk holds came from the
+// till at the address the link holds (posState.floorFrom, stamped where the
+// pass stores them). A link switched on to an address that never answers —
+// a typo, a till that is off — is not a floor from the till, and the desk's
+// own joins stand: they vanished, and Settings said "None saved on the till
+// yet" of a till never heard from.
+function tillFloor(data, s) {
+  s = s || data.settings;
+  return pos.ready(s.pos) && s.pos.useFloor !== false && !!(data.posState && data.posState.floorFrom) && data.posState.floorFrom === s.pos.baseUrl;
 }
 function tablesOf(data) { return av.tablesFrom(data.floorPlans); }
 // The floor's own view of the tables: the booking arithmetic's four fields
@@ -9678,7 +9745,7 @@ app.put('/api/settings', async (req, res) => {
   // than the settings losing it the next time the till is offline.
   // While the till is linked its joins ARE the combinations: a save leaves the
   // desk's own list alone rather than writing a second copy of the till's.
-  const combosLinked = pos.ready(data.settings.pos) && data.settings.pos.useFloor !== false;
+  const combosLinked = tillFloor(data);
   if (Array.isArray(b.tableCombos) && !combosLinked) {
     s.tableCombos = b.tableCombos.slice(0, 40).map((c, i) => ({
       id: String((c && c.id) || 'tc' + (i + 1)).slice(0, 40),
@@ -9800,7 +9867,8 @@ app.get('/api/walkin', (req, res) => {
   // 8 Oct), so the host's screen and the guest's phone give one answer.
   // A waitlist Seat (`wl`) runs only the line in front of that party.
   const line = av.lineOf(data.waitlist, ctx.settings, n);
-  const next = tables.length ? null : av.lineNext(ctx, day, at, req.query.wl ? av.lineAhead(line, String(req.query.wl)) : line, size);
+  const ahead = req.query.wl ? av.lineAhead(line, String(req.query.wl)) : line;
+  const next = tables.length ? null : av.lineNext(ctx, day, at, ahead, size, lineRunOf(ctx, day, at, ahead));
   // A BIG PARTY LIGHTS ITS JOINED TABLES (8 Oct): no one table seats them,
   // so every saved combination that does — free, or held and by whom — for
   // the menu's keys and the room's lines and names (av.walkinCombos).
@@ -9846,7 +9914,10 @@ app.get('/api/tables', (req, res) => {
     tables: floorTablesOf(data),
     floorPlans: data.floorPlans.map(fp => ({ id: fp.id, name: fp.name, height: Number(fp.height) || null, tables: (fp.tables || []).filter(t => !t.mergedInto).map(shape) })),
     fromPos: !!(data.posState && data.posState.connected),
-    billFromTill: av.tillSendsBill([].concat(...(data.floorPlans || []).map(fp => fp.tables || []))),
+    // Only while the till is linked, as its marks are (daily round, 9 Oct):
+    // a floor plan kept from the last pass still carries the flags, and with
+    // the link off nothing else can mark a bill.
+    billFromTill: linked && av.tillSendsBill([].concat(...(data.floorPlans || []).map(fp => fp.tables || []))),
   });
 });
 
@@ -9869,6 +9940,8 @@ app.put('/api/tables', async (req, res) => {
   const tables = [].concat(...plans.map(fp => fp.tables.filter(t => t.type !== 'decor')));
   if (!tables.length) return res.status(400).json({ error: 'Keep at least one table' });
   data.floorPlans = plans;
+  // Edited here, the room is the desk's own now, whatever it came from.
+  data.posState.floorFrom = '';
   logAudit(data, staffFromReq(req), `Updated tables (${tables.length})`);
   writeData(data);
   res.json({ tables: tablesOf(data) });
@@ -10095,6 +10168,20 @@ app.post('/api/reservations', (req, res) => {
   if (r.durationMin === undefined) r.durationMin = null;
   if (av.isSat(r)) r.seatedAt = Date.now();
   pruneTables(data, r);
+  // A WALK-IN SAT NOW IS ASKED AGAIN WHERE IT LANDS, as the waitlist's seat
+  // is (daily round, 9 Oct): two tablets with the walk-in menu open both lit
+  // 26, and the second tap sat a second two on it with the ordinary message.
+  // The seat's own question, on the clock (av.seatRefusal); `till` is the
+  // host taking a table the room said was free only till a time. Only a
+  // walk-in sat AT THE CLOCK (its minute within a few of now): a named one
+  // saved for another day or hour keeps its sheet's ordinary warnings, where
+  // "taken now" would be false (review, 9 Oct).
+  const now = new Date();
+  if (r.source === 'walk-in' && av.isSat(r) && Math.abs(new Date(r.time).getTime() - now.getTime()) <= SAT_NOW_MS) {
+    const no = av.seatRefusal(ctxOf(data), av.localDay(now), av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), r.partySize,
+      [r.tableId].concat(r.tableIds).filter(Boolean), { till: !!req.body.till });
+    if (no) return res.status(409).json({ error: seatRefusedWords(data, no) });
+  }
   // Nobody picked a table: hand it the best free one now (the POS floor
   // wants a table to hang its RES chip on).
   if (!r.tableId && req.body.autoTable !== false) {
@@ -10586,6 +10673,15 @@ app.delete('/api/waitlist/:id', (req, res) => {
   kickRelay();
 });
 
+// How far a walk-in's minute may stand from the clock and still be one sat
+// now: the desk stamps it at the press, so a slow round trip is a minute or two.
+const SAT_NOW_MS = 5 * 60000;
+// A seat refused (av.seatRefusal), in the plain words both seats say it.
+function seatRefusedWords(data, no) {
+  const t = tablesOf(data).find(x => x.id === no.id);
+  const name = 'Table ' + (t ? t.label : no.id);
+  return no.at ? `${name} is booked at ${twelve(no.at)}` : `${name} is taken now`;
+}
 // Seat a walk-in: they become a booking that is already seated, on the
 // table picked, and the POS floor learns about it on the next pass.
 app.post('/api/waitlist/:id/seat', (req, res) => {
@@ -10605,11 +10701,7 @@ app.post('/api/waitlist/:id/seat', (req, res) => {
   // picking a table the room said was free only till a time.
   const no = av.seatRefusal(ctxOf(data), av.localDay(now), av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), w.partySize,
     [r.tableId].concat(r.tableIds).filter(Boolean), { till: !!(req.body && req.body.till) });
-  if (no) {
-    const t = tablesOf(data).find(x => x.id === no.id);
-    const name = 'Table ' + (t ? t.label : no.id);
-    return res.status(409).json({ error: no.at ? `${name} is booked at ${twelve(no.at)}` : `${name} is taken now` });
-  }
+  if (no) return res.status(409).json({ error: seatRefusedWords(data, no) });
   if (!r.tableId) { const t = av.suggestTable(av.heldBook(ctxOf(data), av.dayOf(r.time)), av.dayOf(r.time), av.hhmmOf(r.time), r.partySize, {}); if (t) r.tableId = t.id; }
   const g = touchGuest(data, r);
   r.events = [history.createdEvent(r, staffFromReq(req), r.createdAt, evOpts(data))];
@@ -11090,6 +11182,28 @@ function lineState(data) {
   const ctx = ctxOf(data), now = ctx.now;
   return { ctx, now, day: av.localDay(now), hhmm: av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), line: av.lineOf(data.waitlist, ctx.settings, now) };
 }
+// THE NIGHT'S LINE IS WORKED OUT ONCE A MINUTE (daily round, 9 Oct).
+// /api/today ran av.lineRun() on every call — every tablet's poll, every
+// seat's reload, every guest's phone — and with fifteen waiting on a busy
+// night that was most of a second of the desk's one thread each time. Its
+// answer is a function of the store and the minute, so it is kept per store
+// write (the file's time and this process's count of writes) and clock
+// minute, and the list, the walk-in and the guests' pages share it. Only a
+// route that READS asks this: one that changes the store asks av directly.
+// What is kept is the answer and the parties the line placed, never the
+// book: the book handed back is the caller's own, with them added.
+const _lineRuns = new Map();
+function lineRunOf(ctx, day, hhmm, line) {
+  const key = [db.writeCount(), dataVersion().store, av.localTime(ctx.now), day, hhmm, line.map(w => w.id + ':' + w.partySize).join(',')].join('|');
+  let kept = _lineRuns.get(key);
+  if (!kept) {
+    const run = av.lineRun(ctx, day, hhmm, line);
+    kept = { waits: run.waits, seats: run.seats, added: run.book.reservations.slice((ctx.reservations || []).length) };
+    _lineRuns.set(key, kept);
+    while (_lineRuns.size > 8) _lineRuns.delete(_lineRuns.keys().next().value);
+  }
+  return { waits: kept.waits, seats: kept.seats, book: Object.assign({}, ctx, { reservations: (ctx.reservations || []).concat(kept.added) }) };
+}
 // What became of a phone guest who is no longer in the line, for their page
 // — tonight's only is ever read back. A day and a half is kept, and never
 // many. The NAME is kept for one who left by their own hand, so the desk can
@@ -11119,7 +11233,7 @@ app.get('/api/public/line', (req, res) => {
   const max = av.lineMax(s), size = parseInt(req.query.size, 10) || 2;
   if (size < 1 || size > max) return res.status(400).json({ error: s.online.largerPartyMessage || 'Please ask at the door for that many.' });
   const st = lineState(data);
-  res.json({ open: true, venueName: s.venueName || '', maxPartySize: max, size, ahead: st.line.length, wait: av.lineWait(st.ctx, st.day, st.hhmm, st.line, size) });
+  res.json({ open: true, venueName: s.venueName || '', maxPartySize: max, size, ahead: st.line.length, wait: av.lineWait(st.ctx, st.day, st.hhmm, st.line, size, lineRunOf(st.ctx, st.day, st.hhmm, st.line)) });
 });
 app.post('/api/public/line', (req, res) => {
   const data = readData(), s = effectiveSettings(data);
@@ -11134,7 +11248,8 @@ app.post('/api/public/line', (req, res) => {
   const no = av.lineRefusal({ name, phone, partySize: party }, av.lineMax(s), st.line.map(w => w.phone));
   if (no) return res.status(no.code).json({ error: no.why === 'big' && s.online.largerPartyMessage ? s.online.largerPartyMessage : no.error });
   // What they are told is what is kept: null is nothing frees tonight.
-  const wait = av.lineWait(st.ctx, st.day, st.hhmm, st.line, party);
+  // Asked before anything is written, so the night's kept line is this book's.
+  const wait = av.lineWait(st.ctx, st.day, st.hhmm, st.line, party, lineRunOf(st.ctx, st.day, st.hhmm, st.line));
   const w = { id: newId('w'), ref: lineRef(data), name, phone, partySize: party, quotedMin: wait, notes: '', status: 'waiting', addedAt: Date.now(), addedBy: 'Online', source: 'online' };
   data.waitlist.push(w);
   logAudit(data, 'Online', `Line: ${w.name} (${w.partySize}) joined from their phone`);
@@ -11155,7 +11270,9 @@ app.get('/api/public/line/:ref', (req, res) => {
   const st = lineState(data);
   const i = st.line.findIndex(w => w.ref === ref);
   if (i >= 0) {
-    const waits = av.lineRun(st.ctx, st.day, st.hhmm, st.line.slice(0, i + 1)).waits;
+    // The line is run in order, so their wait in the whole night's run is
+    // the wait of the line up to them.
+    const waits = lineRunOf(st.ctx, st.day, st.hhmm, st.line).waits;
     const me = st.line[i];
     return res.json({ ref, status: me.status === 'notified' ? 'told' : 'waiting', place: i + 1, ahead: st.line.slice(0, i).map(w => Number(w.partySize) || 1), wait: waits[i], partySize: me.partySize, venueName: s.venueName || '' });
   }
@@ -11212,7 +11329,7 @@ app.get('/api/run-sheet', (req, res) => {
 function lineToday(data, ctx) {
   const n = ctx.now, day = av.localDay(n), at = av.pad2(n.getHours()) + ':' + av.pad2(n.getMinutes());
   const line = av.lineOf(data.waitlist, ctx.settings, n);
-  const seats = av.lineRun(ctx, day, at, line).seats;
+  const seats = lineRunOf(ctx, day, at, line).seats;
   return line.map((w, i) => ({ id: w.id, name: w.name, phone: w.phone || '', partySize: w.partySize, notes: w.notes || '', status: w.status, source: w.source || 'staff',
     ref: w.ref || null, addedAt: w.addedAt, notifiedAt: w.notifiedAt || null, quotedMin: w.quotedMin === undefined ? null : w.quotedMin, seat: seats[i] }));
 }
@@ -11322,7 +11439,9 @@ async function posPass(force) {
         cfg.useMenus !== false ? pos.getCombos(cfg).catch(() => null) : null,
       ]);
       data = readData();
-      if (Array.isArray(floorPlans) && floorPlans.length) data.floorPlans = floorPlans;
+      // Stamped with where it came from: the till's joins are the
+      // combinations only once its floor has come (tillFloor()).
+      if (Array.isArray(floorPlans) && floorPlans.length) { data.floorPlans = floorPlans; data.posState.floorFrom = cfg.baseUrl; }
       if (settings) data.posSettings = { venueName: settings.venueName || '', venueAddress: settings.venueAddress || '', seatingMinutes: settings.seatingMinutes || null, dayStartsAt: settings.dayStartsAt, coversEnabled: !!settings.coversEnabled,
         // THE THREE COLOURS BOTH APPS PAINT ON THE SAME TABLE. The till's
         // whole table-colour vocabulary is `available`, `occupied` and
@@ -11771,7 +11890,17 @@ function lanAddresses() {
   for (const name of Object.keys(nets)) for (const net of nets[name]) if (net.family === 'IPv4' && !net.internal) out.push(net.address);
   return out;
 }
-app.get('/api/lan-info', (req, res) => { res.json({ port: PORT, addresses: lanAddresses() }); });
+// THE DESK'S OWN ADDRESS ON THE WIFI: the address it is being looked at on
+// when that is the wifi, else its first wifi address. Never localhost while
+// there is a wifi address, because on a guest's phone localhost is the phone
+// (daily round, 9 Oct: Settings showed and coded http://localhost:3001/book).
+const loopbackHost = (h) => !h || /^(localhost|127\.|\[::1\]|0\.0\.0\.0)/.test(h);
+function wifiOrigin(req) {
+  const host = String(req.headers.host || '').replace(/[^A-Za-z0-9.:\-\[\]]/g, '');
+  const addrs = lanAddresses();
+  return loopbackHost(host) ? (addrs.length ? `http://${addrs[0]}:${PORT}` : `http://localhost:${PORT}`) : 'http://' + host;
+}
+app.get('/api/lan-info', (req, res) => { res.json({ port: PORT, addresses: lanAddresses(), origin: wifiOrigin(req) }); });
 // THE CODE FOR THE LINE, on the desk's own screen and the sign at the door.
 // Guests on mobile data cannot reach a desk on the venue's wifi, and the desk
 // is never opened to the internet — so with the relay linked the code is the
@@ -11781,10 +11910,7 @@ app.get('/api/lan-info', (req, res) => { res.json({ port: PORT, addresses: lanAd
 function lineSignOf(req, data) {
   const c = data.settings.relay, rs = data.relayState;
   if (relay.ready(c) && rs.bookingPath) return { url: c.baseUrl + rs.bookingPath + '?line=1', wifi: false };
-  const host = String(req.headers.host || '').replace(/[^A-Za-z0-9.:\-\[\]]/g, '');
-  const loop = !host || /^(localhost|127\.|\[::1\]|0\.0\.0\.0)/.test(host);
-  const addrs = lanAddresses();
-  return { url: (loop ? (addrs.length ? `http://${addrs[0]}:${PORT}` : `http://localhost:${PORT}`) : 'http://' + host) + '/book?line=1', wifi: true };
+  return { url: wifiOrigin(req) + '/book?line=1', wifi: true };
 }
 app.get('/api/line/sign', (req, res) => {
   const data = readData(), s = effectiveSettings(data);
@@ -11800,11 +11926,12 @@ app.get('/line.svg', async (req, res) => {
     res.type('image/svg+xml').send(await require('qrcode').toString(url, { type: 'svg', margin: 4, errorCorrectionLevel: 'M', color: { dark: '#17181B', light: '#0000' } }));
   } catch (e) { res.status(500).type('text/plain').send(url); }
 });
-// QR of an address — ?to=book gives the guests' booking page.
+// QR of an address — ?to=book gives the guests' booking page. With no
+// address, or the desk's own sent as a loopback one, it is the desk's own on
+// the wifi (wifiOrigin()); any other address (the relay's page) is as sent.
 app.get('/connect.svg', async (req, res) => {
-  const addrs = lanAddresses();
-  const i = Math.min(parseInt(req.query.i, 10) || 0, Math.max(0, addrs.length - 1));
-  const host = req.query.host ? String(req.query.host).replace(/[^A-Za-z0-9.:\-\/]/g, '') : (addrs.length ? `http://${addrs[i]}:${PORT}` : `http://localhost:${PORT}`);
+  const sent = req.query.host ? String(req.query.host).replace(/[^A-Za-z0-9.:\-\/]/g, '') : '';
+  const host = !sent || (req.query.to === 'book' && loopbackHost(sent.replace(/^https?:\/\//, ''))) ? wifiOrigin(req) : sent;
   const url = host + (req.query.to === 'book' ? '/book' : '');
   try {
     const svg = await require('qrcode').toString(url, { type: 'svg', margin: 1, width: 260 });
@@ -12850,7 +12977,10 @@ function fitToast(t) {
   const tops = new Set(kids.map(k => Math.round(k.getBoundingClientRect().top)));
   t.classList.toggle('two', tops.size > 1);
   if (tops.size < 2) return;
-  const left = t.getBoundingClientRect().left, right = Math.max(...kids.map(k => k.getBoundingClientRect().right));
+  // To the last KEY: where the keys take a further line, the box they wrap
+  // in runs on past them (daily round, 9 Oct).
+  const ends = kids.flatMap(k => k.classList.contains('toast-count') ? [...k.querySelectorAll('.toast-q, .toast-keys > *')] : [k]);
+  const left = t.getBoundingClientRect().left, right = Math.max(...ends.map(k => k.getBoundingClientRect().right));
   t.style.width = Math.ceil(right - left + parseFloat(getComputedStyle(t).paddingRight)) + 'px';
 }
 // A TOAST UNDER A TYPING FINGER IS SAID, NOT REPAINTED. A repaint rebuilds
@@ -12919,10 +13049,15 @@ async function loadBase() {
   // can open from any view, and the poll already calls loadBase() whenever the
   // store version moves — so a set menu added on the POS reaches the picker by
   // itself, with no loader of its own.
+  const gen = _saveGen;
   const [settings, theme, tables, sm] = await Promise.all([api('/api/settings'), api('/api/theme'), api('/api/tables'), api('/api/set-menus')]);
-  state.settings = settings; state.theme = theme; state.tables = tables.tables; state.floorPlans = tables.floorPlans;
-  state.billFromTill = !!tables.billFromTill;
-  state.setMenus = sm.menus || []; state.setMenusFromPos = !!sm.fromPos;
+  // A save owed, or one queued while this was asking, keeps what the host
+  // made (savesOwed()): its own answer, or the next round, brings the rest.
+  if (gen === _saveGen && !savesOwed()) {
+    state.settings = settings; state.tables = tables.tables; state.floorPlans = tables.floorPlans;
+    state.setMenus = sm.menus || []; state.setMenusFromPos = !!sm.fromPos;
+  }
+  state.theme = theme; state.billFromTill = !!tables.billFromTill;
   // THE DESK OPENS ON A SERVICE, and this is the only place it can: which
   // services a day has comes from the settings, so nothing before this call
   // could pick one. `state.service` started empty and was only ever set by a
@@ -12970,7 +13105,10 @@ async function loadView() {
   else if (state.view === 'waitlist') { state.waitlist = await api('/api/waitlist'); state.today = await api('/api/today'); }
   else if (state.view === 'notify') { state.notify = await api('/api/notify'); state.today = await api('/api/today'); }
   else if (state.view === 'guests') await loadGuests();
-  else if (state.view === 'settings') { state.posStatus = await api('/api/pos/status'); state.relayStatus = await api('/api/relay/status'); state.audit = await api('/api/audit'); }
+  else if (state.view === 'settings') {
+    state.posStatus = await api('/api/pos/status'); state.relayStatus = await api('/api/relay/status'); state.audit = await api('/api/audit');
+    try { state.wifiOrigin = (await api('/api/lan-info')).origin; } catch (e) {}
+  }
   else if (state.view === 'sign') state.sign = await api('/api/line/sign');
 }
 // The list down the left can be the waitlist or the notify list instead of
@@ -13338,10 +13476,12 @@ function renderTop() {
   // area looks messy and cluttered"). The service is a word under the night,
   // not a second well of keys; the night's own menu changes it, steps back
   // to now, or opens the month.
-  // A phone drops the weekday so the line is never cut.
-  const sub = esc(on ? on.name + ' · ' : servicesInOrderOn(d).length ? 'All night · ' : 'Closed · ')
-    + `<span class="tp-wd">${esc(parseDay(d).toLocaleDateString([], { weekday: 'short' }))} </span>`
-    + esc(dayMonth(d));
+  // A phone drops the weekday so the line is never cut — and where the
+  // service word and the date still do not fit, the service word goes, never
+  // the date (daily round, 9 Oct: "Dinner · 9 …" at 320): two pieces, the
+  // stylesheet lays the date first.
+  const sub = `<span class="tp-svc">${esc(on ? on.name : servicesInOrderOn(d).length ? 'All night' : 'Closed')} ·&nbsp;</span>`
+    + `<span class="tp-dm"><span class="tp-wd">${esc(parseDay(d).toLocaleDateString([], { weekday: 'short' }))} </span>${esc(dayMonth(d))}</span>`;
   // The views sit in the bar on a desk, so the room starts one line higher.
   const views = state.view === 'today' && state.todayMode !== 'sheet' ? `<span class="tp-views">${renderViewTabs(false)}</span>` : '';
   // FIX THE TOP BAR (owner, 7 Oct: "it looks messy and confusing"). Three
@@ -14359,12 +14499,16 @@ async function endArrange() {
   const row = state.tables.find(x => x.id === d.id);
   if (row) { row.x = d.t.x; row.y = d.t.y; }
   render();
+  // A save on its way, as a field's is (savesOwed()): the poll leaves the
+  // room as the drag left it.
+  _saveBusy++; _saveGen++;
   try {
     const r = await put('/api/tables', { tables: state.tables });
     state.tables = r.tables;
     const t = await api('/api/tables');
     state.tables = t.tables; state.floorPlans = t.floorPlans;
   } catch (e) { toastBad(e.message); }
+  finally { _saveBusy--; _saveGen++; }
   render();
 }
 // Where a table sits. The POS stores x/y as the CENTRE of the table in
@@ -14946,9 +15090,17 @@ function sitLeft(r, now) {
 // it, or the till's covers (daily round, 7 Oct). A booking due on the table
 // outranks the covers for the floor's COLOUR — whose table it is — but the
 // people in the chairs are still in the chairs, and the tab must not seat
-// six on top of five.
+// six on top of five. A party AT THE DOOR holds it as a sat one does
+// (heldFor's rule, 9 Oct): Nguyen T was waiting for 15 and Fenwick's tab sat
+// Fenwick on it with the ordinary message (daily round, 9 Oct).
 function stillEating(room, r) {
-  return tablesFor(r).find(id => { const f = room.find(x => x.id === id); return f && ((f.r && f.r.id !== r.id && isSat(f.r)) || f.state === 'walkin' || f.covers > 0); });
+  return tablesFor(r).find(id => { const f = room.find(x => x.id === id); return f && ((f.r && f.r.id !== r.id && (isSat(f.r) || isHere(f.r))) || f.state === 'walkin' || f.covers > 0); });
+}
+// What the row and the booking SAY about that table, and it is true: a
+// party at the door is not eating, it is waiting for the table.
+function busyWords(room, id) {
+  const f = room.find(x => x.id === id);
+  return tableName(id) + (f && f.r && isHere(f.r) && !(f.covers > 0) ? ' taken' : ' still eating');
 }
 function seatsWord(n) { return n + (Number(n) === 1 ? ' seat' : ' seats'); }
 // Seat from the row's tab. Part of a party at the door is that part at the
@@ -14997,7 +15149,7 @@ function renderOpened() {
       : `<i class="ink">${esc(hm(o.time))} opened</i> · asked ${esc(fmtRange(e.from, e.to))}`;
     return `<div class="dk-row">
       <span class="dk-tab stg-open">${esc(ts.length ? ts[0] + (ts.length > 1 ? '+' : '') : '—')}</span>
-      <button class="dk-main" data-act="notify-book" data-id="${esc(e.id)}" data-op="${esc(o.id)}"><b>${esc(e.name)} · ${e.partySize}</b><span>${said}</span></button>
+      <button class="dk-main" data-act="notify-book" data-id="${esc(e.id)}" data-op="${esc(o.id)}"><b><span class="td-nm">${esc(e.name)}</span><span class="td-n">&nbsp;· ${e.partySize}</span></b><span>${said}</span></button>
       <span class="dk-rt">${key}</span>
     </div>`;
   });
@@ -15180,7 +15332,7 @@ function lineRow(w, place, now) {
   const seating = !!(state.walkin && state.walkin.wl && state.walkin.wl.id === w.id);
   return `<div class="dk-row ln-row${seating ? ' selected' : ''}">
       ${tab}
-      <button class="dk-main" data-act="line-open" data-id="${esc(w.id)}" aria-label="${esc(w.name + ', ' + w.partySize + ', waiting')}"><b>${esc(w.name)} · ${w.partySize}</b><span>${esc(said.join(' · '))}</span>${w.source === 'online' ? '<span class="ln-from">joined from their phone</span>' : ''}</button>
+      <button class="dk-main" data-act="line-open" data-id="${esc(w.id)}" aria-label="${esc(w.name + ', ' + w.partySize + ', waiting')}"><b><span class="td-nm">${esc(w.name)}</span><span class="td-n">&nbsp;· ${w.partySize}</span></b><span>${esc(said.join(' · '))}</span>${w.source === 'online' ? '<span class="ln-from">joined from their phone</span>' : ''}</button>
       <span class="dk-rt">${rt}</span>
     </div>`;
 }
@@ -15212,6 +15364,9 @@ async function seatFromLine(id, ids, till, back) {
       await post('/api/waitlist/unseat/' + r.id, {});
       await loadView(); state.waitlist = await api('/api/waitlist');
     });
+    // WELCOME BACK, from the line too (daily round, 9 Oct): a regular sat
+    // from their line row is greeted as a booking's tab seat greets them.
+    greet(r.id, null, r.status);
   } catch (e) { toastBad(e.message); try { await loadView(); } catch (x) {} render(); }
   finally { _lineSeating.delete(id); }
 }
@@ -15281,7 +15436,7 @@ function renderDayList() {
     if (r.status === 'paid') said.push('<i class="leave">Paid</i>');
     if (ended) said.push(esc(statusLabel(r.status)));
     if (late) said.push(`<i class="late">${esc(waitWords(late))} late</i>`);
-    if (busy) said.push(`<i class="quiet">${esc(tableName(busy))} still eating</i>`);
+    if (busy) said.push(`<i class="quiet">${esc(busyWords(room, busy))}</i>`);
     if (held.length > 1) said.push(esc(held.map(tableName).join(' + ')));
     if (setMenuName(r)) said.push(esc(setMenuName(r)));
     if (String(r.notes || '').trim()) said.push(esc(String(r.notes).trim().slice(0, 60)));
@@ -15302,7 +15457,7 @@ function renderDayList() {
     return `<div class="dk-row${state.highlightTable && held.includes(state.highlightTable) ? ' selected' : ''}${state.modal && state.modal.kind === 'booking' && state.modal.b && state.modal.b.id === r.id ? ' open' : ''}">
       ${tab.replace('class="dk-tab', `class="dk-tab stg-${stage}`)}
       <button class="dk-main" data-act="edit-booking" data-id="${r.id}" aria-label="${esc((r.name || 'No name') + ', ' + statusLabel(r.status))}">
-        <b>${esc(r.name || 'No name')} · ${r.partySize}</b>${said.length ? `<span>${said.join(' · ')}</span>` : ''}
+        <b><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></b>${said.length ? `<span>${said.join(' · ')}</span>` : ''}
       </button>
       <span class="dk-rt">${rt}</span>
     </div>`;
@@ -15800,11 +15955,16 @@ function av2ComboSeats(c) {
   if (c.seats > 0) return c.seats;
   return (c.tables || []).reduce((n, id) => n + (((tableById(id) || {}).seats) || 0), 0);
 }
+// The booking page as a guest's phone reaches it on the wifi: the desk's own
+// answer (/api/lan-info, the sign's rule), or the address it is looked at on
+// when that is not this computer's loopback — never localhost, which on a
+// guest's phone is the phone (daily round, 9 Oct).
+function bookOrigin() { return state.wifiOrigin || (/^(localhost|127\.|\[::1\]|0\.0\.0\.0)/.test(location.host) ? '' : location.origin); }
 function renderSettings() {
   const s = state.settings, p = s.pos, ps = state.posStatus || {}, tl = s.timeline || {};
   const rl = s.relay || {}, rs = state.relayStatus || {};
   const linkedFloor = p.enabled && p.baseUrl && p.useFloor !== false;
-  const origin = location.origin;
+  const origin = bookOrigin();
   const g = setGroupOf(state.setGroup);
   // The hub. Rows and not tiles, because a group needs a LINE saying what is
   // behind it — "The room" alone does not tell you the colours are in there —
@@ -15860,7 +16020,7 @@ function renderSettings() {
     </div>
     <div class="settings-card">
       <div class="th">Online bookings</div>
-      <label class="toggle-row">${switchHtml(!!s.online.enabled, 'set-toggle', 'online.enabled')} Guests can book at <span class="mono">${esc(origin)}/book</span></label>
+      <label class="toggle-row">${switchHtml(!!s.online.enabled, 'set-toggle', 'online.enabled')} Guests can book${origin ? ` at <span class="mono">${esc(origin)}/book</span>` : ' online'}</label>
       <div class="grid2">
         <div><label class="field-label" for="on-notice">Notice needed (min)</label><input id="on-notice" type="number" min="0" value="${s.online.minNoticeMinutes}" data-field="settings.online.minNoticeMinutes" data-save="online"></div>
         <div><label class="field-label" for="on-ahead">Days ahead</label><input id="on-ahead" type="number" min="1" value="${s.online.maxDaysAhead}" data-field="settings.online.maxDaysAhead" data-save="online"></div>
@@ -15871,7 +16031,7 @@ function renderSettings() {
       <label class="toggle-row">${switchHtml(!!s.online.holdTables, 'set-toggle', 'online.holdTables')} Online bookings take a table straight away</label>
       <label class="toggle-row">${switchHtml(!!s.online.notifyList, 'set-toggle', 'online.notifyList')} Offer a notify list when a day is full</label>
       <label class="toggle-row">${switchHtml(s.online.line !== false, 'set-toggle', 'online.line')} Guests can join the line from their phone</label>
-      <div class="inline" style="margin-top:8px;"><img class="qr" src="${rs.bookingUrl ? '/connect.svg?host=' + encodeURIComponent(rs.bookingUrl) : '/connect.svg?to=book&host=' + encodeURIComponent(origin)}" alt="QR code for the booking page">${rs.bookingUrl ? `<div class="ts mono">${esc(rs.bookingUrl)}</div>` : '<div class="ts">This computer&rsquo;s address, on the wifi only</div>'}</div>
+      <div class="inline" style="margin-top:8px;"><img class="qr" src="${rs.bookingUrl ? '/connect.svg?host=' + encodeURIComponent(rs.bookingUrl) : '/connect.svg?to=book'}" alt="QR code for the booking page">${rs.bookingUrl ? `<div class="ts mono">${esc(rs.bookingUrl)}</div>` : '<div class="ts">This computer&rsquo;s address, on the wifi only</div>'}</div>
     </div>
     <div class="settings-card">
       <div class="th">Booking relay</div>
@@ -16011,13 +16171,18 @@ ${cards[g[0]]}
 
 // One dated override, as a Row: the date in the cell, what the day does in
 // the body, one key to take it off. Tapping the row opens the popup.
+// SAID ONCE, QUIETLY, IN THE DESK'S TIME (daily round, 9 Oct): "Closed all
+// day Closed" in the late red, and Christmas Eve's "Dinner 17:30–22:00". What
+// the day is goes once — its note with the kind beside it as a plain grey
+// word, or the kind alone — and its sittings are fmtRange()'s, dayNotice()'s.
 function excRow(x, dim) {
   const d = parseDay(x.date);
-  const wins = (x.services || []).map(w => `${esc(w.name)} ${esc(w.start)}–${esc(w.end)}`).join(' · ');
+  const wins = (x.services || []).map(w => `${esc(w.name)} ${esc(fmtRange(w.start, w.end))}`).join(' · ');
+  const kind = x.closed ? 'Closed' : 'Special hours';
   return `<div class="row${dim ? ' dim' : ''}" data-act="exc-edit" data-id="${esc(x.id)}">
     <div class="cell">${d.getDate()}<small>${esc(d.toLocaleDateString([], { month: 'short' }))}</small></div>
     <div class="body">
-      <div class="t1">${esc(x.note || (x.closed ? 'Closed all day' : 'Special hours'))} ${x.closed ? '<span class="tag hot">Closed</span>' : '<span class="tag">Special hours</span>'}</div>
+      <div class="t1">${x.note ? `${esc(x.note)} <span class="tag">${kind}</span>` : kind}</div>
       <div class="t2">${esc(d.toLocaleDateString([], { weekday: 'short' }))} · ${x.closed ? 'No bookings offered' : (wins || 'No sittings')}</div>
     </div>
     <div class="actions exc-actions" data-stop="1">
@@ -16363,7 +16528,7 @@ function renderBookingEdit(m) {
     const occ = !isSat(r) && stillEating(room, r);
     const id = esc(r.id);
     if (!isSat(r) && tablesFor(r).length && !occ) next = `<button class="go" data-act="row-seat" data-id="${id}">Seat at ${esc(tablesFor(r).map(tableName).join(' + '))}</button>`;
-    else if (!isSat(r) && occ && !isHere(r)) next = `<button class="go ink" data-act="row-here" data-id="${id}">Here — ${esc(tableName(occ))} still eating</button>`;
+    else if (!isSat(r) && occ && !isHere(r)) next = `<button class="go ink" data-act="row-here" data-id="${id}">Here — ${esc(busyWords(room, occ))}</button>`;
     else if (r.status === 'part-seated') next = `<button class="go" data-act="row-rest" data-id="${id}">The other ${Math.max(1, r.partySize - (r.partCount || 0))} arrived</button>`;
     else if (!state.billFromTill && r.status === 'seated') next = `<button class="go ink" data-act="bke-step" data-id="${id}" data-val="check">Bill</button>`;
     else if (!state.billFromTill && r.status === 'check') next = `<button class="go ink" data-act="bke-step" data-id="${id}" data-val="paid">Paid</button>`;
@@ -17077,7 +17242,7 @@ async function saveException() {
     .sort((a, b) => a.date.localeCompare(b.date));
   state.busy = true; render();
   try {
-    state.settings = await put('/api/settings', { exceptions: next });
+    state.settings = keptOwed(await put('/api/settings', { exceptions: next }));
     state.modal = null;
     await loadView();
     toast('Saved');
@@ -17087,7 +17252,7 @@ async function saveException() {
 async function removeException(id) {
   const next = (((state.settings || {}).exceptions) || []).filter(x => x.id !== id);
   state.modal = null; state.busy = true; render();
-  try { state.settings = await put('/api/settings', { exceptions: next }); await loadView(); toast('Removed'); }
+  try { state.settings = keptOwed(await put('/api/settings', { exceptions: next })); await loadView(); toast('Removed'); }
   catch (e) { toastBad(e.message); }
   state.busy = false; render();
 }
@@ -17106,8 +17271,34 @@ async function setStatus(id, status) {
 function getPath(obj, path) { return path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj); }
 function setPath(obj, path, val) { const ks = path.split('.'); let o = obj; for (const k of ks.slice(0, -1)) { if (o[k] == null) o[k] = {}; o = o[k]; } o[ks[ks.length - 1]] = val; }
 let _saveTimer = null, _savePending = {};
+// A SETTINGS CHANGE IS NEVER LOST TO THE POLL (daily round, 9 Oct). The poll
+// reloads the base whenever the store moves, and a field's save 400 ms behind
+// the typing then sent the poll's copy: Notice needed typed 45, the field said
+// 45, the store kept 60, and nothing said so. While a save is OWED — queued,
+// or on its way — the settings, the tables and the set menus on the desk are
+// what the host made them, and the poll leaves them be (loadBase()); and the
+// answer to one save never takes back what was typed while it was out
+// (keptOwed()). The store moved with the save, so the next round reads it all.
+let _saveBusy = 0, _saveGen = 0;
+function savesOwed() { return _saveBusy > 0 || Object.keys(_savePending).length > 0; }
+// What each group sends, and so what an answer must leave alone while that
+// group is still owed.
+function saveKeys(g) {
+  return ({
+    pos: ['pos'], relay: ['relay'], venue: ['venueName', 'venueAddress', 'venuePhone'],
+    services: ['services', 'slotMinutes'],
+    sittings: ['defaultDuration', 'seatSlack', 'durationByParty', 'maxPartySize', 'noShowAfterMinutes'],
+    pacing: ['pacing'], online: ['online'], colours: ['statusColours'], combos: ['tableCombos'], timeline: ['timeline'],
+  })[g] || [];
+}
+function keptOwed(answer, rest) {
+  const s = state.settings;
+  if (!s || !answer) return answer;
+  for (const g of new Set(Object.keys(_savePending).concat(rest || []))) for (const k of saveKeys(g)) if (k in s) answer[k] = s[k];
+  return answer;
+}
 function queueSave(group, ms) {
-  _savePending[group] = true;
+  _savePending[group] = true; _saveGen++;
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(flushSaves, ms == null ? 400 : ms);
 }
@@ -17121,24 +17312,16 @@ async function flushSaves() {
   // mid-word, and the field's own value wins over an answer that crossed it.
   // Whichever field has the finger WHEN THE ANSWER LANDS: a service's time
   // saves on leaving it, so by then the finger is in the next one.
-  const s = state.settings;
   let refused = false;
-  for (const g of groups) {
+  _saveBusy++;
+  try { for (let i = 0; i < groups.length; i++) {
+    const g = groups[i], rest = groups.slice(i + 1);
     try {
-      if (g === 'tables') { const r = await put('/api/tables', { tables: state.tables }); state.tables = r.tables; continue; }
-      if (g === 'setmenus') { const r = await put('/api/set-menus', { menus: state.setMenus }); state.setMenus = r.menus; continue; }
-      const body = {};
-      if (g === 'pos') body.pos = s.pos;
-      if (g === 'relay') body.relay = s.relay;
-      if (g === 'venue') { body.venueName = s.venueName; body.venueAddress = s.venueAddress; body.venuePhone = s.venuePhone; }
-      if (g === 'services') { body.services = s.services; body.slotMinutes = s.slotMinutes; }
-      if (g === 'sittings') { body.defaultDuration = s.defaultDuration; body.seatSlack = s.seatSlack; body.durationByParty = s.durationByParty; body.maxPartySize = s.maxPartySize; body.noShowAfterMinutes = s.noShowAfterMinutes; }
-      if (g === 'pacing') body.pacing = s.pacing;
-      if (g === 'online') body.online = s.online;
-      if (g === 'colours') body.statusColours = s.statusColours;
-      if (g === 'combos') body.tableCombos = s.tableCombos;
-      if (g === 'timeline') body.timeline = s.timeline;
-      state.settings = await put('/api/settings', body);
+      if (g === 'tables') { const r = await put('/api/tables', { tables: state.tables }); if (!_savePending.tables) state.tables = r.tables; continue; }
+      if (g === 'setmenus') { const r = await put('/api/set-menus', { menus: state.setMenus }); if (!_savePending.setmenus) state.setMenus = r.menus; continue; }
+      const s = state.settings, body = {};
+      for (const k of saveKeys(g)) body[k] = s[k];
+      state.settings = keptOwed(await put('/api/settings', body), rest);
       if (g === 'colours') applyStatusColours();
       if (g === 'pos') { state.posStatus = await api('/api/pos/status'); const t = await api('/api/tables'); state.tables = t.tables; state.floorPlans = t.floorPlans; }
       if (g === 'relay' || g === 'online') { await new Promise(r => setTimeout(r, 600)); state.relayStatus = await api('/api/relay/status'); }
@@ -17149,9 +17332,9 @@ async function flushSaves() {
       // which keeps what is in it (below) and is not repainted (toast()).
       refused = true;
       toastBad(e.message);
-      try { state.settings = await api('/api/settings'); applyStatusColours(); } catch (e2) {}
+      try { state.settings = keptOwed(await api('/api/settings'), rest); applyStatusColours(); } catch (e2) {}
     }
-  }
+  } } finally { _saveBusy--; _saveGen++; }
   const typing = savingField();
   if (typing) {
     // A field that saves on leaving is written down when it is left
@@ -17569,15 +17752,18 @@ document.addEventListener('click', async (ev) => {
         // (av.openingFrom).
         try {
           const n = new Date();
+          // Asked again where it lands (daily round, 9 Oct): a table another
+          // tablet sat a walk-in on since this menu was drawn is refused, said
+          // as a failure, and the room is asked again.
           const r = await post('/api/reservations', { name: 'Walk-in', partySize: w.size, time: localDay(n) + 'T' + pad2(n.getHours()) + ':' + pad2(n.getMinutes()), tableId: ids[0], tableIds: ids.slice(1),
-            status: 'seated', source: 'walk-in', autoTable: false, tags: [], notes: '' });
+            status: 'seated', source: 'walk-in', autoTable: false, tags: [], notes: '', till: walkinTill(d, ids) });
           await loadView(); render();
           const where = [r.tableId].concat(r.tableIds || []).filter(Boolean).map(tableName).join(' + ');
           toastUndo(`${r.name}, ${r.partySize}, seated at ${where}`, async () => {
             await del('/api/reservations/' + r.id);
             await loadView();
           });
-        } catch (e) { toastBad(e.message); }
+        } catch (e) { toastBad(e.message); try { await loadView(); } catch (x) {} render(); }
         break;
       }
       case 'new-walkin': {
@@ -17901,7 +18087,7 @@ document.addEventListener('click', async (ev) => {
         try {
           if (off) { await del('/api/relay/office'); state.officeCode = ''; toast('Office switched off'); }
           else { const r = await post('/api/relay/office'); state.officeCode = r.code; toast('Office code made'); }
-          state.settings = await api('/api/settings'); state.relayStatus = await api('/api/relay/status');
+          state.settings = keptOwed(await api('/api/settings')); state.relayStatus = await api('/api/relay/status');
         } catch (e) { toastBad(e.message, 4000); }
         render(); break;
       }
@@ -18934,8 +19120,11 @@ async function applyDeepLink(d) {
 // it is what this whole app is built on; ?table= is what the till would need
 // to open the right one. The POS does not read that yet (see CLOUD-LINK's
 // sibling note in POS-LINK.md), so today this simply opens the till.
+// Only while the link is ON, as the menu's own key (daily round, 9 Oct): an
+// address kept with the link switched off is not a till to send anybody to.
 function tillUrl(tableId) {
-  const base = state.settings && state.settings.pos && state.settings.pos.baseUrl;
+  const ps = state.settings && state.settings.pos;
+  const base = ps && ps.enabled && ps.baseUrl;
   if (!base) return null;
   return base.replace(/\/+$/, '') + (tableId ? '?table=' + encodeURIComponent(tableId) : '');
 }
