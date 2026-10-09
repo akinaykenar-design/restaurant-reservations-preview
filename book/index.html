@@ -3233,6 +3233,16 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
    list's own docket line; only one thing is new: a guest who joined from
    their phone says so, small, under the line. */
 .dk-main .ln-from{font-size:var(--fs-chip);font-weight:600;color:var(--mute);}
+/* HERE ON THE WRONG NIGHT (owner, 9 Oct, v59). "Not tonight" is a group head
+   that is only a word — nothing to press, no count — and its rows are the
+   list's own docket lines; Look on every day stands under them on the
+   list's 16 of air. */
+.nt-head{cursor:default;}
+.nt-more{padding:16px 4px 0;}
+/* The night is the right column, whole, in ink: the one fact the row says,
+   so the ellipsis under the name can never take it (review, 9 Oct). */
+.nt-row .dk-rt{padding-left:8px;}
+.dk-t.nt-when{color:var(--ink);font-family:var(--font-body);}
 @media print{
   /* Paper, not a slab: no ground anywhere, and a light canvas under it — a
      dark theme's canvas is dark even with every ground taken away. */
@@ -5877,22 +5887,24 @@ function heldBook(ctx, day) {
 // whether a combination is offered at all. walkinTables() and walkinCombos()
 // each wrote it, in two spellings (review, 8 Oct); a drift between them is a
 // pair key in the menu beside a lit single, or a lit pair with no key.
-function wholeSingle(sub, day, hhmm, size) {
-  const whole = new Set(freeTables(sub, day, hhmm, size).map(t => t.id));
+function wholeSingle(sub, day, hhmm, size, dur) {
+  const whole = new Set(freeTables(sub, day, hhmm, size, { duration: dur }).map(t => t.id));
   return (sub.tables || []).some(t => (t.seats || 0) >= size && whole.has(t.id));
 }
-function walkinTables(ctx, day, hhmm, party) {
+// `dur`: a sitting of the party's own (a booking's durationMin) in place of
+// the one Settings gives that size — the wrong night's tab (review, 9 Oct).
+function walkinTables(ctx, day, hhmm, party, dur) {
   const size = Math.max(1, Number(party) || 1);
   const sub = walkinBook(ctx, day, hhmm);
   const start = toMin(hhmm);
-  const whole = new Set(freeTables(sub, day, hhmm, size).map(t => t.id));
+  const whole = new Set(freeTables(sub, day, hhmm, size, { duration: dur }).map(t => t.id));
   const now = new Set(freeTables(sub, day, hhmm, size, { duration: 1 }).map(t => t.id));
   const singles = (ctx.tables || []).filter(t => (t.seats || 0) >= size && now.has(t.id));
   // The keys beside a pair stand in the one order too (review, 9 Oct): they
   // came back in the till's layout order, so "9 till 8:30" — half of 9 + 10
   // — was offered before "50 till 8:30".
-  if (!wholeSingle(sub, day, hhmm, size) && combosOf(ctx).length) {
-    const c = freeCombos(sub, day, hhmm, size)[0];
+  if (!wholeSingle(sub, day, hhmm, size, dur) && combosOf(ctx).length) {
+    const c = freeCombos(sub, day, hhmm, size, { duration: dur })[0];
     if (c) {
       const inCombo = c.tables.map(id => ({ id, until: null, combo: c.tables.slice() }));
       return inCombo.concat(singles.filter(t => !c.tables.includes(t.id)).sort(pickOrder(ctx)).map(t => ({ id: t.id, until: untilOn(t) })));
@@ -5907,7 +5919,7 @@ function walkinTables(ctx, day, hhmm, party) {
   function untilOn(t) {
     if (whole.has(t.id)) return null;
     const clock = nowOn(sub, day);
-    const next = holdersOf(sub, t.id, day, start, durationFor(ctx.settings, size), null)
+    const next = holdersOf(sub, t.id, day, start, durationFor(ctx.settings, size, dur), null)
       .map(r => heldFrom(r, clock, nightMin(r, day))).sort((a, b) => a - b)[0];
     return next === undefined ? null : fromMin(next);
   }
@@ -5993,7 +6005,7 @@ function walkinCombos(ctx, day, hhmm, party) {
 // (dayStartsAt) the calendar date's times are TOMORROW's, and "First table
 // 11:30 AM · about 11 hr" is not an answer to six people at the door at half
 // past twelve (daily round, 30 Sep). Nothing frees tonight is.
-function walkinNext(ctx, day, hhmm, party) {
+function walkinNext(ctx, day, hhmm, party, dur) {
   const size = Math.max(1, Number(party) || 1);
   const rolls = (ctx.settings && Number.isFinite(Number(ctx.settings.dayStartsAt)) ? Number(ctx.settings.dayStartsAt) : 4) * 60;
   if (toMin(hhmm) < rolls) return null;
@@ -6001,8 +6013,8 @@ function walkinNext(ctx, day, hhmm, party) {
   const start = toMin(hhmm);
   for (const t of slotTimes(ctx.settings, day)) {
     if (toMin(t) <= start) continue;
-    const one = freeTables(sub, day, t, size).filter(x => (x.seats || 0) >= size).sort(pickOrder(ctx))[0];
-    const tablesAt = one ? [one.id] : ((combosOf(ctx).length && freeCombos(sub, day, t, size)[0]) || {}).tables;
+    const one = freeTables(sub, day, t, size, { duration: dur }).filter(x => (x.seats || 0) >= size).sort(pickOrder(ctx))[0];
+    const tablesAt = one ? [one.id] : ((combosOf(ctx).length && freeCombos(sub, day, t, size, { duration: dur })[0]) || {}).tables;
     if (tablesAt && tablesAt.length) return { time: t, wait: toMin(t) - start, tables: tablesAt.slice() };
   }
   return null;
@@ -6024,8 +6036,8 @@ function seatRefusal(ctx, day, hhmm, size, ids, opts) {
   size = Math.max(1, Number(size) || 1);
   const sub = walkinBook(ctx, day, hhmm);
   const now = new Set(freeTables(sub, day, hhmm, size, { duration: 1 }).map(t => t.id));
-  const whole = new Set(freeTables(sub, day, hhmm, size).map(t => t.id));
-  const start = toMin(hhmm), dur = durationFor(ctx.settings, size), clock = nowOn(sub, day);
+  const whole = new Set(freeTables(sub, day, hhmm, size, { duration: opts.duration }).map(t => t.id));
+  const start = toMin(hhmm), dur = durationFor(ctx.settings, size, opts.duration), clock = nowOn(sub, day);
   for (const id of ids) {
     if (!now.has(id)) return { id, at: null };
     if (opts.till || whole.has(id)) continue;
@@ -6152,9 +6164,9 @@ function lineOf(entries, settings, now) {
 }
 // The key the walk-in menu would light first for this size: free for the
 // whole sitting, fewest seats, the menu's own order among equals.
-function lineKey(ctx, day, hhmm, size) {
+function lineKey(ctx, day, hhmm, size, dur) {
   const seats = (ids) => ids.reduce((n, id) => n + (((ctx.tables || []).find(t => t.id === id) || {}).seats || 0), 0);
-  const keys = walkinTables(ctx, day, hhmm, size).map((t, i) => ({ ids: t.combo || [t.id], i, until: t.until }))
+  const keys = walkinTables(ctx, day, hhmm, size, dur).map((t, i) => ({ ids: t.combo || [t.id], i, until: t.until }))
     .filter(k => !k.until).map(k => Object.assign(k, { s: seats(k.ids) }))
     .sort((a, b) => (a.s - b.s) || (a.i - b.i));
   return keys.length ? keys[0].ids : null;
@@ -6162,12 +6174,12 @@ function lineKey(ctx, day, hhmm, size) {
 // Where one party lands: now, on its key, or at the first time a table frees
 // — asked from when the kitchen opens (lineFrom), and the minutes until then
 // are part of the wait.
-function lineSeat(ctx, day, hhmm, size) {
+function lineSeat(ctx, day, hhmm, size, dur) {
   const at = lineFrom(ctx.settings, day, hhmm), lead = toMin(at) - toMin(hhmm);
   const up = (m) => Math.ceil(m / LINE_STEP) * LINE_STEP;
-  const key = lineKey(ctx, day, at, size);
+  const key = lineKey(ctx, day, at, size, dur);
   if (key) return { wait: up(lead), time: at, tables: key, now: !lead };
-  const next = walkinNext(ctx, day, at, size);
+  const next = walkinNext(ctx, day, at, size, dur);
   return next ? { wait: up(lead + next.wait), time: next.time, tables: next.tables, now: false } : null;
 }
 // The line seated in order: the book with every party placed, and the wait
@@ -6197,6 +6209,17 @@ function lineRun(ctx, day, hhmm, line) {
 function lineWait(ctx, day, hhmm, line, size, run) {
   const s = lineSeat((run || lineRun(ctx, day, hhmm, line)).book, day, hhmm, Math.max(1, Number(size) || 1));
   return s ? s.wait : null;
+}
+// Where a party of `size` lands BEHIND the whole line, in the shape the
+// line's own seats are said — { tables, time, now, wait }, or null when
+// nothing frees for them tonight: the line run with them at its back, as
+// its last seat. What the list's "Not tonight" tab is (v59, 9 Oct): a party
+// here on the wrong night walked in after everybody already waiting.
+// `dur`: their booking's own sitting, when it has one (review, 9 Oct: a
+// 180-minute booking was given a table free for the default 75).
+function lineBehind(ctx, day, hhmm, line, size, run, dur) {
+  const s = lineSeat((run || lineRun(ctx, day, hhmm, line)).book, day, hhmm, Math.max(1, Number(size) || 1), dur);
+  return s ? { tables: s.tables.slice(), time: s.time, now: !!s.now, wait: s.wait } : null;
 }
 // THE HOST'S SCREEN AND THE GUEST'S PHONE GIVE ONE ANSWER (daily round,
 // 8 Oct). Nothing free for six and Nguyen's six already waiting: the walk-in
@@ -7462,7 +7485,7 @@ module.exports = {
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, lineOf, lineKey, lineSeat, lineRun, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -7850,6 +7873,84 @@ function searchReservations(reservations, rawQ, opts) {
   };
 }
 
+// §§ HERE ON THE WRONG NIGHT (owner, 9 Oct, v59: "Yes . Good idea")
+// A couple walks in tonight and the book has them on Thursday — booked for
+// the wrong night, or by somebody who misheard the date. The list's search
+// asks only tonight, so it said "Nobody tonight matches". This is the
+// question it asks next: their LIVE bookings on OTHER nights, nearest night
+// first — tomorrow before yesterday, since a party early is likelier than a
+// party a night late — a few at most. Live and nobody met: a booking that was
+// cancelled, missed or finished is not one to move, and one that was sat or
+// met at the door on its own night happened there. Read by the night the
+// booking BELONGS to (av.nightAt): 00:15 on Thursday is Wednesday's tail,
+// which is tonight, and the ordinary search already has it.
+const NOT_TONIGHT_BACK = 14;
+const NOT_TONIGHT_AHEAD = 60;
+const NOT_TONIGHT_LIMIT = 3;
+function dayGap(a, b) {
+  const t = (d) => { const [y, m, x] = String(d).split('-').map(Number); return Date.UTC(y, m - 1, x); };
+  return Math.round((t(a) - t(b)) / 86400000);
+}
+// A booking about to be MOVED is asked a stricter question than the search
+// (review, 9 Oct): "222" in a box that says "Name, phone or table" was table
+// 222 and found Macrae's 0400 111 222 tomorrow, with a one-tap seat. So: the
+// start of a word of the name, three letters at least; six digits of the
+// number, +61 412 being 0412 (av.lineNumber); a reference or an email from
+// its start. Which one matched is said — `by` — so a row found by its number
+// can show the number.
+const MOVE_NAME = 3;
+const MOVE_DIGITS = 6;
+function moveMatch(r, q) {
+  if (!r || !q.ok) return null;
+  const letters = /[a-z]/.test(q.text);
+  if (letters && !/\d/.test(q.text)) {
+    const words = q.text.split(/[^a-z']+/).filter(Boolean);
+    const name = fold(r.name).split(/[^a-z']+/).filter(Boolean);
+    if (words.join('').length >= MOVE_NAME && words.every(w => name.some(n => n.startsWith(w)))) return 'name';
+  }
+  if (!letters && q.digits.length >= MOVE_DIGITS && r.phone && av.lineNumber(r.phone).includes(av.lineNumber(q.digits))) return 'phone';
+  if (letters && q.ref.length >= MOVE_NAME && r.ref && String(r.ref).toUpperCase().startsWith(q.ref)) return 'ref';
+  if (q.text.length >= MOVE_NAME && r.email && fold(r.email).startsWith(q.text)) return 'email';
+  return null;
+}
+function notTonight(reservations, rawQ, opts) {
+  opts = opts || {};
+  const q = prepareQuery(rawQ);
+  if (!q.ok || !opts.day) return [];
+  const back = opts.back === undefined ? NOT_TONIGHT_BACK : opts.back;
+  const ahead = opts.ahead === undefined ? NOT_TONIGHT_AHEAD : opts.ahead;
+  const limit = opts.limit > 0 ? opts.limit : NOT_TONIGHT_LIMIT;
+  const out = [];
+  for (const r of reservations || []) {
+    if (!r || !av.isLive(r) || av.isSat(r) || av.isHere(r)) continue;
+    const by = moveMatch(r, q);
+    if (!by) continue;
+    const night = av.nightAt(opts.settings, av.dayOf(r.time), av.hhmmOf(r.time)).day;
+    const gap = dayGap(night, opts.day);
+    if (!gap || gap < -back || gap > ahead) continue;
+    out.push({ r, night, gap, by });
+  }
+  return out.sort((a, b) => (Math.abs(a.gap) - Math.abs(b.gap)) || (b.gap - a.gap) || String(a.r.time).localeCompare(String(b.r.time))
+    || String(a.r.id || '').localeCompare(String(b.r.id || ''))).slice(0, limit);
+}
+// The night as a host says it across the stand: "tomorrow", "yesterday",
+// "last Fri" for the week just gone, and the date for anything further —
+// "last Wed" a week back is two Wednesdays.
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// "Thu 8 Oct", and the year only when it is not `day`'s.
+function dateWords(night, day) {
+  const [y, m, d] = String(night).split('-').map(Number);
+  return WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] + ' ' + d + ' ' + MONTHS[m - 1] + (day && String(night).slice(0, 4) !== String(day).slice(0, 4) ? ' ' + y : '');
+}
+function nightWords(night, day) {
+  const gap = dayGap(night, day);
+  if (gap === 1) return 'tomorrow';
+  if (gap === -1) return 'yesterday';
+  if (gap < 0 && gap > -7) return 'last ' + dateWords(night).split(' ')[0];
+  return dateWords(night, day);
+}
+
 // §§ The guest book, read five ways
 // A list of everyone the venue has ever served answers nothing. The five
 // questions a desk actually has of it are these, and each one wants a
@@ -8103,6 +8204,7 @@ module.exports = {
   REGULAR_VISITS, VIP_TAGS, LENSES, hasAllergy, guestMatches, guestLens, guestLensCounts,
   BIRTHDAY_WINDOW, dobParts, daysToBirthday, ageOn, birthdaySoon,
   welcomeFor,
+  notTonight, moveMatch, nightWords, dateWords, NOT_TONIGHT_BACK, NOT_TONIGHT_AHEAD, NOT_TONIGHT_LIMIT,
 };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
@@ -10284,6 +10386,66 @@ app.post('/api/reservations/:id/grow', (req, res) => {
   kickPos();
 });
 
+// §§ HERE ON THE WRONG NIGHT (owner, 9 Oct, v59: "Yes . Good idea"). The
+// party is at the stand and their booking is on another night. One press
+// moves it to tonight at the clock and seats them on the table sent — asked
+// AGAIN as it lands, the walk-in's own question (av.seatRefusal, of the book
+// without this booking in it), because the tab was drawn seconds ago and
+// another tablet may have sat somebody there since — through
+// changeReservation(), the PUT's own path: the history, the guest's counts,
+// the audit, the till's pass. The answer says what the booking WAS — its
+// night and hour, its tables, where it was up to — so Undo is one PUT back.
+app.post('/api/reservations/:id/tonight', (req, res) => {
+  const data = readData();
+  const r = data.reservations.find(x => x.id === req.params.id);
+  if (!r) return res.status(404).json({ error: 'Booking not found' });
+  if (!av.isLive(r)) return res.status(400).json({ error: 'That booking is over' });
+  if (av.isSat(r) || av.isHere(r)) return res.status(409).json({ error: `${r.name} is already in` });
+  const settings = effectiveSettings(data);
+  const tonight = tradingDay(data);
+  if (av.onNight(settings, r, tonight)) return res.status(409).json({ error: `${r.name} is booked tonight already` });
+  const b = req.body || {};
+  const tableId = typeof b.tableId === 'string' && b.tableId ? b.tableId : null;
+  if (!tableId) return res.status(400).json({ error: 'Which table?' });
+  const tableIds = Array.isArray(b.tableIds) ? b.tableIds.map(String).filter(id => id !== tableId).slice(0, 8) : [];
+  const now = new Date();
+  const ctx = Object.assign(ctxOf(data), { reservations: data.reservations.filter(x => x !== r) });
+  const no = av.seatRefusal(ctx, av.localDay(now), av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), r.partySize, [tableId].concat(tableIds), { till: !!b.till, duration: r.durationMin });
+  if (no) return res.status(409).json({ error: seatRefusedWords(data, no) });
+  const night = av.nightAt(settings, av.dayOf(r.time), av.hhmmOf(r.time)).day;
+  const from = search.nightWords(night, tonight);
+  const was = { time: r.time, tableId: r.tableId || null, tableIds: (r.tableIds || []).slice(), status: r.status, durationMin: r.durationMin === undefined ? null : r.durationMin,
+    confirmedAt: Number.isFinite(r.confirmedAt) ? r.confirmedAt : null, tonight: av.localTime(now) };
+  const who = staffFromReq(req);
+  const out = changeReservation(data, r, { time: av.localTime(now), tableId, tableIds, status: 'seated' }, who);
+  if (out.error) return res.status(400).json({ error: out.error });
+  r.events = history.append(r.events, [history.noteEvent(who, Date.now(), `Came in on the wrong night — moved from ${search.dateWords(av.dayOf(was.time))}, ${twelve(av.hhmmOf(was.time))} to tonight`, 'moved')]);
+  logAudit(data, who, `${r.name} came in on the wrong night: moved from ${was.time} to tonight`);
+  writeData(data);
+  res.json({ was, from, booking: withWarnings(data, r) });
+  kickPos();
+});
+// Its Undo: the booking back to its own night, hour, tables and status —
+// and when it was confirmed, which a PUT back to 'confirmed' would stamp
+// with the minute Undo was pressed (review, 9 Oct). Only while it is still
+// the seat this move made: sat, tonight, at the minute it was moved to;
+// anything since is not dragged back.
+app.post('/api/reservations/:id/tonight/undo', (req, res) => {
+  const data = readData();
+  const r = data.reservations.find(x => x.id === req.params.id);
+  if (!r) return res.status(404).json({ error: 'Booking not found' });
+  const was = req.body || {};
+  if (!av.isRealTime(was.time)) return res.status(400).json({ error: 'Back to when?' });
+  if (!av.isSat(r) || r.time !== was.tonight) return res.status(409).json({ error: `${r.name} has moved on since` });
+  const who = staffFromReq(req);
+  const out = changeReservation(data, r, { time: was.time, tableId: was.tableId || null, tableIds: Array.isArray(was.tableIds) ? was.tableIds : [], status: was.status, durationMin: was.durationMin }, who, { keepStamps: true });
+  if (out.error) return res.status(400).json({ error: out.error });
+  if (Number.isFinite(was.confirmedAt)) r.confirmedAt = was.confirmedAt; else delete r.confirmedAt;
+  writeData(data);
+  res.json(withWarnings(data, r));
+  kickPos();
+});
+
 // §§ TIDY THE NIGHT IN ONE TAP (owner, 8 Oct: "6. i love!!!"). All left and
 // All no-shows, and the one Left or No-show on a row of the tidy: every id
 // is put to the rule AGAIN as the press arrives (av.tidyPick — a party that
@@ -11319,6 +11481,24 @@ function lineToday(data, ctx) {
   return line.map((w, i) => ({ id: w.id, name: w.name, phone: w.phone || '', partySize: w.partySize, notes: w.notes || '', status: w.status, source: w.source || 'staff',
     ref: w.ref || null, addedAt: w.addedAt, notifiedAt: w.notifiedAt || null, quotedMin: w.quotedMin === undefined ? null : w.quotedMin, seat: seats[i] }));
 }
+// HERE ON THE WRONG NIGHT (v59): the list's search found nobody tonight,
+// so it asks the whole book for their live bookings on other nights
+// (search.notTonight), each with where a party that size lands NOW behind
+// the line already waiting (av.lineBehind of the night's kept line run) —
+// the tab the desk draws, and the table POST …/tonight will be sent.
+app.get('/api/not-tonight', (req, res) => {
+  const data = readData();
+  const day = tradingDay(data);
+  const hits = search.notTonight(data.reservations, req.query.q, { day, settings: effectiveSettings(data) });
+  if (!hits.length) return res.json({ day, rows: [] });
+  const st = lineState(data);
+  const run = lineRunOf(st.ctx, st.day, st.hhmm, st.line);
+  // The stored booking, its history and all, since the middle of the row
+  // opens it (review, 9 Oct: stripped, its History said "Nothing since this
+  // booking was made"); its tab asked for its OWN sitting when it has one.
+  res.json({ day, rows: hits.map(h => Object.assign({}, h.r, { night: h.night, when: search.nightWords(h.night, day), by: h.by,
+    seat: av.lineBehind(st.ctx, st.day, st.hhmm, st.line, h.r.partySize, run, h.r.durationMin) })) });
+});
 app.get('/api/today', (req, res) => {
   const data = readData();
   const day = tradingDay(data);
