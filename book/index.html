@@ -3243,6 +3243,34 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
    so the ellipsis under the name can never take it (review, 9 Oct). */
 .nt-row .dk-rt{padding-left:8px;}
 .dk-t.nt-when{color:var(--ink);font-family:var(--font-body);}
+/* OUR OTHER VENUES (owner, 9 Oct, v60). "At Bondi" is Not tonight's own
+   quiet head and its rows the list's docket lines; the middle is not a key
+   (the booking is another venue's), so it takes no press. The Settings card:
+   a venue is a line of its name and when it was heard from, with Unlink at
+   its end; the code is read across a room, so it is the number rung in the
+   mono face, spaced. */
+.gv-row .dk-main{cursor:default;}
+/* The night leads the line under the name and WRAPS: the right column is
+   Call, so the line is all the night has, and at 320 the ellipsis took the
+   time (review, 10 Oct). A venue's long name wraps in its head. */
+.dk-main > span.gv-said{white-space:normal;overflow:visible;}
+.shell.simple .nt-head .bl-h-name{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere;}
+.gv-keys{display:flex;gap:8px;flex:none;}
+.gv-venue{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:4px 0;}
+.gv-venue .gv-n{flex:1;min-width:0;display:flex;flex-direction:column;}
+.gv-venue .gv-n b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gv-venue .gv-n span{font-size:var(--fs-md);color:var(--mute);}
+.gv-code{font-size:var(--fs-num);font-weight:700;letter-spacing:.08em;color:var(--ink);margin:4px 0;}
+.gv-join{display:flex;align-items:center;gap:8px;}
+.gv-join input{flex:1;min-width:0;}
+/* THE VENUE SELECT (owner, 9 Oct, v59/v60). The page's own select, a
+   chevron of the mute ink at its end where the select's own was taken
+   away, the finger's 44 from the select's own min-height. Disabled, it is
+   the one dim. */
+.vs-pick{position:relative;display:block;}
+.vs-pick select{padding-right:44px;}
+.vs-pick svg{position:absolute;right:12px;top:50%;width:20px;height:20px;transform:translateY(-50%);color:var(--mute);pointer-events:none;}
+.vs-pick select:disabled{opacity:var(--dim);}
 @media print{
   /* Paper, not a slab: no ground anywhere, and a light canvas under it — a
      dark theme's canvas is dark even with every ground taken away. */
@@ -5028,7 +5056,7 @@ const DEFAULT_DATA = {
   posState: { lastSyncAt: 0, lastError: '', version: null, connected: false, wiped: 0, floorFrom: '' },
   // The relay link's last word: whether it answered, the booking page's
   // address it reported, and when the desk last told it what it may sell.
-  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0, released: [], gone: [], officeOffOwed: false, closeOwed: false, closesOwed: [] },
+  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0, released: [], gone: [], officeOffOwed: false, closeOwed: false, closesOwed: [], group: null, groupOwed: [], groupAsked: [] },
 };
 
 function ensureStore() {
@@ -9043,7 +9071,16 @@ const ack = (c, through, refused) => request(c, 'POST', '/api/venue/ack', { thro
 const officeOn = (c) => request(c, 'POST', '/api/venue/office');
 const officeOff = (c) => request(c, 'DELETE', '/api/venue/office');
 
-module.exports = { ready, ping, grant, pull, ack, officeOn, officeOff };
+// OUR OTHER VENUES: make a code, link with one, unlink (`body.action`);
+// ask the group's other copies; ask another venue to cancel theirs.
+const group = (c, body) => request(c, 'POST', '/api/venue/group', body);
+const groupFind = (c, q) => request(c, 'GET', '/api/venue/group/find?q=' + encodeURIComponent(String(q || '')));
+const groupCancel = (c, body) => request(c, 'POST', '/api/venue/group/cancel', body);
+// THE VENUE SELECT: a pass onto a linked venue's office page, for this
+// desk's tablet — a minute, once, that venue alone.
+const groupPass = (c, body) => request(c, 'POST', '/api/venue/group/pass', body);
+
+module.exports = { ready, ping, grant, pull, ack, officeOn, officeOff, group, groupFind, groupCancel, groupPass };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relay'] = module;
@@ -9192,9 +9229,71 @@ function grantsFor(ctx, opts) {
   const grants = [];
   for (let i = 0; i < GRANT_DAYS; i++) grants.push(dayGrant(ctx, av.addDays(today, i), now));
   const out = { info: infoOf(ctx, Object.assign({}, opts, { now })), grants, guests: guestsOf(ctx, today) };
-  out.replica = opts.office ? replicaOf(ctx, now, opts.tableLabel) : null;
+  // THE VENUE SELECT: while linked, the group's other tablets read this
+  // book on the relay's office page, so the copy goes with a group as it
+  // does with an office.
+  out.replica = opts.office || opts.group ? replicaOf(ctx, now, opts.tableLabel) : null;
   out.line = lineGrant(ctx, now);
+  // OUR OTHER VENUES: the slim copy, only while this desk is in a group.
+  out.group = opts.group ? groupCopyOf(ctx, now) : null;
   return out;
+}
+
+// ---------- our other venues ----------
+//
+// OUR OTHER VENUES (owner, 9 Oct, v59/v60). While this desk is linked with
+// the group's other venues on the relay, it sends with each grant a SLIM copy
+// of its next week, so a party at the wrong venue can be found from the
+// right one: tonight and the seven nights after it, every live booking but a
+// walk-in — one met at the door or sat stays in it, so a cancel asked of
+// this desk for them reaches it and is refused in its own words ("already
+// at their door") rather than lost; the relay's find leaves them out, since
+// a party sat here is not at another venue's stand — and of each only who,
+// how many, when, where it is up to and the stamp a cancel names. No notes, no tags, no allergies, no emails, no
+// tables: a host at the other venue reads out a name and a time, and that is
+// all that crosses.
+const GROUP_DAYS = 8;
+function groupCopyOf(ctx, now) {
+  now = now || new Date();
+  const s = ctx.settings || {};
+  const first = av.lineNight(s, now), last = av.addDays(first, GROUP_DAYS - 1);
+  const rows = [];
+  for (const r of (ctx.reservations || [])) {
+    if (!r || !av.isLive(r) || r.source === 'walk-in') continue;
+    const night = av.nightAt(s, av.dayOf(r.time), av.hhmmOf(r.time)).day;
+    if (night < first || night > last) continue;
+    rows.push({ id: r.id, name: r.name || '', phone: r.phone || '', size: Number(r.partySize) || 1, time: r.time, status: r.status, updatedAt: stampOf(r) });
+  }
+  return { asOf: now.getTime(), bookings: rows.sort((a, b) => a.time.localeCompare(b.time)) };
+}
+
+// Why this desk will not cancel a booking another venue of the group asked
+// it to — the party sat over there, so theirs here should go — or null when
+// it will. A booking no longer live here — cancelled, a no-show, left,
+// deleted — is GROUP_GONE: refused in those words, and the relay tells the
+// asker it was nothing to do, never that it was done (review, 10 Oct). The
+// office's two
+// rules (CLOUD-LINK.md): THE VERSION — the other desk names the stamp it was
+// shown, and a booking changed since is not cancelled from a copy of it —
+// and SERVICE WINS: a party here or sat here is ours, whatever another
+// venue's desk believes. And only TONIGHT's: the other venue seated them
+// tonight, so a booking for another night is theirs to keep.
+const GROUP_GONE = 'no longer booked there';
+function groupCancelRefusal(item, diary, now) {
+  const p = (item && item.payload) || {};
+  now = now || new Date();
+  const r = ((diary && diary.reservations) || []).find(x => x.id === p.id);
+  if (!r || !av.isLive(r)) return GROUP_GONE;
+  // No group heard (a relay just moved, a desk that has not pinged) is no
+  // link: refused, as askerRefusal refuses it (review, 10 Oct).
+  const group = diary && diary.relayState && diary.relayState.group;
+  if (!group || !Array.isArray(group.venues) || !group.venues.some(v => v && v.id === p.fromId)) return 'not linked with them any more';
+  if (av.isSat(r)) return 'already seated here';
+  if (av.isHere(r)) return 'already at their door';
+  if (stampOf(r) !== Number(p.was)) return 'it changed since';
+  const s = (diary && diary.settings) || {};
+  if (av.nightAt(s, av.dayOf(r.time), av.hhmmOf(r.time)).day !== av.lineNight(s, now)) return 'not tonight';
+  return null;
 }
 
 // ---------- the line at the door ----------
@@ -9326,13 +9425,27 @@ function replicaOf(ctx, now, tableLabel) {
 // the booking has moved since, it is told so and shown the booking as it is,
 // rather than silently overwriting what the desk did thirty seconds ago —
 // and then SERVICE WINS (av.officeMayChange).
+// Whether whoever asked may ask at all. A code-signed office: only while it
+// is switched on HERE — switched off here outranks whatever the relay still
+// believes (an office switched off while the relay could not be reached kept
+// booking for good). A linked venue's tablet (THE VENUE SELECT, `via`): only
+// while this desk is still linked with that venue, as it last heard.
+function askerRefusal(p, diary) {
+  if (p && p.via && p.via.id) {
+    const g = diary && diary.relayState && diary.relayState.group;
+    const linked = g && Array.isArray(g.venues) && g.venues.some(v => v && v.id === p.via.id);
+    return linked ? null : `Not linked with ${String(p.via.name || 'them').slice(0, 60)} any more`;
+  }
+  if (diary && diary.settings && !(diary.settings.relay && diary.settings.relay.office)) return 'The office is switched off at the restaurant';
+  return null;
+}
+
 function editRefusal(item, diary, now) {
   const p = (item && item.payload) || {};
   const r = ((diary && diary.reservations) || []).find(x => x.id === p.id);
   if (!r) return 'That booking is not in the book any more';
-  // Switched off HERE outranks whatever the relay still believes: an office
-  // switched off while the relay could not be reached kept booking for good.
-  if (diary.settings && !(diary.settings.relay && diary.settings.relay.office)) return 'The office is switched off at the restaurant';
+  const asker = askerRefusal(p, diary);
+  if (asker) return asker;
   // The office's OWN earlier change does not count as "changed since": a
   // second edit sent before the desk collected the first carries the stamp
   // the first one had, and was refused over it.
@@ -9370,7 +9483,8 @@ function officeWasOn(diary) {
 
 // Why an item is refused, whichever kind it is.
 function refusalOf(item, diary, now) {
-  if (item && item.kind === 'booking') return 'The office is switched off at the restaurant';
+  if (item && item.kind === 'booking') return askerRefusal(item.payload || {}, diary) || 'The office is switched off at the restaurant';
+  if (item && item.kind === 'group-cancel') return groupCancelRefusal(item, diary, now);
   return editRefusal(item, diary, now);
 }
 
@@ -9431,7 +9545,7 @@ function decide(item, diary, now) {
   if (item.kind === 'booking') {
     // Refused, not skipped: a skip was acknowledged as "done" to the office
     // and the booking never existed.
-    if (p.by === 'Office' && diary && diary.settings && !(diary.settings.relay && diary.settings.relay.office)) return 'refuse';
+    if (p.by === 'Office' && askerRefusal(p, diary)) return 'refuse';
     if (!ref || !String(p.name || '').trim() || !(parseInt(p.partySize, 10) >= 1) || !DAY_RE.test(p.date) || !HHMM_RE.test(p.time)) return 'skip';
     return rows.some(r => r.ref === ref) ? 'dupe' : 'create';
   }
@@ -9469,6 +9583,11 @@ function decide(item, diary, now) {
     const no = av.lineRefusal(p, av.lineMax(s), av.lineOf(list, s, now).map(w => w.phone));
     if (no) return no.why === 'taken' ? 'line-already' : 'line-no';
     return 'line';
+  }
+  //   group-cancel  another venue of the group sat this party, so their
+  //                 booking here goes (groupCancelRefusal says when not)
+  if (item.kind === 'group-cancel') {
+    return groupCancelRefusal(item, diary, now) ? 'refuse' : 'group-cancel';
   }
   if (item.kind === 'line-leave') {
     const lref = String(p.ref || '').toUpperCase();
@@ -9548,7 +9667,7 @@ function bookingFrom(payload, ctx, opts) {
   };
 }
 
-module.exports = { GRANT_DAYS, LINE_HOW, lineGrant, lineEntry, officeWasOn, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
+module.exports = { GROUP_GONE, askerRefusal, GROUP_DAYS, groupCopyOf, groupCancelRefusal, GRANT_DAYS, LINE_HOW, lineGrant, lineEntry, officeWasOn, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relaysync'] = module;
@@ -9724,7 +9843,12 @@ function safeSettings(data) {
   s.pos = Object.assign({}, s.pos); // nothing secret in here today, but keep the seam
   // The relay token never goes back to a screen: whoever has it can collect
   // this venue's bookings. The card only needs to know one is saved.
-  s.relay = { enabled: !!s.relay.enabled, baseUrl: s.relay.baseUrl || '', hasToken: !!s.relay.token, office: !!s.relay.office };
+  // `linked`: how many of the group's other venues it is linked with, so
+  // the list's search knows whether to ask them (OUR OTHER VENUES).
+  s.relay = { enabled: !!s.relay.enabled, baseUrl: s.relay.baseUrl || '', hasToken: !!s.relay.token, office: !!s.relay.office, linked: groupOf(data).venues.length,
+    // THE VENUE SELECT: the linked venues by name, for Settings' select and
+    // the night's menu. Who they are, never anything of their book.
+    venues: groupOf(data).venues.map(v => ({ id: v.id, name: v.name })) };
   return s;
 }
 app.get('/api/settings', (req, res) => { res.json(safeSettings(readData())); });
@@ -9909,6 +10033,8 @@ app.put('/api/settings', async (req, res) => {
     // so is its office. The page address comes back from its first ping; the
     // office is switched on there afresh, with a new code.
     if (moved) { data.relayState.bookingPath = ''; s.relay.office = false; data.relayState.officeOffOwed = false; }
+    // Another relay is another group: the links were made on the one it left.
+    if (moved) { data.relayState.group = null; data.relayState.groupOwed = []; }
     // SWITCHED OFF IS SWITCHED OFF HERE TOO. The close turns the office off
     // on the relay; the desk went on saying it was on, with its link, while
     // the office page said "not switched on" (daily round, 4 Oct). Back on,
@@ -10245,12 +10371,23 @@ app.get('/api/reservations/search', (req, res) => {
 
 app.post('/api/reservations', (req, res) => {
   const data = readData();
-  const r = cleanReservation(data, req.body || {});
+  const out = createReservation(data, req.body || {}, staffFromReq(req));
+  if (out.error) return res.status(out.status || 400).json({ error: out.error });
+  writeData(data);
+  res.json(withWarnings(data, out.r));
+  kickPos();
+});
+// A new booking into `data` (the caller writes): the POST's own path, and
+// OUR OTHER VENUES' seat (POST /api/group/seat), which books a party found
+// at another venue here as a walk-in. Returns { r } or { error, status }.
+function createReservation(data, body, who) {
+  body = body || {};
+  const r = cleanReservation(data, body || {});
   const why = validateReservation(r);
-  if (why) return res.status(400).json({ error: why });
+  if (why) return { error: why, status: 400 };
   if (!r.status) r.status = 'booked';
   if (!r.source) r.source = 'staff';
-  r.id = newId('rv'); r.createdAt = Date.now(); r.updatedAt = Date.now(); r.createdBy = staffFromReq(req);
+  r.id = newId('rv'); r.createdAt = Date.now(); r.updatedAt = Date.now(); r.createdBy = who;
   r.tags = r.tags || []; r.tableIds = r.tableIds || []; r.notes = r.notes || ''; r.phone = r.phone || ''; r.email = r.email || '';
   if (r.setMenu === undefined) r.setMenu = null;
   if (r.durationMin === undefined) r.durationMin = null;
@@ -10267,12 +10404,12 @@ app.post('/api/reservations', (req, res) => {
   const now = new Date();
   if (r.source === 'walk-in' && av.isSat(r) && Math.abs(new Date(r.time).getTime() - now.getTime()) <= SAT_NOW_MS) {
     const no = av.seatRefusal(ctxOf(data), av.localDay(now), av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), r.partySize,
-      [r.tableId].concat(r.tableIds).filter(Boolean), { till: !!req.body.till });
-    if (no) return res.status(409).json({ error: seatRefusedWords(data, no) });
+      [r.tableId].concat(r.tableIds).filter(Boolean), { till: !!body.till });
+    if (no) return { error: seatRefusedWords(data, no), status: 409 };
   }
   // Nobody picked a table: hand it the best free one now (the POS floor
   // wants a table to hang its RES chip on).
-  if (!r.tableId && req.body.autoTable !== false) {
+  if (!r.tableId && body.autoTable !== false) {
     // On the NIGHT it belongs to: a walk-in at 00:30 is last night's tail,
     // and asked on the calendar's date it was put on a table people were
     // still paying at (daily round, 6 Oct). Its minute runs on past 24:00.
@@ -10283,17 +10420,15 @@ app.post('/api/reservations', (req, res) => {
   const g = touchGuest(data, r);
   // The first line of this booking's own history. `cleanReservation()` is a
   // whitelist, so a client-supplied `events` never got this far.
-  r.events = [history.createdEvent(r, staffFromReq(req), r.createdAt, evOpts(data))];
+  r.events = [history.createdEvent(r, who, r.createdAt, evOpts(data))];
   data.reservations.push(r);
   // `notifyId` is a request field only — the desk tapped Book on somebody's
   // notify entry. cleanReservation() never stores it on the booking.
-  retireNotify(data, r, typeof req.body.notifyId === 'string' ? req.body.notifyId : '', staffFromReq(req));
+  retireNotify(data, r, typeof body.notifyId === 'string' ? body.notifyId : '', who);
   recountGuest(data, g.id);
-  logAudit(data, staffFromReq(req), `Booked ${r.name} (${r.partySize}, ${r.time})${r.tableId ? ' on ' + r.tableId : ''}${r.setMenu ? ' · ' + r.setMenu.name : ''}`);
-  writeData(data);
-  res.json(withWarnings(data, r));
-  kickPos();
-});
+  logAudit(data, who, `Booked ${r.name} (${r.partySize}, ${r.time})${r.tableId ? ' on ' + r.tableId : ''}${r.setMenu ? ' · ' + r.setMenu.name : ''}`);
+  return { r };
+}
 
 // ONE CHANGE, WHEREVER IT IS PRESSED. The PUT below and the night's tidy
 // (POST /api/tidy) change a booking through this and nothing else, so a
@@ -10508,6 +10643,9 @@ app.delete('/api/reservations/:id', (req, res) => {
   if (!r) return res.status(404).json({ error: 'Booking not found' });
   if (av.isLive(r)) raiseOpening(data, r, 'deleted', staffFromReq(req));
   data.reservations = data.reservations.filter(x => x.id !== r.id);
+  // The Undo of a seat from another venue (OUR OTHER VENUES): the cancel it
+  // owed that venue is not asked.
+  if ((data.relayState.groupOwed || []).some(o => o.bookingId === r.id)) data.relayState.groupOwed = data.relayState.groupOwed.filter(o => o.bookingId !== r.id);
   // A guest who booked online is told it is gone: the relay only hears about
   // references still in the diary, so a deleted one stayed "booked" to them.
   if (r.ref && (r.source === 'online' || r.createdBy === 'Online' || r.createdBy === 'Office')) {
@@ -11690,6 +11828,9 @@ app.get('/api/relay/status', (req, res) => {
     // feeding sends guests somewhere nobody collects from.
     bookingUrl: relay.ready(c) && st.bookingPath ? c.baseUrl + st.bookingPath : '',
     office: !!c.office, officeUrl: c.office && relay.ready(c) && st.bookingPath ? c.baseUrl + st.bookingPath.replace(/^\/book\//, '/office/') : '',
+    // OUR OTHER VENUES: who this desk is linked with, as the relay last said,
+    // who asks to join, and who this desk waits on.
+    group: groupOf(data).venues, pending: groupOf(data).pending || [], waiting: groupOf(data).waiting || [],
   });
 });
 app.post('/api/relay/test', async (req, res) => {
@@ -11756,6 +11897,237 @@ app.delete('/api/relay/office', async (req, res) => {
   res.json({ ok: true });
 });
 
+// §§ OUR OTHER VENUES (owner, 9 Oct, v59/v60: "when we have say multiple
+// venues linked up it should allow to find them at any venue as well", and
+// "Can we have a venue select in settings?" → "Both"). Desks a group owns
+// link on the RELAY — this desk still takes no call from anybody — by a code
+// one makes and the other types, Settings → The venue → Our other venues.
+// While linked each sends a slim copy of its week with its grant
+// (relaysync.groupCopyOf), a search here that finds nobody asks the others'
+// copies (GET /api/group/find), and a party found there is seated here in
+// one tap (POST /api/group/seat). When their booking over there is TONIGHT,
+// that venue is asked to cancel it — once the seat's Undo has run out, so a
+// tap taken back asks nothing — and decides with the office's rules
+// (relaysync.groupCancelRefusal); what it decided comes back on the ping.
+
+// The relay's answer to the last searches, so the seat books what the relay
+// actually said — name, number, size, the stamp a cancel names — and never
+// what a request body claims. A search is asked again as the host types and
+// with every poll while it is on screen.
+const _groupFound = new Map();
+const GROUP_FOUND_MS = 10 * 60000;
+// How long the seat's Undo stands before the other venue is asked: the
+// message's ten seconds and a breath for an Undo already on its way.
+const GROUP_UNDO_MS = 12000;
+function groupOf(data) {
+  const g = data.relayState && data.relayState.group;
+  return relay.ready(data.settings.relay) && g && Array.isArray(g.venues) ? g : { venues: [], pending: [], waiting: [] };
+}
+function groupVenues(list) {
+  // When each was last heard from, counted back on THIS clock from how long
+  // ago the relay says, by its own (the line's law: never two clocks).
+  const now = Date.now();
+  return (Array.isArray(list) ? list : []).map(v => ({ id: String(v.id), name: String(v.name || '').slice(0, 60), phone: String(v.phone || '').slice(0, 30),
+    seenAt: Number.isFinite(Number(v.seenAgo)) && v.seenAgo !== null ? now - Number(v.seenAgo) : 0 }));
+}
+app.get('/api/group', (req, res) => {
+  const data = readData();
+  res.json({ on: relay.ready(data.settings.relay), venues: groupOf(data).venues });
+});
+// The relay's answer to a code, a link or an unlink, kept as the group.
+// The venues, and the asks to join: a venue waiting on this one's yes, and
+// the venues this one waits on.
+function groupView(view) {
+  const who = (list) => (Array.isArray(list) ? list : []).map(v => ({ id: String(v.id), name: String(v.name || '').slice(0, 60) })).slice(0, 20);
+  return { venues: groupVenues(view && view.venues), pending: who(view && view.pending).map((v, i) => Object.assign(v, { yes: !!view.pending[i].yes })), waiting: who(view && view.waiting), at: Date.now() };
+}
+function keepGroup(view) {
+  const d = readData();
+  d.relayState.group = groupView(view);
+  writeData(d);
+  return d.relayState.group;
+}
+const relayErr = (e) => (e.status && e.status < 500 && e.status !== 401 ? e.status : 502);
+app.post('/api/group/code', async (req, res) => {
+  const cfg = readData().settings.relay;
+  if (!relay.ready(cfg)) return res.status(400).json({ error: 'Link the booking relay first' });
+  // Its ten minutes counted on this clock, from how long the relay says it
+  // lives — never the relay's own time compared with ours.
+  try { const r = await relay.group(cfg, { action: 'code' }); res.json({ code: r.code, expires: Date.now() + (Number(r.ttlMs) > 0 ? Number(r.ttlMs) : 600000) }); }
+  catch (e) { res.status(relayErr(e)).json({ error: e.message }); }
+});
+app.post('/api/group/join', async (req, res) => {
+  const cfg = readData().settings.relay;
+  if (!relay.ready(cfg)) return res.status(400).json({ error: 'Link the booking relay first' });
+  const code = String((req.body || {}).code || '').trim().slice(0, 40);
+  if (!code) return res.status(400).json({ error: 'Type the code from the other venue' });
+  try {
+    const g = keepGroup(await relay.group(cfg, { action: 'join', code }));
+    const d = readData(); logAudit(d, 'The desk', g.venues.length ? 'Linked with ' + g.venues.map(v => v.name).join(', ') : 'Asked to join ' + g.waiting.map(v => v.name).join(', ')); writeData(d);
+    setTimeout(() => relayPass(true), 10); // the copy goes now, not in half a minute
+    res.json({ venues: g.venues, waiting: g.waiting });
+  } catch (e) { res.status(relayErr(e)).json({ error: e.message }); }
+});
+app.post('/api/group/unlink', async (req, res) => {
+  const data = readData(), cfg = data.settings.relay;
+  if (!relay.ready(cfg)) return res.status(400).json({ error: 'Link the booking relay first' });
+  const venueId = String((req.body || {}).venueId || '');
+  const was = groupOf(data).venues.find(v => v.id === venueId);
+  try {
+    const g = keepGroup(await relay.group(cfg, { action: 'unlink', venueId }));
+    const d = readData(); logAudit(d, 'The desk', venueId ? 'Unlinked ' + (was ? was.name : 'a venue') : 'Left the group'); writeData(d);
+    setTimeout(() => relayPass(true), 10);
+    res.json({ venues: g.venues });
+  } catch (e) { res.status(relayErr(e)).json({ error: e.message }); }
+});
+// A venue asks to join this one's group: every member says yes, or it
+// waits (review, 10 Oct: one member's code let a third in to read and change
+// the others' books). One no and the ask is gone.
+app.post('/api/group/answer', async (req, res) => {
+  const data = readData(), cfg = data.settings.relay;
+  if (!relay.ready(cfg)) return res.status(400).json({ error: 'Link the booking relay first' });
+  const b = req.body || {};
+  const venueId = String(b.venueId || ''), yes = b.yes === true;
+  const who = (groupOf(data).pending || []).find(v => v.id === venueId);
+  try {
+    const g = keepGroup(await relay.group(cfg, { action: 'answer', venueId, yes }));
+    const d = readData(); logAudit(d, 'The desk', `${yes ? 'Let in' : 'Said no to'} ${who ? who.name : 'a venue'}`); writeData(d);
+    setTimeout(() => relayPass(true), 10);
+    res.json({ venues: g.venues, pending: g.pending });
+  } catch (e) { res.status(relayErr(e)).json({ error: e.message }); }
+});
+// THE VENUE SELECT (owner, 9 Oct, v59/v60: "Can we have a venue select in
+// settings?" → "Both"). This tablet opens a linked venue's book on the
+// relay's office page: the desk asks the relay for a pass (it calls out;
+// nothing calls in) and hands the tablet the address, the pass in its
+// fragment. Nothing of the other venue's book is stored here — the page is
+// the relay's, and every change made there is an office change for THAT
+// venue's desk to decide. `back` is this desk's own address, as the tablet
+// reaches it, for the page's "‹ Back to …".
+app.post('/api/group/open', async (req, res) => {
+  const data = readData(), cfg = data.settings.relay;
+  if (!relay.ready(cfg)) return res.status(400).json({ error: 'Link the booking relay first' });
+  const b = req.body || {};
+  const v = groupOf(data).venues.find(x => x.id === String(b.venueId || ''));
+  if (!v) return res.status(409).json({ error: 'That venue is not linked any more' });
+  const back = /^https?:\/\/[^\s]{1,280}$/i.test(String(b.back || '')) ? String(b.back) : '';
+  try {
+    const r = await relay.groupPass(cfg, { venueId: v.id, back });
+    const d = readData(); logAudit(d, 'The desk', `Opened ${v.name}'s book through the relay`); writeData(d);
+    res.json({ url: cfg.baseUrl.replace(/\/+$/, '') + r.url, venue: v.name });
+  } catch (e) { res.status(relayErr(e)).json({ error: e.message }); }
+});
+// The search, asked of the group's other copies. Each row comes back with
+// what the list draws: the night in words ("tonight 7:45", "Sat 10 Oct,
+// 8:30") and the tab — the table a party that size gets NOW behind
+// tonight's line (av.lineBehind), as Not tonight's tab is.
+app.get('/api/group/find', async (req, res) => {
+  const data = readData(), cfg = data.settings.relay;
+  const q = String(req.query.q || '').trim().slice(0, 40);
+  if (!groupOf(data).venues.length || !q) return res.json({ q, rows: [] });
+  let got;
+  try { got = await relay.groupFind(cfg, q); } catch (e) { return res.json({ q, rows: [], error: e.message }); }
+  const settings = effectiveSettings(data), tonight = tradingDay(data);
+  const st = lineState(data);
+  const run = lineRunOf(st.ctx, st.day, st.hhmm, st.line);
+  const now = Date.now();
+  for (const [k, v] of _groupFound) if (now - v.at > GROUP_FOUND_MS) _groupFound.delete(k);
+  const rows = (got.rows || []).filter(r => r && r.venueId && r.id && av.isRealTime(r.time)).map(r => {
+    const night = av.nightAt(settings, av.dayOf(r.time), av.hhmmOf(r.time)).day;
+    const gap = Math.round((Date.parse(night + 'T00:00Z') - Date.parse(tonight + 'T00:00Z')) / 86400000);
+    const size = Math.max(1, parseInt(r.size, 10) || 1);
+    const row = {
+      venueId: String(r.venueId), venue: String(r.venue || ''), venuePhone: String(r.venuePhone || ''), id: String(r.id),
+      name: String(r.name || ''), phone: String(r.phone || ''), size, time: r.time, was: Number(r.was) || 0,
+      tonight: gap === 0,
+      // The night in the desk's own words, its half of the day said: "7:45
+      // PM" tonight (a lunch is never "tonight 12:30"), "tomorrow 12:00 PM",
+      // "Sun 11 Oct, 12:00 PM" (review, 10 Oct).
+      when: gap === 0 ? twelve(av.hhmmOf(r.time)) : gap === 1 ? 'tomorrow ' + twelve(av.hhmmOf(r.time)) : search.dateWords(night, tonight) + ', ' + twelve(av.hhmmOf(r.time)),
+      // How the message says the night they keep over there.
+      still: gap === 1 ? 'tomorrow' : 'on ' + search.dateWords(night).split(' ')[0],
+      seat: av.lineBehind(st.ctx, st.day, st.hhmm, st.line, size, run),
+    };
+    _groupFound.set(row.venueId + ':' + row.id, { at: now, row });
+    return row;
+  });
+  res.json({ q, rows });
+});
+// One tap: booked HERE tonight as a walk-in under their own name and number,
+// seated on the table sent — asked again as it lands, the walk-in's own
+// question (createReservation → av.seatRefusal) — and, when their booking
+// over there is tonight's, a cancel owed to that venue once the Undo has
+// had its ten seconds (relayPass sends it; a DELETE of this booking, the
+// Undo, takes it back first).
+app.post('/api/group/seat', (req, res) => {
+  const data = readData();
+  const b = req.body || {};
+  const hit = _groupFound.get(String(b.venueId || '') + ':' + String(b.id || ''));
+  if (!hit || Date.now() - hit.at > GROUP_FOUND_MS) return res.status(409).json({ error: 'Search for them again' });
+  const x = hit.row;
+  if (!groupOf(data).venues.some(v => v.id === x.venueId)) return res.status(409).json({ error: `${x.venue || 'That venue'} is not linked any more` });
+  // Seated here once: a second tablet with the list still drawn is refused,
+  // never a second walk-in and a second cancel owed (review, 10 Oct). An
+  // Undo deletes the first, and they may be seated again.
+  const twice = data.reservations.find(r => r.groupFrom && r.groupFrom.venueId === x.venueId && r.groupFrom.id === x.id && av.isLive(r));
+  if (twice) { const lab = evOpts(data).tableLabel; return res.status(409).json({ error: `${twice.name} is already seated here${twice.tableId ? ' at ' + [twice.tableId].concat(twice.tableIds || []).map(lab).join(' + ') : ''}` }); }
+  const tableId = typeof b.tableId === 'string' && b.tableId ? b.tableId : null;
+  if (!tableId) return res.status(400).json({ error: 'Which table?' });
+  const tableIds = Array.isArray(b.tableIds) ? b.tableIds.map(String).filter(id => id !== tableId).slice(0, 8) : [];
+  const out = createReservation(data, { name: x.name, phone: x.phone, partySize: x.size, time: av.localTime(new Date()), tableId, tableIds, status: 'seated', source: 'walk-in',
+    autoTable: false, tags: [], notes: '', till: !!b.till }, 'The desk');
+  if (out.error) return res.status(out.status || 400).json({ error: out.error });
+  const r = out.r;
+  r.groupFrom = { venueId: x.venueId, id: x.id };
+  r.events = history.append(r.events, [history.noteEvent('The desk', Date.now(), `Booked at ${x.venue} ${x.when} — seated here instead`, 'note')]);
+  if (x.tonight) {
+    data.relayState.groupOwed = (data.relayState.groupOwed || []).concat({ bookingId: r.id, venueId: x.venueId, venue: x.venue, id: x.id, was: x.was, name: x.name, dueAt: Date.now() + GROUP_UNDO_MS }).slice(-50);
+    setTimeout(() => relayPass(false), GROUP_UNDO_MS + 200);
+  }
+  logAudit(data, 'The desk', `${x.name} found at ${x.venue} (${x.when}) and seated here`);
+  writeData(data);
+  // `undoMs`: how long the Undo may stand — until the desk asks the other
+  // venue, less a breath — so the message never offers it past then.
+  res.json({ booking: withWarnings(data, r), venue: x.venue, tonight: x.tonight, still: x.still, undoMs: x.tonight ? GROUP_UNDO_MS - 2000 : 10000 });
+  kickPos();
+});
+// What the other venues did with the cancels this desk asked of them, said
+// once on the desk as each comes in (the client keeps which it has said).
+app.get('/api/group/news', (req, res) => {
+  const data = readData();
+  const since = av.lineSince(effectiveSettings(data), new Date());
+  res.json((data.relayState.groupAsked || []).filter(a => a && a.outcome && Number(a.at) >= since)
+    .map(a => ({ askId: a.askId, venue: a.venue, name: a.name, outcome: a.outcome, why: a.why || '' })));
+});
+// Each pass: the group and what came of earlier asks are read off the
+// ping's `group` (keepPingGroup, before anything is collected), and the
+// cancels whose Undo has run out are asked of their venue (groupPass).
+function keepPingGroup(ping) {
+  if (!(ping && ping.group && Array.isArray(ping.group.venues))) return;
+  const data = readData();
+  data.relayState.group = groupView(ping.group);
+  const said = new Map((ping.group.outcomes || []).map(o => [o.askId, o]));
+  data.relayState.groupAsked = (data.relayState.groupAsked || []).map(a => {
+    const o = !a.outcome && said.get(a.askId);
+    return o ? Object.assign({}, a, { outcome: ['done', 'gone'].includes(o.outcome) ? o.outcome : 'refused', why: String(o.why || '').slice(0, 120) }) : a;
+  }).filter(a => Date.now() - a.at < 2 * 86400000).slice(-200);
+  writeData(data);
+}
+async function groupPass(cfg) {
+  let data = readData();
+  const due = (data.relayState.groupOwed || []).filter(o => o.dueAt <= Date.now());
+  for (const o of due) {
+    let asked = null, failed = '';
+    try { asked = await relay.groupCancel(cfg, { venueId: o.venueId, id: o.id, was: o.was }); }
+    catch (e) { if (!(e.status >= 400 && e.status < 500)) continue; failed = e.message; } // not reached: asked again next pass
+    data = readData();
+    data.relayState.groupOwed = (data.relayState.groupOwed || []).filter(x => !(x.bookingId === o.bookingId && x.id === o.id));
+    data.relayState.groupAsked = (data.relayState.groupAsked || []).concat({ askId: asked ? asked.askId : newId('ga'), venue: o.venue, name: o.name, at: Date.now(),
+      outcome: asked ? null : 'refused', why: asked ? '' : String(failed || 'it could not be asked').replace(/\.$/, '').toLowerCase() }).slice(-200);
+    writeData(data);
+  }
+}
+
 // The desk's short lists for the relay — bookings it refused and bookings it
 // deleted — kept only while their date is still to come, and never many.
 function keepRecent(list) {
@@ -11799,7 +12171,21 @@ function applyRelayItem(data, item, asWas, relayNow) {
     const pt = p.patch || {};
     if (!p.cancel && (pt.phone !== undefined || pt.name !== undefined)) touchGuest(data, r);
     recountGuest(data, r.guestId);
-    logAudit(data, 'Office', `Office ${p.cancel ? 'cancelled' : 'changed'} ${r.name} (${r.time})`);
+    logAudit(data, 'Office', `Office${p.via ? ' (from ' + String(p.via.name || '').slice(0, 60) + ')' : ''} ${p.cancel ? 'cancelled' : 'changed'} ${r.name} (${r.time})`);
+  } else if (what === 'group-cancel') {
+    // ANOTHER VENUE OF THE GROUP SAT THIS PARTY, so theirs here goes —
+    // through changeReservation(), the PUT's own path, so the opening, the
+    // guest's counts, the history and the till's pass all see it.
+    const r = data.reservations.find(x => x.id === p.id);
+    const from = String(p.from || 'another venue').slice(0, 60);
+    changeReservation(data, r, { status: 'cancelled', cancelReason: `Seated at ${from} instead` }, from);
+    r.events = history.append(r.events, [history.noteEvent(from, now, `Seated at ${from} instead`, 'note')]);
+    logAudit(data, from, `${r.name} seated at ${from} instead — cancelled here`);
+  } else if (what === 'refuse' && item.kind === 'group-cancel') {
+    const why = relaysync.groupCancelRefusal(item, data, new Date());
+    const gone = why === relaysync.GROUP_GONE;
+    logAudit(data, String(p.from || 'Another venue').slice(0, 60), gone ? `Asked to cancel ${p.name || 'a booking'}: ${why}` : `Asked to cancel ${p.name || 'a booking'}, kept: ${why}`);
+    return { what, why, now: null, gone };
   } else if (what === 'refuse' && item.kind === 'booking') {
     // An office booking taken while the office was off here: refused to the
     // office by name, and its table let go on the relay by the next grant.
@@ -11876,7 +12262,7 @@ async function collectFrom(cfg, waiting, out, asWas) {
     });
     const whats = done.map(d => d.what);
     writeData(data);
-    await relay.ack(cfg, got.cursor, done.filter(d => d.what === 'refuse').map(d => ({ seq: d.seq, id: (items.find(i => i.seq === d.seq).payload || {}).id, why: d.why, now: d.now })));
+    await relay.ack(cfg, got.cursor, done.filter(d => d.what === 'refuse').map(d => Object.assign({ seq: d.seq, id: (items.find(i => i.seq === d.seq).payload || {}).id, why: d.why, now: d.now }, d.gone ? { gone: true } : {})));
     out.changed = (out.changed || 0) + whats.filter(w => !['skip', 'dupe', 'refuse'].includes(w)).length;
     out.collected += whats.filter(w => w === 'create').length;
     if (!got.more) break;
@@ -11941,13 +12327,19 @@ async function relayPass(forceGrant) {
       await relay.officeOff(cfg);
       data = readData(); data.relayState.officeOffOwed = false; writeData(data);
     }
+    // The group this ping says, kept BEFORE what it carries is decided: a
+    // change through the link is judged on the link as it stands now — not
+    // refused the minute two desks link, nor applied after they part
+    // (review, 10 Oct).
+    keepPingGroup(ping);
     await collectFrom(cfg, ping.waiting, out);
     if (out.changed) kickPos(); // the till's floor hears about them too
+    await groupPass(cfg);
     // GRANT: what may be sold from here on, when it changed, and at least
     // hourly so the relay never goes a day thinking the venue has vanished.
     data = readData();
     const body = relaysync.grantsFor(Object.assign(ctxOf(data), { released: keepRecent(data.relayState.released), gone: keepRecent(data.relayState.gone), waitlist: data.waitlist, lineGone: data.lineGone }),
-      { now: new Date(), accent: (data.theme && data.theme.accent) || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel });
+      { now: new Date(), accent: (data.theme && data.theme.accent) || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel, group: groupOf(data).venues.length > 0 });
     const hash = crypto.createHash('sha1').update(JSON.stringify(body)).digest('hex');
     const st = data.relayState;
     let said = null;
