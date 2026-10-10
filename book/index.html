@@ -3258,7 +3258,8 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 .gv-keys{display:flex;gap:8px;flex:none;}
 .gv-venue{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:4px 0;}
 .gv-venue .gv-n{flex:1;min-width:0;display:flex;flex-direction:column;}
-.gv-venue .gv-n b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* A venue's name wraps whole: cut, "Coogee Beach…" was let in unread (10 Oct). */
+.gv-venue .gv-n b{font-weight:700;white-space:normal;overflow-wrap:anywhere;}
 .gv-venue .gv-n span{font-size:var(--fs-md);color:var(--mute);}
 .gv-code{font-size:var(--fs-num);font-weight:700;letter-spacing:.08em;color:var(--ink);margin:4px 0;}
 .gv-join{display:flex;align-items:center;gap:8px;}
@@ -5986,14 +5987,14 @@ function walkinTables(ctx, day, hhmm, party, dur) {
 // no saved combination seats them at all: an answer with nothing in it is
 // nothing to draw. combosOf() is the one place a saved combination is read,
 // so the day the till sends its own joins this follows with no change here.
-function walkinCombos(ctx, day, hhmm, party) {
+function walkinCombos(ctx, day, hhmm, party, own) {
   const size = Math.max(1, Number(party) || 1);
   if (!combosOf(ctx).length) return null;
   const sub = walkinBook(ctx, day, hhmm);
-  if (wholeSingle(sub, day, hhmm, size)) return null;
-  const start = toMin(hhmm), dur = durationFor(ctx.settings, size), now = nowOn(sub, day);
+  if (wholeSingle(sub, day, hhmm, size, own)) return null;
+  const start = toMin(hhmm), dur = durationFor(ctx.settings, size, own), now = nowOn(sub, day);
   const at = now === null ? start : now;
-  const free = freeCombos(sub, day, hhmm, size);
+  const free = freeCombos(sub, day, hhmm, size, { duration: own });
   const held = combosOf(ctx)
     .filter(c => comboFits(ctx, c, size) && !free.includes(c))
     .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length));
@@ -6259,8 +6260,10 @@ function lineBehind(ctx, day, hhmm, line, size, run, dur) {
 // NOW stay the plain book's. `lineAhead()` is the line in front of one
 // waiting party, for the Seat on their row; one not in tonight's line is
 // behind all of it.
-function lineNext(ctx, day, hhmm, line, size, run) {
-  return walkinNext((run || lineRun(ctx, day, hhmm, line)).book, day, hhmm, size);
+// `dur`: a booking's own sitting, as walkinTables() takes it (daily round,
+// 10 Oct: the wrong night's "—").
+function lineNext(ctx, day, hhmm, line, size, run, dur) {
+  return walkinNext((run || lineRun(ctx, day, hhmm, line)).book, day, hhmm, size, dur);
 }
 function lineAhead(line, id) {
   const i = (line || []).findIndex(w => w && w.id === id);
@@ -9848,7 +9851,9 @@ function safeSettings(data) {
   s.relay = { enabled: !!s.relay.enabled, baseUrl: s.relay.baseUrl || '', hasToken: !!s.relay.token, office: !!s.relay.office, linked: groupOf(data).venues.length,
     // THE VENUE SELECT: the linked venues by name, for Settings' select and
     // the night's menu. Who they are, never anything of their book.
-    venues: groupOf(data).venues.map(v => ({ id: v.id, name: v.name })) };
+    // One whose desk switched its relay link off is not offered (daily
+    // round, 10 Oct): its book on the relay is empty and collected by nobody.
+    venues: groupOf(data).venues.filter(v => !v.off).map(v => ({ id: v.id, name: v.name })) };
   return s;
 }
 app.get('/api/settings', (req, res) => { res.json(safeSettings(readData())); });
@@ -10074,7 +10079,12 @@ app.get('/api/walkin', (req, res) => {
   // is yesterday, and a walk-in at 00:30 on it was stored 24 hours early.
   // walkinTables() carries the night before's sat parties into this date.
   const day = av.localDay(n);
-  const tables = av.walkinTables(ctx, day, at, size);
+  // `min`: a booking's own sitting (its durationMin) in place of the one
+  // Settings gives that size — Here on the wrong night's "—", whose tab and
+  // seat already ask it (daily round, 10 Oct: the room lit tables free for
+  // 75 minutes to a three-hour Macrae, and every tap was refused).
+  const own = Math.min(24 * 60, parseInt(req.query.min, 10) || 0) || undefined;
+  const tables = av.walkinTables(ctx, day, at, size, own);
   // Nothing takes them now: say WHEN something will (v19), so the menu can
   // offer the waitlist with that wait and a booking for that time — asked
   // AFTER the line already waiting is seated (av.lineNext, daily round,
@@ -10082,12 +10092,12 @@ app.get('/api/walkin', (req, res) => {
   // A waitlist Seat (`wl`) runs only the line in front of that party.
   const line = av.lineOf(data.waitlist, ctx.settings, n);
   const ahead = req.query.wl ? av.lineAhead(line, String(req.query.wl)) : line;
-  const next = tables.length ? null : av.lineNext(ctx, day, at, ahead, size, lineRunOf(ctx, day, at, ahead));
+  const next = tables.length ? null : av.lineNext(ctx, day, at, ahead, size, lineRunOf(ctx, day, at, ahead), own);
   // A BIG PARTY LIGHTS ITS JOINED TABLES (8 Oct): no one table seats them,
   // so every saved combination that does — free, or held and by whom — for
   // the menu's keys and the room's lines and names (av.walkinCombos).
-  const combos = av.walkinCombos(ctx, day, at, size);
-  res.json(Object.assign({ size, minutes: av.durationFor(ctx.settings, size), day, at, tables, next }, combos ? { combos } : {}));
+  const combos = av.walkinCombos(ctx, day, at, size, own);
+  res.json(Object.assign({ size, minutes: av.durationFor(ctx.settings, size, own), day, at, tables, next }, combos ? { combos } : {}));
 });
 app.get('/api/tables', (req, res) => {
   const data = readData();
@@ -11928,7 +11938,7 @@ function groupVenues(list) {
   // ago the relay says, by its own (the line's law: never two clocks).
   const now = Date.now();
   return (Array.isArray(list) ? list : []).map(v => ({ id: String(v.id), name: String(v.name || '').slice(0, 60), phone: String(v.phone || '').slice(0, 30),
-    seenAt: Number.isFinite(Number(v.seenAgo)) && v.seenAgo !== null ? now - Number(v.seenAgo) : 0 }));
+    seenAt: Number.isFinite(Number(v.seenAgo)) && v.seenAgo !== null ? now - Number(v.seenAgo) : 0, off: !!v.off }));
 }
 app.get('/api/group', (req, res) => {
   const data = readData();
@@ -11975,7 +11985,8 @@ app.post('/api/group/unlink', async (req, res) => {
   const was = groupOf(data).venues.find(v => v.id === venueId);
   try {
     const g = keepGroup(await relay.group(cfg, { action: 'unlink', venueId }));
-    const d = readData(); logAudit(d, 'The desk', venueId ? 'Unlinked ' + (was ? was.name : 'a venue') : 'Left the group'); writeData(d);
+    const asked = !groupOf(data).venues.length && (groupOf(data).waiting || []).length;
+    const d = readData(); logAudit(d, 'The desk', venueId ? 'Unlinked ' + (was ? was.name : 'a venue') : asked ? 'Took back the ask to join' : 'Left the group'); writeData(d);
     setTimeout(() => relayPass(true), 10);
     res.json({ venues: g.venues });
   } catch (e) { res.status(relayErr(e)).json({ error: e.message }); }
@@ -12152,7 +12163,11 @@ function applyRelayItem(data, item, asWas, relayNow) {
     recountGuest(data, g.id);
     const who = r.createdBy;
     r.events = [history.createdEvent(r, who, now, evOpts(data))];
-    logAudit(data, who, `${who === 'Office' ? 'Office' : 'Online'} booking: ${r.name} (${r.partySize}, ${r.time})${r.tableId ? '' : ' — no table free'}`);
+    // Through the link, whose tablet took it — as a change through it is
+    // audited (daily round, 10 Oct: it read as this venue's own office).
+    const via = who === 'Office' && p.via && String(p.via.name || '').slice(0, 60);
+    if (via) r.events = history.append(r.events, [history.noteEvent('Office', now, `Taken by ${via}, through the link`, 'note')]);
+    logAudit(data, who, `${who === 'Office' ? 'Office' + (via ? ' (from ' + via + ')' : '') : 'Online'} booking: ${r.name} (${r.partySize}, ${r.time})${r.tableId ? '' : ' — no table free'}`);
   } else if (what === 'edit') {
     // THE OFFICE'S CHANGE, applied as the desk would apply its own: merged
     // into the stored booking, history written by 'Office', the till told.

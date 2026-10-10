@@ -3273,7 +3273,8 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 .gv-keys{display:flex;gap:8px;flex:none;}
 .gv-venue{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:4px 0;}
 .gv-venue .gv-n{flex:1;min-width:0;display:flex;flex-direction:column;}
-.gv-venue .gv-n b{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* A venue's name wraps whole: cut, "Coogee Beach…" was let in unread (10 Oct). */
+.gv-venue .gv-n b{font-weight:700;white-space:normal;overflow-wrap:anywhere;}
 .gv-venue .gv-n span{font-size:var(--fs-md);color:var(--mute);}
 .gv-code{font-size:var(--fs-num);font-weight:700;letter-spacing:.08em;color:var(--ink);margin:4px 0;}
 .gv-join{display:flex;align-items:center;gap:8px;}
@@ -6000,14 +6001,14 @@ function walkinTables(ctx, day, hhmm, party, dur) {
 // no saved combination seats them at all: an answer with nothing in it is
 // nothing to draw. combosOf() is the one place a saved combination is read,
 // so the day the till sends its own joins this follows with no change here.
-function walkinCombos(ctx, day, hhmm, party) {
+function walkinCombos(ctx, day, hhmm, party, own) {
   const size = Math.max(1, Number(party) || 1);
   if (!combosOf(ctx).length) return null;
   const sub = walkinBook(ctx, day, hhmm);
-  if (wholeSingle(sub, day, hhmm, size)) return null;
-  const start = toMin(hhmm), dur = durationFor(ctx.settings, size), now = nowOn(sub, day);
+  if (wholeSingle(sub, day, hhmm, size, own)) return null;
+  const start = toMin(hhmm), dur = durationFor(ctx.settings, size, own), now = nowOn(sub, day);
   const at = now === null ? start : now;
-  const free = freeCombos(sub, day, hhmm, size);
+  const free = freeCombos(sub, day, hhmm, size, { duration: own });
   const held = combosOf(ctx)
     .filter(c => comboFits(ctx, c, size) && !free.includes(c))
     .sort((a, b) => (comboSeats(ctx, a) - comboSeats(ctx, b)) || (a.tables.length - b.tables.length));
@@ -6273,8 +6274,10 @@ function lineBehind(ctx, day, hhmm, line, size, run, dur) {
 // NOW stay the plain book's. `lineAhead()` is the line in front of one
 // waiting party, for the Seat on their row; one not in tonight's line is
 // behind all of it.
-function lineNext(ctx, day, hhmm, line, size, run) {
-  return walkinNext((run || lineRun(ctx, day, hhmm, line)).book, day, hhmm, size);
+// `dur`: a booking's own sitting, as walkinTables() takes it (daily round,
+// 10 Oct: the wrong night's "—").
+function lineNext(ctx, day, hhmm, line, size, run, dur) {
+  return walkinNext((run || lineRun(ctx, day, hhmm, line)).book, day, hhmm, size, dur);
 }
 function lineAhead(line, id) {
   const i = (line || []).findIndex(w => w && w.id === id);
@@ -9862,7 +9865,9 @@ function safeSettings(data) {
   s.relay = { enabled: !!s.relay.enabled, baseUrl: s.relay.baseUrl || '', hasToken: !!s.relay.token, office: !!s.relay.office, linked: groupOf(data).venues.length,
     // THE VENUE SELECT: the linked venues by name, for Settings' select and
     // the night's menu. Who they are, never anything of their book.
-    venues: groupOf(data).venues.map(v => ({ id: v.id, name: v.name })) };
+    // One whose desk switched its relay link off is not offered (daily
+    // round, 10 Oct): its book on the relay is empty and collected by nobody.
+    venues: groupOf(data).venues.filter(v => !v.off).map(v => ({ id: v.id, name: v.name })) };
   return s;
 }
 app.get('/api/settings', (req, res) => { res.json(safeSettings(readData())); });
@@ -10088,7 +10093,12 @@ app.get('/api/walkin', (req, res) => {
   // is yesterday, and a walk-in at 00:30 on it was stored 24 hours early.
   // walkinTables() carries the night before's sat parties into this date.
   const day = av.localDay(n);
-  const tables = av.walkinTables(ctx, day, at, size);
+  // `min`: a booking's own sitting (its durationMin) in place of the one
+  // Settings gives that size — Here on the wrong night's "—", whose tab and
+  // seat already ask it (daily round, 10 Oct: the room lit tables free for
+  // 75 minutes to a three-hour Macrae, and every tap was refused).
+  const own = Math.min(24 * 60, parseInt(req.query.min, 10) || 0) || undefined;
+  const tables = av.walkinTables(ctx, day, at, size, own);
   // Nothing takes them now: say WHEN something will (v19), so the menu can
   // offer the waitlist with that wait and a booking for that time — asked
   // AFTER the line already waiting is seated (av.lineNext, daily round,
@@ -10096,12 +10106,12 @@ app.get('/api/walkin', (req, res) => {
   // A waitlist Seat (`wl`) runs only the line in front of that party.
   const line = av.lineOf(data.waitlist, ctx.settings, n);
   const ahead = req.query.wl ? av.lineAhead(line, String(req.query.wl)) : line;
-  const next = tables.length ? null : av.lineNext(ctx, day, at, ahead, size, lineRunOf(ctx, day, at, ahead));
+  const next = tables.length ? null : av.lineNext(ctx, day, at, ahead, size, lineRunOf(ctx, day, at, ahead), own);
   // A BIG PARTY LIGHTS ITS JOINED TABLES (8 Oct): no one table seats them,
   // so every saved combination that does — free, or held and by whom — for
   // the menu's keys and the room's lines and names (av.walkinCombos).
-  const combos = av.walkinCombos(ctx, day, at, size);
-  res.json(Object.assign({ size, minutes: av.durationFor(ctx.settings, size), day, at, tables, next }, combos ? { combos } : {}));
+  const combos = av.walkinCombos(ctx, day, at, size, own);
+  res.json(Object.assign({ size, minutes: av.durationFor(ctx.settings, size, own), day, at, tables, next }, combos ? { combos } : {}));
 });
 app.get('/api/tables', (req, res) => {
   const data = readData();
@@ -11942,7 +11952,7 @@ function groupVenues(list) {
   // ago the relay says, by its own (the line's law: never two clocks).
   const now = Date.now();
   return (Array.isArray(list) ? list : []).map(v => ({ id: String(v.id), name: String(v.name || '').slice(0, 60), phone: String(v.phone || '').slice(0, 30),
-    seenAt: Number.isFinite(Number(v.seenAgo)) && v.seenAgo !== null ? now - Number(v.seenAgo) : 0 }));
+    seenAt: Number.isFinite(Number(v.seenAgo)) && v.seenAgo !== null ? now - Number(v.seenAgo) : 0, off: !!v.off }));
 }
 app.get('/api/group', (req, res) => {
   const data = readData();
@@ -11989,7 +11999,8 @@ app.post('/api/group/unlink', async (req, res) => {
   const was = groupOf(data).venues.find(v => v.id === venueId);
   try {
     const g = keepGroup(await relay.group(cfg, { action: 'unlink', venueId }));
-    const d = readData(); logAudit(d, 'The desk', venueId ? 'Unlinked ' + (was ? was.name : 'a venue') : 'Left the group'); writeData(d);
+    const asked = !groupOf(data).venues.length && (groupOf(data).waiting || []).length;
+    const d = readData(); logAudit(d, 'The desk', venueId ? 'Unlinked ' + (was ? was.name : 'a venue') : asked ? 'Took back the ask to join' : 'Left the group'); writeData(d);
     setTimeout(() => relayPass(true), 10);
     res.json({ venues: g.venues });
   } catch (e) { res.status(relayErr(e)).json({ error: e.message }); }
@@ -12166,7 +12177,11 @@ function applyRelayItem(data, item, asWas, relayNow) {
     recountGuest(data, g.id);
     const who = r.createdBy;
     r.events = [history.createdEvent(r, who, now, evOpts(data))];
-    logAudit(data, who, `${who === 'Office' ? 'Office' : 'Online'} booking: ${r.name} (${r.partySize}, ${r.time})${r.tableId ? '' : ' — no table free'}`);
+    // Through the link, whose tablet took it — as a change through it is
+    // audited (daily round, 10 Oct: it read as this venue's own office).
+    const via = who === 'Office' && p.via && String(p.via.name || '').slice(0, 60);
+    if (via) r.events = history.append(r.events, [history.noteEvent('Office', now, `Taken by ${via}, through the link`, 'note')]);
+    logAudit(data, who, `${who === 'Office' ? 'Office' + (via ? ' (from ' + via + ')' : '') : 'Online'} booking: ${r.name} (${r.partySize}, ${r.time})${r.tableId ? '' : ' — no table free'}`);
   } else if (what === 'edit') {
     // THE OFFICE'S CHANGE, applied as the desk would apply its own: merged
     // into the stored booking, history written by 'Office', the till told.
@@ -12818,7 +12833,7 @@ const state = {
   // and the one booking opened out. Shut by DEFAULT are the three that are
   // over — a done, cancelled or no-show booking is a record, not work.
   listShut: { finished: true },
-  deskQ: '',
+  deskQ: '', gvJoin: '', gvSure: '',
   // Not tonight (v59): the answer for one search — { q, day, rows } — or null.
   nt: null,
   reservations: [], days: {}, month: localDay(new Date()).slice(0, 7), waitlist: [], guests: [], guestQ: '', audit: [], today: null,
@@ -13060,26 +13075,34 @@ function nightMinOf(r) { return toMin(hhmmOf(r.time)) + (dayOf(r.time) > state.d
 // after every service's end (daily round, 5 Oct). Tonight, a party in the
 // room is in the service its sitting reaches — its time to its end or now,
 // whichever is later — and the last service takes the tail. The timeline and
-// the flow keep the strict window: they draw a booking AT its time.
+// the flow draw a booking AT its time: onPickedLine(), this book's first half.
 function onPickedBook(r) {
-  if (inPickedService(r)) return true;
+  if (onPickedLine(r)) return true;
   const sv = pickedService();
-  // A booking at a time NO service covers — 22:00 after a dinner that ends at
-  // 21:30, 15:30 between lunch and dinner — is the service before it's (the
-  // first takes anything earlier). It was in no service's book, out of the
-  // count and the search, and only "All night" had it (daily round, 6 Oct).
-  if (sv) {
-    const svcs = servicesInOrderOn(state.date), t = nightMinOf(r);
-    if (!svcs.some(s => toMin(s.start) <= t && t < toMin(s.end))) {
-      const home = svcs.filter(s => toMin(s.start) <= t).pop() || svcs[0];
-      if (home && home.id === sv.id) return true;
-    }
-  }
   if (!sv || state.date !== tradingDay() || !(isSat(r) || isHere(r))) return false;
   const svcs = servicesInOrderOn(state.date), last = svcs[svcs.length - 1];
   const t = nightMinOf(r), end = Math.max(t + durationOf(r), tradingNowMin() + 1);
   const to = last && last.id === sv.id ? Infinity : toMin(sv.end);
   return t < to && end > toMin(sv.start);
+}
+// The book of a service AT ITS TIME: what the timeline and the flow draw,
+// and the first half of the list's book. In the service by the night's
+// minute, or at a time NO service covers — 22:00 after a dinner that ends at
+// 21:30, 15:30 between lunch and dinner, the tail after midnight — and the
+// service before it's (the first takes anything earlier). It was in no
+// service's book, out of the count and the search, and only "All night" had
+// it (daily round, 6 Oct); the list took it then and the timeline and the
+// flow did not, so Latecomer at 9:45 was in Dinner's list and on neither
+// (daily round, 10 Oct).
+function onPickedLine(r) {
+  const sv = pickedService();
+  if (!sv) return true;
+  const t = nightMinOf(r);
+  if (toMin(sv.start) <= t && t < toMin(sv.end)) return true;
+  const svcs = servicesInOrderOn(state.date);
+  if (svcs.some(s => toMin(s.start) <= t && t < toMin(s.end))) return false;
+  const home = svcs.filter(s => toMin(s.start) <= t).pop() || svcs[0];
+  return !!home && home.id === sv.id;
 }
 function inPickedService(r) {
   const sv = pickedService();
@@ -13169,7 +13192,9 @@ function tlRules() {
 }
 // Whether this booking's hour is held where it is: availability.js's own
 // `!moveTime || (pinSeated && timePinned(r))`, which is what the ghost obeys.
-function tlPinned(r) { const k = tlRules(); return !k.moveTime || (k.pinSeated && isSat(r)); }
+// A booking after midnight keeps its hour too: the drag moves a booking
+// within its own calendar day, and the tail's day is tomorrow's.
+function tlPinned(r) { const k = tlRules(); return !k.moveTime || (k.pinSeated && isSat(r)) || dayOf(r.time) > state.date; }
 // How long a finger holds before a block lifts, and the grid a drop lands on.
 function tlHold() { const n = parseInt(((state.settings || {}).timeline || {}).holdMs, 10); return Number.isFinite(n) ? Math.max(0, Math.min(2000, n)) : TL_LIFT_MS; }
 function tlStep() { const n = parseInt(((state.settings || {}).timeline || {}).snapMinutes, 10); return n > 0 ? n : ((state.settings || {}).slotMinutes || 15); }
@@ -14167,7 +14192,9 @@ async function walkinAsk(w) {
 // What the room is asked for this walk-in. Its first table is asked after
 // the line already waiting is seated (av.lineNext); a Seat on a waiting
 // party's row asks only the line in front of them (daily round, 8 Oct).
-function walkinUrl(w) { return '/api/walkin?size=' + w.size + (w.wl ? '&wl=' + encodeURIComponent(w.wl.id) : ''); }
+// A booking moved from another night is asked for its OWN sitting (`min`),
+// as its tab and its seat are (daily round, 10 Oct).
+function walkinUrl(w) { return '/api/walkin?size=' + w.size + (w.wl ? '&wl=' + encodeURIComponent(w.wl.id) : '') + (w.min > 0 ? '&min=' + Math.round(w.min) : ''); }
 // The tightest eight: free for the whole sitting first, then the fewest
 // seats, so a two is offered the two-tops before the eights. The room still
 // lights every table that takes them.
@@ -14493,10 +14520,13 @@ function serviceWindow(day) {
   const svcs = deskServices(day);
   // Narrowed to one service, the window is THAT service's — the bookings
   // outside it are not on this screen, so they must not stretch it.
-  const rows = state.reservations.filter(isLive).filter(r => pickedService() ? inPickedService(r) : true);
+  // A booking after midnight is on the night's minute, past 24:00 (daily
+  // round, 10 Oct: on its calendar minute 0:15 it pulled the ruler back to
+  // midnight and was drawn 21 hours before dinner).
+  const rows = state.reservations.filter(isLive).filter(onPickedLine);
   let start = svcs.length ? Math.min(...svcs.map(x => toMin(x.start))) : 11 * 60;
   let end = svcs.length ? Math.max(...svcs.map(x => toMin(x.end))) : 22 * 60;
-  for (const r of rows) { const a = toMin(hhmmOf(r.time)); start = Math.min(start, a); end = Math.max(end, a + durationOf(r)); }
+  for (const r of rows) { const a = nightMinOf(r); start = Math.min(start, a); end = Math.max(end, a + durationOf(r)); }
   start = Math.floor(start / 60) * 60; end = Math.ceil((end + 30) / 60) * 60;
   return { start, end, svcs };
 }
@@ -14694,7 +14724,7 @@ function coverFlowFor() {
   // switch belongs to the TIMELINE: it was put here once, and a venue that
   // flipped it had its flow count sixteen cancellations as covers arriving
   // and the pacing strip under the floor inflate with them.
-  const rows = state.reservations.filter(isLive).filter(inPickedService);
+  const rows = state.reservations.filter(isLive).filter(onPickedLine);
   const svcs = deskServices(state.date);
   const times = [];
   for (const sv of svcs) for (let m = toMin(sv.start); m < toMin(sv.end); m += step) if (!times.includes(m)) times.push(m);
@@ -14704,7 +14734,7 @@ function coverFlowFor() {
   const slots = times.map(t => {
     let covers = 0, bookings = 0, inRoom = 0, sittings = 0;
     for (const r of rows) {
-      const a = toMin(hhmmOf(r.time)), party = r.partySize || 0;
+      const a = nightMinOf(r), party = r.partySize || 0;
       if (flowSlotOf(times, step, a) === t) { covers += party; bookings++; }
       if (a <= t && t < a + durationOf(r)) { inRoom += party; sittings++; }
     }
@@ -14752,7 +14782,7 @@ function floorMoment() {
   // a pacing strip that started at five. `inPickedService` is the same
   // predicate the other three read, and the window is already narrowed to it
   // two lines up; nothing outside it is on this screen.
-  const first = state.reservations.filter(isLive).filter(inPickedService)
+  const first = state.reservations.filter(isLive).filter(onPickedLine)
     .map(r => toMin(hhmmOf(r.time))).filter(m => m >= start && m <= end).sort((a, b) => a - b)[0];
   return fromMin(first === undefined ? start : first);
 }
@@ -15270,10 +15300,10 @@ function renderFlow() {
   // Every live booking of the picked service, filed under the slot it lands
   // in — the same bucketing coverFlowFor() counts with, so the number under a
   // column and the boxes in it can never disagree.
-  const rows = state.reservations.filter(isLive).filter(inPickedService);
+  const rows = state.reservations.filter(isLive).filter(onPickedLine);
   const bySlot = {};
   for (const r of rows) {
-    const t = flowSlotOf(cf.slots.map(x => x.mins), step, toMin(hhmmOf(r.time)));
+    const t = flowSlotOf(cf.slots.map(x => x.mins), step, nightMinOf(r));
     (bySlot[t] || (bySlot[t] = [])).push(r);
   }
   for (const t in bySlot) bySlot[t].sort((a, b) => (b.partySize || 0) - (a.partySize || 0) || String(a.name).localeCompare(String(b.name)));
@@ -15500,7 +15530,7 @@ function tlHolders(ids, startMin, dur, ignoreId) {
   const want = new Set((ids || []).filter(Boolean));
   if (!want.size) return [];
   return state.reservations.filter(r => r.id !== ignoreId && isLive(r) && tablesFor(r).some(t => want.has(t))
-    && startMin < toMin(hhmmOf(r.time)) + heldDurOf(r) && toMin(hhmmOf(r.time)) < startMin + dur);
+    && startMin < nightMinOf(r) + heldDurOf(r) && nightMinOf(r) < startMin + dur);
 }
 function renderTimeline() {
   const { start, end } = serviceWindow(state.date);
@@ -15524,16 +15554,16 @@ function renderTimeline() {
   // to see the one that left, so it is a switch and not a law. A record
   // never raises a clash either: only the live ones are asked about below.
   const tlk = tlRules();
-  const rows = state.reservations.filter(r => isLive(r) || (tlk.showFinished && !!r.status)).filter(inPickedService);
+  const rows = state.reservations.filter(r => isLive(r) || (tlk.showFinished && !!r.status)).filter(onPickedLine);
   // One client-side truth about "who else holds this table then", used by the
   // red edges here and by the drag's landing preview — not two rules that can
   // drift apart.
   const conflicts = new Set();
-  rows.filter(isLive).forEach(a => { if (tlHolders(heldTables(a), toMin(hhmmOf(a.time)), durationOf(a), a.id).length) conflicts.add(a.id); });
+  rows.filter(isLive).forEach(a => { if (tlHolders(heldTables(a), nightMinOf(a), durationOf(a), a.id).length) conflicts.add(a.id); });
   const slotMin = state.settings.slotMinutes || 15;
   const nowMin = state.date === localDay(new Date()) ? (new Date().getHours() * 60 + new Date().getMinutes()) : null;
   const block = (r, tid) => {
-    const a = toMin(hhmmOf(r.time)), d = durationOf(r);
+    const a = nightMinOf(r), d = durationOf(r);
     const left = (a - start) * PX_PER_MIN, w = Math.max(40, d * PX_PER_MIN - 2);
     // A joined booking's copies on its secondary lanes are `extra`: dimmed,
     // and never the thing you pick up — the primary lane's block is the one
@@ -16033,9 +16063,11 @@ function ntRow(x) {
   if (ready && s.tables.length > 1) said.push(esc(where));
   if (String(x.notes || '').trim()) said.push(esc(String(x.notes).trim().slice(0, 60)));
   const seating = !!(state.walkin && state.walkin.nt && state.walkin.wl && state.walkin.wl.id === x.id);
+  // The line wraps, as At Bondi's does (gv-said): at 320 an allergy and a
+  // note left "booke…", and the hour they were booked is the point.
   return `<div class="dk-row nt-row${seating ? ' selected' : ''}">
       ${tab}
-      <button class="dk-main" data-act="nt-open" data-id="${esc(x.id)}" aria-label="${esc(x.name + ', booked for ' + x.when)}"><b><span class="td-nm">${esc(x.name)}</span><span class="td-n">&nbsp;· ${x.partySize}</span></b><span>${said.join(' · ')}</span></button>
+      <button class="dk-main" data-act="nt-open" data-id="${esc(x.id)}" aria-label="${esc(x.name + ', booked for ' + x.when)}"><b><span class="td-nm">${esc(x.name)}</span><span class="td-n">&nbsp;· ${x.partySize}</span></b><span class="gv-said">${said.join(' · ')}</span></button>
       <span class="dk-rt"><span class="dk-t nt-when">${esc(ntWhen(x))}</span></span>
     </div>`;
 }
@@ -16186,6 +16218,19 @@ async function groupNews() {
     else toastBad(`${n.venue} kept ${n.name} — ${n.why}`, 8000);
   }
 }
+// Tonight's live bookings for this search that the picked service's book
+// does not hold, each a key to the service it is in: "Moreau · Dinner
+// 7:00 PM". Three at most; nothing when the night has none.
+function elsewhereTonight(q) {
+  if (!pickedService()) return '';
+  const svcs = servicesInOrderOn(state.date);
+  const hits = state.reservations.filter(r => !onPickedBook(r) && isLive(r) && onNightOf(r, state.date) && deskMatch(r, q))
+    .sort((a, b) => a.time.localeCompare(b.time)).slice(0, 3);
+  if (!hits.length) return '';
+  const home = (r) => { const t = nightMinOf(r); return svcs.filter(s => toMin(s.start) <= t).pop() || svcs[0]; };
+  return `<div class="nt-more">${hits.map(r => { const sv = home(r);
+    return `<button class="btn" data-act="svc-pick" data-val="${esc(sv ? sv.id : '')}">${esc(r.name)} · ${sv ? esc(sv.name) + ' ' : ''}${esc(fmtHHMM(hhmmOf(r.time)))}</button>`; }).join('')}</div>`;
+}
 function renderDayList() {
   const all = state.reservations.filter(onPickedBook).slice().sort((a, b) => a.time.localeCompare(b.time));
   const q = deskQuery();
@@ -16204,7 +16249,12 @@ function renderDayList() {
   // rebooked for Thursday is the Thursday Macrae at the door, so the dead row
   // stays drawn and Not tonight stands above it.
   // And nobody on another night either: the group's other venues (v60).
-  const nt = q.on && !rows.some(isLive) && !line.length ? (ntHtml(q) || gvHtml(q)) : '';
+  // TONIGHT IS THE WHOLE NIGHT (daily round, 10 Oct): at lunch, Moreau
+  // booked tonight at seven was "Not tonight · Thu 8", and one tap sat
+  // Thursday's booking at lunch with tonight's still on the book. A match in
+  // another of tonight's services is said with the key to that service.
+  const away = q.on && !rows.some(isLive) && !line.length ? elsewhereTonight(q) : '';
+  const nt = away || (q.on && !rows.some(isLive) && !line.length ? (ntHtml(q) || gvHtml(q)) : '');
   if (nt && !rows.length) return find + nt;
   if (!all.length && !lineAll.length) {
     const sv = pickedService();
@@ -16821,7 +16871,10 @@ let _venueOpening = false;
 async function openVenue(id) {
   if (_venueOpening) return;
   _venueOpening = true;
-  try { const r = await post('/api/group/open', { venueId: id, back: location.origin + '/' }); location.assign(r.url); }
+  // The desk's own Look rides along, so a desk set to Light on a dark
+  // tablet does not open the other venue's book dark (daily round, 10 Oct).
+  const look = ['light', 'dark'].includes((state.theme || {}).mode) ? '&look=' + state.theme.mode : '';
+  try { const r = await post('/api/group/open', { venueId: id, back: location.origin + '/' }); location.assign(r.url + look); }
   catch (e) { toastBad(e.message); }
   finally { _venueOpening = false; }
 }
@@ -16829,26 +16882,40 @@ async function openVenue(id) {
 // asks to join and this desk's yes or no, who this desk waits on, the code.
 // In a group of two either side unlinks; of three or more a venue leaves
 // from its own desk, and a new one is let in only by every member.
+// Who is in the group and who asks to join it: a code made under one of
+// these and shown under another has been used — by the venue that joined
+// or asked with it — so it goes (daily round, 10 Oct: a spent code stood on
+// the card, and the next venue to type it was refused).
+function groupSeen(rs) {
+  const ids = (l) => (l || []).map(v => v.id).sort().join(',');
+  return ids((rs || {}).group) + '|' + ids((rs || {}).pending);
+}
 function renderOtherVenues(rs) {
   if (!rs.on) return `<div class="settings-card">
       <div class="th">Our other venues</div>
       <div class="ts">Needs the booking relay, in Bookings.</div>
     </div>`;
   const venues = rs.group || [], pending = rs.pending || [], waiting = rs.waiting || [];
-  const code = state.groupCode && state.groupCode.expires > Date.now() ? state.groupCode : null;
+  const code = state.groupCode && state.groupCode.expires > Date.now() && (state.groupCode.seen === undefined || state.groupCode.seen === groupSeen(rs)) ? state.groupCode : null;
+  // Leave and Unlink ask first, on the card (daily round, 10 Oct: one tap
+  // took a venue out, and back in is a new code and every member's Let in).
+  const sureNo = '<button class="btn" data-act="group-sure-no">No</button>';
   const line = (name, sub, keys) => `<div class="gv-venue">
         <div class="gv-n"><b>${esc(name)}</b><span>${esc(sub)}</span></div>${keys || ''}
       </div>`;
   return `<div class="settings-card gv-card">
       <div class="th">Our other venues</div>
-      ${venues.map(v => line(v.name, heardAgo(v.seenAt), venues.length === 1 ? `<button class="btn" data-act="group-unlink" data-id="${esc(v.id)}">Unlink</button>` : '')).join('')}
+      ${venues.map(v => venues.length === 1 && state.gvSure === v.id
+    ? line(`Unlink ${v.name}?`, heardAgo(v.seenAt), `<span class="gv-keys">${sureNo}<button class="btn danger" data-act="group-unlink" data-id="${esc(v.id)}" data-sure="1">Yes, unlink</button></span>`)
+    : line(v.name, v.off ? 'Off the relay' : heardAgo(v.seenAt), venues.length === 1 ? `<button class="btn" data-act="group-unlink" data-id="${esc(v.id)}">Unlink</button>` : '')).join('')}
       ${pending.map(v => line(v.name, v.yes ? 'Waiting for the others' : 'Wants to join', v.yes ? '' : `<span class="gv-keys"><button class="btn" data-act="group-answer" data-id="${esc(v.id)}" data-val="no">No</button><button class="btn go" data-act="group-answer" data-id="${esc(v.id)}" data-val="yes">Let in</button></span>`)).join('')}
-      ${waiting.length ? line('Asked to join', 'Waiting for ' + waiting.map(v => v.name).join(', ')) : ''}
-      ${venues.length > 1 ? '<div><button class="btn" data-act="group-leave">Leave</button></div>' : ''}
+      ${waiting.length ? line('Asked to join', 'Waiting for ' + waiting.map(v => v.name).join(', '), '<button class="btn" data-act="group-withdraw">Take back</button>') : ''}
+      ${venues.length > 1 ? (state.gvSure === 'leave' ? line('Leave the group?', '', `<span class="gv-keys">${sureNo}<button class="btn danger" data-act="group-leave" data-sure="1">Yes, leave</button></span>`)
+    : '<div><button class="btn" data-act="group-leave">Leave</button></div>') : ''}
       ${waiting.length ? '' : `<label class="field-label">Code for the other venue</label>
       ${code ? `<div class="gv-code mono" aria-label="Code ${esc(code.code)}">${esc(code.code)}</div>` : `<div><button class="btn" data-act="group-code">Link a venue</button></div>`}
       ${venues.length ? '' : `<label class="field-label" for="gv-join">Code from the other venue</label>
-      <div class="gv-join"><input id="gv-join" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX · XXXX" aria-label="Code from the other venue"><button class="btn" data-act="group-join">Link</button></div>`}`}
+      <div class="gv-join"><input id="gv-join" type="text" data-field="gvJoin" value="${esc(state.gvJoin || '')}" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXX · XXXX" aria-label="Code from the other venue"><button class="btn" data-act="group-join">Link</button></div>`}`}
     </div>`;
 }
 function renderSettings() {
@@ -17027,7 +17094,7 @@ function renderSettings() {
         <button class="btn" data-act="pos-sync" ${p.enabled ? '' : 'disabled'}>${I.refresh} Sync now</button>
       </div>
       <div class="kv" style="margin-top:8px;">
-        <b>Status</b><span>${!p.enabled ? 'Off' : ps.connected ? 'Connected' : 'Not reachable'}${p.enabled && ps.lastError ? ' — ' + esc(ps.lastError) : ''}</span>
+        <b>Status</b><span>${!p.enabled ? 'Off' : ps.connected ? 'Connected' : state.posConnecting ? 'Connecting…' : 'Not reachable'}${p.enabled && ps.lastError ? ' — ' + esc(ps.lastError) : ''}</span>
         <b>Last sync</b><span>${ps.lastSyncAt ? esc(fmtStamp(ps.lastSyncAt)) : 'Never'}</span>
         <b>On the till</b><span>${ps.linked || 0} bookings mirrored${ps.pendingDeletes ? ', ' + ps.pendingDeletes + ' deletions waiting' : ''}</span>
       </div>
@@ -18195,6 +18262,25 @@ function queueSave(group, ms) {
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(flushSaves, ms == null ? 400 : ms);
 }
+// TURNING THE TILL LINK ON SAYS "Connecting…" (daily round, 10 Oct). The
+// save starts a pass, but the status was read before that pass had run, so
+// the card said "Not reachable" for the ten seconds until the poll, with
+// the till answering. Until the pass answers — connected, or a new error —
+// for six seconds at most, the card says it is connecting.
+async function posSettle() {
+  const at = state.posConnecting = Date.now();
+  const was = (state.posStatus || {}).lastError || '';
+  render();
+  for (let i = 0; i < 12; i++) {
+    await new Promise(r => setTimeout(r, 500));
+    if (state.posConnecting !== at) return;
+    let st;
+    try { st = await api('/api/pos/status'); } catch (e) { break; }
+    state.posStatus = st;
+    if (st.connected || (st.lastError && st.lastError !== was)) break;
+  }
+  if (state.posConnecting === at) { state.posConnecting = false; render(); }
+}
 async function flushSaves() {
   const groups = Object.keys(_savePending); _savePending = {};
   // THE FIELD UNDER A TYPING FINGER IS NOT REPAINTED. Every save used to
@@ -18216,7 +18302,7 @@ async function flushSaves() {
       for (const k of saveKeys(g)) body[k] = s[k];
       state.settings = keptOwed(await put('/api/settings', body), rest);
       if (g === 'colours') applyStatusColours();
-      if (g === 'pos') { state.posStatus = await api('/api/pos/status'); const t = await api('/api/tables'); state.tables = t.tables; state.floorPlans = t.floorPlans; }
+      if (g === 'pos') { state.posStatus = await api('/api/pos/status'); const t = await api('/api/tables'); state.tables = t.tables; state.floorPlans = t.floorPlans; if (s.pos && s.pos.enabled && !(state.posStatus || {}).connected) posSettle(); else state.posConnecting = false; }
       if (g === 'relay' || g === 'online') { await new Promise(r => setTimeout(r, 600)); state.relayStatus = await api('/api/relay/status'); }
     } catch (e) {
       // A refused save must not leave the field showing something the store
@@ -18825,7 +18911,7 @@ document.addEventListener('click', async (ev) => {
         const x = ((state.nt && state.nt.rows) || []).find(y => y.id === id);
         if (!x) break;
         if (state.walkin && state.walkin.nt && state.walkin.wl.id === id) { state.walkin = null; render(); break; }
-        const wk = state.walkin = { size: x.partySize, data: null, wl: { id: x.id, name: x.name }, nt: true, back: state.todayMode === 'book' ? 'book' : null };
+        const wk = state.walkin = { size: x.partySize, data: null, wl: { id: x.id, name: x.name }, nt: true, min: Number(x.durationMin) || 0, back: state.todayMode === 'book' ? 'book' : null };
         state.picking = null; state.modal = null;
         if (state.todayMode !== 'floor') state.todayMode = 'floor';
         render();
@@ -19023,7 +19109,7 @@ document.addEventListener('click', async (ev) => {
       case 'guest-tag': { const g = state.modal.g; g.tags = g.tags || []; const i = g.tags.indexOf(val); if (i >= 0) g.tags.splice(i, 1); else g.tags.push(val); render(); break; }
       case 'save-guest': { const g = state.modal.g; await put('/api/guests/' + g.id, { name: g.name, phone: g.phone, email: g.email, dob: g.dob, notes: g.notes, tags: g.tags }); state.modal = null; await loadView(); toast('Saved'); render(); break; }
       case 'guest-book': { const g = state.modal.g; openBooking(null, { name: g.name, phone: g.phone, email: g.email, date: localDay(new Date()), tags: (g.tags || []).filter(t => ['VIP', 'Allergy'].includes(t)) }); break; }
-      case 'set-toggle': { const on = el.dataset.on !== '1'; setPath(state.settings, val, on); render(); queueSave(val.split('.')[0]); break; }
+      case 'set-toggle': { const on = el.dataset.on !== '1'; setPath(state.settings, val, on); if (val === 'pos.enabled') state.posConnecting = on ? Date.now() : false; render(); queueSave(val.split('.')[0]); break; }
       case 'set-num': state.settings[el.dataset.key] = parseInt(val); render(); queueSave('services'); break;
       // A choice out of two words, saved on the press like every other
       // setting. The path names its own save group, exactly as set-toggle's.
@@ -19035,16 +19121,19 @@ document.addEventListener('click', async (ev) => {
       // OUR OTHER VENUES (v60): make a code, link with one, unlink.
       case 'venue-open': state.nightOpen = false; render(); openVenue(id); break;
       case 'group-code': {
-        try { const r = await post('/api/group/code'); state.groupCode = { code: r.code, expires: r.expires }; render(); }
+        try { const r = await post('/api/group/code'); state.groupCode = { code: r.code, expires: r.expires, seen: groupSeen(state.relayStatus) }; render(); }
         catch (e) { toastBad(e.message); }
         break;
       }
       case 'group-join': {
+        // What is typed is kept in the state (data-field), so the poll's
+        // repaint draws it back (daily round, 10 Oct: it drew it empty).
         const f = document.getElementById('gv-join');
-        const code = f ? f.value.trim() : '';
+        const code = (f ? f.value : state.gvJoin || '').trim();
         if (!code) { toastBad('Type the code from the other venue'); break; }
         try {
           const r = await post('/api/group/join', { code });
+          state.gvJoin = '';
           state.relayStatus = await api('/api/relay/status'); state.settings = keptOwed(await api('/api/settings'));
           render();
           toast((r.venues || []).length ? 'Linked with ' + r.venues.map(v => v.name).join(', ') : 'Waiting for ' + (r.waiting || []).map(v => v.name).join(', '));
@@ -19062,7 +19151,21 @@ document.addEventListener('click', async (ev) => {
         } catch (e) { toastBad(e.message); }
         break;
       }
+      // Asked to join and not let in yet: the ask taken back (daily round,
+      // 10 Oct: a code typed from the wrong venue left no way back).
+      case 'group-withdraw': {
+        try {
+          await post('/api/group/unlink', { venueId: '' });
+          state.relayStatus = await api('/api/relay/status'); state.settings = keptOwed(await api('/api/settings'));
+          render();
+          toast('Ask taken back');
+        } catch (e) { toastBad(e.message); }
+        break;
+      }
+      case 'group-sure-no': state.gvSure = ''; render(); break;
       case 'group-leave': {
+        if (!el.dataset.sure) { state.gvSure = 'leave'; render(); break; }
+        state.gvSure = '';
         try {
           await post('/api/group/unlink', { venueId: '' });
           state.relayStatus = await api('/api/relay/status'); state.settings = keptOwed(await api('/api/settings'));
@@ -19073,6 +19176,8 @@ document.addEventListener('click', async (ev) => {
         break;
       }
       case 'group-unlink': {
+        if (!el.dataset.sure) { state.gvSure = id; render(); break; }
+        state.gvSure = '';
         const v = ((state.relayStatus || {}).group || []).find(x => x.id === id);
         try {
           await post('/api/group/unlink', { venueId: id });
@@ -19652,7 +19757,7 @@ function startTlDrag(e, el, r) {
     x0: e.clientX, y0: e.clientY, dex: e.clientX, dey: e.clientY,
     lifted: false, holdTimer: 0, blockTouch: null, raf: 0,
     lastLane: el.parentElement, lastTableId: el.parentElement.dataset.table || null,
-    lastMin: toMin(hhmmOf(r.time)), preview: null,
+    lastMin: nightMinOf(r), preview: null,
   };
   // The non-passive touchmove blocker must exist from the GESTURE'S START:
   // Chromium fixes a touch's cancelability at touchstart, so one registered at
@@ -19766,7 +19871,7 @@ function paintTlDrag(row) {
   // day, so the last landing is the day's last slot — never 25:45, which
   // fromMin() would wrap back round to 01:45.
   const hi = Math.min(g.geom.end - durationOf(r), 24 * 60 - g.geom.step);
-  const min = pinned ? toMin(hhmmOf(r.time))
+  const min = pinned ? nightMinOf(r)
     : tlSnap(g.geom.start + (gl - laneRect.left) / PX_PER_MIN, g.geom.step, g.geom.start, hi);
   const tableId = lane.dataset.table || null;
   const pv = tlPreview(r, tableId, min);
@@ -19859,7 +19964,7 @@ async function moveBooking(r, hhmm, tableId) {
   r.time = dayOf(r.time) + 'T' + hhmm;
   // av.movedTables, applied locally — the same one the preview used, so what
   // the finger let go of is what the row says while the route answers.
-  const next = movedTablesLocal(r, tableId, toMin(hhmm));
+  const next = movedTablesLocal(r, tableId, nightMinOf(r));
   r.tableId = next.tableId;
   r.tableIds = next.tableIds;
   render();
