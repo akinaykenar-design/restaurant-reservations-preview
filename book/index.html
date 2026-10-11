@@ -3287,6 +3287,39 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 }
 /* A phone keeps the two keys on one line: a step less air inside each. */
 @media (max-width:420px){ .wl-keys .btn{padding:0 16px;} }
+
+/* IN HAND (owner, 10 Oct, v65): what another tablet is halfway through.
+   Quiet — ink and greys, the one blue untouched, nothing new. The party's
+   docket line goes grey with its tab muted, and its right column says whose
+   hand it is in; the table stands dim with that name under it, the room's
+   own "till 8:15" word. The ask stands in the list under the row, as Leave
+   the group? does on its card. */
+.dk-row.ih-row{background:var(--surface);}
+.dk-row.ih-row .dk-tab{background:var(--tab-plain) !important;color:var(--mute) !important;box-shadow:none !important;opacity:var(--dim);cursor:default;}
+.dk-row.ih-row .dk-main b, .dk-row.ih-row .dk-main > span, .dk-row.ih-row .dk-main > span i{color:var(--mute) !important;}
+.dk-k.ih-k{background:var(--seat);color:var(--ink);font-family:inherit;font-weight:600;white-space:nowrap;padding:0 12px;}
+.dk-k.ih-k i{font-style:normal;font-weight:400;color:var(--mute);margin-right:4px;}
+.fl-table.ih-held{opacity:var(--dim);box-shadow:none !important;outline:none !important;}
+.fl-pill.word.ih{color:var(--mute);}
+.ih-ask{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 12px 8px 76px;background:var(--surface);border-top:1px solid var(--steel-200);}
+.ih-ask b{flex:1 1 auto;min-width:0;font-weight:600;color:var(--ink);}
+.ih-ask button{height:var(--tap);min-width:var(--tap);padding:0 16px;border-radius:999px;border:0;font:inherit;font-weight:600;}
+.ih-ask .ih-no{background:var(--seat);color:var(--ink);}
+.ih-ask .ih-yes{background:var(--ink);color:var(--surface);}
+@media (max-width:760px){ .ih-ask{justify-content:flex-end;padding-left:16px;} .ih-ask b{flex-basis:100%;padding-left:60px;} }
+/* THE REVIEW (10 Oct, v65). The tablet's name gives way, never the party's:
+   the key is at most a third of the screen (88 on a phone) and its name takes the ellipsis; a phone
+   drops "in hand ·" and keeps the name. The word under a held table is no
+   wider than the table (the width rides inline, in the room's cqw). No and
+   Yes stand together and wrap together. A walk-in's table asks in the menu. */
+.dk-k.ih-k{display:flex;max-width:min(32vw,200px);min-width:0;overflow:hidden;}
+.dk-k.ih-k i{flex:none;}
+.dk-k.ih-k span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fl-pill.word.ih{overflow:hidden;}
+.fl-pill.word.ih span{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ih-ask .ih-go{display:flex;gap:8px;flex:none;margin-left:auto;}
+.wk-menu .ih-ask.wk-ih{padding:8px 0 0;background:none;}
+@media (max-width:420px){ .dk-k.ih-k{max-width:88px;} .dk-k.ih-k i{display:none;} }
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
@@ -5910,7 +5943,130 @@ function heldBook(ctx, day) {
   const auto = autoAssign(ctx, day);
   const placed = (ctx.reservations || []).map(r => (r && auto[r.id] && auto[r.id].length && !heldTables(r).length)
     ? Object.assign({}, r, { tableId: auto[r.id][0], tableIds: auto[r.id].slice(1) }) : r);
-  return Object.assign({}, ctx, { reservations: placed });
+  return Object.assign({}, ctx, { reservations: placed.concat(holdRows(ctx, day)) });
+}
+
+// §§ IN HAND (owner, 10 Oct, v65: "Okay"). Two tablets at one venue both
+// drew the same free table for up to ten seconds — the poll — and the seat's
+// own refusal only caught the clash once it had happened: one host got the
+// red 409, picked again and apologised at the stand (the daily round saw two
+// tablets sit a two on 26). A tablet that opens a picker — the walk-in menu,
+// a booking's table, Seat from the line — tells the desk which party and
+// which table it is about to seat, for HOLD_MS, renewed while it stays open.
+// Holds live in the server's memory and nowhere else: a hold is a finger
+// over a key, not a fact about the night, and a restart drops them all,
+// which costs nothing because seatRefusal() still guards every seat.
+//
+//   { key, by, party, name, size, tableIds, until }
+//
+// `key` is the tablet (a random id it keeps), `by` the name it was given in
+// Settings → This machine ("Stand", "Bar") — a device, never a person; the
+// record a seat writes still says The desk. `party` is the booking or the
+// waitlist entry being seated, null for a walk-in from the door.
+const HOLD_MS = 30000;
+// AND A HOLD IS A FINGER OVER A KEY (review, 10 Oct): a walk-in menu left
+// open on Stand renewed its lead table every ten seconds for as long as it
+// stood there, and no row on Bar carried it to take over. Sixty seconds
+// with no press on the tablet holding it, and it lets go. `touched` is the
+// tablet's last press, as the desk heard it; a renewal that does not say so
+// keeps the one before.
+const HOLD_IDLE_MS = 60000;
+// The name a tablet was given, as the others read it: none — or an older
+// tablet sending its own placeholder — is "Another tablet", never "This
+// tablet", which read on Bar meant Bar.
+function holdBy(by) {
+  const s = String(by || '').trim().slice(0, 20);
+  return s && s.toLowerCase() !== 'this tablet' ? s : 'Another tablet';
+}
+function holdLive(h, now) {
+  return !!h && Number(h.until) > now && !(Number.isFinite(h.touched) && now - h.touched > HOLD_IDLE_MS);
+}
+// The holds standing at `now`, as another tablet sees them: never its own
+// (`exceptKey`), never the key itself, one table once. EARLIEST HOLD WINS
+// (review, 10 Oct): two tablets that opened the walk-in in one moment both
+// led with 5 and each was refused it naming the other, so a table the asker
+// held FIRST is not another's to it.
+function holdsOf(holds, now, exceptKey) {
+  const live = (holds || []).filter(h => holdLive(h, now));
+  const mine = exceptKey === undefined ? null : live.find(h => h.key === exceptKey);
+  const first = (h) => mine && ((Number(mine.since) || 0) < (Number(h.since) || 0) || ((Number(mine.since) || 0) === (Number(h.since) || 0) && String(mine.key) < String(h.key)));
+  return live.filter(h => exceptKey === undefined || h.key !== exceptKey)
+    .map(h => {
+      let ids = [...new Set((h.tableIds || []).filter(id => typeof id === 'string' && id))].slice(0, 9);
+      if (first(h)) ids = ids.filter(id => !(mine.tableIds || []).includes(id));
+      return { h, ids };
+    })
+    .filter(x => x.ids.length || x.h.party)
+    .map(({ h, ids }) => ({ by: holdBy(h.by), party: h.party || null, name: String(h.name || ''), size: Math.max(0, parseInt(h.size, 10) || 0),
+      tableIds: ids, until: Number(h.until), from: Number.isFinite(h.from) ? h.from : null, to: Number.isFinite(h.to) ? h.to : null }));
+}
+// One hold a tablet: a new ask replaces its last, renewed from `now`. It
+// keeps when it first held these tables (`since`), and its last press.
+function holdPut(holds, h, now) {
+  const prev = (holds || []).find(x => x && x.key === h.key && Number(x.until) > now);
+  const same = prev && (prev.tableIds || []).join('+') === (h.tableIds || []).join('+');
+  const touched = Number.isFinite(h.touched) ? Math.min(now, h.touched) : prev && Number.isFinite(prev.touched) ? prev.touched : now;
+  return (holds || []).filter(x => x && x.key !== h.key && Number(x.until) > now)
+    .concat([Object.assign({}, h, { until: now + HOLD_MS, since: same && Number.isFinite(prev.since) ? prev.since : now,
+      touched: prev && Number.isFinite(prev.touched) ? Math.max(prev.touched, touched) : touched })]);
+}
+// What a hold is ABOUT, in the clock's own milliseconds (review, 10 Oct: a
+// picker opened at 7:51 for a 10:30 two held 5 from 7:51, and Bar's walk-in
+// two was refused a table free till 10:30). A booking nobody has sat: its
+// own sitting, from its hour — or from now, once that hour has gone. A party
+// in the room, a walk-in, the line: from now, for their sitting.
+function holdSpan(ctx, r, size, now) {
+  const settings = (ctx && ctx.settings) || {};
+  const dur = durationFor(settings, Math.max(1, size || (r && r.partySize) || 1), r && r.durationMin) * 60000;
+  if (!r || !r.time) return { from: now, to: now + dur };
+  const s = timeMs(r.time);
+  if (isSat(r) || isHere(r)) return { from: now, to: Math.max(s + dur, now + 60000) };
+  const from = Math.max(now, s);
+  return { from, to: from + dur };
+}
+// "Yes, take it": every other tablet's hold on that party goes — or, for a
+// walk-in, which has no party, on that TABLE (`{ table }`) — and each is
+// owed the news: who took it, and whom.
+function holdTake(holds, what, key, by, now) {
+  const w = typeof what === 'object' && what ? what : { party: what };
+  const theirs = (h) => holdLive(h, now) && h.key !== key
+    && (w.party ? h.party === w.party : w.table ? !h.party && (h.tableIds || []).includes(w.table) : false);
+  return { holds: (holds || []).filter(h => !theirs(h)), took: (holds || []).filter(theirs)
+    .map(h => w.party ? { key: h.key, by: holdBy(by), party: w.party, name: h.name || '' } : { key: h.key, by: holdBy(by), party: null, name: '', table: w.table }) };
+}
+// A seat on a table — or of a party — another tablet has in hand: who, and
+// which table (null: the party itself). `seen` is holdsOf()'s answer.
+// `span` (holdSpan's shape), when given: a hold on the table counts only
+// if it overlaps the sitting being asked — a 10:30 hold is no clash for a
+// two seated now and gone by 9:06, and next week's booking meets none.
+function holdRefusal(seen, ids, party, span) {
+  const p = party ? (seen || []).find(h => h.party === party) : null;
+  const meets = (h) => !span || !Number.isFinite(h.from) || !Number.isFinite(h.to) || (span.from < h.to && h.from < span.to);
+  for (const h of seen || []) {
+    const id = (ids || []).find(x => h.tableIds.includes(x));
+    if (id && (h === p || meets(h))) return { id, by: h.by, name: h.name };
+  }
+  return p ? { id: null, by: p.by, name: p.name } : null;
+}
+// EVERY PICKER ASKS IT AFTER heldBook(): a table in another tablet's hand is
+// somebody in its chairs for that party's sitting — from now, or from the
+// booking's own hour when the hold says so (holdSpan) — the walk-in's keys,
+// its first table and its wait, the line's tab, a grow, the one move, the
+// drag, Not tonight. `ctx.holds` is holdsOf() for the tablet asking;
+// tonight only, because a hold is now.
+function holdRows(ctx, day) {
+  const holds = (ctx && ctx.holds) || [];
+  if (!holds.length || nowOn(ctx, day) === null) return [];
+  const now = ctx.now.getTime();
+  return holds.filter(h => h.tableIds.length).map((h, i) => {
+    const size = Math.max(1, h.size || 1);
+    const later = Number.isFinite(h.from) && h.from > now + 60000;
+    const from = later ? h.from : now;
+    const mins = Number.isFinite(h.to) ? Math.max(1, Math.round((h.to - from) / 60000)) : durationFor(ctx.settings || {}, size);
+    return Object.assign({ id: 'hold:' + i, name: h.by, partySize: size, time: localTime(new Date(from)), durationMin: mins,
+      status: later ? 'booked' : 'seated', tableId: h.tableIds[0], tableIds: h.tableIds.slice(1), source: 'walk-in', hold: true },
+      later ? {} : { seatedAt: now });
+  });
 }
 // ONE table seats them, free for their whole sitting — the one test for
 // whether a combination is offered at all. walkinTables() and walkinCombos()
@@ -6061,12 +6217,20 @@ function walkinNext(ctx, day, hhmm, party, dur) {
 // inside their sitting, null when somebody is on it now.
 function seatRefusal(ctx, day, hhmm, size, ids, opts) {
   opts = opts || {};
-  if (!(ids || []).length) return null;
+  if (!(ids || []).length) { const p = opts.party ? holdRefusal(ctx.holds, [], opts.party) : null; return p ? { id: null, at: null, by: p.by, name: p.name } : null; }
   size = Math.max(1, Number(size) || 1);
   const sub = walkinBook(ctx, day, hhmm);
   const now = new Set(freeTables(sub, day, hhmm, size, { duration: 1 }).map(t => t.id));
   const whole = new Set(freeTables(sub, day, hhmm, size, { duration: opts.duration }).map(t => t.id));
   const start = toMin(hhmm), dur = durationFor(ctx.settings, size, opts.duration), clock = nowOn(sub, day);
+  // In another tablet's hand (v65): said as whose, before anything else —
+  // a table held for a sitting this one runs into, or this very party
+  // (`opts.party`: the line's own Nguyen, seated from the Waitlist page
+  // while Stand seats them from the list; review, 10 Oct). A seat "till"
+  // the next party meets only what is held from now.
+  const t0 = ctx.now instanceof Date ? ctx.now.getTime() : null;
+  const held = holdRefusal(ctx.holds, ids, opts.party || null, t0 === null ? undefined : { from: t0, to: t0 + (opts.till ? 60000 : dur * 60000) });
+  if (held) return { id: held.id, at: null, by: held.by, name: held.name };
   for (const id of ids) {
     if (!now.has(id)) return { id, at: null };
     if (opts.till || whole.has(id)) continue;
@@ -7524,6 +7688,7 @@ module.exports = {
   setMenuNameOf, isCounted, setMenuSummary,
   ALLERGY_RE, serviceAt, allergyOf, sheetRow, runSheet,
   TIDY_AFTER, tidyKind, tidyNight, tidyPick, tidyBack, tidyWas,
+  HOLD_MS, HOLD_IDLE_MS, holdBy, holdsOf, holdPut, holdSpan, holdTake, holdRefusal, holdRows,
 };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
@@ -9818,7 +9983,48 @@ function floorTablesOf(data) {
 }
 // `now` so the free-table answer knows who is in the chairs this minute, and
 // the till's covers on the tables so it knows about the walk-ins it sat.
-function ctxOf(data) { return { settings: effectiveSettings(data), tables: floorTablesOf(data), reservations: data.reservations, now: new Date() }; }
+// `req`: a tablet asking (v65), so the tables OTHER tablets have in hand
+// are held from it (av.holdsOf, av.holdRows) — its own never are.
+function ctxOf(data, req) {
+  const ctx = { settings: effectiveSettings(data), tables: floorTablesOf(data), reservations: data.reservations, now: new Date() };
+  if (req) ctx.holds = holdsFor(req);
+  return ctx;
+}
+
+// §§ IN HAND (owner, 10 Oct, v65: "Okay"). What one tablet is halfway
+// through, the other leaves alone. The holds live HERE, in this process's
+// memory, and never in the store: a restart drops them, and seatRefusal()
+// still guards every seat. The rule is availability.js's (holdsOf, holdPut,
+// holdTake, holdRefusal); this is only where they are kept.
+let HOLDS = [];
+let HOLD_GEN = 0;                 // rides /api/version, so an idle tablet learns of one
+const HOLD_TOOK = new Map();      // key -> { by, party, name, at }: "Bar took Okafor", owed once
+const HOLD_TOOK_MS = 2 * 60000;
+function deskKeyOf(req) {
+  const k = String((req.get && req.get('x-desk-key')) || (req.body && req.body.key) || '').trim();
+  return /^[\w-]{1,64}$/.test(k) ? k : '';
+}
+function holdsFor(req) { const k = deskKeyOf(req); return av.holdsOf(HOLDS, Date.now(), k || undefined); }
+// The count moves whenever what any tablet meets moves — an ask, a let-go,
+// a take, and a hold running out or letting go for want of a press, which
+// no request marks (review, 10 Oct), so it is asked of the live holds.
+let _holdSigWas = '';
+function holdSig() { return av.holdsOf(HOLDS, Date.now()).map(h => h.by + ':' + (h.party || '') + ':' + h.tableIds.join('+')).join(','); }
+function holdGen() { const sig = holdSig(); if (sig !== _holdSigWas) { _holdSigWas = sig; HOLD_GEN++; } return HOLD_GEN; }
+function holdsChanged(fn) { holdGen(); fn(); holdGen(); }
+// The news owed a tablet whose party was taken, once.
+function tookFor(key) {
+  const t = key && HOLD_TOOK.get(key);
+  if (!t) return null;
+  HOLD_TOOK.delete(key);
+  return Date.now() - t.at < HOLD_TOOK_MS ? Object.assign({ by: t.by, party: t.party, name: t.name }, t.table ? { table: t.table } : {}) : null;
+}
+// A seat refused because another tablet has it in hand, in the words the
+// desk says it: "Stand is seating Okafor at 32".
+function holdWords(data, h) {
+  return `${h.by} is seating ${h.name || 'a party'}${h.id ? ' at ' + tableWord(data, h.id) : ''}`;
+}
+function tableWord(data, id) { const t = id ? tablesOf(data).find(x => x.id === id) : null; return t ? t.label : String(id || ''); }
 // What history.js needs to name a table in a line. No logic, just the floor.
 function evOpts(data) { return { tableLabel: history.tableLabeller(tablesOf(data)) }; }
 // The trading day: before dayStartsAt (4am) still counts as "yesterday".
@@ -10072,7 +10278,7 @@ app.put('/api/theme', (req, res) => {
 app.get('/api/walkin', (req, res) => {
   const data = readData();
   const size = Math.max(1, Math.min(99, parseInt(req.query.size, 10) || 1));
-  const ctx = ctxOf(data);
+  const ctx = ctxOf(data, req);
   const n = ctx.now;
   const at = av.pad2(n.getHours()) + ':' + av.pad2(n.getMinutes());
   // The clock's own date, not the trading day: after midnight the trading day
@@ -10381,7 +10587,7 @@ app.get('/api/reservations/search', (req, res) => {
 
 app.post('/api/reservations', (req, res) => {
   const data = readData();
-  const out = createReservation(data, req.body || {}, staffFromReq(req));
+  const out = createReservation(data, req.body || {}, staffFromReq(req), req);
   if (out.error) return res.status(out.status || 400).json({ error: out.error });
   writeData(data);
   res.json(withWarnings(data, out.r));
@@ -10390,7 +10596,9 @@ app.post('/api/reservations', (req, res) => {
 // A new booking into `data` (the caller writes): the POST's own path, and
 // OUR OTHER VENUES' seat (POST /api/group/seat), which books a party found
 // at another venue here as a walk-in. Returns { r } or { error, status }.
-function createReservation(data, body, who) {
+// `req`: the tablet asking, whose seat at the clock meets the other
+// tablets' holds (v65).
+function createReservation(data, body, who, req) {
   body = body || {};
   const r = cleanReservation(data, body || {});
   const why = validateReservation(r);
@@ -10413,7 +10621,7 @@ function createReservation(data, body, who) {
   // "taken now" would be false (review, 9 Oct).
   const now = new Date();
   if (r.source === 'walk-in' && av.isSat(r) && Math.abs(new Date(r.time).getTime() - now.getTime()) <= SAT_NOW_MS) {
-    const no = av.seatRefusal(ctxOf(data), av.localDay(now), av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), r.partySize,
+    const no = av.seatRefusal(ctxOf(data, req), av.localDay(now), av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), r.partySize,
       [r.tableId].concat(r.tableIds).filter(Boolean), { till: !!body.till });
     if (no) return { error: seatRefusedWords(data, no), status: 409 };
   }
@@ -10495,7 +10703,24 @@ app.put('/api/reservations/:id', (req, res) => {
   const data = readData();
   const cur = data.reservations.find(x => x.id === req.params.id);
   if (!cur) return res.status(404).json({ error: 'Booking not found' });
-  const out = changeReservation(data, cur, req.body || {}, staffFromReq(req));
+  // IN HAND (v65): a table — or this party — another tablet is seating is
+  // not given from here. Only a change of tables or a seat asks; a note, a
+  // Here or a name never does.
+  const b = req.body || {};
+  const ids = b.tableId !== undefined ? [b.tableId].concat(Array.isArray(b.tableIds) ? b.tableIds : []).filter(x => typeof x === 'string' && x) : av.heldTables(cur);
+  const moved = b.tableId !== undefined && ids.join('+') !== av.heldTables(cur).join('+');
+  const seats = typeof b.status === 'string' && av.SAT.includes(b.status) && !av.isSat(cur);
+  if (moved || seats) {
+    // For the sitting the booking will have (av.holdSpan): next week's
+    // booking moved onto a table Stand holds tonight meets nothing (review,
+    // 10 Oct) — nor does a seat of somebody else's party.
+    const after = Object.assign({}, cur, typeof b.time === 'string' && b.time ? { time: b.time } : {}, seats ? { status: b.status } : {},
+      b.partySize ? { partySize: Number(b.partySize) || cur.partySize } : {}, b.durationMin !== undefined ? { durationMin: b.durationMin } : {});
+    const no = av.holdRefusal(holdsFor(req), moved ? ids.filter(id => !av.heldTables(cur).includes(id)) : [], cur.id,
+      av.holdSpan(ctxOf(data), after, after.partySize, Date.now()));
+    if (no) return res.status(409).json({ error: holdWords(data, no) });
+  }
+  const out = changeReservation(data, cur, b, staffFromReq(req));
   if (out.error) return res.status(400).json({ error: out.error });
   writeData(data);
   res.json(withWarnings(data, cur));
@@ -10519,7 +10744,7 @@ app.post('/api/reservations/:id/grow', (req, res) => {
   const size = parseInt((req.body || {}).size, 10);
   if (!(size > (r.partySize || 0))) return res.status(400).json({ error: `The party is ${r.partySize} already` });
   if (size > max) return res.status(400).json({ error: `The desk books up to ${max}` });
-  const g = av.growTo(ctxOf(data), r, size);
+  const g = av.growTo(ctxOf(data, req), r, size);
   const was = { partySize: r.partySize, tableId: r.tableId || null, tableIds: (r.tableIds || []).slice(), status: r.status };
   if (r.partCount && /^part-/.test(r.status)) was.partCount = r.partCount;
   const body = { partySize: size };
@@ -10554,8 +10779,8 @@ app.post('/api/reservations/:id/tonight', (req, res) => {
   if (!tableId) return res.status(400).json({ error: 'Which table?' });
   const tableIds = Array.isArray(b.tableIds) ? b.tableIds.map(String).filter(id => id !== tableId).slice(0, 8) : [];
   const now = new Date();
-  const ctx = Object.assign(ctxOf(data), { reservations: data.reservations.filter(x => x !== r) });
-  const no = av.seatRefusal(ctx, av.localDay(now), av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), r.partySize, [tableId].concat(tableIds), { till: !!b.till, duration: r.durationMin });
+  const ctx = Object.assign(ctxOf(data, req), { reservations: data.reservations.filter(x => x !== r) });
+  const no = av.seatRefusal(ctx, av.localDay(now), av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), r.partySize, [tableId].concat(tableIds), { till: !!b.till, duration: r.durationMin, party: r.id });
   if (no) return res.status(409).json({ error: seatRefusedWords(data, no) });
   const night = av.nightAt(settings, av.dayOf(r.time), av.hhmmOf(r.time)).day;
   const from = search.nightWords(night, tonight);
@@ -10692,8 +10917,12 @@ app.post('/api/reservations/:id/move', (req, res) => {
   const target = { day: av.dayOf(r.time), time: body.time, tableId: body.tableId === undefined ? (r.tableId || null) : (body.tableId || null) };
   // Against the book with the desk's own picks holding their tables: a move
   // onto the nine's three tables is a clash with the nine (see heldBook).
-  const move = av.moveCheck(av.heldBook(ctxOf(data), target.day), r, target);
+  const move = av.moveCheck(av.heldBook(ctxOf(data, req), target.day), r, target);
   if (!move.ok) return res.status(400).json({ error: move.reason });
+  // Onto a table another tablet has in hand (v65): refused in its words.
+  const landed = [move.tableId].concat(move.tableIds || []).filter(id => id && !av.heldTables(r).includes(id));
+  const inHand = landed.length ? av.holdRefusal(holdsFor(req), landed, null, av.holdSpan(ctxOf(data), Object.assign({}, r, { time: av.joinTime(target.day, target.time) }), r.partySize, Date.now())) : null;
+  if (inHand) return res.status(409).json({ error: holdWords(data, inHand) });
   // Dropped where it already was: nothing to write, and the block is already
   // drawn there.
   if (!move.changed) return res.json(withWarnings(data, r));
@@ -10737,7 +10966,7 @@ app.get('/api/free-tables', (req, res) => {
   // which lit tables last night's parties were still sitting at.
   const { day, hhmm } = av.nightAt(effectiveSettings(data), String(req.query.date || tradingDay(data)), String(req.query.time || '19:00'));
   const party = Math.max(1, parseInt(req.query.party) || 2);
-  const ctx = av.heldBook(ctxOf(data), day);
+  const ctx = av.heldBook(ctxOf(data, req), day);
   const opts = { ignoreId: req.query.ignore || null, duration: parseInt(req.query.duration) || null };
   const free = new Set(av.freeTables(ctx, day, hhmm, party, opts).map(t => t.id));
   const best = av.suggestTable(ctx, day, hhmm, party, opts);
@@ -10752,7 +10981,7 @@ app.get('/api/one-move', (req, res) => {
   const data = readData();
   const r = data.reservations.find(x => x.id === String(req.query.id || ''));
   if (!r) return res.status(404).json({ error: 'Booking not found' });
-  res.json(av.oneMove(ctxOf(data), r) || { tables: [], move: null });
+  res.json(av.oneMove(ctxOf(data, req), r) || { tables: [], move: null });
 });
 
 // ---------- what the guest spent (the till's orders, read only) ----------
@@ -10974,6 +11203,7 @@ app.delete('/api/waitlist/:id', (req, res) => {
 const SAT_NOW_MS = 5 * 60000;
 // A seat refused (av.seatRefusal), in the plain words both seats say it.
 function seatRefusedWords(data, no) {
+  if (no.by) return holdWords(data, no);
   const t = tablesOf(data).find(x => x.id === no.id);
   const name = 'Table ' + (t ? t.label : no.id);
   return no.at ? `${name} is booked at ${twelve(no.at)}` : `${name} is taken now`;
@@ -10995,10 +11225,10 @@ app.post('/api/waitlist/:id/seat', (req, res) => {
   // top of whoever was there. The walk-in's own question, on the clock's own
   // date as GET /api/walkin asks it (av.seatRefusal); `till` is the host
   // picking a table the room said was free only till a time.
-  const no = av.seatRefusal(ctxOf(data), av.localDay(now), av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), w.partySize,
-    [r.tableId].concat(r.tableIds).filter(Boolean), { till: !!(req.body && req.body.till) });
+  const no = av.seatRefusal(ctxOf(data, req), av.localDay(now), av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), w.partySize,
+    [r.tableId].concat(r.tableIds).filter(Boolean), { till: !!(req.body && req.body.till), party: w.id });
   if (no) return res.status(409).json({ error: seatRefusedWords(data, no) });
-  if (!r.tableId) { const t = av.suggestTable(av.heldBook(ctxOf(data), av.dayOf(r.time)), av.dayOf(r.time), av.hhmmOf(r.time), r.partySize, {}); if (t) r.tableId = t.id; }
+  if (!r.tableId) { const t = av.suggestTable(av.heldBook(ctxOf(data, req), av.dayOf(r.time)), av.dayOf(r.time), av.hhmmOf(r.time), r.partySize, {}); if (t) r.tableId = t.id; }
   const g = touchGuest(data, r);
   r.events = [history.createdEvent(r, staffFromReq(req), r.createdAt, evOpts(data))];
   data.reservations.push(r);
@@ -11474,8 +11704,8 @@ function lineHits(map, req, add) {
   return arr.length;
 }
 // The book, the clock and tonight's line: what every wait is asked of.
-function lineState(data) {
-  const ctx = ctxOf(data), now = ctx.now;
+function lineState(data, req) {
+  const ctx = ctxOf(data, req), now = ctx.now;
   return { ctx, now, day: av.localDay(now), hhmm: av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), line: av.lineOf(data.waitlist, ctx.settings, now) };
 }
 // THE NIGHT'S LINE IS WORKED OUT ONCE A MINUTE (daily round, 9 Oct).
@@ -11490,7 +11720,9 @@ function lineState(data) {
 // book: the book handed back is the caller's own, with them added.
 const _lineRuns = new Map();
 function lineRunOf(ctx, day, hhmm, line) {
-  const key = [db.writeCount(), dataVersion().store, av.localTime(ctx.now), day, hhmm, line.map(w => w.id + ':' + w.partySize).join(',')].join('|');
+  // The holds the asking tablet meets are part of the answer (v65).
+  const held = (ctx.holds || []).map(h => h.tableIds.join('+') + ':' + h.size).join(',');
+  const key = [db.writeCount(), dataVersion().store, av.localTime(ctx.now), day, hhmm, line.map(w => w.id + ':' + w.partySize).join(','), held].join('|');
   let kept = _lineRuns.get(key);
   if (!kept) {
     const run = av.lineRun(ctx, day, hhmm, line);
@@ -11597,7 +11829,59 @@ app.post('/api/public/line/:ref/leave', (req, res) => {
 
 // ---------- housekeeping, audit, version ----------
 app.get('/api/audit', (req, res) => { res.json((readData().auditLog || []).slice(0, 200)); });
-app.get('/api/version', (req, res) => { res.json(dataVersion()); });
+app.get('/api/version', (req, res) => { res.json(Object.assign({}, dataVersion(), { holds: holdGen() })); });
+
+// A tablet opened a picker: which party and which table it is about to
+// seat, for av.HOLD_MS, renewed while it stays open (IN HAND, v65). One hold
+// a tablet. A renewal after another tablet took the party is the news, and
+// holds nothing.
+app.post('/api/hold', (req, res) => {
+  const key = deskKeyOf(req);
+  if (!key) return res.status(400).json({ error: 'Which tablet?' });
+  const b = req.body || {};
+  const party = typeof (b.party || b.resId) === 'string' ? String(b.party || b.resId).slice(0, 64) : null;
+  const owed = HOLD_TOOK.get(key);
+  const tableIds = Array.isArray(b.tableIds) ? b.tableIds.filter(id => typeof id === 'string' && id).slice(0, 9) : [];
+  const data = readData();
+  // The walk-in's table taken over by the table (review, 10 Oct): Stand's
+  // next renewal of it is the news, as a party's is.
+  const owedHere = owed && (party ? owed.party === party : owed.table && tableIds.includes(owed.table));
+  if (owedHere) { const took = tookFor(key); if (took) return res.status(409).json({ error: `${took.by} took ${took.name || tableWord(data, took.table)}`, took }); }
+  const r = party ? data.reservations.find(x => x.id === party) : null;
+  const w = party && !r ? (data.waitlist || []).find(x => x.id === party) : null;
+  const size = Math.max(1, Math.min(99, parseInt(b.size, 10) || (r || w || {}).partySize || 1));
+  const name = (r || w) ? ((r || w).name || 'No name') : 'a walk-in';
+  // What the hold is ABOUT (av.holdSpan): a booking's own sitting, else
+  // from now. Its last press (\`idleMs\` ago, as the tablet counts it); a
+  // renewal that does not say keeps the one before (av.holdPut).
+  const now = Date.now();
+  const span = av.holdSpan(ctxOf(data), r || w || null, size, now);
+  const idle = Number(b.idleMs);
+  const touched = Number.isFinite(idle) ? now - Math.max(0, Math.min(idle, 24 * 3600000)) : undefined;
+  holdsChanged(() => { HOLDS = av.holdPut(HOLDS, Object.assign({ key, by: String(b.by || '').trim().slice(0, 20), party: r || w ? party : null, name, size, tableIds, from: span.from, to: span.to },
+    touched === undefined ? {} : { touched }), now); });
+  res.json({ ok: true, holds: holdsFor(req) });
+});
+// Let go: a seat, Undo, Escape, the ground, closing — or the page going.
+app.delete('/api/hold', (req, res) => {
+  const key = deskKeyOf(req);
+  if (key) holdsChanged(() => { HOLDS = HOLDS.filter(h => h.key !== key); });
+  res.json({ ok: true });
+});
+// "Take it from Stand?" → Yes, take it: the other tablet's hold on the party
+// goes, and it is told on its next ask. Nothing is written: no Undo.
+app.post('/api/hold/take', (req, res) => {
+  const key = deskKeyOf(req);
+  if (!key) return res.status(400).json({ error: 'Which tablet?' });
+  const b = req.body || {};
+  const party = String(b.party || '').slice(0, 64);
+  const table = typeof b.table === 'string' ? b.table.slice(0, 64) : '';
+  const t = av.holdTake(HOLDS, party ? { party } : { table }, key, String(b.by || '').trim().slice(0, 20), Date.now());
+  for (const x of t.took) HOLD_TOOK.set(x.key, { by: x.by, party: x.party, name: x.name, table: x.table || null, at: Date.now() });
+  for (const [k, v] of HOLD_TOOK) if (Date.now() - v.at > HOLD_TOOK_MS) HOLD_TOOK.delete(k);
+  holdsChanged(() => { HOLDS = t.holds; });
+  res.json({ ok: true, took: t.took.length });
+});
 // The run sheet: tonight on one page, for the desk and for the pass. A read
 // and nothing else — a GET never writes, and nobody asked for a record of who
 // printed what. The arithmetic is all in availability.js, so this route only
@@ -11639,7 +11923,7 @@ app.get('/api/not-tonight', (req, res) => {
   const day = tradingDay(data);
   const hits = search.notTonight(data.reservations, req.query.q, { day, settings: effectiveSettings(data) });
   if (!hits.length) return res.json({ day, rows: [] });
-  const st = lineState(data);
+  const st = lineState(data, req);
   const run = lineRunOf(st.ctx, st.day, st.hhmm, st.line);
   // The stored booking, its history and all, since the middle of the row
   // opens it (review, 9 Oct: stripped, its History said "Nothing since this
@@ -11655,7 +11939,7 @@ app.get('/api/today', (req, res) => {
   // The deck badge rides this poll. An opening with nobody to call is not an
   // alert, so the cheap match test runs first and openingOpen() — which walks
   // the bookings — only for openings that would actually be worth showing.
-  const ctx = ctxOf(data);
+  const ctx = ctxOf(data, req);
   const waitingList = data.notify.filter(e => av.notifyLive(e, day));
   const openings = data.openings.filter(o => av.notifyMatches(waitingList, o).length > 0 && av.openingOpen(ctx, o)).length;
   // The room as it stands this minute, from the same function the floor plan
@@ -11673,6 +11957,9 @@ app.get('/api/today', (req, res) => {
     // last night's party nobody cleared is not waiting tonight.
     waiting: av.lineOf(data.waitlist, ctx.settings, new Date()).length,
     line: lineToday(data, ctx),
+    // IN HAND (v65): what the OTHER tablets have open, and the news owed this
+    // one if its party was taken.
+    holds: ctx.holds, took: tookFor(deskKeyOf(req)),
     noShows: rows.filter(r => r.status === 'no-show').length,
     notify: waitingList.length, openings,
     room: { tables: floor.length, free: count('free'), seated: count('seated'), over: count('over'), due: count('due'), check: count('check'), paid: count('paid') },
@@ -12086,7 +12373,7 @@ app.post('/api/group/seat', (req, res) => {
   if (!tableId) return res.status(400).json({ error: 'Which table?' });
   const tableIds = Array.isArray(b.tableIds) ? b.tableIds.map(String).filter(id => id !== tableId).slice(0, 8) : [];
   const out = createReservation(data, { name: x.name, phone: x.phone, partySize: x.size, time: av.localTime(new Date()), tableId, tableIds, status: 'seated', source: 'walk-in',
-    autoTable: false, tags: [], notes: '', till: !!b.till }, 'The desk');
+    autoTable: false, tags: [], notes: '', till: !!b.till }, 'The desk', req);
   if (out.error) return res.status(out.status || 400).json({ error: out.error });
   const r = out.r;
   r.groupFrom = { venueId: x.venueId, id: x.id };
