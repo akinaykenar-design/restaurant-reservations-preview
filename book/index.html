@@ -685,7 +685,7 @@ body[data-theme="dark"] .row .cell.over{color:var(--steel-100);}
    180; the days, the hours and the remove key keep their own widths. */
 .svc-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
 .svc-row > input[type="text"]{flex:1 1 180px;min-width:0;}
-.svc-row > .inline{flex:none;}
+.svc-row > .inline{flex:0 1 auto;min-width:0;max-width:100%;}
 /* Wrapped, one service's hours sit right above the next one's name: the
    Border law's hairline says where one ends. */
 .svc-row + .svc-row{border-top:1px solid var(--steel-200);padding-top:12px;margin-top:4px;}
@@ -2505,6 +2505,9 @@ a.btn{color:var(--text-primary);text-decoration:none;}
 .bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--ink);color:var(--surface);
   font:inherit;font-size:var(--fs-lg);font-weight:800;}
 .bke-next .go.ink{background:var(--text-primary);color:var(--surface);}
+/* In another tablet's hand: the row's quiet key, and its ask in its place. */
+.bke-next .go.ih{background:var(--tfree);color:var(--mute);}
+.bke-next .ih-ask{flex:1;}
 .bke-alert{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:8px 16px;border:none;border-radius:var(--r-control);
   background:color-mix(in srgb, var(--red) 12%, var(--surface));color:var(--red);font:inherit;font-weight:700;text-align:left;}
 .bke-alert svg{flex:none;width:20px;height:20px;}
@@ -3060,6 +3063,13 @@ body[data-theme="dark"] .wk-t:not(.join){background:var(--tfree);}
   .tp-when{overflow:hidden;text-overflow:ellipsis;max-width:100%;}
   .tp-btn:not(.icon){flex:none;padding:0 12px;}
 }
+/* 320: "Tonight ⌄" is whole (daily round, 11 Oct). The night's button had
+   86 for the 99 its title needs and cut the chevron in half; the bar's gaps
+   and the two keys' air take a step less, and the keys keep 44 and more. */
+@media (max-width:339px){
+  .tp{gap:4px;}
+  .tp-btn:not(.icon){padding:0 10px;}
+}
 @media (max-width:760px){ .tp-sp{display:none;} }
 @media (max-width:760px){ .tp-wd{display:none;} }
 /* THE NIGHT KEEPS ITS DATE (daily round, 9 Oct). At 320 "Dinner · 9 Oct" had
@@ -3108,6 +3118,9 @@ body[data-theme="dark"] .wk-t:not(.join){background:var(--tfree);}
 .shell.simple .icon-action.warn{background:var(--ink);color:var(--surface);}
 /* The tab you are not on still reads: 4.5 to 1 on the well. */
 .tp-seg button:not(.on),.vt button:not(.on){color:color-mix(in srgb, var(--mute) 70%, var(--ink));}
+/* A time says its half of the day (daily round, 11 Oct): a fixed 120 cut
+   "11:30 AM" to "11:30 A" at a finger's 16. As wide as its words. */
+input[type="time"].t-time{width:9.5em;min-width:9.5em;max-width:100%;flex:none;}
 /* A field a finger taps is 16 or more, or the phone zooms in on it. */
 @media (max-width:900px), (pointer:coarse){
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),textarea,select{font-size:var(--fs-xl);}
@@ -3305,6 +3318,9 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 .dc-say .ink{color:var(--ink);} .dc-say .late{color:var(--late);} .dc-say .here{color:var(--accent);}
 .dc-rt{display:flex;align-items:flex-start;padding:16px 12px 0 4px;font-family:var(--font-mono);font-weight:600;font-size:var(--dc-time);color:var(--mute);white-space:nowrap;}
 .door-card.is-here{background:var(--accent-wash);}
+/* In another tablet's hand (11 Oct): the row's quiet, at the door's size. */
+.door-card.ih .dc-tab{color:var(--mute);opacity:var(--dim);}
+.door-card.ih .dc-name{color:var(--mute);}
 @media (max-width:420px){
   .door-card{--dc-big:var(--fs-num);--dc-time:var(--fs-xl);--dc-say:var(--fs-lg);grid-template-columns:80px minmax(0,1fr) auto;min-height:108px;}
 }
@@ -3314,6 +3330,17 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
   .dc-rt{padding-right:8px;}
   .dc-main{padding-left:12px;}
 }
+/* Up to 380 the time stands in the top-right corner, a row of its own, and
+   the name and what is said take the card's whole width (daily round,
+   11 Oct: the time held a column down the card's whole edge and at 320
+   "Castellano · 4" read "Castella… · 4"). */
+@media (max-width:380px){
+  .door-card{grid-template-columns:80px minmax(0,1fr);grid-template-rows:auto 1fr;}
+  .door-card > .dc-tab{grid-column:1;grid-row:1 / span 2;}
+  .door-card > .dc-rt{grid-column:2;grid-row:1;justify-self:end;padding:8px 12px 0 4px;}
+  .door-card > .dc-main{grid-column:2;grid-row:2;padding-top:0;}
+}
+@media (max-width:360px){ .door-card{grid-template-columns:72px minmax(0,1fr);} }
 @media print{
   /* Paper, not a slab: no ground anywhere, and a light canvas under it — a
      dark theme's canvas is dark even with every ground taken away. */
@@ -9346,6 +9373,7 @@ function request(config, method, path, body) {
           const err = new Error(res.statusCode === 401 ? 'The relay does not know this venue token'
             : (parsed && parsed.error) || `The relay returned ${res.statusCode}`);
           err.status = res.statusCode;
+          err.body = parsed || null;
           reject(err);
         }
       });
@@ -10845,7 +10873,11 @@ app.put('/api/reservations/:id', (req, res) => {
     // 10 Oct) — nor does a seat of somebody else's party.
     const after = Object.assign({}, cur, typeof b.time === 'string' && b.time ? { time: b.time } : {}, seats ? { status: b.status } : {},
       b.partySize ? { partySize: Number(b.partySize) || cur.partySize } : {}, b.durationMin !== undefined ? { durationMin: b.durationMin } : {});
-    const no = av.holdRefusal(holdsFor(req), moved ? ids.filter(id => !av.heldTables(cur).includes(id)) : [], cur.id,
+    // A SEAT meets a hold on every table it lands on, its own included
+    // (daily round, 11 Oct): the row tab's PUT kept Okafor's own 5 and sat
+    // him there while Bar had 5 in hand for a walk-in. A move alone asks
+    // only the tables it moves to.
+    const no = av.holdRefusal(holdsFor(req), seats ? ids : moved ? ids.filter(id => !av.heldTables(cur).includes(id)) : [], cur.id,
       av.holdSpan(ctxOf(data), after, after.partySize, Date.now()));
     if (no) return res.status(409).json({ error: holdWords(data, no) });
   }
@@ -12029,7 +12061,12 @@ app.post('/api/hold', (req, res) => {
   // from now. Its last press (\`idleMs\` ago, as the tablet counts it); a
   // renewal that does not say keeps the one before (av.holdPut).
   const now = Date.now();
-  const span = av.holdSpan(ctxOf(data), r || w || null, size, now);
+  // A hold is NOW: a booking on another night held from here is a party at
+  // the stand tonight (HERE ON THE WRONG NIGHT's picker), so from now, for
+  // its own sitting (daily round, 11 Oct: Macrae's hold stood at tomorrow's
+  // 7:45 and Bar was offered his table tonight).
+  const elsewhere = r && !av.onNight(effectiveSettings(data), r, tradingDay(data));
+  const span = av.holdSpan(ctxOf(data), elsewhere ? { partySize: r.partySize, durationMin: r.durationMin } : r || w || null, size, now);
   const idle = Number(b.idleMs);
   const touched = Number.isFinite(idle) ? now - Math.max(0, Math.min(idle, 24 * 3600000)) : undefined;
   holdsChanged(() => { HOLDS = av.holdPut(HOLDS, Object.assign({ key, by: String(b.by || '').trim().slice(0, 20), party: r || w ? party : null, name, size, tableIds, from: span.from, to: span.to },
@@ -12500,7 +12537,9 @@ app.get('/api/group/find', async (req, res) => {
   let got;
   try { got = await relay.groupFind(cfg, q); } catch (e) { return res.json({ q, rows: [], error: e.message }); }
   const settings = effectiveSettings(data), tonight = tradingDay(data);
-  const st = lineState(data);
+  // With the asking tablet's holds, as Not tonight asks (daily round, 11 Oct:
+  // the tab was a table Stand had in hand, and the tap refused).
+  const st = lineState(data, req);
   const run = lineRunOf(st.ctx, st.day, st.hhmm, st.line);
   const now = Date.now();
   for (const [k, v] of _groupFound) if (now - v.at > GROUP_FOUND_MS) _groupFound.delete(k);
@@ -12589,13 +12628,16 @@ async function groupPass(cfg) {
   let data = readData();
   const due = (data.relayState.groupOwed || []).filter(o => o.dueAt <= Date.now());
   for (const o of due) {
-    let asked = null, failed = '';
+    let asked = null, failed = '', gone = false;
     try { asked = await relay.groupCancel(cfg, { venueId: o.venueId, id: o.id, was: o.was }); }
-    catch (e) { if (!(e.status >= 400 && e.status < 500)) continue; failed = e.message; } // not reached: asked again next pass
+    catch (e) { if (!(e.status >= 400 && e.status < 500)) continue; failed = e.message; gone = !!(e.body && e.body.gone); } // not reached: asked again next pass
     data = readData();
     data.relayState.groupOwed = (data.relayState.groupOwed || []).filter(x => !(x.bookingId === o.bookingId && x.id === o.id));
+    // NOT ON THEIR BOOK ANY MORE is nothing left to cancel, never "kept"
+    // (daily round, 11 Oct: Bondi no-showed Zabrowski and synced first, and
+    // the desk said in red that Bondi kept them).
     data.relayState.groupAsked = (data.relayState.groupAsked || []).concat({ askId: asked ? asked.askId : newId('ga'), venue: o.venue, name: o.name, at: Date.now(),
-      outcome: asked ? null : 'refused', why: asked ? '' : String(failed || 'it could not be asked').replace(/\.$/, '').toLowerCase() }).slice(-200);
+      outcome: asked ? null : gone ? 'gone' : 'refused', why: asked ? '' : gone ? 'no longer booked there' : String(failed || 'it could not be asked').replace(/\.$/, '').toLowerCase() }).slice(-200);
     writeData(data);
   }
 }

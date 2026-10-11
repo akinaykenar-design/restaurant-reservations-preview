@@ -700,7 +700,7 @@ body[data-theme="dark"] .row .cell.over{color:var(--steel-100);}
    180; the days, the hours and the remove key keep their own widths. */
 .svc-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
 .svc-row > input[type="text"]{flex:1 1 180px;min-width:0;}
-.svc-row > .inline{flex:none;}
+.svc-row > .inline{flex:0 1 auto;min-width:0;max-width:100%;}
 /* Wrapped, one service's hours sit right above the next one's name: the
    Border law's hairline says where one ends. */
 .svc-row + .svc-row{border-top:1px solid var(--steel-200);padding-top:12px;margin-top:4px;}
@@ -2520,6 +2520,9 @@ a.btn{color:var(--text-primary);text-decoration:none;}
 .bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--ink);color:var(--surface);
   font:inherit;font-size:var(--fs-lg);font-weight:800;}
 .bke-next .go.ink{background:var(--text-primary);color:var(--surface);}
+/* In another tablet's hand: the row's quiet key, and its ask in its place. */
+.bke-next .go.ih{background:var(--tfree);color:var(--mute);}
+.bke-next .ih-ask{flex:1;}
 .bke-alert{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:8px 16px;border:none;border-radius:var(--r-control);
   background:color-mix(in srgb, var(--red) 12%, var(--surface));color:var(--red);font:inherit;font-weight:700;text-align:left;}
 .bke-alert svg{flex:none;width:20px;height:20px;}
@@ -3075,6 +3078,13 @@ body[data-theme="dark"] .wk-t:not(.join){background:var(--tfree);}
   .tp-when{overflow:hidden;text-overflow:ellipsis;max-width:100%;}
   .tp-btn:not(.icon){flex:none;padding:0 12px;}
 }
+/* 320: "Tonight ⌄" is whole (daily round, 11 Oct). The night's button had
+   86 for the 99 its title needs and cut the chevron in half; the bar's gaps
+   and the two keys' air take a step less, and the keys keep 44 and more. */
+@media (max-width:339px){
+  .tp{gap:4px;}
+  .tp-btn:not(.icon){padding:0 10px;}
+}
 @media (max-width:760px){ .tp-sp{display:none;} }
 @media (max-width:760px){ .tp-wd{display:none;} }
 /* THE NIGHT KEEPS ITS DATE (daily round, 9 Oct). At 320 "Dinner · 9 Oct" had
@@ -3123,6 +3133,9 @@ body[data-theme="dark"] .wk-t:not(.join){background:var(--tfree);}
 .shell.simple .icon-action.warn{background:var(--ink);color:var(--surface);}
 /* The tab you are not on still reads: 4.5 to 1 on the well. */
 .tp-seg button:not(.on),.vt button:not(.on){color:color-mix(in srgb, var(--mute) 70%, var(--ink));}
+/* A time says its half of the day (daily round, 11 Oct): a fixed 120 cut
+   "11:30 AM" to "11:30 A" at a finger's 16. As wide as its words. */
+input[type="time"].t-time{width:9.5em;min-width:9.5em;max-width:100%;flex:none;}
 /* A field a finger taps is 16 or more, or the phone zooms in on it. */
 @media (max-width:900px), (pointer:coarse){
   input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),textarea,select{font-size:var(--fs-xl);}
@@ -3320,6 +3333,9 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 .dc-say .ink{color:var(--ink);} .dc-say .late{color:var(--late);} .dc-say .here{color:var(--accent);}
 .dc-rt{display:flex;align-items:flex-start;padding:16px 12px 0 4px;font-family:var(--font-mono);font-weight:600;font-size:var(--dc-time);color:var(--mute);white-space:nowrap;}
 .door-card.is-here{background:var(--accent-wash);}
+/* In another tablet's hand (11 Oct): the row's quiet, at the door's size. */
+.door-card.ih .dc-tab{color:var(--mute);opacity:var(--dim);}
+.door-card.ih .dc-name{color:var(--mute);}
 @media (max-width:420px){
   .door-card{--dc-big:var(--fs-num);--dc-time:var(--fs-xl);--dc-say:var(--fs-lg);grid-template-columns:80px minmax(0,1fr) auto;min-height:108px;}
 }
@@ -3329,6 +3345,17 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
   .dc-rt{padding-right:8px;}
   .dc-main{padding-left:12px;}
 }
+/* Up to 380 the time stands in the top-right corner, a row of its own, and
+   the name and what is said take the card's whole width (daily round,
+   11 Oct: the time held a column down the card's whole edge and at 320
+   "Castellano · 4" read "Castella… · 4"). */
+@media (max-width:380px){
+  .door-card{grid-template-columns:80px minmax(0,1fr);grid-template-rows:auto 1fr;}
+  .door-card > .dc-tab{grid-column:1;grid-row:1 / span 2;}
+  .door-card > .dc-rt{grid-column:2;grid-row:1;justify-self:end;padding:8px 12px 0 4px;}
+  .door-card > .dc-main{grid-column:2;grid-row:2;padding-top:0;}
+}
+@media (max-width:360px){ .door-card{grid-template-columns:72px minmax(0,1fr);} }
 @media print{
   /* Paper, not a slab: no ground anywhere, and a light canvas under it — a
      dark theme's canvas is dark even with every ground taken away. */
@@ -9360,6 +9387,7 @@ function request(config, method, path, body) {
           const err = new Error(res.statusCode === 401 ? 'The relay does not know this venue token'
             : (parsed && parsed.error) || `The relay returned ${res.statusCode}`);
           err.status = res.statusCode;
+          err.body = parsed || null;
           reject(err);
         }
       });
@@ -10859,7 +10887,11 @@ app.put('/api/reservations/:id', (req, res) => {
     // 10 Oct) — nor does a seat of somebody else's party.
     const after = Object.assign({}, cur, typeof b.time === 'string' && b.time ? { time: b.time } : {}, seats ? { status: b.status } : {},
       b.partySize ? { partySize: Number(b.partySize) || cur.partySize } : {}, b.durationMin !== undefined ? { durationMin: b.durationMin } : {});
-    const no = av.holdRefusal(holdsFor(req), moved ? ids.filter(id => !av.heldTables(cur).includes(id)) : [], cur.id,
+    // A SEAT meets a hold on every table it lands on, its own included
+    // (daily round, 11 Oct): the row tab's PUT kept Okafor's own 5 and sat
+    // him there while Bar had 5 in hand for a walk-in. A move alone asks
+    // only the tables it moves to.
+    const no = av.holdRefusal(holdsFor(req), seats ? ids : moved ? ids.filter(id => !av.heldTables(cur).includes(id)) : [], cur.id,
       av.holdSpan(ctxOf(data), after, after.partySize, Date.now()));
     if (no) return res.status(409).json({ error: holdWords(data, no) });
   }
@@ -12043,7 +12075,12 @@ app.post('/api/hold', (req, res) => {
   // from now. Its last press (\`idleMs\` ago, as the tablet counts it); a
   // renewal that does not say keeps the one before (av.holdPut).
   const now = Date.now();
-  const span = av.holdSpan(ctxOf(data), r || w || null, size, now);
+  // A hold is NOW: a booking on another night held from here is a party at
+  // the stand tonight (HERE ON THE WRONG NIGHT's picker), so from now, for
+  // its own sitting (daily round, 11 Oct: Macrae's hold stood at tomorrow's
+  // 7:45 and Bar was offered his table tonight).
+  const elsewhere = r && !av.onNight(effectiveSettings(data), r, tradingDay(data));
+  const span = av.holdSpan(ctxOf(data), elsewhere ? { partySize: r.partySize, durationMin: r.durationMin } : r || w || null, size, now);
   const idle = Number(b.idleMs);
   const touched = Number.isFinite(idle) ? now - Math.max(0, Math.min(idle, 24 * 3600000)) : undefined;
   holdsChanged(() => { HOLDS = av.holdPut(HOLDS, Object.assign({ key, by: String(b.by || '').trim().slice(0, 20), party: r || w ? party : null, name, size, tableIds, from: span.from, to: span.to },
@@ -12514,7 +12551,9 @@ app.get('/api/group/find', async (req, res) => {
   let got;
   try { got = await relay.groupFind(cfg, q); } catch (e) { return res.json({ q, rows: [], error: e.message }); }
   const settings = effectiveSettings(data), tonight = tradingDay(data);
-  const st = lineState(data);
+  // With the asking tablet's holds, as Not tonight asks (daily round, 11 Oct:
+  // the tab was a table Stand had in hand, and the tap refused).
+  const st = lineState(data, req);
   const run = lineRunOf(st.ctx, st.day, st.hhmm, st.line);
   const now = Date.now();
   for (const [k, v] of _groupFound) if (now - v.at > GROUP_FOUND_MS) _groupFound.delete(k);
@@ -12603,13 +12642,16 @@ async function groupPass(cfg) {
   let data = readData();
   const due = (data.relayState.groupOwed || []).filter(o => o.dueAt <= Date.now());
   for (const o of due) {
-    let asked = null, failed = '';
+    let asked = null, failed = '', gone = false;
     try { asked = await relay.groupCancel(cfg, { venueId: o.venueId, id: o.id, was: o.was }); }
-    catch (e) { if (!(e.status >= 400 && e.status < 500)) continue; failed = e.message; } // not reached: asked again next pass
+    catch (e) { if (!(e.status >= 400 && e.status < 500)) continue; failed = e.message; gone = !!(e.body && e.body.gone); } // not reached: asked again next pass
     data = readData();
     data.relayState.groupOwed = (data.relayState.groupOwed || []).filter(x => !(x.bookingId === o.bookingId && x.id === o.id));
+    // NOT ON THEIR BOOK ANY MORE is nothing left to cancel, never "kept"
+    // (daily round, 11 Oct: Bondi no-showed Zabrowski and synced first, and
+    // the desk said in red that Bondi kept them).
     data.relayState.groupAsked = (data.relayState.groupAsked || []).concat({ askId: asked ? asked.askId : newId('ga'), venue: o.venue, name: o.name, at: Date.now(),
-      outcome: asked ? null : 'refused', why: asked ? '' : String(failed || 'it could not be asked').replace(/\.$/, '').toLowerCase() }).slice(-200);
+      outcome: asked ? null : gone ? 'gone' : 'refused', why: asked ? '' : gone ? 'no longer booked there' : String(failed || 'it could not be asked').replace(/\.$/, '').toLowerCase() }).slice(-200);
     writeData(data);
   }
 }
@@ -15334,6 +15376,8 @@ function renderFloor() {
   // exactly the floor: there is no moment where the room is on screen inert.
   const pk = state.picking && state.picking.free ? state.picking : null;
   const pkBook = pk ? (state.reservations || []).find(x => x.id === pk.id) : null;
+  // In hand over the sitting being picked, not whenever (daily round, 11 Oct).
+  const span = pickSpan();
   const pkMine = pkBook ? tablesFor(pkBook) : [];
   // Free AND big enough — the timeline drag's own seats rule (onSmall), so the
   // same question gets the same answer whichever gesture asks it. A nine on
@@ -15430,7 +15474,7 @@ function renderFloor() {
     const wkOn = !pk && !!(state.walkin && state.walkin.data);
     // IN HAND (v65): another tablet is about to seat somebody here. Dim, its
     // name under it in the room's own word, and no picker offers it.
-    const ih = live ? holdAt(t.id) : null;
+    const ih = live ? holdAt(t.id, span) : null;
     // A walk-in's hold has no row to ask from: under the walk-in, its dim
     // table asks in the menu (review, 10 Oct).
     const act = ih && wkOn && !pk && !ih.party ? `data-act="ih-take-t" data-table="${esc(t.id)}"`
@@ -16799,6 +16843,12 @@ function doorShown() {
 function doorTable(r, room, now) {
   const held = tablesFor(r), words = held.map(tableName).join(' + ');
   const occ = stillEating(room, r);
+  // A table another tablet has in hand over the sitting this seat would
+  // start is not ready (daily round, 11 Oct): the tap was refused "Bar is
+  // seating a walk-in at 13" under a card that said "13 is ready".
+  const span = { from: now, to: now + durationOf(r) * 60000 };
+  const inHand = !occ ? held.find(id => holdAt(id, span)) : null;
+  if (inHand) return { ready: false, words, occ: inHand, mins: null, frees: `${tableName(inHand)} in hand · ${holdAt(inHand, span).by}`, what: '' };
   if (!occ) return { ready: true, words };
   const f = room.find(x => x.id === occ);
   const on = f && f.r && f.r.id !== r.id && (isSat(f.r) || isHere(f.r)) ? f.r : null;
@@ -16815,6 +16865,16 @@ function doorTable(r, room, now) {
 function doorCard(r, room, now) {
   const late = lateBy(r, now), here = isHere(r), t = doorTable(r, room, now);
   const held = tablesFor(r), label = tableName(held[0]) + (held.length > 1 ? '+' : '');
+  // IN ANOTHER TABLET'S HAND (daily round, 11 Oct): the card is the row,
+  // quiet — "in hand · Bar", and a tap asks "Take it from Bar?" under the
+  // row it shrinks back to, as the row's own key does.
+  const ih = holdOn(r.id);
+  if (ih) return `<button class="door-card ih" data-act="ih-take" data-id="${esc(r.id)}" data-ih="${esc(ih.by)}" aria-label="${esc(`${r.name || 'Booking'}: in hand at ${ih.by}. Take it?`)}">
+    <span class="dc-tab"><span class="dc-no">${esc(label)}</span><span class="dc-do"></span></span>
+    <span class="dc-main"><span class="dc-name"><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span>
+      <span class="dc-say"><i>in hand · ${esc(ih.by)}</i></span></span>
+    <span class="dc-rt">${esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''))}</span>
+  </button>`;
   const said = [];
   if (here) said.push('<i class="here">Here</i>');
   if (late) said.push(`<i class="late">${esc(waitWords(late))} late</i>`);
@@ -16825,13 +16885,13 @@ function doorCard(r, room, now) {
     if (here) said.push(`<i class="here">${t.mins ? 'say about ' + esc(waitWords(t.mins)) : t.mins === 0 ? 'say any minute' : 'say a few minutes'}</i>`);
     const frees = here && t.mins !== null ? null : t.frees;
     if (frees) said.push(`<i>${esc(frees)}</i>`);
-    said.push(`<i>${esc(t.what)}</i>`);
+    if (t.what) said.push(`<i>${esc(t.what)}</i>`);
   }
   const act = t.ready ? 'door-seat' : here ? 'edit-booking' : 'door-here';
   const tab = here ? 'here' : late ? 'late' : t.ready ? 'seat' : '';
   const word = t.ready ? 'Seat' : here ? (t.at || '—') : 'Here';
   const aria = t.ready ? `Seat ${r.name || 'them'} at ${t.words}` : here ? `${r.name || 'Booking'}, here: ${t.frees}` : `${r.name || 'Booking'} is here: ${t.frees}`;
-  return `<button class="door-card${here ? ' is-here' : ''}" data-act="${act}" data-id="${esc(r.id)}" aria-label="${esc(aria)}">
+  return `<button class="door-card${here ? ' is-here' : ''}" data-act="${act}" data-id="${esc(r.id)}" data-ih="${t.ready || !/ in hand · /.test(t.frees || '') ? '' : esc(t.frees)}" aria-label="${esc(aria)}">
     <span class="dc-tab ${tab}${t.ready ? '' : ' busy'}"><span class="dc-no">${esc(label)}</span><span class="dc-do">${esc(word)}</span></span>
     <span class="dc-main"><span class="dc-name"><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span>
       <span class="dc-say">${said.map((u, i) => i ? `<b>·&nbsp;${u}</b>` : u).join(' ')}</span></span>
@@ -16849,7 +16909,8 @@ const DOOR_SETTLE_MS = 600;
 let _doorSig = '', _doorSigAt = 0, _downAt = 0, _doorShrinkAt = 0;
 function doorCards(list, room, now) {
   const cards = list.map(r => doorCard(r, room, now));
-  const sig = list.map((r, i) => r.id + ':' + (cards[i].match(/data-act="([^"]+)"/) || [])[1]).join(',');
+  // Who has it in hand is part of what a card says: a hold moving restamps it.
+  const sig = list.map((r, i) => r.id + ':' + (cards[i].match(/data-act="([^"]+)"/) || [])[1] + ':' + (cards[i].match(/data-ih="([^"]*)"/) || [])[1]).join(',');
   if (sig !== _doorSig) { _doorSig = sig; _doorSigAt = Date.now(); }
   return `<div class="bl-head door"><span class="bl-h-name">Next at the door</span></div><div class="bl-rows door-rows">${cards.join('')}</div>`;
 }
@@ -17397,9 +17458,9 @@ function renderNotify() {
       <span class="field-label" style="margin:0;">Party</span>
       ${stepper('nl.partySize', n.partySize, 1)}
       <span class="field-label" style="margin:0 0 0 8px;">Between</span>
-      <input type="time" value="${esc(n.from)}" data-field="nl.from" aria-label="Earliest they would take" style="width:120px;min-height:var(--tap);">
+      <input type="time" class="t-time" value="${esc(n.from)}" data-field="nl.from" aria-label="Earliest they would take" style="min-height:var(--tap);">
       <span class="ts">and</span>
-      <input type="time" value="${esc(n.to)}" data-field="nl.to" aria-label="Latest they would take" style="width:120px;min-height:var(--tap);">
+      <input type="time" class="t-time" value="${esc(n.to)}" data-field="nl.to" aria-label="Latest they would take" style="min-height:var(--tap);">
       <span class="spacer" style="flex:1;"></span>
       <button class="btn add" data-act="notify-add">${I.plus} Add to list</button>
     </div>
@@ -17738,7 +17799,7 @@ function renderSettings() {
       ${s.services.map((sv, i) => `<div class="svc-row">
         <input type="text" value="${esc(sv.name)}" data-field="settings.services.${i}.name" data-save="services" aria-label="Service name">
         <div class="days">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, di) => `<button class="chip${sv.days.includes(di) ? ' active' : ''}" data-act="svc-day" data-i="${i}" data-val="${di}">${d}</button>`).join('')}</div>
-        <div class="inline"><input type="time" value="${sv.start}" data-field="settings.services.${i}.start" data-save="services" data-save-on="blur" aria-label="Start" style="width:120px;"> <span class="ts">to</span> <input type="time" value="${sv.end}" data-field="settings.services.${i}.end" data-save="services" data-save-on="blur" aria-label="End" style="width:120px;"></div>
+        <div class="inline"><input type="time" class="t-time" value="${sv.start}" data-field="settings.services.${i}.start" data-save="services" data-save-on="blur" aria-label="Start"> <span class="ts">to</span> <input type="time" class="t-time" value="${sv.end}" data-field="settings.services.${i}.end" data-save="services" data-save-on="blur" aria-label="End"></div>
         <button class="chip sq" data-act="svc-remove" data-i="${i}" aria-label="Remove service">${I.cross}</button>
       </div>`).join('')}
       <div class="inline"><button class="btn" data-act="svc-add">${I.plus} Add a service</button><span class="spacer"></span><span class="field-label" style="margin:0;">Bookings start every</span>${[15, 30].map(m => `<button class="chip${s.slotMinutes === m ? ' active' : ''}" data-act="set-num" data-key="slotMinutes" data-val="${m}">${m} min</button>`).join('')}</div>
@@ -18155,7 +18216,11 @@ function renderBookingEdit(m) {
     const room = floorStateAt(pad2(Math.floor(tradingNowMin() / 60)) + ':' + pad2(tradingNowMin() % 60), true);
     const occ = !isSat(r) && stillEating(room, r);
     const id = esc(r.id);
-    if (!isSat(r) && tablesFor(r).length && !occ) next = `<button class="go" data-act="row-seat" data-id="${id}">Seat at ${esc(tablesFor(r).map(tableName).join(' + '))}</button>`;
+    // IN ANOTHER TABLET'S HAND (daily round, 11 Oct): the row's key and its
+    // ask, never a Seat the desk would refuse ("Bar is seating Lee").
+    const ih = !isSat(r) ? holdOn(r.id) : null;
+    if (ih) next = state.ihAsk === r.id ? ihAskHtml(ih) : `<button class="go ih" data-act="ih-take" data-id="${id}">In hand · ${esc(ih.by)}</button>`;
+    else if (!isSat(r) && tablesFor(r).length && !occ) next = `<button class="go" data-act="row-seat" data-id="${id}">Seat at ${esc(tablesFor(r).map(tableName).join(' + '))}</button>`;
     else if (!isSat(r) && occ && !isHere(r)) next = `<button class="go ink" data-act="row-here" data-id="${id}">Here — ${esc(busyWords(room, occ))}</button>`;
     else if (r.status === 'part-seated') next = `<button class="go" data-act="row-rest" data-id="${id}">The other ${Math.max(1, r.partySize - (r.partCount || 0))} arrived</button>`;
     else if (!state.billFromTill && r.status === 'seated') next = `<button class="go ink" data-act="bke-step" data-id="${id}" data-val="check">Bill</button>`;
@@ -18332,7 +18397,7 @@ function renderBookingPage(page) {
     ${m.closed ? `<div class="warnbox">${m.note ? 'Closed — ' + esc(m.note) : 'Closed that day'}. A time can still be set by hand below.</div>` : ''}
     <label>Times ${m.services && m.services.length ? `<span class="mono" style="text-transform:none;letter-spacing:0;">· ${m.services.map(x => esc(x.name)).join(', ')}</span>` : ''}</label>
     ${slots}
-    <div class="inline" style="margin-top:12px;"><span class="ts">Another time:</span><input type="time" value="${esc(b.time)}" data-field="modal.b.time" data-avail="tables" style="width:140px;" aria-label="Custom time"></div>
+    <div class="inline" style="margin-top:12px;"><span class="ts">Another time:</span><input type="time" class="t-time" value="${esc(b.time)}" data-field="modal.b.time" data-avail="tables" aria-label="Custom time"></div>
     <div class="ts" style="margin-top:8px;">A faded time is one the pacing or the floor is against — it can still be taken, and the reason is on it.</div>`;
   }
 
@@ -18456,7 +18521,7 @@ function renderExceptionModal() {
       <button class="chip${ex.closed ? '' : ' active'}" data-act="exc-mode" data-val="open">Special hours</button>
     </div>
     ${ex.closed ? '' : `<label>Sittings</label>
-      ${wins.map((w, i) => `<div class="inline exc-win"><input type="text" value="${esc(w.name)}" data-field="modal.ex.services.${i}.name" aria-label="Sitting name" placeholder="Sitting"><input type="time" value="${esc(w.start)}" data-field="modal.ex.services.${i}.start" aria-label="Start" style="width:120px;"><span class="ts">to</span><input type="time" value="${esc(w.end)}" data-field="modal.ex.services.${i}.end" aria-label="End" style="width:120px;"><button class="chip sq" data-act="exc-win-remove" data-i="${i}" aria-label="Remove sitting">${I.cross}</button></div>`).join('')}
+      ${wins.map((w, i) => `<div class="inline exc-win"><input type="text" value="${esc(w.name)}" data-field="modal.ex.services.${i}.name" aria-label="Sitting name" placeholder="Sitting"><input type="time" class="t-time" value="${esc(w.start)}" data-field="modal.ex.services.${i}.start" aria-label="Start"><span class="ts">to</span><input type="time" class="t-time" value="${esc(w.end)}" data-field="modal.ex.services.${i}.end" aria-label="End"><button class="chip sq" data-act="exc-win-remove" data-i="${i}" aria-label="Remove sitting">${I.cross}</button></div>`).join('')}
       <div><button class="btn" data-act="exc-win-add">${I.plus} Add a sitting</button></div>`}
     <label for="exc-note">Note (guests see this)</label><input id="exc-note" type="text" maxlength="60" value="${esc(ex.note)}" data-field="modal.ex.note" placeholder="e.g. Christmas Day">
     <div class="ts" style="margin-top:8px;">${ex.closed
@@ -19156,8 +19221,11 @@ document.addEventListener('click', async (ev) => {
         // list moves, only the message answers — walkin-seat's own law.
         _seatedAt = Date.now();
         try {
-          if (act === 'door-seat') await post('/api/reservations/' + id + '/seat', { tableId: held[0], tableIds: held.slice(1) });
-          else await put('/api/reservations/' + id, body);
+          // EVERY TAB'S SEAT IS ASKED AGAIN (daily round, 11 Oct): the row's
+          // PUT never asked who was in the chairs, and a tab drawn a second
+          // before another tablet's walk-in sat Okafor on top of them. The
+          // route says part of a party at the door is that part, as seatBody.
+          await post('/api/reservations/' + id + '/seat', { tableId: held[0], tableIds: held.slice(1) });
           // Undo gives a party the door marked Here its card back (review, 10 Oct).
           const kept = state.doorKept.has(id);
           state.doorKept.delete(id);
@@ -20808,7 +20876,34 @@ const HOLD_RENEW_MS = 10000;
 let _myHold = null, _holdSig = '', _holdQ = Promise.resolve();
 function holdsSeen() { return (state.today && Array.isArray(state.today.holds)) ? state.today.holds : []; }
 function holdOn(party) { return party ? holdsSeen().find(h => h.party === party) || null : null; }
-function holdAt(tid) { return holdsSeen().find(h => (h.tableIds || []).includes(tid)) || null; }
+// IN HAND FOR THIS SITTING (daily round, 11 Oct): a table is another's only
+// where its hold overlaps the sitting being picked — the server's own test
+// (av.holdRefusal's span). Stand's picker for a 9:00 two dimmed 26 on Bar
+// at 6:40 while Bar's walk-in menu led with 26, rightly free till 9. With
+// no span — the room at rest, no picker open — every hold is drawn.
+function holdAt(tid, span) {
+  return holdsSeen().find(h => (h.tableIds || []).includes(tid)
+    && (!span || !Number.isFinite(h.from) || !Number.isFinite(h.to) || (span.from < h.to && h.from < span.to))) || null;
+}
+// av.holdSpan's copy: a booking nobody has sat from its own hour (or now,
+// once that has gone); a party in the room, the line and a walk-in from now.
+function holdSpanLocal(r, size) {
+  const now = Date.now();
+  const dur = durationOf(Object.assign({ partySize: size || (r && r.partySize) || 1, durationMin: null }, r ? { durationMin: r.durationMin } : {})) * 60000;
+  if (!r || !r.time) return { from: now, to: now + dur };
+  const s = new Date(r.time).getTime();
+  if (isSat(r) || isHere(r)) return { from: now, to: Math.max(s + dur, now + 60000) };
+  const from = Math.max(now, s);
+  return { from, to: from + dur };
+}
+// The sitting the open picker is about: a booking's own, the walk-in's
+// (the wrong night's party at its own length, from now), else now.
+function pickSpan() {
+  const pk = state.picking, w = state.walkin;
+  if (pk) { const r = (state.reservations || []).find(x => x.id === pk.id); if (r) return holdSpanLocal(r); }
+  if (w) return holdSpanLocal({ partySize: w.size, durationMin: w.min > 0 ? w.min : null }, w.size);
+  return null;
+}
 function holdsLive() { return !!_myHold || holdsSeen().length > 0; }
 // THE NAME IT WAS GIVEN, OR NONE (review, 10 Oct): an unnamed tablet sent
 // its own placeholder, and Bar read "in hand · This tablet" about Stand. The
@@ -20925,7 +21020,7 @@ function ihAskHtml(h) {
   return `<div class="ih-ask"><b>Take it from ${esc(h.by)}?</b><span class="ih-go"><button class="ih-no" data-act="ih-no">No</button><button class="ih-yes" data-act="ih-yes" data-id="${esc(h.party)}">Yes, take it</button></span></div>`;
 }
 function ihAskTableHtml(tid) {
-  const h = holdAt(tid);
+  const h = holdAt(tid, pickSpan());
   if (!h || h.party) return '';
   return `<div class="ih-ask wk-ih"><b>Take ${esc(tableName(tid))} from ${esc(h.by)}?</b><span class="ih-go"><button class="ih-no" data-act="ih-no">No</button><button class="ih-yes" data-act="ih-yes-t" data-table="${esc(tid)}">Yes, take it</button></span></div>`;
 }
