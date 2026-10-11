@@ -3287,6 +3287,48 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 .vs-pick select{padding-right:44px;}
 .vs-pick svg{position:absolute;right:12px;top:50%;width:20px;height:20px;transform:translateY(-50%);color:var(--mute);pointer-events:none;}
 .vs-pick select:disabled{opacity:var(--dim);}
+/* NEXT AT THE DOOR (owner, 10 Oct, v61). The docket line made big, inside the
+   list's own white block: the tab is the table and the next step, the name
+   and how many at twice the row's type, the time in the right column, and
+   one line saying whether the table is ready. The few colours by where the
+   party is up to — the light grey still to come, the late red edge, the one
+   blue at the door — and the ink "Seat" for the one key that does the thing
+   (QUIET). Its type is the scale's own rungs, doubled where it is read from
+   the door: the row's name is --fs-lg, the card's is two of it. */
+.door-card{--dc-big:calc(var(--fs-lg) * 2);--dc-time:var(--fs-num);--dc-say:var(--fs-xl);
+  display:grid;grid-template-columns:88px minmax(0,1fr) auto;align-items:stretch;width:100%;min-height:112px;
+  padding:0;border:none;border-top:1px solid var(--line);background:var(--surface);color:var(--ink);text-align:left;font:inherit;cursor:pointer;}
+.door-rows > .door-card:first-child{border-top:none;}
+.dc-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:var(--tfree);color:var(--ink);}
+.dc-tab .dc-no{font-family:var(--font-mono);font-weight:700;font-size:var(--dc-big);line-height:1;}
+.dc-tab .dc-do{font-size:var(--fs-lg);font-weight:700;line-height:1;}
+.dc-tab.seat{background:var(--ink);color:var(--surface);}
+.dc-tab.late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
+.dc-tab.late .dc-do{color:var(--ink);}
+.dc-tab.here{background:var(--accent);color:var(--on-accent);}
+.dc-tab.busy .dc-no{text-decoration:line-through;text-decoration-thickness:3px;}
+.dc-tab.busy:not(.here) .dc-no{color:var(--mute);}
+.dc-main{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0;padding:12px 8px 12px 16px;}
+.dc-name{display:flex;min-width:0;font-size:var(--dc-big);font-weight:700;line-height:1.15;}
+.dc-name .td-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dc-name .td-n{flex:none;white-space:nowrap;}
+.dc-say{font-size:var(--dc-say);font-weight:600;line-height:1.3;color:var(--mute);}
+.dc-say i{font-style:normal;}
+/* A unit is led by its dot and kept whole, so a wrap never leaves a dot at
+   a line's end. */
+.dc-say b{font-weight:inherit;white-space:nowrap;}
+.dc-say .ink{color:var(--ink);} .dc-say .late{color:var(--late);} .dc-say .here{color:var(--accent);}
+.dc-rt{display:flex;align-items:flex-start;padding:16px 12px 0 4px;font-family:var(--font-mono);font-weight:600;font-size:var(--dc-time);color:var(--mute);white-space:nowrap;}
+.door-card.is-here{background:var(--accent-wash);}
+@media (max-width:420px){
+  .door-card{--dc-big:var(--fs-num);--dc-time:var(--fs-xl);--dc-say:var(--fs-lg);grid-template-columns:80px minmax(0,1fr) auto;min-height:108px;}
+}
+/* 320: the name keeps its line; the tab and the gutter take a step less. */
+@media (max-width:360px){
+  .door-card{--dc-time:var(--fs-lg);grid-template-columns:72px minmax(0,1fr) auto;}
+  .dc-rt{padding-right:8px;}
+  .dc-main{padding-left:12px;}
+}
 @media print{
   /* Paper, not a slab: no ground anywhere, and a light canvas under it — a
      dark theme's canvas is dark even with every ground taken away. */
@@ -3337,7 +3379,7 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 @media (max-width:420px){ .dk-k.ih-k{max-width:88px;} .dk-k.ih-k i{display:none;} }
 </style>
 <div id="app">Loading…</div>
-<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "60d44852a01333aa6678561909c07ef91509d641";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
+<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "fd23f498b030f1d9991c5c4f65e6f3d8246a4980";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
 <script>(function () {
   'use strict';
   // preview/shim.js — the front desk, running with no server.
@@ -4035,6 +4077,18 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
       var hi = 23 * 60 - (20 * 60 + 15);   // last booking no later than 23:00
       return Math.round(Math.max(lo, Math.min(hi, now - ANCHOR)) / 5) * 5;
     })();
+    // AND TODAY'S HOURS GO WITH IT (review, 10 Oct). The bookings moved and
+    // the services did not, so opened at 10:40 in the morning, at half past
+    // three or after half past nine the reader's clock was in no service:
+    // the line was shut and Next at the door never rose, with nothing to say
+    // why. Only then, today alone carries the services moved by the same
+    // drift, as "Preview hours" — in a service already, nothing moves.
+    function previewHours(svcs, drift, now) {
+      var toM = function (t) { var p = String(t).split(':'); return Number(p[0]) * 60 + Number(p[1]); };
+      var hm = function (m) { m = Math.max(0, Math.min(23 * 60 + 59, m)); return (m < 600 ? '0' : '') + Math.floor(m / 60) + ':' + (m % 60 < 10 ? '0' : '') + (m % 60); };
+      if (!svcs.length || svcs.some(function (x) { return toM(x.start) - 30 <= now && now < toM(x.end); })) return null;
+      return svcs.map(function (x) { return { id: x.id, name: x.name, start: hm(toM(x.start) + drift), end: hm(toM(x.end) + drift) }; });
+    }
     var tonight = function (hh, mm) {
       var m = hh * 60 + mm + drift;
       return shiftDay(base, 0) + 'T' + pad(Math.floor(m / 60)) + ':' + pad(m % 60);
@@ -4091,6 +4145,16 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
     // blank, because when a POS is linked the name comes from it.
     chain = chain.then(function () {
       return call('PUT', '/api/settings', { venueName: 'The Dining Room', venuePhone: '(07) 5555 1234' });
+    });
+    chain = chain.then(function () {
+      return call('GET', '/api/settings').then(function (st) {
+        var d = new Date(), wd = new Date(base + 'T12:00').getDay();
+        var svcs = ((st && st.services) || []).filter(function (x) { return (x.days || []).indexOf(wd) !== -1; });
+        var moved = previewHours(svcs, drift, d.getHours() * 60 + d.getMinutes());
+        if (!moved) return null;
+        var rest = ((st && st.exceptions) || []).filter(function (x) { return x.date !== base; });
+        return call('PUT', '/api/settings', { exceptions: rest.concat([{ id: 'expreview', date: base, closed: false, note: 'Preview hours', services: moved }]) });
+      });
     });
     // The biggest table in the room, for the party of eight, and the fours
     // along the wall stated as pairs that push together: this room has one
@@ -6229,13 +6293,24 @@ function walkinNext(ctx, day, hhmm, party, dur) {
 // having picked a table the room said was free only "till" a time. null, or
 // the first table that is not: { id, at } — `at` the time it is booked from
 // inside their sitting, null when somebody is on it now.
+//
+// NEXT AT THE DOOR's review (10 Oct, v61: "Yes"). `ignoreId`: a booking
+// being seated stays IN the book while it is asked, and only its own hold is
+// not in its way. Taken out first, the desk's picks were laid again without
+// it and a six nothing could place landed on Whitfield's own 9: the card's
+// "9 is ready" was refused "Table 9 is taken now". `inRoom`: free NOW means
+// nobody IN the chairs — sat, at the door, the till's covers, a party
+// running over — the tab's own stillEating(); a late party that never came
+// is not in the way of the party standing at the stand (Kowalski, 46 min
+// late on 5, and Ruiz's "5 is ready" was refused).
 function seatRefusal(ctx, day, hhmm, size, ids, opts) {
   opts = opts || {};
   if (!(ids || []).length) { const p = opts.party ? holdRefusal(ctx.holds, [], opts.party) : null; return p ? { id: null, at: null, by: p.by, name: p.name } : null; }
   size = Math.max(1, Number(size) || 1);
   const sub = walkinBook(ctx, day, hhmm);
-  const now = new Set(freeTables(sub, day, hhmm, size, { duration: 1 }).map(t => t.id));
-  const whole = new Set(freeTables(sub, day, hhmm, size, { duration: opts.duration }).map(t => t.id));
+  const there = opts.inRoom ? Object.assign({}, sub, { reservations: (sub.reservations || []).filter(r => r && (r.id === opts.ignoreId || isSat(r) || isHere(r))) }) : sub;
+  const now = new Set(freeTables(there, day, hhmm, size, { duration: 1, ignoreId: opts.ignoreId }).map(t => t.id));
+  const whole = new Set(freeTables(sub, day, hhmm, size, { duration: opts.duration, ignoreId: opts.ignoreId }).map(t => t.id));
   const start = toMin(hhmm), dur = durationFor(ctx.settings, size, opts.duration), clock = nowOn(sub, day);
   // In another tablet's hand (v65): said as whose, before anything else —
   // a table held for a sitting this one runs into, or this very party
@@ -6248,7 +6323,7 @@ function seatRefusal(ctx, day, hhmm, size, ids, opts) {
   for (const id of ids) {
     if (!now.has(id)) return { id, at: null };
     if (opts.till || whole.has(id)) continue;
-    const from = holdersOf(sub, id, day, start, dur, null).map(r => heldFrom(r, clock, nightMin(r, day))).sort((a, b) => a - b)[0];
+    const from = holdersOf(sub, id, day, start, dur, opts.ignoreId).map(r => heldFrom(r, clock, nightMin(r, day))).sort((a, b) => a - b)[0];
     return { id, at: from === undefined ? null : fromMin(from) };
   }
   return null;
@@ -7689,6 +7764,59 @@ function tidyBack(r, b) {
   return null;
 }
 
+// §§ NEXT AT THE DOOR (owner, 10 Oct, v61: "Yes"). A party says "Okafor" at
+// the stand, and the host wakes the tablet, scans twenty small rows, reads a
+// tab and, when it is struck, opens the booking to see who is on the table:
+// four to eight taps with the party standing there. When nobody has touched
+// the desk for twenty seconds during a service, the top of the list is the
+// next five parties DUE, big enough to read from the door. WHO is this
+// rule; the desk keeps a copy (doorNextLocal(), held to this by
+// test/door.test.js) and says whether each table is ready with its own tab's
+// answer.
+//
+// Shown only tonight, while the line takes names (lineOpen(): a service on,
+// or starting within half an hour) — never on another night, a closed day,
+// between services or once the night is over. The parties: booked or
+// confirmed, with a table (the desk's own pick counts, heldBook()), on the
+// service on screen (opts.service; empty is All night) by their home service
+// (the tidy's), and only while that service is not over — last lunch's
+// never-came is not walking up at dinner. NOT a party already at the door
+// or sat: they are already being dealt with and keep their ordinary rows —
+// except one the DOOR itself marked Here (opts.kept), who stays on the
+// cards, first, until they are seated, so the host can tell them how long.
+// Then the late, then by time — but not one past the no-show wait
+// (noShowWait(), the tidy's), who is the tidy's now. Three at most.
+const DOOR_MAX = 5;
+function doorNext(ctx, day, opts) {
+  opts = opts || {};
+  const out = { show: false, list: [] };
+  const settings = (ctx && ctx.settings) || {};
+  const now = nowOn(ctx, day);
+  if (now === null || now >= 1440 || !lineOpen(settings, ctx.now).open) return out;
+  const svcs = servicesInOrder(settings, day);
+  const picked = (opts.service && svcs.find(s => s.id === opts.service)) || null;
+  const kept = new Set(Array.isArray(opts.kept) ? opts.kept : []);
+  const wait = noShowWait(settings);
+  // Late first, then by time, IS by time: the late are the earliest still
+  // due, so one sort says both.
+  const rank = (r) => isHere(r) ? 0 : 1;
+  out.list = heldBook(ctx, day).reservations
+    .filter(r => r && onNight(settings, r, day) && heldTables(r).length
+      && (['booked', 'confirmed'].includes(r.status) || (isHere(r) && kept.has(r.id))))
+    .map(r => ({ r, t: nightMin(r, day) }))
+    .filter(({ t }) => { const home = tidyHomeOf(svcs, t); return !!home && now < toMin(home.end) && (!picked || home.id === picked.id); })
+    // Past the venue's no-show wait a party that never came is the tidy's,
+    // not the door's: three from 5:15 held every card at 8:44 and Okafor,
+    // due at 8:45, was not on one (review, 10 Oct). One the door marked
+    // Here is standing there, however late.
+    .filter(({ r, t }) => isHere(r) || now - t <= wait)
+    .sort((a, b) => (rank(a.r) - rank(b.r)) || (a.t - b.t))
+    .slice(0, DOOR_MAX)
+    .map(({ r }) => (ctx.reservations || []).find(x => x && x.id === r.id) || r);
+  out.show = out.list.length > 0;
+  return out;
+}
+
 module.exports = {
   statusStamps, mergeTables,
   heldBook, billOn,
@@ -7703,6 +7831,7 @@ module.exports = {
   ALLERGY_RE, serviceAt, allergyOf, sheetRow, runSheet,
   TIDY_AFTER, tidyKind, tidyNight, tidyPick, tidyBack, tidyWas,
   HOLD_MS, HOLD_IDLE_MS, holdBy, holdsOf, holdPut, holdSpan, holdTake, holdRefusal, holdRows,
+  DOOR_MAX, doorNext,
 };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
@@ -10770,6 +10899,51 @@ app.post('/api/reservations/:id/grow', (req, res) => {
   kickPos();
 });
 
+// §§ NEXT AT THE DOOR (owner, 10 Oct, v61: "Yes"). The door's card is the
+// row's tab made big, and its seat is asked AGAIN where it lands: the card
+// stood on a quiet desk twenty seconds and more before the tap, and another
+// tablet, or the till, may have put somebody on that table since. The
+// walk-in's own question (av.seatRefusal, this booking's own hold left
+// out), free NOW — the tab's own test, stillEating() — and 409 in plain
+// words; nothing is written. Else seated there through changeReservation(),
+// the PUT's own path, and part of a party at the door is that part sat, as
+// the tab's seatBody() says it.
+app.post('/api/reservations/:id/seat', (req, res) => {
+  const data = readData();
+  const r = data.reservations.find(x => x.id === req.params.id);
+  if (!r) return res.status(404).json({ error: 'Booking not found' });
+  if (!av.isLive(r)) return res.status(400).json({ error: 'That booking is over' });
+  if (av.isSat(r)) return res.status(409).json({ error: `${r.name} is already seated` });
+  const b = req.body || {};
+  const tableId = typeof b.tableId === 'string' && b.tableId ? b.tableId : null;
+  if (!tableId) return res.status(400).json({ error: 'Which table?' });
+  const tableIds = Array.isArray(b.tableIds) ? b.tableIds.map(String).filter(id => id !== tableId).slice(0, 8) : [];
+  const now = new Date(), day = av.localDay(now);
+  // This party stays IN the book while it is asked (ignoreId), so every pass
+  // of the desk's own picks is laid around it, as the card was drawn: taken
+  // out, a sat party nobody placed was laid on this party's own table and
+  // the seat refused the table the card said was ready (the try-out and the
+  // review, 10 Oct). And free now is who is IN the chairs (inRoom), the
+  // card's and the tab's stillEating(): a late party that never came is not
+  // in the way of the one at the stand.
+  const no = av.seatRefusal(ctxOf(data, req), day, av.pad2(now.getHours()) + ':' + av.pad2(now.getMinutes()), r.partySize, [tableId].concat(tableIds), { till: true, duration: r.durationMin, ignoreId: r.id, inRoom: true, party: r.id });
+  if (no) return res.status(409).json({ error: seatRefusedWords(data, no) });
+  // Another tablet's hold (v65) is met for the WHOLE sitting this seat
+  // starts, not seatRefusal's "till" minute: Stand seating Ward on 3 for
+  // 7:50 is in the way of Okafor sat there now for ninety minutes, and the
+  // door's card on Bar must not take the table out from under Stand.
+  const dur = av.durationFor(ctxOf(data).settings, r.partySize, r.durationMin);
+  const inHand = av.holdRefusal(holdsFor(req), [tableId].concat(tableIds), r.id, { from: now.getTime(), to: now.getTime() + dur * 60000 });
+  if (inHand) return res.status(409).json({ error: seatRefusedWords(data, { id: inHand.id, at: null, by: inHand.by, name: inHand.name }) });
+  const body = { tableId, tableIds, status: 'seated' };
+  if (r.status === 'part-arrived' && r.partCount) { body.status = 'part-seated'; body.partCount = r.partCount; }
+  const out = changeReservation(data, r, body, staffFromReq(req));
+  if (out.error) return res.status(400).json({ error: out.error });
+  writeData(data);
+  res.json(withWarnings(data, r));
+  kickPos();
+});
+
 // §§ HERE ON THE WRONG NIGHT (owner, 9 Oct, v59: "Yes . Good idea"). The
 // party is at the stand and their booking is on another night. One press
 // moves it to tonight at the clock and seats them on the table sent — asked
@@ -13096,7 +13270,10 @@ const state = {
   // A NAME, not a credential. There is nothing to unlock: the desk has no
   // door and Settings has no PIN — what guards this app is the front door of
   // the restaurant it is standing in.
-  settings: null, theme: { accent: '#2F74C9', mode: 'auto' }, tables: [], floorPlans: [], posStatus: null, relayStatus: null,
+  settings: null, theme: { accent: '#2F74C9', mode: 'auto' },
+  // NEXT AT THE DOOR (v61): the parties the door's own card marked Here,
+  // who keep their card until they sit. Never stored: tonight's, this tablet's.
+  doorKept: new Set(), tables: [], floorPlans: [], posStatus: null, relayStatus: null,
   // The set menus the desk can pick from, and whether they are the POS's own
   // combos (which makes the Settings card read-only, as the Staff card is).
   setMenus: [], setMenusFromPos: false,
@@ -13443,6 +13620,45 @@ function tidyNightLocal() {
     else if (['booked', 'confirmed'].includes(r.status) && now - t > wait) out.never.push(r);
   }
   out.show = !!(out.sat.length || out.never.length);
+  return out;
+}
+
+// §§ NEXT AT THE DOOR (owner, 10 Oct, v61: "Yes"). The browser's copy of
+// availability.js:lineOpen() and doorNext(), because the cards are drawn from
+// the night the list already holds; test/door.test.js runs THIS source
+// against that one, every status at every clock, on every service. Tonight,
+// while the line takes names (a service on, or within half an hour of one),
+// the next three booked or confirmed with a table, on the service on screen
+// by their home service and only while it is not over, plus the ones the
+// door itself marked Here (state.doorKept) first; then the late, then by
+// time, and none past the no-show wait.
+const LINE_EARLY_LOCAL = 30;
+const DOOR_MAX_LOCAL = 5;
+function lineOpenLocal() {
+  if (state.date !== tradingDay()) return false;
+  const t = tradingNowMin(), h = Number((state.settings || {}).dayStartsAt);
+  if (t >= 1440 || t < (Number.isFinite(h) ? h : 4) * 60) return false;
+  return servicesOnDay(state.date).some(s => Math.max(0, toMin(s.start) - LINE_EARLY_LOCAL) <= t && t < toMin(s.end));
+}
+function doorNextLocal() {
+  const out = { show: false, list: [] };
+  if (!lineOpenLocal()) return out;
+  const now = tradingNowMin(), svcs = servicesInOrderOn(state.date), picked = pickedService();
+  const kept = state.doorKept || new Set();
+  // Past the no-show wait a party that never came is the tidy's (review, 10 Oct).
+  const n = Number((state.settings || {}).noShowAfterMinutes), wait = n > 0 ? n : 30;
+  // Late first, then by time, is by time: the late are the earliest still due.
+  const rank = (r) => isHere(r) ? 0 : 1;
+  out.list = (state.reservations || [])
+    .filter(r => r && onNightOf(r, state.date) && tablesFor(r).length
+      && (['booked', 'confirmed'].includes(r.status) || (isHere(r) && kept.has(r.id))))
+    .map(r => ({ r, t: nightMinOf(r) }))
+    .filter(({ t }) => { const home = tidyHomeOf(svcs, t); return !!home && now < toMin(home.end) && (!picked || home.id === picked.id); })
+    .filter(({ r, t }) => isHere(r) || now - t <= wait)
+    .sort((a, b) => (rank(a.r) - rank(b.r)) || (a.t - b.t))
+    .slice(0, DOOR_MAX_LOCAL)
+    .map(({ r }) => r);
+  out.show = out.list.length > 0;
   return out;
 }
 
@@ -16554,7 +16770,123 @@ function elsewhereTonight(q) {
   return `<div class="nt-more">${hits.map(r => { const sv = home(r);
     return `<button class="btn" data-act="svc-pick" data-val="${esc(sv ? sv.id : '')}">${esc(r.name)} · ${sv ? esc(sv.name) + ' ' : ''}${esc(fmtHHMM(hhmmOf(r.time)))}</button>`; }).join('')}</div>`;
 }
+// §§ NEXT AT THE DOOR (owner, 10 Oct, v61: "Yes"). Twenty seconds with
+// nobody touching the desk during a service, and the top of the list is the
+// next three parties due as big cards, readable from the door: the tab is
+// the table and the next step, then the name and how many, the time, and
+// one line saying whether their table is ready — "13 is ready", "12 frees
+// about 8:05 · Duarte paid" — the tab's own answer (stillEating() on the
+// floor at the clock) and the sitting's own end (sitLeft()). WHO is
+// doorNextLocal(), the tested rule's copy. Never while a message, a menu,
+// the welcome card, a booking, a picker, the tidy or a search is open, never
+// while a pointer is down, and never on another night or after service.
+const DOOR_QUIET_MS = 20000;
+let _doorQuietAt = Date.now(), _doorDrawn = false;
+function doorShown() {
+  if (state.view !== 'today' || state.side !== 'book' || state.todayMode === 'sheet') return false;
+  if (state.toast || state.modal || state.welcome || state.walkin || state.picking || state.nightOpen || state.menuOpen || state.tidy || state.dragging) return false;
+  if (deskQuery().on || pressing() || Date.now() - _doorQuietAt < DOOR_QUIET_MS) return false;
+  // Only on a list that is DRAWN and at its top (review, 10 Oct): scrolled
+  // down, the cards rose above the rows being read and pushed them 200 down,
+  // and behind a phone's Floor they were three cards nobody could see.
+  const col = document.querySelector('.desk-col');
+  if (!col || !col.getClientRects().length || col.scrollTop > 8) return false;
+  return doorNextLocal().show;
+}
+// What the card says about the table: ready, or who is on it and when it
+// frees — their sitting's end, read off the clock as the row's "39 min left"
+// is — and, while they are waiting at the door, what to tell them.
+function doorTable(r, room, now) {
+  const held = tablesFor(r), words = held.map(tableName).join(' + ');
+  const occ = stillEating(room, r);
+  if (!occ) return { ready: true, words };
+  const f = room.find(x => x.id === occ);
+  const on = f && f.r && f.r.id !== r.id && (isSat(f.r) || isHere(f.r)) ? f.r : null;
+  const name = on ? (on.name || 'Walk-in') : '';
+  if (on && isSat(on)) {
+    const left = sitLeft(on, now), mins = Math.max(0, left);
+    const at = fmtHHMM(fromMin(tradingNowMin() + mins)).replace(/\s?[AP]M$/i, '');
+    const what = on.status === 'paid' ? `${name} paid` : on.status === 'check' ? `${name} have the bill` : left < 0 ? `${name} ${waitWords(-left)} over` : `${name} eating`;
+    return { ready: false, words, occ, mins, at, frees: mins ? `${tableName(occ)} frees about ${at}` : `${tableName(occ)} frees any minute`, what };
+  }
+  if (on) return { ready: false, words, occ, mins: null, frees: `${tableName(occ)} taken`, what: `${name} waiting for it` };
+  return { ready: false, words, occ, mins: null, frees: `${tableName(occ)} still eating`, what: 'on the till' };
+}
+function doorCard(r, room, now) {
+  const late = lateBy(r, now), here = isHere(r), t = doorTable(r, room, now);
+  const held = tablesFor(r), label = tableName(held[0]) + (held.length > 1 ? '+' : '');
+  const said = [];
+  if (here) said.push('<i class="here">Here</i>');
+  if (late) said.push(`<i class="late">${esc(waitWords(late))} late</i>`);
+  if (t.ready) said.push(`<i class="ink">${esc(t.words)} is ready</i>`);
+  else {
+    // At the door the wait is said once: what to tell them, and the tab
+    // already says when the table frees (review, 10 Oct).
+    if (here) said.push(`<i class="here">${t.mins ? 'say about ' + esc(waitWords(t.mins)) : t.mins === 0 ? 'say any minute' : 'say a few minutes'}</i>`);
+    const frees = here && t.mins !== null ? null : t.frees;
+    if (frees) said.push(`<i>${esc(frees)}</i>`);
+    said.push(`<i>${esc(t.what)}</i>`);
+  }
+  const act = t.ready ? 'door-seat' : here ? 'edit-booking' : 'door-here';
+  const tab = here ? 'here' : late ? 'late' : t.ready ? 'seat' : '';
+  const word = t.ready ? 'Seat' : here ? (t.at || '—') : 'Here';
+  const aria = t.ready ? `Seat ${r.name || 'them'} at ${t.words}` : here ? `${r.name || 'Booking'}, here: ${t.frees}` : `${r.name || 'Booking'} is here: ${t.frees}`;
+  return `<button class="door-card${here ? ' is-here' : ''}" data-act="${act}" data-id="${esc(r.id)}" aria-label="${esc(aria)}">
+    <span class="dc-tab ${tab}${t.ready ? '' : ' busy'}"><span class="dc-no">${esc(label)}</span><span class="dc-do">${esc(word)}</span></span>
+    <span class="dc-main"><span class="dc-name"><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span>
+      <span class="dc-say">${said.map((u, i) => i ? `<b>·&nbsp;${u}</b>` : u).join(' ')}</span></span>
+    <span class="dc-rt">${esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''))}</span>
+  </button>`;
+}
+// A CARD ANSWERS ONLY ONCE IT HAS STOOD STILL (review, 10 Oct). The cards
+// rise on a timer, so they rose under a finger already on its way to a row:
+// aimed at Lee, the tap seated Okafor. What the cards say — who, in what
+// order, and what a tap does — is remembered with when it was first drawn
+// (_doorSig, _doorSigAt), and a card's tap counts only from a press that
+// went down DOOR_SETTLE_MS after that; the poll redrawing the same cards
+// keeps the stamp, a different first card is a new one.
+const DOOR_SETTLE_MS = 600;
+let _doorSig = '', _doorSigAt = 0, _downAt = 0, _doorShrinkAt = 0;
+function doorCards(list, room, now) {
+  const cards = list.map(r => doorCard(r, room, now));
+  const sig = list.map((r, i) => r.id + ':' + (cards[i].match(/data-act="([^"]+)"/) || [])[1]).join(',');
+  if (sig !== _doorSig) { _doorSig = sig; _doorSigAt = Date.now(); }
+  return `<div class="bl-head door"><span class="bl-h-name">Next at the door</span></div><div class="bl-rows door-rows">${cards.join('')}</div>`;
+}
+// A TOUCH NEVER REPAINTS UNDER THE PRESS (review, 10 Oct). The cards shrank
+// on pointerdown, which replaced the element under a mouse and sent its
+// click to the parent: New booking, Walk-in, the search and a table all did
+// nothing the first time. The press only marks the desk busy; the cards
+// shrink once it has landed — the turn after its click, which a finger's
+// tap sends a task AFTER pointerup (a shrink on pointerup slid a row under
+// the click), or, for a press that sends no click (a scroll, a held finger),
+// DOOR_SETTLE_MS after it lifts.
+document.addEventListener('pointerdown', (e) => {
+  _downAt = _doorQuietAt = Date.now();
+}, true);
+function doorShrink() { if (_doorDrawn && !doorShown()) { _doorShrinkAt = Date.now(); render(); } }
+for (const k of ['pointerup', 'pointercancel']) document.addEventListener(k, () => { setTimeout(doorShrink, DOOR_SETTLE_MS); }, true);
+for (const k of ['keydown', 'wheel']) document.addEventListener(k, () => { _doorQuietAt = Date.now(); if (_doorDrawn) render(); }, { capture: true, passive: true });
+// A card's tap from a press that came before the card stood still is
+// swallowed; so is any tap pressed while the list was still sliding up
+// after the shrink (SEAT_SETTLE_MS), so a second tap aimed at a row that
+// moved never lands on what slid under it.
+document.addEventListener('click', (ev) => {
+  if (_doorDrawn) setTimeout(doorShrink, 0);
+  if (!ev.detail) return;
+  const card = closest(ev.target, '.door-card');
+  const fresh = card && _downAt - _doorSigAt < DOOR_SETTLE_MS;
+  const sliding = _doorShrinkAt && _downAt > _doorShrinkAt && _downAt - _doorShrinkAt < SEAT_SETTLE_MS;
+  if (fresh || sliding) { ev.stopImmediatePropagation(); ev.preventDefault(); }
+}, true);
+// They come back after the next twenty quiet seconds, asked between presses.
+setInterval(() => {
+  if (pressing() || state.dragging) return;
+  if (doorShown() !== _doorDrawn) render();
+}, 1000);
+
 function renderDayList() {
+  _doorDrawn = false;
   const all = state.reservations.filter(onPickedBook).slice().sort((a, b) => a.time.localeCompare(b.time));
   const q = deskQuery();
   const rows = q.on ? all.filter(r => deskMatch(r, q)) : all;
@@ -16598,6 +16930,11 @@ function renderDayList() {
   const nowM = tradingNowMin(), tonight = state.date === tradingDay();
   const room = tonight ? floorStateAt(pad2(Math.floor(nowM / 60)) + ':' + pad2(nowM % 60), true) : [];
   const busyOn = (r) => stillEating(room, r);
+  // NEXT AT THE DOOR (v61): on a quiet desk the next three due stand above
+  // the groups as cards, and Upcoming lists the rest.
+  const door = tonight && doorShown() ? doorNextLocal().list : [];
+  const doorIds = new Set(door.map(r => r.id));
+  _doorDrawn = door.length > 0;
   const row = (r) => {
     const held = tablesFor(r), auto = isAutoTable(r), now = Date.now();
     const ended = !isLive(r), sat = isSat(r), here = isHere(r), late = tonight ? lateBy(r, now) : 0;
@@ -16682,10 +17019,11 @@ function renderDayList() {
   // list, and they live on the Flow now, where there is a row for them.
   return find + nt + `<div class="bl">
     ${q.on ? '' : renderOpened() + renderTidyLine()}
+    ${door.length ? doorCards(door, room, Date.now()) : ''}
     ${(() => {
       // A group with a PICK takes its rows out of the day before the rest see
-      // it, so nothing is listed twice.
-      let left = rows;
+      // it, so nothing is listed twice — and the door's cards take theirs.
+      let left = rows.filter(r => !doorIds.has(r.id));
       return LIST_GROUPS.map(([key, name, statuses, pick]) => {
         // The group's own order, then the day's: arrived first in Upcoming
         // and everything else as it comes. `statuses` IS the order, so a group
@@ -18801,6 +19139,11 @@ document.addEventListener('click', async (ev) => {
       // the whole job: seated there, the desk's own pick settled as theirs,
       // Undo for ten seconds. Most parties come in whole, so "not all here"
       // is the exception and asks AFTER, on the same message, not before.
+      // The door's card is the tab made big (v61), and its seat is asked
+      // again where it lands (av.seatRefusal, POST …/seat): the card stood
+      // twenty seconds and more before the tap, and another tablet may have
+      // sat somebody there since.
+      case 'door-seat':
       case 'row-seat': {
         if (state.modal && state.modal.kind === 'booking') state.modal = null;
         const r = (state.reservations || []).find(x => x.id === id);
@@ -18813,14 +19156,18 @@ document.addEventListener('click', async (ev) => {
         // list moves, only the message answers — walkin-seat's own law.
         _seatedAt = Date.now();
         try {
-          await put('/api/reservations/' + id, body);
+          if (act === 'door-seat') await post('/api/reservations/' + id + '/seat', { tableId: held[0], tableIds: held.slice(1) });
+          else await put('/api/reservations/' + id, body);
+          // Undo gives a party the door marked Here its card back (review, 10 Oct).
+          const kept = state.doorKept.has(id);
+          state.doorKept.delete(id);
           await loadView();
           const who = body.partCount ? `${body.partCount} of ${r.partySize}` : (r.name || 'Booking');
           const msg = `${who} seated at ${held.map(tableName).join(' + ')}`;
           // "How many?" — fewer is part of them sat, more is the party
           // grew; so a party of one is asked too (v57).
           state.toastSome = !body.partCount ? { msg, id, n: r.partySize, open: false } : null;
-          toastUndo(msg, async () => { await put('/api/reservations/' + id, was); await loadView(); });
+          toastUndo(msg, async () => { await put('/api/reservations/' + id, was); if (kept) state.doorKept.add(id); await loadView(); });
           _seatedAt = Date.now();
           greet(id, was.status, body.status);
         } catch (e) { toastBad(e.message); }
@@ -18875,6 +19222,9 @@ document.addEventListener('click', async (ev) => {
       // Both re-sort the list under the finger, as the tab's seat does, so
       // they settle the way it does: a double tap's second lands on nothing
       // but the message (9 Oct).
+      // Here from the door's card: they keep their card, in the one blue,
+      // saying what to tell them, until their table is ready (v61).
+      case 'door-here': state.doorKept.add(id); _seatedAt = Date.now(); await setStatus(id, 'arrived'); _seatedAt = Date.now(); break;
       case 'row-here': if (state.modal && state.modal.kind === 'booking') state.modal = null; _seatedAt = Date.now(); await setStatus(id, 'arrived'); _seatedAt = Date.now(); break;
       case 'row-rest': if (state.modal && state.modal.kind === 'booking') state.modal = null; _seatedAt = Date.now(); await setStatus(id, 'seated'); _seatedAt = Date.now(); break;
       // The booking's own next step past the chair: Bill, Paid, Left.
