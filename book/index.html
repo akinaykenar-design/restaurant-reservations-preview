@@ -6,6 +6,67 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2333352F' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='3'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E">
 
 <style>
+/* GENERATED from restaurant-pos 561a564 public/style.css, server.js and app.js by tools/pos-look.js.
+   Do not edit: every value here is the till's own, under --pos-. Run `node tools/pos-look.js`. */
+@font-face{font-family:'Noto Sans';font-style:normal;font-weight:100 900;font-display:swap;src:url('../fonts/notosans-var.woff2') format('woff2');}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url('../fonts/plexmono-400.woff2') format('woff2');}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('../fonts/plexmono-500.woff2') format('woff2');}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:600;font-display:swap;src:url('../fonts/plexmono-600.woff2') format('woff2');}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:700;font-display:swap;src:url('../fonts/plexmono-700.woff2') format('woff2');}
+:root{
+  --pos-steel-100:#E9E6DF;
+  --pos-steel-200:#E2DED7;
+  --pos-steel-300:#D3CFC6;
+  --pos-steel-500:#B3ADA0;
+  --pos-surface:#FFFFFF;
+  --pos-table-plain:var(--pos-surface);
+  --pos-text-primary:#38352F;
+  --pos-text-secondary:#8B877F;
+  --pos-tbl-edge:#A8A6A1;
+  --pos-orange:#2F74C9;
+  --pos-red:#A8483A;
+  --pos-lift-drop:6px;
+  --pos-lift-blur:18px;
+  --pos-lift-ink:rgba(20,24,25,.10);
+  --pos-lift-1:0 var(--pos-lift-drop) var(--pos-lift-blur) var(--pos-lift-ink);
+  --pos-lift-2:0 10px 25px rgba(20,24,25,.12), 0 30px 60px rgba(20,24,25,.22);
+  --pos-glass:color-mix(in srgb, var(--pos-surface) 14%, transparent);
+  --pos-glass-sheen:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.08) 55%, rgba(255,255,255,0));
+  --pos-glass-on:color-mix(in srgb, var(--pos-surface) 55%, transparent);
+  --pos-glass-rim:color-mix(in srgb, var(--pos-surface) 90%, transparent);
+  --pos-r-pill:999px;
+  --pos-r-control:10px;
+  --pos-r-surface:16px;
+  --pos-ring:1px;
+  --pos-hub-edge:12px;
+  --pos-font-body:'Noto Sans',-apple-system,system-ui,sans-serif;
+  --pos-font-num:'IBM Plex Mono',ui-monospace,monospace;
+  --pos-num-chip:#F5F1E8;
+  --pos-num-ink:#33352F;
+  --pos-occupied:#0A84FF;
+  --pos-wash:78%;
+  --pos-occupied-table:color-mix(in srgb, var(--pos-occupied) 78%, var(--pos-table-plain));
+}
+html[data-theme="dark"],body[data-theme="dark"]{
+  --pos-steel-100:#161512;
+  --pos-steel-200:#332F2B;
+  --pos-steel-300:#4A463F;
+  --pos-steel-500:#6B645A;
+  --pos-surface:#2B2824;
+  --pos-table-plain:#35322D;
+  --pos-text-primary:#EAE8E4;
+  --pos-text-secondary:#D9D5CE;
+  --pos-tbl-edge:#616365;
+  --pos-red:#CF6152;
+  --pos-lift-ink:rgba(0,0,0,.40);
+  --pos-lift-1:0 var(--pos-lift-drop) var(--pos-lift-blur) var(--pos-lift-ink);
+  --pos-lift-2:0 10px 25px rgba(0,0,0,.45), 0 30px 60px rgba(0,0,0,.55);
+  --pos-glass:color-mix(in srgb, var(--pos-surface) 20%, transparent);
+  --pos-glass-sheen:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 55%);
+  --pos-glass-on:color-mix(in srgb, var(--pos-surface) 65%, transparent);
+  --pos-glass-rim:color-mix(in srgb, var(--pos-text-primary) 24%, transparent);
+  --pos-occupied-table:color-mix(in srgb, var(--pos-occupied) 78%, var(--pos-table-plain));
+}
 /* ─────────────────────────────────────────────────────────────────────────────
    Restaurant Reservations — the look, one file.
 
@@ -19,16 +80,9 @@
 
 /* Fonts ship WITH the app — no internet fetch, identical glyphs on every
    machine. Noto Sans is one variable file; Plex Mono carries the numbers. */
-@font-face{font-family:'Noto Sans';font-style:normal;font-weight:100 900;font-display:swap;src:url('../fonts/notosans-var.woff2') format('woff2');}
-@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('../fonts/plexmono-500.woff2') format('woff2');}
-@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:700;font-display:swap;src:url('../fonts/plexmono-700.woff2') format('woff2');}
-/* THE FACE THE PALETTE NAMES (9 Oct). The simple desk's tokens ask for Geist
-   and Geist Mono, and no file of either shipped, so every device drew its own
-   system face — DejaVu on a Linux till, SF on the owner's iPad — and the two
-   above went unused. Both are the OFL `geist` package's variable files, 1.3.1
-   (fonts/geist-OFL.txt), one file each for every weight. */
-@font-face{font-family:'Geist';font-style:normal;font-weight:100 900;font-display:swap;src:url('../fonts/geist-var.woff2') format('woff2');}
-@font-face{font-family:'Geist Mono';font-style:normal;font-weight:100 900;font-display:swap;src:url('../fonts/geistmono-var.woff2') format('woff2');}
+/* THE FACES ARE THE TILL'S (owner, 12 Oct, v67). Noto Sans and IBM Plex Mono
+   are declared in pos-look.css, which tools/pos-look.js writes from the till
+   with the files themselves; Geist is repealed with the v47 palette. */
 
 /* §§ Palette — :root is LIGHT, body[data-theme="dark"] is DARK. Literals on
    purpose (see the POS: a var() inside a token resolves where declared). */
@@ -2532,8 +2586,8 @@ a.btn{color:var(--text-primary);text-decoration:none;}
    anywhere, so it is ink, as seated is — and --green reads it, so nothing
    that still names either can paint green (daily round, 8 Oct). */
 :root{
-  --font-body:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-  --font-mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --font-body:var(--pos-font-body); /* the till's faces (v67); Geist is repealed */
+  --font-mono:var(--pos-font-num);
   --bg:#F3F3F1; --ink:#17181B; --mute:#6A6D75; --faint:#A3A6AD; --line:#E4E4E0;
   --accent:#2D55E6; --accent-wash:#E8EDFD; --on-accent:#FFFFFF; --late:#C8412D; --late-wash:#FBEAE6;
   --leave:var(--ink); --seat:#D9DBE2; --sat-blue:#8DA6F5; --well:#E7E7E3; --tfree:#E9E9E5;
@@ -3475,6 +3529,114 @@ a.cf-k{background:var(--well);color:var(--ink);}
   .dk-row.one .dk-tab,.dk-row.one .dk-main b,.dk-row.one .dk-t{font-size:var(--fs-lg);}
 }
 /* end ONE LINE */
+
+/* §§ THE TILL'S LOOK, COPIED BY THE TOOL (owner, 12 Oct, v67: "The blue the
+   tables numbers the style of the whole page to resemble the pos code"). The
+   desk's palette is pointed at the --pos- tokens tools/pos-look.js lifts out
+   of the till into pos-look.css (loaded first; never edited by hand), so when
+   the till's look moves the desk's moves with the next run. Red stays the
+   desk's own, for late, an allergy, a delete and a failure, and nothing
+   else takes a colour of its own. This
+   REPEALS the v47 palette, QUIET's "one blue for the party at the door", the
+   bar's grey-and-ink pills and the Geist face. */
+:root{
+  --font-body:var(--pos-font-body); --font-mono:var(--pos-font-num);
+  --bg:var(--pos-steel-100); --surface:var(--pos-surface); --ink:var(--pos-text-primary);
+  --line:var(--pos-steel-200); --well:var(--pos-steel-200); --seat:var(--pos-steel-300);
+  --tfree:var(--pos-table-plain); --table-plain:var(--pos-table-plain);
+  --accent:var(--pos-orange); --accent-wash:color-mix(in srgb, var(--pos-orange) 12%, var(--pos-surface));
+  --sat-blue:var(--pos-occupied-table);
+  /* The list's tab is the till's docket qty cell: a filled panel fused to the
+     line's left edge with a hairline down its right ("Bit too dark": the
+     till's steel-200, a step lighter than its steel-500). */
+  --qty:var(--pos-steel-200); --qty-line:var(--pos-steel-300); --tab-plain:var(--qty);
+  --lift-1:var(--pos-lift-1); --lift-2:var(--pos-lift-2);
+}
+body[data-theme="dark"]{
+  --font-body:var(--pos-font-body); --font-mono:var(--pos-font-num);
+  --bg:var(--pos-steel-100); --surface:var(--pos-surface); --ink:var(--pos-text-primary);
+  --line:var(--pos-steel-300); --well:var(--pos-steel-200); --seat:var(--pos-steel-300);
+  --tfree:var(--pos-table-plain); --table-plain:var(--pos-table-plain);
+  --accent:var(--pos-orange); --accent-wash:color-mix(in srgb, var(--pos-orange) 27%, var(--pos-surface));
+  --sat-blue:var(--pos-occupied-table);
+  /* Dark's steel-200 is one point off the paper, so the panel is half a step
+     on to steel-300: the till's two, mixed. */
+  --qty:color-mix(in srgb, var(--pos-steel-200), var(--pos-steel-300)); --qty-line:var(--pos-steel-100); --tab-plain:var(--qty);
+  --lift-1:var(--pos-lift-1); --lift-2:var(--pos-lift-2);
+}
+html,body{background:var(--bg);}
+body{font-family:var(--font-body);}
+
+/* THE GLASS (the till's .fp-float .track): a clear pill with a pale rim, the
+   lit segment a thicker glass in the till's blue. No lift and no frost, and
+   nothing square round it — the well IS the pill. */
+.tp-make{display:flex;}
+.vt,.tp-make{gap:4px;padding:4px;border:none;border-radius:var(--pos-r-pill);
+  background:var(--pos-glass-sheen),var(--pos-glass);box-shadow:inset 0 0 0 var(--ring) var(--pos-glass-rim);}
+.vt button,.tp-make .tp-btn{min-height:var(--tap);border:none;border-radius:var(--pos-r-pill);background:none;box-shadow:none;
+  color:var(--ink);font-weight:600;}
+.vt button:not(.on){color:var(--ink);}
+.vt button.on,body[data-theme="dark"] .vt button.on,.tp-make .tp-btn.on{background:var(--pos-glass-on);color:var(--pos-orange);box-shadow:none;}
+/* THE VIEWS FLOAT OVER THE ROOM (owner: "put it center and above the floor
+   plan just like the pos"): centred at the top of the room panel, the till's
+   hub edge in, and what the panel holds starts under it. */
+.d2-panel{background:none;}
+.vt-float{position:absolute;top:var(--pos-hub-edge);left:0;right:0;z-index:6;margin:0 auto;width:max-content;pointer-events:none;}
+.vt-float > .vt{pointer-events:auto;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;}
+.vt-float .vt button{padding:0 24px;}
+.d2-panel:has(> .vt-float){padding-top:calc(var(--pos-hub-edge) + var(--tap) + 8px + 8px);}
+/* The walk-in menu hangs over the room from its segment, and the room is
+   its picker while it is open: the views stand down rather than peek out
+   from under it. */
+.shell:has(.wk-menu) .vt-float{visibility:hidden;}
+@media (max-width:900px){
+  .vt-float{display:none;}
+  .d2-panel:has(> .vt-float){padding-top:0;}
+}
+/* WALK-IN · BOOK, ONE GLASS PILL (owner: "Combine and glass the walkin and
+   booking"): two segments, both words in ink; Walk-in open is the lit glass.
+   The pill is not a box of its own, so a phone's walk-in menu still hangs
+   from the whole bar. */
+.tp-make{flex:none;align-items:center;}
+.tp-make .wk-anchor{display:flex;}
+.tp-make .tp-btn{padding:0 20px;}
+@media (max-width:760px){ .tp-make .tp-btn{padding:0 12px;} }
+@media (max-width:339px){ .tp-make .tp-btn{padding:0 8px;} }
+
+/* THE FLOOR: white tops on the till's ground, its one edge and its lift; the
+   number on the till's cream chip in Plex Mono; seated the till's occupied
+   blue, part of a party half of it, paid the grey. */
+.shell.simple .desk-main .fl-room,.shell.simple .fl-box > .fl-wrap{background:none;}
+.shell.simple .fl-table{background:var(--pos-table-plain);box-shadow:inset 0 0 0 var(--ring) var(--pos-tbl-edge),var(--lift-1);color:var(--ink);}
+.shell.simple .fl-table.stg-in{background:var(--sat-blue);color:var(--ink);}
+.shell.simple .fl-table.stg-half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--pos-table-plain) 50%);}
+.shell.simple .fl-table.stg-paid{background:var(--seat);}
+.shell.simple .fl-room:not(.loose) .fl-no{font-family:var(--pos-font-num);font-weight:700;background:var(--pos-num-chip);color:var(--pos-num-ink);
+  border-radius:var(--pos-r-control);padding:.1em .3em;line-height:1.1;font-size:2.1cqw;}
+
+/* THE LIST: the tab is the docket panel, the number straight on it in Plex
+   Mono, no bubble. Half blue, then full blue; paid grey; late the red inside
+   edge. A party at the door is NOT blue (owner: "wtf is nguyen table
+   blue?"): blue means seated, and nothing else. */
+.dk-tab[class*="stg-"],.dc-tab{background:var(--tab-plain);color:var(--ink);box-shadow:inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
+.dk-tab.stg-here,.dk-tab.stg-phere,.dc-tab.here{background:var(--tab-plain);color:var(--ink);box-shadow:inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
+.dk-tab.stg-here.busy{color:var(--mute);}
+.dk-tab.stg-in{background:var(--sat-blue);color:var(--ink);}
+.dk-tab.stg-paid,.dk-tab.stg-bill{background:var(--seat);}
+.dk-tab.stg-half,.dc-tab.half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tab-plain) 50%);}
+.dk-tab.stg-late,.dc-tab.late{background:var(--tab-plain);box-shadow:inset var(--ring) 0 0 var(--late),inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
+.dk-tab.stg-open{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 var(--ring) var(--accent);}
+.dk-tab.stg-none{background:none;box-shadow:none;}
+.dk-row.one .dk-tab,.dc-no{font-family:var(--pos-font-num);font-weight:700;}
+/* And the timeline and the flow say the same: a party at the door is a
+   plain block until it sits. */
+.shell.simple .tl-block.arrived,.shell.simple .tl-block.part-arrived,.tl-block.tl-drag-ghost.arrived,.tl-block.tl-drag-ghost.part-arrived,
+.shell.simple .fg-tbl.arrived,.shell.simple .fg-tbl.part-arrived{background:var(--qty);color:var(--ink);}
+/* Still to come is the docket panel wherever it is drawn, never the white
+   table top: on the white timeline, flow and sheet a white block is no block. */
+.shell.simple .tl-block,.tl-block.tl-drag-ghost,.shell.simple .fg-tbl,.dk-tab.cf-t{background:var(--qty);color:var(--ink);}
+.bke-next .go.ih,.tc-go.ih{background:var(--qty);color:var(--mute);}
+/* end THE TILL'S LOOK */
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>

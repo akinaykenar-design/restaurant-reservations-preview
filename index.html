@@ -21,6 +21,67 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2333352F' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='3'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E">
 
 <style>
+/* GENERATED from restaurant-pos 561a564 public/style.css, server.js and app.js by tools/pos-look.js.
+   Do not edit: every value here is the till's own, under --pos-. Run `node tools/pos-look.js`. */
+@font-face{font-family:'Noto Sans';font-style:normal;font-weight:100 900;font-display:swap;src:url('fonts/notosans-var.woff2') format('woff2');}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/plexmono-400.woff2') format('woff2');}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/plexmono-500.woff2') format('woff2');}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/plexmono-600.woff2') format('woff2');}
+@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/plexmono-700.woff2') format('woff2');}
+:root{
+  --pos-steel-100:#E9E6DF;
+  --pos-steel-200:#E2DED7;
+  --pos-steel-300:#D3CFC6;
+  --pos-steel-500:#B3ADA0;
+  --pos-surface:#FFFFFF;
+  --pos-table-plain:var(--pos-surface);
+  --pos-text-primary:#38352F;
+  --pos-text-secondary:#8B877F;
+  --pos-tbl-edge:#A8A6A1;
+  --pos-orange:#2F74C9;
+  --pos-red:#A8483A;
+  --pos-lift-drop:6px;
+  --pos-lift-blur:18px;
+  --pos-lift-ink:rgba(20,24,25,.10);
+  --pos-lift-1:0 var(--pos-lift-drop) var(--pos-lift-blur) var(--pos-lift-ink);
+  --pos-lift-2:0 10px 25px rgba(20,24,25,.12), 0 30px 60px rgba(20,24,25,.22);
+  --pos-glass:color-mix(in srgb, var(--pos-surface) 14%, transparent);
+  --pos-glass-sheen:linear-gradient(180deg, rgba(255,255,255,.55), rgba(255,255,255,.08) 55%, rgba(255,255,255,0));
+  --pos-glass-on:color-mix(in srgb, var(--pos-surface) 55%, transparent);
+  --pos-glass-rim:color-mix(in srgb, var(--pos-surface) 90%, transparent);
+  --pos-r-pill:999px;
+  --pos-r-control:10px;
+  --pos-r-surface:16px;
+  --pos-ring:1px;
+  --pos-hub-edge:12px;
+  --pos-font-body:'Noto Sans',-apple-system,system-ui,sans-serif;
+  --pos-font-num:'IBM Plex Mono',ui-monospace,monospace;
+  --pos-num-chip:#F5F1E8;
+  --pos-num-ink:#33352F;
+  --pos-occupied:#0A84FF;
+  --pos-wash:78%;
+  --pos-occupied-table:color-mix(in srgb, var(--pos-occupied) 78%, var(--pos-table-plain));
+}
+html[data-theme="dark"],body[data-theme="dark"]{
+  --pos-steel-100:#161512;
+  --pos-steel-200:#332F2B;
+  --pos-steel-300:#4A463F;
+  --pos-steel-500:#6B645A;
+  --pos-surface:#2B2824;
+  --pos-table-plain:#35322D;
+  --pos-text-primary:#EAE8E4;
+  --pos-text-secondary:#D9D5CE;
+  --pos-tbl-edge:#616365;
+  --pos-red:#CF6152;
+  --pos-lift-ink:rgba(0,0,0,.40);
+  --pos-lift-1:0 var(--pos-lift-drop) var(--pos-lift-blur) var(--pos-lift-ink);
+  --pos-lift-2:0 10px 25px rgba(0,0,0,.45), 0 30px 60px rgba(0,0,0,.55);
+  --pos-glass:color-mix(in srgb, var(--pos-surface) 20%, transparent);
+  --pos-glass-sheen:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 55%);
+  --pos-glass-on:color-mix(in srgb, var(--pos-surface) 65%, transparent);
+  --pos-glass-rim:color-mix(in srgb, var(--pos-text-primary) 24%, transparent);
+  --pos-occupied-table:color-mix(in srgb, var(--pos-occupied) 78%, var(--pos-table-plain));
+}
 /* ─────────────────────────────────────────────────────────────────────────────
    Restaurant Reservations — the look, one file.
 
@@ -34,16 +95,9 @@
 
 /* Fonts ship WITH the app — no internet fetch, identical glyphs on every
    machine. Noto Sans is one variable file; Plex Mono carries the numbers. */
-@font-face{font-family:'Noto Sans';font-style:normal;font-weight:100 900;font-display:swap;src:url('fonts/notosans-var.woff2') format('woff2');}
-@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/plexmono-500.woff2') format('woff2');}
-@font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/plexmono-700.woff2') format('woff2');}
-/* THE FACE THE PALETTE NAMES (9 Oct). The simple desk's tokens ask for Geist
-   and Geist Mono, and no file of either shipped, so every device drew its own
-   system face — DejaVu on a Linux till, SF on the owner's iPad — and the two
-   above went unused. Both are the OFL `geist` package's variable files, 1.3.1
-   (fonts/geist-OFL.txt), one file each for every weight. */
-@font-face{font-family:'Geist';font-style:normal;font-weight:100 900;font-display:swap;src:url('fonts/geist-var.woff2') format('woff2');}
-@font-face{font-family:'Geist Mono';font-style:normal;font-weight:100 900;font-display:swap;src:url('fonts/geistmono-var.woff2') format('woff2');}
+/* THE FACES ARE THE TILL'S (owner, 12 Oct, v67). Noto Sans and IBM Plex Mono
+   are declared in pos-look.css, which tools/pos-look.js writes from the till
+   with the files themselves; Geist is repealed with the v47 palette. */
 
 /* §§ Palette — :root is LIGHT, body[data-theme="dark"] is DARK. Literals on
    purpose (see the POS: a var() inside a token resolves where declared). */
@@ -2547,8 +2601,8 @@ a.btn{color:var(--text-primary);text-decoration:none;}
    anywhere, so it is ink, as seated is — and --green reads it, so nothing
    that still names either can paint green (daily round, 8 Oct). */
 :root{
-  --font-body:"Geist",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-  --font-mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --font-body:var(--pos-font-body); /* the till's faces (v67); Geist is repealed */
+  --font-mono:var(--pos-font-num);
   --bg:#F3F3F1; --ink:#17181B; --mute:#6A6D75; --faint:#A3A6AD; --line:#E4E4E0;
   --accent:#2D55E6; --accent-wash:#E8EDFD; --on-accent:#FFFFFF; --late:#C8412D; --late-wash:#FBEAE6;
   --leave:var(--ink); --seat:#D9DBE2; --sat-blue:#8DA6F5; --well:#E7E7E3; --tfree:#E9E9E5;
@@ -3490,6 +3544,114 @@ a.cf-k{background:var(--well);color:var(--ink);}
   .dk-row.one .dk-tab,.dk-row.one .dk-main b,.dk-row.one .dk-t{font-size:var(--fs-lg);}
 }
 /* end ONE LINE */
+
+/* §§ THE TILL'S LOOK, COPIED BY THE TOOL (owner, 12 Oct, v67: "The blue the
+   tables numbers the style of the whole page to resemble the pos code"). The
+   desk's palette is pointed at the --pos- tokens tools/pos-look.js lifts out
+   of the till into pos-look.css (loaded first; never edited by hand), so when
+   the till's look moves the desk's moves with the next run. Red stays the
+   desk's own, for late, an allergy, a delete and a failure, and nothing
+   else takes a colour of its own. This
+   REPEALS the v47 palette, QUIET's "one blue for the party at the door", the
+   bar's grey-and-ink pills and the Geist face. */
+:root{
+  --font-body:var(--pos-font-body); --font-mono:var(--pos-font-num);
+  --bg:var(--pos-steel-100); --surface:var(--pos-surface); --ink:var(--pos-text-primary);
+  --line:var(--pos-steel-200); --well:var(--pos-steel-200); --seat:var(--pos-steel-300);
+  --tfree:var(--pos-table-plain); --table-plain:var(--pos-table-plain);
+  --accent:var(--pos-orange); --accent-wash:color-mix(in srgb, var(--pos-orange) 12%, var(--pos-surface));
+  --sat-blue:var(--pos-occupied-table);
+  /* The list's tab is the till's docket qty cell: a filled panel fused to the
+     line's left edge with a hairline down its right ("Bit too dark": the
+     till's steel-200, a step lighter than its steel-500). */
+  --qty:var(--pos-steel-200); --qty-line:var(--pos-steel-300); --tab-plain:var(--qty);
+  --lift-1:var(--pos-lift-1); --lift-2:var(--pos-lift-2);
+}
+body[data-theme="dark"]{
+  --font-body:var(--pos-font-body); --font-mono:var(--pos-font-num);
+  --bg:var(--pos-steel-100); --surface:var(--pos-surface); --ink:var(--pos-text-primary);
+  --line:var(--pos-steel-300); --well:var(--pos-steel-200); --seat:var(--pos-steel-300);
+  --tfree:var(--pos-table-plain); --table-plain:var(--pos-table-plain);
+  --accent:var(--pos-orange); --accent-wash:color-mix(in srgb, var(--pos-orange) 27%, var(--pos-surface));
+  --sat-blue:var(--pos-occupied-table);
+  /* Dark's steel-200 is one point off the paper, so the panel is half a step
+     on to steel-300: the till's two, mixed. */
+  --qty:color-mix(in srgb, var(--pos-steel-200), var(--pos-steel-300)); --qty-line:var(--pos-steel-100); --tab-plain:var(--qty);
+  --lift-1:var(--pos-lift-1); --lift-2:var(--pos-lift-2);
+}
+html,body{background:var(--bg);}
+body{font-family:var(--font-body);}
+
+/* THE GLASS (the till's .fp-float .track): a clear pill with a pale rim, the
+   lit segment a thicker glass in the till's blue. No lift and no frost, and
+   nothing square round it — the well IS the pill. */
+.tp-make{display:flex;}
+.vt,.tp-make{gap:4px;padding:4px;border:none;border-radius:var(--pos-r-pill);
+  background:var(--pos-glass-sheen),var(--pos-glass);box-shadow:inset 0 0 0 var(--ring) var(--pos-glass-rim);}
+.vt button,.tp-make .tp-btn{min-height:var(--tap);border:none;border-radius:var(--pos-r-pill);background:none;box-shadow:none;
+  color:var(--ink);font-weight:600;}
+.vt button:not(.on){color:var(--ink);}
+.vt button.on,body[data-theme="dark"] .vt button.on,.tp-make .tp-btn.on{background:var(--pos-glass-on);color:var(--pos-orange);box-shadow:none;}
+/* THE VIEWS FLOAT OVER THE ROOM (owner: "put it center and above the floor
+   plan just like the pos"): centred at the top of the room panel, the till's
+   hub edge in, and what the panel holds starts under it. */
+.d2-panel{background:none;}
+.vt-float{position:absolute;top:var(--pos-hub-edge);left:0;right:0;z-index:6;margin:0 auto;width:max-content;pointer-events:none;}
+.vt-float > .vt{pointer-events:auto;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;}
+.vt-float .vt button{padding:0 24px;}
+.d2-panel:has(> .vt-float){padding-top:calc(var(--pos-hub-edge) + var(--tap) + 8px + 8px);}
+/* The walk-in menu hangs over the room from its segment, and the room is
+   its picker while it is open: the views stand down rather than peek out
+   from under it. */
+.shell:has(.wk-menu) .vt-float{visibility:hidden;}
+@media (max-width:900px){
+  .vt-float{display:none;}
+  .d2-panel:has(> .vt-float){padding-top:0;}
+}
+/* WALK-IN · BOOK, ONE GLASS PILL (owner: "Combine and glass the walkin and
+   booking"): two segments, both words in ink; Walk-in open is the lit glass.
+   The pill is not a box of its own, so a phone's walk-in menu still hangs
+   from the whole bar. */
+.tp-make{flex:none;align-items:center;}
+.tp-make .wk-anchor{display:flex;}
+.tp-make .tp-btn{padding:0 20px;}
+@media (max-width:760px){ .tp-make .tp-btn{padding:0 12px;} }
+@media (max-width:339px){ .tp-make .tp-btn{padding:0 8px;} }
+
+/* THE FLOOR: white tops on the till's ground, its one edge and its lift; the
+   number on the till's cream chip in Plex Mono; seated the till's occupied
+   blue, part of a party half of it, paid the grey. */
+.shell.simple .desk-main .fl-room,.shell.simple .fl-box > .fl-wrap{background:none;}
+.shell.simple .fl-table{background:var(--pos-table-plain);box-shadow:inset 0 0 0 var(--ring) var(--pos-tbl-edge),var(--lift-1);color:var(--ink);}
+.shell.simple .fl-table.stg-in{background:var(--sat-blue);color:var(--ink);}
+.shell.simple .fl-table.stg-half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--pos-table-plain) 50%);}
+.shell.simple .fl-table.stg-paid{background:var(--seat);}
+.shell.simple .fl-room:not(.loose) .fl-no{font-family:var(--pos-font-num);font-weight:700;background:var(--pos-num-chip);color:var(--pos-num-ink);
+  border-radius:var(--pos-r-control);padding:.1em .3em;line-height:1.1;font-size:2.1cqw;}
+
+/* THE LIST: the tab is the docket panel, the number straight on it in Plex
+   Mono, no bubble. Half blue, then full blue; paid grey; late the red inside
+   edge. A party at the door is NOT blue (owner: "wtf is nguyen table
+   blue?"): blue means seated, and nothing else. */
+.dk-tab[class*="stg-"],.dc-tab{background:var(--tab-plain);color:var(--ink);box-shadow:inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
+.dk-tab.stg-here,.dk-tab.stg-phere,.dc-tab.here{background:var(--tab-plain);color:var(--ink);box-shadow:inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
+.dk-tab.stg-here.busy{color:var(--mute);}
+.dk-tab.stg-in{background:var(--sat-blue);color:var(--ink);}
+.dk-tab.stg-paid,.dk-tab.stg-bill{background:var(--seat);}
+.dk-tab.stg-half,.dc-tab.half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tab-plain) 50%);}
+.dk-tab.stg-late,.dc-tab.late{background:var(--tab-plain);box-shadow:inset var(--ring) 0 0 var(--late),inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
+.dk-tab.stg-open{background:var(--surface);color:var(--accent);box-shadow:inset 0 0 0 var(--ring) var(--accent);}
+.dk-tab.stg-none{background:none;box-shadow:none;}
+.dk-row.one .dk-tab,.dc-no{font-family:var(--pos-font-num);font-weight:700;}
+/* And the timeline and the flow say the same: a party at the door is a
+   plain block until it sits. */
+.shell.simple .tl-block.arrived,.shell.simple .tl-block.part-arrived,.tl-block.tl-drag-ghost.arrived,.tl-block.tl-drag-ghost.part-arrived,
+.shell.simple .fg-tbl.arrived,.shell.simple .fg-tbl.part-arrived{background:var(--qty);color:var(--ink);}
+/* Still to come is the docket panel wherever it is drawn, never the white
+   table top: on the white timeline, flow and sheet a white block is no block. */
+.shell.simple .tl-block,.tl-block.tl-drag-ghost,.shell.simple .fg-tbl,.dk-tab.cf-t{background:var(--qty);color:var(--ink);}
+.bke-next .go.ih,.tc-go.ih{background:var(--qty);color:var(--mute);}
+/* end THE TILL'S LOOK */
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "6dc907770d041db55efc3d5645d8e62e67e6f30f";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -15490,20 +15652,20 @@ function renderTop() {
   // stylesheet lays the date first.
   const sub = `<span class="tp-svc">${esc(on ? on.name : servicesInOrderOn(d).length ? 'All night' : 'Closed')} ·&nbsp;</span>`
     + `<span class="tp-dm"><span class="tp-wd">${esc(parseDay(d).toLocaleDateString([], { weekday: 'short' }))} </span>${esc(dayMonth(d))}</span>`;
-  // The views sit in the bar on a desk, so the room starts one line higher.
-  const views = state.view === 'today' && state.todayMode !== 'sheet' ? `<span class="tp-views">${renderViewTabs(false)}</span>` : '';
   // FIX THE TOP BAR (owner, 7 Oct: "it looks messy and confusing"). Three
   // things, each said once: which night (a press opens its menu, where the
   // day is stepped), how you are looking at it, and the two things you make
   // — in words, never a glyph a host has to learn — then the menu.
+  // THE TILL'S LOOK (owner, 12 Oct, v67: "Combine and glass the walkin and
+  // booking"). The views left the bar for the room (they float over it, the
+  // till's Map · Pass · Timeline · Bills: renderToday's `vt-float`), and the
+  // two things you make are ONE glass pill of two segments.
   return `<header class="tp">
     <div class="tp-night">
       <span class="tp-night-a"><button class="tp-date${state.nightOpen ? ' on' : ''}" data-act="night-menu" aria-expanded="${state.nightOpen ? 'true' : 'false'}"><span class="tp-big">${esc(nightWord(d))}${I.chev}</span><span class="tp-when">${sub}</span></button>${state.nightOpen ? renderNightMenu() : ''}</span>
     </div>
-    ${views}
     <span class="tp-sp"></span>
-    <span class="wk-anchor"><button class="tp-btn${state.walkin ? ' on' : ''}" data-act="walkin" aria-expanded="${state.walkin ? 'true' : 'false'}">Walk-in</button>${renderWalkinMenu()}</span>
-    <button class="tp-btn ink" data-act="new-booking" aria-label="New booking"><span class="tp-lg">New booking</span><span class="tp-sh">Book</span></button>
+    <span class="tp-make"><span class="wk-anchor"><button class="tp-btn${state.walkin ? ' on' : ''}" data-act="walkin" aria-expanded="${state.walkin ? 'true' : 'false'}">Walk-in</button>${renderWalkinMenu()}</span><button class="tp-btn" data-act="new-booking" aria-label="New booking"><span class="tp-lg">New booking</span><span class="tp-sh">Book</span></button></span>
     <span class="tp-menu-a"><button class="tp-btn icon${state.menuOpen ? ' on' : ''}" data-act="menu" aria-label="More" aria-expanded="${state.menuOpen ? 'true' : 'false'}">${I.menu}</button>${state.menuOpen ? renderMenu() : ''}</span>
   </header>`;
 }
@@ -15846,6 +16008,12 @@ function renderViewTabs(phone) {
   const views = phone ? [['book', 'List']].concat(ROOM_VIEWS) : ROOM_VIEWS;
   return `<div class="vt${phone ? ' vt-phone' : ''}" role="tablist">${views.map(([k, l]) => `<button class="${state.todayMode === k ? 'on' : ''}" data-act="mode" data-val="${k}" role="tab" aria-selected="${state.todayMode === k}">${l}</button>`).join('')}</div>`;
 }
+// THE VIEWS FLOAT OVER THE ROOM, THE TILL'S WAY (owner, 12 Oct, v67: "put it
+// center and above the floor plan just like the pos"). On a desk Floor ·
+// Timeline · Flow are the till's glass well, centred at the top of the room
+// panel as its Map · Pass · Timeline · Bills are; up to 900 the stylesheet
+// hides it and the List · Floor · Timeline · Flow tabs carry them.
+function renderViewFloat() { return `<div class="vt-float">${renderViewTabs(false)}</div>`; }
 // THE COLUMN DOWN THE LEFT, and what is in it: the night's book, or the
 // people waiting at the door, or the people waiting for a cancellation. Three
 // lists of people a host works through, so they share one column and a
@@ -16869,7 +17037,7 @@ function renderToday() {
     const room = isRoomView(state.todayMode) ? state.todayMode : (state.roomMode || 'floor');
     return `${notice}<div class="desk mode-${esc(room)} td-open">
     <div class="desk-col" data-keep="desk-col">${renderSide()}</div>
-    <div class="desk-main"><div class="d2-panel td-panel">${renderTidy(tidy)}</div></div>
+    <div class="desk-main"><div class="d2-panel td-panel">${renderViewFloat()}${renderTidy(tidy)}</div></div>
   </div>`;
   }
   if (state.todayMode === 'book') return `${notice}${renderViewTabs(true)}<div class="desk mode-book">
@@ -16890,7 +17058,7 @@ function renderToday() {
     ? `<div class="vt vt-rooms">${plans.map(x => { const on = x.id === state.plan || (!state.plan && x === plans[0]); return `<button class="${on ? 'on' : ''}" data-act="plan" data-id="${esc(x.id)}">${esc(x.name || 'Room')}</button>`; }).join('')}</div>` : '';
   return `${notice}${renderViewTabs(true)}<div class="desk mode-${esc(state.todayMode)}">
     <div class="desk-col" data-keep="desk-col">${renderSide()}</div>
-    <div class="desk-main">${rooms ? `<div class="vt-row">${rooms}</div>` : ''}<div class="d2-panel">${state.todayMode === 'flow' ? `<div class="dm-scroll" data-keep="dm-scroll">${side}</div>` : side}</div></div>
+    <div class="desk-main">${rooms ? `<div class="vt-row">${rooms}</div>` : ''}<div class="d2-panel">${renderViewFloat()}${state.todayMode === 'flow' ? `<div class="dm-scroll" data-keep="dm-scroll">${side}</div>` : side}</div></div>
   </div>`;
 }
 // THE RULER STRETCHES TO THE PANE. Two pixels a minute is the FLOOR, not the
