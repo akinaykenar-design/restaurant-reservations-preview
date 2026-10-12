@@ -3389,10 +3389,37 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 .ih-ask .ih-go{display:flex;gap:8px;flex:none;margin-left:auto;}
 .wk-menu .ih-ask.wk-ih{padding:8px 0 0;background:none;}
 @media (max-width:420px){ .dk-k.ih-k{max-width:88px;} .dk-k.ih-k i{display:none;} }
+/* §§ THE TURN (owner, 12 Oct, v49: "Surr do it"). A table at the bill opens a small card beside
+   it in the room: who is on it, Clear table, and who is next with Clear and
+   seat — the walk-in menu's own paper, lift and keys. The one ink key is the
+   seat; Clear table is the grey key. A phone docks it across the room's foot. */
+.turn-card{position:absolute;z-index:30;left:16px;top:16px;width:320px;max-width:calc(100% - 16px);
+  display:grid;gap:12px;padding:16px 20px 20px;border-radius:var(--r-surface);background:var(--surface);box-shadow:var(--lift-2);}
+body[data-theme="dark"] .turn-card{box-shadow:0 0 0 var(--ring) var(--line), var(--lift-2);}
+.tc-h{display:flex;align-items:center;gap:12px;min-height:var(--tap);}
+.tc-h b{flex:1;font-size:var(--fs-xl);color:var(--text-primary);}
+.tc-x{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
+  border-radius:var(--r-pill);background:var(--deck-pill-bg);color:var(--text-primary);}
+.tc-x svg{width:20px;height:20px;}
+.tc-who{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.tc-go{min-height:var(--tap);padding:8px 20px;border:none;border-radius:var(--r-pill);background:var(--seat);color:var(--ink);
+  font-size:var(--fs-lg);font-weight:700;}
+.tc-go.ink{background:var(--ink);color:var(--surface);}
+.tc-next{display:grid;gap:8px;padding-top:12px;border-top:var(--ring) solid var(--line);}
+.tc-k{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.tc-next b{font-size:var(--fs-lg);color:var(--text-primary);}
+.tc-no{font-size:var(--fs-md);color:var(--st-late);}
+/* In another tablet's hand: quiet, the row's own grey — a hand is not a failure. */
+.tc-no.ih{color:var(--mute);}
+.tc-go.ih{background:var(--tfree);color:var(--mute);}
+.turn-card .ih-ask{padding:0;background:none;border-top:0;}
+@media (max-width:760px){
+  .turn-card{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-width:none;}
+}
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
-<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "fd23f498b030f1d9991c5c4f65e6f3d8246a4980";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = true;</script>
+<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "6dc907770d041db55efc3d5645d8e62e67e6f30f";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = true;</script>
 <script>(function () {
   'use strict';
   // preview/shim.js — the front desk, running with no server.
@@ -4137,7 +4164,7 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
       { name: 'Kowalski', phone: '0499 003 771', party: 4, hh: 19, mm: 0, tags: ['Regular'], status: 'seated' },
       { name: 'Ibrahim', phone: '0421 774 330', party: 2, hh: 19, mm: 15, tags: [] },
       { name: 'Sinclair', phone: '0477 662 019', party: 6, hh: 19, mm: 15, tags: [], notes: 'work dinner', status: 'confirmed' },
-      { name: 'Okafor', phone: '0455 200 118', party: 4, hh: 19, mm: 30, tags: ['VIP', 'Window'], notes: 'celebrating a promotion', status: 'confirmed' },
+      { name: 'Okafor', phone: '0455 200 118', party: 4, hh: 19, mm: 30, tags: ['VIP', 'Window'], notes: 'celebrating a promotion', status: 'confirmed', on: 'Duarte' },
       { name: 'Petrov', phone: '0408 335 221', party: 2, hh: 19, mm: 30, tags: [] },
       { name: 'Marchetti', phone: '0412 889 007', party: 4, hh: 19, mm: 45, tags: ['Anniversary'] },
       { name: 'Brennan', phone: '0400 771 302', party: 4, hh: 20, mm: 0, tags: ['Allergy'], notes: 'shellfish, whole table', status: 'confirmed' },
@@ -4149,6 +4176,7 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
     ];
 
     var chain = Promise.resolve();
+    var placed = {};   // the table each of tonight's parties landed on, by name
     // A name and a number, because "Our restaurant" is what an unlinked
     // install correctly shows and is not what a preview should be read as.
     // Deliberately a plain common noun and a 5555 number: the demo venue is
@@ -4206,7 +4234,12 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
           tags: p.tags || [], notes: p.notes || '', status: 'booked',
         };
         if (p.big && big.length) body.tableId = big[0];
+        // THE TURN (v49): Okafor are booked on the table Duarte have paid
+        // at, so the demo opens on a table about to turn — "Duarte paid on
+        // 4" on Okafor's line, and Seat is the one press that turns it.
+        if (p.on && placed[p.on]) { body.tableId = placed[p.on]; body.autoTable = false; }
         return book(body).then(function (r) {
+          if (r && r.id && r.tableId) placed[p.name] = r.tableId;
           if (!r || !r.id || !p.status) return null;
           var put = { status: p.status };
           if (p.partCount) put.partCount = p.partCount;
@@ -6342,6 +6375,102 @@ function seatRefusal(ctx, day, hhmm, size, ids, opts) {
   return null;
 }
 
+// §§ THE TURN (owner, 12 Oct, v49: "Surr do it"). Duarte have paid on 4 and are still in the
+// chairs; Okafor are due at 7:55 on 4 and at the stand. The tab was struck
+// ("4 still eating") and the way on was two bookings and five presses: open
+// Duarte, Left, back, then the seat. A party at the bill is a table about to
+// turn, so the turn is one question:
+//
+//   who is at the bill on the table — sat, check or paid, in the chairs now;
+//   who is next on it — `booking` when the row asks, else the party at the
+//     door on it first, then the first due within TURN_SOON (a nine o'clock
+//     at 7:46 is nobody yet: the room offers Clear table alone), and never
+//     one past the no-show wait or its own sitting, who is the tidy's;
+//   and whether seating them now is allowed: seatRefusal(), the walk-in's own
+//     question, asked as the seat asks it — the next party left IN the book
+//     (`ignoreId`), free now meaning who is in the chairs (`inRoom`) — with
+//     the paid party taken out and the till's covers taken off its tables
+//     (they are Duarte's covers).
+//     `till`: only "free now" — the booking's own sitting is already its own.
+//
+// One party at the bill and no more: two of them on a booking's tables is
+// not a turn the desk guesses at (ok false). null when there is no clock or
+// nobody at the bill. Pure.
+const TURN_BILL = ['check', 'paid'];
+const TURN_SOON = 15;
+function turnOf(ctx, day, opts) {
+  opts = opts || {};
+  const settings = (ctx && ctx.settings) || {};
+  const now = nowOn(ctx, day);
+  if (now === null) return null;
+  const held = heldBook(ctx, day);
+  const live = (r) => r && isLive(r) && onNight(settings, r, day);
+  let next = null;
+  if (opts.booking) {
+    next = held.reservations.find(r => r && r.id === opts.booking) || null;
+    if (!live(next) || isSat(next)) return null;
+  }
+  const look = next ? heldTables(next) : opts.table ? [opts.table] : [];
+  // Another tablet's hand (holdRows, a "seated" row) is not a party at the
+  // bill: it is met by the hold's own question, below and in the routes.
+  const atBill = look.map(id => ({ id, on: holdersOf(held, id, day, now, 1, next && next.id).filter(r => isSat(r) && !r.hold) }))
+    .filter(x => x.on.length);
+  if (!atBill.length) return null;
+  const paid = atBill[0].on[0];
+  if (!TURN_BILL.includes(paid.status)) return null;
+  const table = opts.table && look.includes(opts.table) ? opts.table : atBill[0].id;
+  const one = atBill.every(x => x.on.length === 1 && x.on[0].id === paid.id);
+  // Never a party that never came (review, 12 Oct: a 6:00 nobody tidied was
+  // "next" on 5 ahead of Okafor, due at 7:55): past the no-show wait, or
+  // past its own sitting, it is the tidy's — doorNext()'s own bound. One at
+  // the door is standing there, however late.
+  const wait = noShowWait(settings);
+  const cameOrDue = (r) => { const t = nightMin(r, day);
+    return isHere(r) || (now - t <= wait && t + durationFor(settings, r.partySize, r.durationMin) > now); };
+  if (!next) {
+    next = held.reservations.filter(r => live(r) && !r.hold && !isSat(r) && r.id !== paid.id && heldTables(r).includes(table)
+      && cameOrDue(r) && (isHere(r) || nightMin(r, day) - now <= TURN_SOON))
+      .sort((a, b) => ((isHere(b) ? 1 : 0) - (isHere(a) ? 1 : 0)) || (nightMin(a, day) - nightMin(b, day)))[0] || null;
+  }
+  const out = { table, paid, next, tables: next ? heldTables(next) : [], refusal: null, ok: false };
+  if (!next) return out;
+  const away = new Set(heldTables(paid));
+  // Asked of the HELD book, the desk's picks already placed, and without the
+  // parties nothing could place: they hold no table now, and taken out of
+  // the book the desk's own pick would lay one of them on the very table
+  // being turned — "Table 4 is taken now" for a late Thackeray with no table
+  // (try-out, 10 Oct). Asked as POST /api/reservations/:id/seat asks it
+  // (review, 12 Oct): the next party stays IN the book (`ignoreId`), so the
+  // picks are laid around it, and free now is who is IN the chairs
+  // (`inRoom`) — Kowalski, booked on 4 and never came, was "Table 4 is
+  // taken now" while the row offered Seat. Only the party at the bill and
+  // its covers at the till come out.
+  const sub = Object.assign({}, ctx, {
+    reservations: held.reservations.filter(r => r && r.id !== paid.id && (r.id === next.id || !(isLive(r) && dayOf(r.time) === day && !heldTables(r).length))),
+    tables: (ctx.tables || []).map(t => away.has(t.id) ? Object.assign({}, t, { covers: 0 }) : t),
+  });
+  const clock = ctx.now;
+  out.refusal = seatRefusal(sub, localDay(clock), pad2(clock.getHours()) + ':' + pad2(clock.getMinutes()), next.partySize, out.tables, { till: true, duration: next.durationMin, ignoreId: next.id, inRoom: true });
+  out.ok = one && !out.refusal;
+  return out;
+}
+// The turn's Undo puts the party at the bill back on ALL its tables, and the
+// turn freed the ones beyond the next party's (review, 12 Oct: Duarte on
+// 5 + 6 turned for Okafor's four on 5; a walk-in sat on 6, and the Undo put
+// Duarte back sharing it). The first of those somebody else is IN now — sat
+// or at the door, tonight — as { id, name }, or null. `except`: the ids the
+// Undo itself moves (the next party). Pure.
+function turnBackRefusal(ctx, day, paid, except) {
+  const settings = (ctx && ctx.settings) || {};
+  const skip = new Set([paid && paid.id].concat(except || []));
+  for (const id of heldTables(paid || {})) {
+    const r = (ctx.reservations || []).find(x => x && !skip.has(x.id) && isLive(x) && (isSat(x) || isHere(x))
+      && onNight(settings, x, day) && heldTables(x).includes(id));
+    if (r) return { id, name: r.name || '' };
+  }
+  return null;
+}
+
 // §§ GUESTS JOIN THE LINE FROM THEIR PHONE (owner, 8 Oct: "7. scans what? a
 // qr code on the desk computer? if so yes i love" — v53/line)
 //
@@ -7835,7 +7964,7 @@ module.exports = {
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, TURN_BILL, TURN_SOON, turnOf, turnBackRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -11019,6 +11148,114 @@ app.post('/api/reservations/:id/tonight/undo', (req, res) => {
   if (Number.isFinite(was.confirmedAt)) r.confirmedAt = was.confirmedAt; else delete r.confirmedAt;
   writeData(data);
   res.json(withWarnings(data, r));
+  kickPos();
+});
+
+// §§ THE TURN (owner, 12 Oct, v49: "Surr do it"). A table at the bill and who is next on it:
+// the room's card asks this when a paid table is tapped (av.turnOf).
+function turnSummary(data, t) {
+  const p = t.paid, n = t.next;
+  return {
+    table: t.table, ok: t.ok, refused: t.refusal ? seatRefusedWords(data, t.refusal) : '',
+    paid: { id: p.id, name: p.name || '', partySize: p.partySize, status: p.status, paidAt: Number.isFinite(p.paidAt) ? p.paidAt : null, checkAt: Number.isFinite(p.checkAt) ? p.checkAt : null },
+    next: n ? { id: n.id, name: n.name || '', partySize: n.partySize, time: n.time, status: n.status, tables: t.tables.slice() } : null,
+  };
+}
+// It meets the other tablets' hands as the press does (review, 12 Oct: the
+// card offered Clear and seat on a party Stand was seating, and the press
+// was refused): ok false, the words, and `inHand` — whose — for the card.
+app.get('/api/turn', (req, res) => {
+  const data = readData();
+  const tableId = typeof req.query.table === 'string' ? req.query.table : '';
+  const ctx = ctxOf(data, req);
+  const t = tableId ? av.turnOf(ctx, tradingDay(data), { table: tableId }) : null;
+  if (!t) return res.json({ table: tableId, paid: null, next: null, ok: false });
+  const out = turnSummary(data, t);
+  const n = t.next;
+  if (n) {
+    const from = ctx.now.getTime();
+    const h = av.holdRefusal(holdsFor(req), t.tables, n.id, { from, to: from + av.durationFor(ctx.settings, n.partySize, n.durationMin) * 60000 })
+      || (t.refusal && t.refusal.by ? t.refusal : null);
+    if (h) Object.assign(out, { ok: false, refused: seatRefusedWords(data, { id: h.id, at: null, by: h.by, name: h.name }), inHand: { by: h.by, name: h.name || '' } });
+  }
+  res.json(out);
+});
+// ONE PRESS TURNS IT: the party at the bill marked Left and, with `nextId`,
+// the next party sat on their own tables — asked AGAIN as it lands
+// (av.turnOf: the same party still at the bill, the same party next, every
+// table free now with both of them left out), both through
+// changeReservation(), the PUT's own path, with a history line on each. No
+// `nextId` is the room's Clear table. The answer says what both WERE, so
+// Undo is one call back.
+app.post('/api/turn', (req, res) => {
+  const data = readData();
+  const b = req.body || {};
+  const tableId = typeof b.tableId === 'string' ? b.tableId : '';
+  const nextId = typeof b.nextId === 'string' && b.nextId ? b.nextId : null;
+  const ctx = ctxOf(data), day = tradingDay(data);
+  const t = av.turnOf(ctx, day, nextId ? { booking: nextId, table: tableId } : { table: tableId });
+  const label = (id) => { const x = tablesOf(data).find(y => y.id === id); return x ? x.label : id; };
+  if (!t || t.paid.id !== b.paidId) return res.status(409).json({ error: `Nobody is at the bill on ${label(tableId)} now` });
+  if (nextId && (!t.next || t.next.id !== nextId)) return res.status(409).json({ error: 'That booking has moved on' });
+  if (nextId && !t.ok) return res.status(409).json({ error: t.refusal ? seatRefusedWords(data, t.refusal) : 'Somebody else is at the bill there too' });
+  // IN HAND (v65): the turn meets the other tablets' holds — on the tables,
+  // for the next party's whole sitting from now, and on that party itself.
+  if (nextId) {
+    const n0 = t.next, from = ctx.now.getTime();
+    const inHand = av.holdRefusal(holdsFor(req), t.tables, n0.id, { from, to: from + av.durationFor(ctx.settings, n0.partySize, n0.durationMin) * 60000 });
+    if (inHand) return res.status(409).json({ error: seatRefusedWords(data, { id: inHand.id, at: null, by: inHand.by, name: inHand.name }) });
+  }
+  const who = staffFromReq(req), at = Date.now();
+  const paid = data.reservations.find(x => x.id === t.paid.id);
+  const next = nextId ? data.reservations.find(x => x.id === nextId) : null;
+  const where = t.tables.map(label).join(' + ');
+  const was = { paid: av.tidyWas(paid), next: null };
+  if (next) {
+    was.next = { id: next.id, status: next.status, tableId: next.tableId || null, tableIds: (next.tableIds || []).slice(), at: t.tables.slice() };
+    if (next.partCount && /^part-/.test(next.status)) was.next.partCount = next.partCount;
+  }
+  const out = changeReservation(data, paid, { status: 'done' }, who);
+  if (out.error) return res.status(400).json({ error: out.error });
+  paid.events = history.append(paid.events, [history.noteEvent(who, at, next ? `Left — ${label(t.table)} turned for ${next.name || 'the next party'}` : `Left — ${label(t.table)} cleared`, 'moved')]);
+  if (next) {
+    const body = { status: 'seated', tableId: t.tables[0], tableIds: t.tables.slice(1) };
+    if (next.status === 'part-arrived' && next.partCount) { body.status = 'part-seated'; body.partCount = next.partCount; }
+    const o2 = changeReservation(data, next, body, who);
+    if (o2.error) return res.status(400).json({ error: o2.error });
+    next.events = history.append(next.events, [history.noteEvent(who, at, `Seated at ${where} as ${paid.name || 'the party before'} left`, 'moved')]);
+  }
+  logAudit(data, who, next ? `Turned ${label(t.table)}: ${paid.name} left, ${next.name} seated` : `Cleared ${label(t.table)}: ${paid.name} left`);
+  writeData(data);
+  res.json({ was, table: t.table, tables: t.tables, booking: next ? withWarnings(data, next) : null });
+  kickPos();
+});
+// Its Undo: both back exactly — the next party off the table to where they
+// were up to (only while still that seat), the party at the bill back to it
+// (av.tidyBack: only while their last status line is this Left) — with the
+// stamps they had, never the minute Undo was pressed.
+app.post('/api/turn/undo', (req, res) => {
+  const data = readData();
+  const was = req.body || {};
+  const who = staffFromReq(req);
+  const p = was.paid && typeof was.paid.id === 'string' ? data.reservations.find(x => x.id === was.paid.id) : null;
+  const back = av.tidyBack(p, was.paid);
+  const w = was.next && typeof was.next.id === 'string' ? was.next : null;
+  const n = w ? data.reservations.find(x => x.id === w.id) : null;
+  const same = (r) => r && av.isSat(r) && JSON.stringify(av.heldTables(r)) === JSON.stringify(w.at || []);
+  if (!back || (w && !same(n))) return res.status(409).json({ error: `${(p && p.name) || 'They'} have moved on since` });
+  // Back on ALL their tables only while nobody else is in the chairs of the
+  // ones the turn freed (review, 12 Oct: a walk-in sat on 6 meanwhile, and
+  // Duarte came back sharing it). Said whose, nothing written.
+  const inWay = av.turnBackRefusal(ctxOf(data), tradingDay(data), p, n ? [n.id] : []);
+  if (inWay) return res.status(409).json({ error: `Table ${tableWord(data, inWay.id)} is taken now · ${inWay.name || 'somebody'} is on it` });
+  if (n) {
+    const o = changeReservation(data, n, { status: w.status, tableId: w.tableId || null, tableIds: Array.isArray(w.tableIds) ? w.tableIds : [], partCount: w.partCount }, who, { keepStamps: true });
+    if (o.error) return res.status(400).json({ error: o.error });
+  }
+  const o = changeReservation(data, p, { status: back, partCount: was.paid.partCount }, who, { keepStamps: true });
+  if (o.error) return res.status(400).json({ error: o.error });
+  writeData(data);
+  res.json({ ok: true });
   kickPos();
 });
 

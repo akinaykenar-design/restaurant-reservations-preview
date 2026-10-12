@@ -3404,9 +3404,36 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 .ih-ask .ih-go{display:flex;gap:8px;flex:none;margin-left:auto;}
 .wk-menu .ih-ask.wk-ih{padding:8px 0 0;background:none;}
 @media (max-width:420px){ .dk-k.ih-k{max-width:88px;} .dk-k.ih-k i{display:none;} }
+/* §§ THE TURN (owner, 12 Oct, v49: "Surr do it"). A table at the bill opens a small card beside
+   it in the room: who is on it, Clear table, and who is next with Clear and
+   seat — the walk-in menu's own paper, lift and keys. The one ink key is the
+   seat; Clear table is the grey key. A phone docks it across the room's foot. */
+.turn-card{position:absolute;z-index:30;left:16px;top:16px;width:320px;max-width:calc(100% - 16px);
+  display:grid;gap:12px;padding:16px 20px 20px;border-radius:var(--r-surface);background:var(--surface);box-shadow:var(--lift-2);}
+body[data-theme="dark"] .turn-card{box-shadow:0 0 0 var(--ring) var(--line), var(--lift-2);}
+.tc-h{display:flex;align-items:center;gap:12px;min-height:var(--tap);}
+.tc-h b{flex:1;font-size:var(--fs-xl);color:var(--text-primary);}
+.tc-x{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;
+  border-radius:var(--r-pill);background:var(--deck-pill-bg);color:var(--text-primary);}
+.tc-x svg{width:20px;height:20px;}
+.tc-who{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.tc-go{min-height:var(--tap);padding:8px 20px;border:none;border-radius:var(--r-pill);background:var(--seat);color:var(--ink);
+  font-size:var(--fs-lg);font-weight:700;}
+.tc-go.ink{background:var(--ink);color:var(--surface);}
+.tc-next{display:grid;gap:8px;padding-top:12px;border-top:var(--ring) solid var(--line);}
+.tc-k{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.tc-next b{font-size:var(--fs-lg);color:var(--text-primary);}
+.tc-no{font-size:var(--fs-md);color:var(--st-late);}
+/* In another tablet's hand: quiet, the row's own grey — a hand is not a failure. */
+.tc-no.ih{color:var(--mute);}
+.tc-go.ih{background:var(--tfree);color:var(--mute);}
+.turn-card .ih-ask{padding:0;background:none;border-top:0;}
+@media (max-width:760px){
+  .turn-card{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-width:none;}
+}
 </style>
 <div id="app">Loading…</div>
-<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "fd23f498b030f1d9991c5c4f65e6f3d8246a4980";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
+<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "6dc907770d041db55efc3d5645d8e62e67e6f30f";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
 <script>(function () {
   'use strict';
   // preview/shim.js — the front desk, running with no server.
@@ -4151,7 +4178,7 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
       { name: 'Kowalski', phone: '0499 003 771', party: 4, hh: 19, mm: 0, tags: ['Regular'], status: 'seated' },
       { name: 'Ibrahim', phone: '0421 774 330', party: 2, hh: 19, mm: 15, tags: [] },
       { name: 'Sinclair', phone: '0477 662 019', party: 6, hh: 19, mm: 15, tags: [], notes: 'work dinner', status: 'confirmed' },
-      { name: 'Okafor', phone: '0455 200 118', party: 4, hh: 19, mm: 30, tags: ['VIP', 'Window'], notes: 'celebrating a promotion', status: 'confirmed' },
+      { name: 'Okafor', phone: '0455 200 118', party: 4, hh: 19, mm: 30, tags: ['VIP', 'Window'], notes: 'celebrating a promotion', status: 'confirmed', on: 'Duarte' },
       { name: 'Petrov', phone: '0408 335 221', party: 2, hh: 19, mm: 30, tags: [] },
       { name: 'Marchetti', phone: '0412 889 007', party: 4, hh: 19, mm: 45, tags: ['Anniversary'] },
       { name: 'Brennan', phone: '0400 771 302', party: 4, hh: 20, mm: 0, tags: ['Allergy'], notes: 'shellfish, whole table', status: 'confirmed' },
@@ -4163,6 +4190,7 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
     ];
 
     var chain = Promise.resolve();
+    var placed = {};   // the table each of tonight's parties landed on, by name
     // A name and a number, because "Our restaurant" is what an unlinked
     // install correctly shows and is not what a preview should be read as.
     // Deliberately a plain common noun and a 5555 number: the demo venue is
@@ -4220,7 +4248,12 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
           tags: p.tags || [], notes: p.notes || '', status: 'booked',
         };
         if (p.big && big.length) body.tableId = big[0];
+        // THE TURN (v49): Okafor are booked on the table Duarte have paid
+        // at, so the demo opens on a table about to turn — "Duarte paid on
+        // 4" on Okafor's line, and Seat is the one press that turns it.
+        if (p.on && placed[p.on]) { body.tableId = placed[p.on]; body.autoTable = false; }
         return book(body).then(function (r) {
+          if (r && r.id && r.tableId) placed[p.name] = r.tableId;
           if (!r || !r.id || !p.status) return null;
           var put = { status: p.status };
           if (p.partCount) put.partCount = p.partCount;
@@ -6356,6 +6389,102 @@ function seatRefusal(ctx, day, hhmm, size, ids, opts) {
   return null;
 }
 
+// §§ THE TURN (owner, 12 Oct, v49: "Surr do it"). Duarte have paid on 4 and are still in the
+// chairs; Okafor are due at 7:55 on 4 and at the stand. The tab was struck
+// ("4 still eating") and the way on was two bookings and five presses: open
+// Duarte, Left, back, then the seat. A party at the bill is a table about to
+// turn, so the turn is one question:
+//
+//   who is at the bill on the table — sat, check or paid, in the chairs now;
+//   who is next on it — `booking` when the row asks, else the party at the
+//     door on it first, then the first due within TURN_SOON (a nine o'clock
+//     at 7:46 is nobody yet: the room offers Clear table alone), and never
+//     one past the no-show wait or its own sitting, who is the tidy's;
+//   and whether seating them now is allowed: seatRefusal(), the walk-in's own
+//     question, asked as the seat asks it — the next party left IN the book
+//     (`ignoreId`), free now meaning who is in the chairs (`inRoom`) — with
+//     the paid party taken out and the till's covers taken off its tables
+//     (they are Duarte's covers).
+//     `till`: only "free now" — the booking's own sitting is already its own.
+//
+// One party at the bill and no more: two of them on a booking's tables is
+// not a turn the desk guesses at (ok false). null when there is no clock or
+// nobody at the bill. Pure.
+const TURN_BILL = ['check', 'paid'];
+const TURN_SOON = 15;
+function turnOf(ctx, day, opts) {
+  opts = opts || {};
+  const settings = (ctx && ctx.settings) || {};
+  const now = nowOn(ctx, day);
+  if (now === null) return null;
+  const held = heldBook(ctx, day);
+  const live = (r) => r && isLive(r) && onNight(settings, r, day);
+  let next = null;
+  if (opts.booking) {
+    next = held.reservations.find(r => r && r.id === opts.booking) || null;
+    if (!live(next) || isSat(next)) return null;
+  }
+  const look = next ? heldTables(next) : opts.table ? [opts.table] : [];
+  // Another tablet's hand (holdRows, a "seated" row) is not a party at the
+  // bill: it is met by the hold's own question, below and in the routes.
+  const atBill = look.map(id => ({ id, on: holdersOf(held, id, day, now, 1, next && next.id).filter(r => isSat(r) && !r.hold) }))
+    .filter(x => x.on.length);
+  if (!atBill.length) return null;
+  const paid = atBill[0].on[0];
+  if (!TURN_BILL.includes(paid.status)) return null;
+  const table = opts.table && look.includes(opts.table) ? opts.table : atBill[0].id;
+  const one = atBill.every(x => x.on.length === 1 && x.on[0].id === paid.id);
+  // Never a party that never came (review, 12 Oct: a 6:00 nobody tidied was
+  // "next" on 5 ahead of Okafor, due at 7:55): past the no-show wait, or
+  // past its own sitting, it is the tidy's — doorNext()'s own bound. One at
+  // the door is standing there, however late.
+  const wait = noShowWait(settings);
+  const cameOrDue = (r) => { const t = nightMin(r, day);
+    return isHere(r) || (now - t <= wait && t + durationFor(settings, r.partySize, r.durationMin) > now); };
+  if (!next) {
+    next = held.reservations.filter(r => live(r) && !r.hold && !isSat(r) && r.id !== paid.id && heldTables(r).includes(table)
+      && cameOrDue(r) && (isHere(r) || nightMin(r, day) - now <= TURN_SOON))
+      .sort((a, b) => ((isHere(b) ? 1 : 0) - (isHere(a) ? 1 : 0)) || (nightMin(a, day) - nightMin(b, day)))[0] || null;
+  }
+  const out = { table, paid, next, tables: next ? heldTables(next) : [], refusal: null, ok: false };
+  if (!next) return out;
+  const away = new Set(heldTables(paid));
+  // Asked of the HELD book, the desk's picks already placed, and without the
+  // parties nothing could place: they hold no table now, and taken out of
+  // the book the desk's own pick would lay one of them on the very table
+  // being turned — "Table 4 is taken now" for a late Thackeray with no table
+  // (try-out, 10 Oct). Asked as POST /api/reservations/:id/seat asks it
+  // (review, 12 Oct): the next party stays IN the book (`ignoreId`), so the
+  // picks are laid around it, and free now is who is IN the chairs
+  // (`inRoom`) — Kowalski, booked on 4 and never came, was "Table 4 is
+  // taken now" while the row offered Seat. Only the party at the bill and
+  // its covers at the till come out.
+  const sub = Object.assign({}, ctx, {
+    reservations: held.reservations.filter(r => r && r.id !== paid.id && (r.id === next.id || !(isLive(r) && dayOf(r.time) === day && !heldTables(r).length))),
+    tables: (ctx.tables || []).map(t => away.has(t.id) ? Object.assign({}, t, { covers: 0 }) : t),
+  });
+  const clock = ctx.now;
+  out.refusal = seatRefusal(sub, localDay(clock), pad2(clock.getHours()) + ':' + pad2(clock.getMinutes()), next.partySize, out.tables, { till: true, duration: next.durationMin, ignoreId: next.id, inRoom: true });
+  out.ok = one && !out.refusal;
+  return out;
+}
+// The turn's Undo puts the party at the bill back on ALL its tables, and the
+// turn freed the ones beyond the next party's (review, 12 Oct: Duarte on
+// 5 + 6 turned for Okafor's four on 5; a walk-in sat on 6, and the Undo put
+// Duarte back sharing it). The first of those somebody else is IN now — sat
+// or at the door, tonight — as { id, name }, or null. `except`: the ids the
+// Undo itself moves (the next party). Pure.
+function turnBackRefusal(ctx, day, paid, except) {
+  const settings = (ctx && ctx.settings) || {};
+  const skip = new Set([paid && paid.id].concat(except || []));
+  for (const id of heldTables(paid || {})) {
+    const r = (ctx.reservations || []).find(x => x && !skip.has(x.id) && isLive(x) && (isSat(x) || isHere(x))
+      && onNight(settings, x, day) && heldTables(x).includes(id));
+    if (r) return { id, name: r.name || '' };
+  }
+  return null;
+}
+
 // §§ GUESTS JOIN THE LINE FROM THEIR PHONE (owner, 8 Oct: "7. scans what? a
 // qr code on the desk computer? if so yes i love" — v53/line)
 //
@@ -7849,7 +7978,7 @@ module.exports = {
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, TURN_BILL, TURN_SOON, turnOf, turnBackRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -11036,6 +11165,114 @@ app.post('/api/reservations/:id/tonight/undo', (req, res) => {
   kickPos();
 });
 
+// §§ THE TURN (owner, 12 Oct, v49: "Surr do it"). A table at the bill and who is next on it:
+// the room's card asks this when a paid table is tapped (av.turnOf).
+function turnSummary(data, t) {
+  const p = t.paid, n = t.next;
+  return {
+    table: t.table, ok: t.ok, refused: t.refusal ? seatRefusedWords(data, t.refusal) : '',
+    paid: { id: p.id, name: p.name || '', partySize: p.partySize, status: p.status, paidAt: Number.isFinite(p.paidAt) ? p.paidAt : null, checkAt: Number.isFinite(p.checkAt) ? p.checkAt : null },
+    next: n ? { id: n.id, name: n.name || '', partySize: n.partySize, time: n.time, status: n.status, tables: t.tables.slice() } : null,
+  };
+}
+// It meets the other tablets' hands as the press does (review, 12 Oct: the
+// card offered Clear and seat on a party Stand was seating, and the press
+// was refused): ok false, the words, and `inHand` — whose — for the card.
+app.get('/api/turn', (req, res) => {
+  const data = readData();
+  const tableId = typeof req.query.table === 'string' ? req.query.table : '';
+  const ctx = ctxOf(data, req);
+  const t = tableId ? av.turnOf(ctx, tradingDay(data), { table: tableId }) : null;
+  if (!t) return res.json({ table: tableId, paid: null, next: null, ok: false });
+  const out = turnSummary(data, t);
+  const n = t.next;
+  if (n) {
+    const from = ctx.now.getTime();
+    const h = av.holdRefusal(holdsFor(req), t.tables, n.id, { from, to: from + av.durationFor(ctx.settings, n.partySize, n.durationMin) * 60000 })
+      || (t.refusal && t.refusal.by ? t.refusal : null);
+    if (h) Object.assign(out, { ok: false, refused: seatRefusedWords(data, { id: h.id, at: null, by: h.by, name: h.name }), inHand: { by: h.by, name: h.name || '' } });
+  }
+  res.json(out);
+});
+// ONE PRESS TURNS IT: the party at the bill marked Left and, with `nextId`,
+// the next party sat on their own tables — asked AGAIN as it lands
+// (av.turnOf: the same party still at the bill, the same party next, every
+// table free now with both of them left out), both through
+// changeReservation(), the PUT's own path, with a history line on each. No
+// `nextId` is the room's Clear table. The answer says what both WERE, so
+// Undo is one call back.
+app.post('/api/turn', (req, res) => {
+  const data = readData();
+  const b = req.body || {};
+  const tableId = typeof b.tableId === 'string' ? b.tableId : '';
+  const nextId = typeof b.nextId === 'string' && b.nextId ? b.nextId : null;
+  const ctx = ctxOf(data), day = tradingDay(data);
+  const t = av.turnOf(ctx, day, nextId ? { booking: nextId, table: tableId } : { table: tableId });
+  const label = (id) => { const x = tablesOf(data).find(y => y.id === id); return x ? x.label : id; };
+  if (!t || t.paid.id !== b.paidId) return res.status(409).json({ error: `Nobody is at the bill on ${label(tableId)} now` });
+  if (nextId && (!t.next || t.next.id !== nextId)) return res.status(409).json({ error: 'That booking has moved on' });
+  if (nextId && !t.ok) return res.status(409).json({ error: t.refusal ? seatRefusedWords(data, t.refusal) : 'Somebody else is at the bill there too' });
+  // IN HAND (v65): the turn meets the other tablets' holds — on the tables,
+  // for the next party's whole sitting from now, and on that party itself.
+  if (nextId) {
+    const n0 = t.next, from = ctx.now.getTime();
+    const inHand = av.holdRefusal(holdsFor(req), t.tables, n0.id, { from, to: from + av.durationFor(ctx.settings, n0.partySize, n0.durationMin) * 60000 });
+    if (inHand) return res.status(409).json({ error: seatRefusedWords(data, { id: inHand.id, at: null, by: inHand.by, name: inHand.name }) });
+  }
+  const who = staffFromReq(req), at = Date.now();
+  const paid = data.reservations.find(x => x.id === t.paid.id);
+  const next = nextId ? data.reservations.find(x => x.id === nextId) : null;
+  const where = t.tables.map(label).join(' + ');
+  const was = { paid: av.tidyWas(paid), next: null };
+  if (next) {
+    was.next = { id: next.id, status: next.status, tableId: next.tableId || null, tableIds: (next.tableIds || []).slice(), at: t.tables.slice() };
+    if (next.partCount && /^part-/.test(next.status)) was.next.partCount = next.partCount;
+  }
+  const out = changeReservation(data, paid, { status: 'done' }, who);
+  if (out.error) return res.status(400).json({ error: out.error });
+  paid.events = history.append(paid.events, [history.noteEvent(who, at, next ? `Left — ${label(t.table)} turned for ${next.name || 'the next party'}` : `Left — ${label(t.table)} cleared`, 'moved')]);
+  if (next) {
+    const body = { status: 'seated', tableId: t.tables[0], tableIds: t.tables.slice(1) };
+    if (next.status === 'part-arrived' && next.partCount) { body.status = 'part-seated'; body.partCount = next.partCount; }
+    const o2 = changeReservation(data, next, body, who);
+    if (o2.error) return res.status(400).json({ error: o2.error });
+    next.events = history.append(next.events, [history.noteEvent(who, at, `Seated at ${where} as ${paid.name || 'the party before'} left`, 'moved')]);
+  }
+  logAudit(data, who, next ? `Turned ${label(t.table)}: ${paid.name} left, ${next.name} seated` : `Cleared ${label(t.table)}: ${paid.name} left`);
+  writeData(data);
+  res.json({ was, table: t.table, tables: t.tables, booking: next ? withWarnings(data, next) : null });
+  kickPos();
+});
+// Its Undo: both back exactly — the next party off the table to where they
+// were up to (only while still that seat), the party at the bill back to it
+// (av.tidyBack: only while their last status line is this Left) — with the
+// stamps they had, never the minute Undo was pressed.
+app.post('/api/turn/undo', (req, res) => {
+  const data = readData();
+  const was = req.body || {};
+  const who = staffFromReq(req);
+  const p = was.paid && typeof was.paid.id === 'string' ? data.reservations.find(x => x.id === was.paid.id) : null;
+  const back = av.tidyBack(p, was.paid);
+  const w = was.next && typeof was.next.id === 'string' ? was.next : null;
+  const n = w ? data.reservations.find(x => x.id === w.id) : null;
+  const same = (r) => r && av.isSat(r) && JSON.stringify(av.heldTables(r)) === JSON.stringify(w.at || []);
+  if (!back || (w && !same(n))) return res.status(409).json({ error: `${(p && p.name) || 'They'} have moved on since` });
+  // Back on ALL their tables only while nobody else is in the chairs of the
+  // ones the turn freed (review, 12 Oct: a walk-in sat on 6 meanwhile, and
+  // Duarte came back sharing it). Said whose, nothing written.
+  const inWay = av.turnBackRefusal(ctxOf(data), tradingDay(data), p, n ? [n.id] : []);
+  if (inWay) return res.status(409).json({ error: `Table ${tableWord(data, inWay.id)} is taken now · ${inWay.name || 'somebody'} is on it` });
+  if (n) {
+    const o = changeReservation(data, n, { status: w.status, tableId: w.tableId || null, tableIds: Array.isArray(w.tableIds) ? w.tableIds : [], partCount: w.partCount }, who, { keepStamps: true });
+    if (o.error) return res.status(400).json({ error: o.error });
+  }
+  const o = changeReservation(data, p, { status: back, partCount: was.paid.partCount }, who, { keepStamps: true });
+  if (o.error) return res.status(400).json({ error: o.error });
+  writeData(data);
+  res.json({ ok: true });
+  kickPos();
+});
+
 // §§ TIDY THE NIGHT IN ONE TAP (owner, 8 Oct: "6. i love!!!"). All left and
 // All no-shows, and the one Left or No-show on a row of the tidy: every id
 // is put to the rule AGAIN as the press arrives (av.tidyPick — a party that
@@ -13309,6 +13546,7 @@ const I = {
 
 // §§ State
 const state = {
+  turn: null,          // the room's card for a table at the bill (v49): { table, data }
   // A NAME, not a credential. There is nothing to unlock: the desk has no
   // door and Settings has no PIN — what guards this app is the front door of
   // the restaurant it is standing in.
@@ -14389,6 +14627,7 @@ function render() {
   // nothing. Runs after the restore, so it wins on the day that changed.
   markRailEnds();
   insetWalkin();
+  placeTurn();
   dockToast();
   syncHold();                     // what is open here is what this tablet has in hand
   tlTick();                       // the line lands on the second, not on the paint
@@ -15367,6 +15606,8 @@ function renderFloor() {
   const live = state.date === tradingDay() && toMin(at) === tradingNowMin();
   const by = {};
   for (const f of floorStateAt(at, live)) by[f.id] = f;
+  // The turn's card goes with its table's bill (turnStands): every paint asks.
+  if (state.turn && !turnStands(state.turn, by[state.turn.table], live)) state.turn = null;
   // THE ROOM IS THE TABLE PICKER. A row's table key puts the floor in here:
   // the booking's own tables keep the accent ring, every table free at its
   // time is a key, and the rest go quiet. Nothing is drawn OVER the room and
@@ -15391,6 +15632,7 @@ function renderFloor() {
   const pkMove = pkStuck && pk.move ? pk.move : null;
   // The pairs a walk-in can take, and the ones somebody holds (walkinJoins).
   const wkJoins = !pk && state.walkin && state.walkin.data ? walkinJoins(state.walkin.data) : null;
+  const wkOnRoom = !pk && !!(state.walkin && state.walkin.data);
 
   // ONE ROOM AT A TIME. The desk used to stack every floor plan down the pane
   // with a heading over each, so a venue with an Inside and an Outside got two
@@ -15462,7 +15704,9 @@ function renderFloor() {
     // in the way says, on the floor's own pill, where its booking goes.
     const mvSet = pkMove && pkMove.tables.includes(t.id);
     const mvFrom = pkMove && pkMove.move.from.includes(t.id);
-    const ring = pk ? mine : state.highlightTable === t.id;
+    // Under the walk-in the ring is the walk-in's (review, 12 Oct): a turn
+    // card's table ringed beside the lit ones read as one more to take.
+    const ring = pk ? mine : state.highlightTable === t.id || (!!state.turn && state.turn.table === t.id && live && !wkOnRoom);
     // A WALK-IN IS BEING SEATED: the tables that can take them are the only
     // keys, the rest go quiet — the picker's own grammar, asked of the door.
     // A BIG PARTY LIGHTS ITS JOINED TABLES (8 Oct): every table of a lit
@@ -15480,6 +15724,9 @@ function renderFloor() {
     const act = ih && wkOn && !pk && !ih.party ? `data-act="ih-take-t" data-table="${esc(t.id)}"`
       : ih && (pk || wkOn) ? 'disabled' : pk ? (mvSet ? `data-act="one-move" data-id="${esc(pk.id)}"` : canPick ? `data-act="pick-seat" data-id="${esc(pk.id)}" data-table="${esc(t.id)}"` : 'disabled')
       : wkOn ? (wk ? `data-act="walkin-seat" data-table="${esc(t.id)}"${wkJoin ? ` data-tables="${esc(wkJoin.tables.join(','))}"` : ''}` : 'disabled')
+      // THE TURN (v49): a table at the bill tonight, at the clock, opens its
+      // card — who is on it, Clear table, and Clear and seat the next party.
+      : live && r && TURN_BILL.includes(r.status) && (f.state === 'check' || f.state === 'paid') ? `data-act="turn-open" data-table="${esc(t.id)}"`
       : `data-act="${r ? 'edit-booking' : 'new-at'}" ${r ? `data-id="${esc(r.id)}"` : `data-time="${esc(at)}" data-table="${esc(t.id)}"`}`;
     const pkWhy = !pk ? why
       : mvSet ? `Move ${pkMove.move.name || 'the booking'} to ${pkMove.move.to.map(tableName).join(' + ')} and seat ${pkBook.name || 'them'} on ${pkMove.tables.map(tableName).join(' + ')}`
@@ -15535,9 +15782,9 @@ function renderFloor() {
   // has a name and they line up as a set, and this is one key beside them.
   return `
   ${fp ? `
-    <div class="fl-box${pkStuck ? ' mv' : ''}"><div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : ''}><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
+    <div class="fl-box${pkStuck ? ' mv' : ''}"><div class="fl-wrap" data-keep="floor"${pk ? ' data-act="pick-off"' : state.turn ? ' data-act="turn-off"' : ''}><div class="fl-stage" style="${stageStyle()}"><div class="fl-room${placed ? '' : ' loose'}" style="${placed ? roomStyle(fp) : ''}">
       ${hug && wkJoins ? joinMarks(roomTables, wkJoins, roomShape(hug).arw) : ''}${roomTables.map(tableEl).join('')}
-    </div></div></div>${pkStuck ? moveOfferHtml(pkBook, pkMove) : ''}</div>`
+    </div></div></div>${pkStuck ? moveOfferHtml(pkBook, pkMove) : ''}${!pk && !wkOnRoom && live ? renderTurnCard() : ''}</div>`
     : '<div class="empty">No floor plan yet. Link the POS, or add tables in Settings.</div>'}`;
 }
 
@@ -16311,6 +16558,141 @@ function busyWords(room, id) {
   const f = room.find(x => x.id === id);
   return tableName(id) + (f && f.r && isHere(f.r) && !(f.covers > 0) ? ' taken' : ' still eating');
 }
+// §§ THE TURN (owner, 12 Oct, v49: "Surr do it"). The table r is waiting for is held by ONE
+// party at the bill — paid, or the bill down — and nobody else: then the
+// tab's next step is the turn, one press that marks them Left and seats r
+// (POST /api/turn, which asks av.turnOf() again where it lands). The till's
+// covers on that table are theirs. Anything else in the way is the ordinary
+// "still eating". Drawing only: the rule is the server's.
+const TURN_BILL = ['check', 'paid'];
+function turnOn(room, r) {
+  let paid = null, table = null;
+  for (const id of tablesFor(r)) {
+    const f = room.find(x => x.id === id);
+    if (!f) continue;
+    const other = f.r && f.r.id !== r.id ? f.r : null;
+    if (!other && !(f.state === 'walkin' || f.covers > 0)) continue;
+    if (!other || !TURN_BILL.includes(other.status) || (paid && paid.id !== other.id)) return null;
+    paid = other; table = table || id;
+  }
+  return paid ? { paid, table } : null;
+}
+// The turn as the door's card and the booking page offer it (review, 12
+// Oct): turnOn(), and none of r's tables in another tablet's hand over the
+// sitting a seat now would start — the route would refuse it in Stand's name.
+function turnFree(room, r, now) {
+  const turn = turnOn(room, r);
+  if (!turn) return null;
+  const span = { from: now, to: now + durationOf(r) * 60000 };
+  return tablesFor(r).some(id => holdAt(id, span)) ? null : turn;
+}
+// THE ROOM'S CARD NEVER OUTLIVES ITS TABLE (review, 12 Oct): Duarte Left on
+// another tablet and 4's card went on offering Clear and seat. It stands
+// only while the floor at the clock still has that party at the bill there.
+function turnStands(t, f, live) {
+  if (!t || !live || !f || !f.r || !TURN_BILL.includes(f.r.status) || !(f.state === 'check' || f.state === 'paid')) return false;
+  return !(t.data && t.data.paid) || f.r.id === t.data.paid.id;
+}
+// One press: the party at the bill Left and the next sat, the seat's own
+// message ("Okafor seated at 4 · Duarte left") with How many? and Undo,
+// which is what the route says both were. A seat on its way is never sent
+// twice, and only the message answers while the list moves (row-seat's law).
+let _turning = false;
+async function turnSeat(nextId, paidId, table) {
+  if (_turning) return;
+  const r = (state.reservations || []).find(x => x.id === nextId);
+  const p = (state.reservations || []).find(x => x.id === paidId);
+  let name = (r && r.name) || 'Booking';
+  const left = (p && p.name) || 'They';
+  _turning = true; _seatedAt = Date.now();
+  try {
+    const out = await post('/api/turn', { tableId: table, paidId, nextId });
+    state.turn = null;
+    // PART OF A PARTY IS THAT PART AT THE TABLE (review, 12 Oct), as the
+    // tab's own seat says it: the route sat two of six part-seated, and the
+    // message is "2 of 6 seated at 4", with no How many? — the +4 is the
+    // rest — and the welcome reads what the route wrote.
+    const b = out.booking || null;
+    const part = !!(b && b.status === 'part-seated' && b.partCount);
+    if (part) name = `${b.partCount} of ${b.partySize}`;
+    const kept = state.doorKept.has(nextId);
+    state.doorKept.delete(nextId);
+    await loadView();
+    const where = (out.tables || [table]).map(tableName).join(' + ');
+    const msg = `${name} seated at ${where} · ${left} left`;
+    state.toastSome = part ? null : { msg, id: nextId, n: (r && r.partySize) || 1, open: false };
+    // Undo takes the welcome card with it: nobody is seated any more.
+    toastUndo(msg, async () => {
+      await post('/api/turn/undo', out.was);
+      if (state.welcome && state.welcome.id === nextId) { clearTimeout(_welcomeTimer); state.welcome = null; }
+      if (kept) state.doorKept.add(nextId);
+      await loadView();
+    });
+    _seatedAt = Date.now();
+    greet(nextId, out.was.next ? out.was.next.status : 'booked', b ? b.status : 'seated');
+  } catch (e) { await loadView().catch(() => {}); toastBad(e.message); }
+  finally { _turning = false; }
+}
+// Clear table: the party at the bill Left, nobody seated, with Undo.
+async function turnClear(paidId, table) {
+  if (_turning) return;
+  const p = (state.reservations || []).find(x => x.id === paidId);
+  _turning = true; _seatedAt = Date.now();
+  try {
+    const out = await post('/api/turn', { tableId: table, paidId });
+    state.turn = null;
+    await loadView();
+    toastUndo(`${(p && p.name) || 'They'} left · ${tableName(table)} is free`, async () => { await post('/api/turn/undo', out.was); await loadView(); });
+  } catch (e) { await loadView().catch(() => {}); toastBad(e.message); }
+  finally { _turning = false; }
+}
+// The room's card for a table at the bill: who is on it, Clear table, and
+// who is next on it with Clear and seat. Asked of the server when the table
+// is tapped (GET /api/turn), drawn in the room beside the table.
+function renderTurnCard() {
+  const t = state.turn;
+  if (!t || !t.data || !t.data.paid) return '';
+  const d = t.data, p = d.paid, n = d.next;
+  const since = p.status === 'paid' && p.paidAt ? `paid ${waitWords(Math.max(0, Math.round((Date.now() - p.paidAt) / 60000)))} ago`
+    : p.status === 'paid' ? 'paid' : p.checkAt ? `bill ${waitWords(Math.max(0, Math.round((Date.now() - p.checkAt) / 60000)))} ago` : 'bill down';
+  // IN ANOTHER TABLET'S HAND (review, 12 Oct): Bar had Okafor in hand and
+  // the card said "Clear and seat Okafor" in ink, refused on the press. The
+  // party held is the row's key and its ask; a table held, or the server's
+  // word for it (inHand), is said quietly — never the ink key.
+  const now = Date.now();
+  const ph = n ? holdOn(n.id) : null;
+  const th = n && !ph ? (n.tables || [d.table]).map(id => holdAt(id, { from: now, to: now + durationOf(n) * 60000 })).find(Boolean) : null;
+  const ihBy = th ? th.by : d.inHand ? d.inHand.by : '';
+  const go = !n ? '' : ph ? (state.ihAsk === n.id ? ihAskHtml(ph) : `<button class="tc-go ih" data-act="ih-take" data-id="${esc(n.id)}">In hand · ${esc(ph.by)}</button>`)
+    : ihBy ? `<span class="tc-no ih">In hand · ${esc(ihBy)}</span>`
+      : d.ok ? `<button class="tc-go ink" data-act="turn-seat" data-id="${esc(n.id)}" data-paid="${esc(p.id)}" data-table="${esc(d.table)}">Clear and seat ${esc(n.name || 'them')}</button>`
+        : `<span class="tc-no">${esc(d.refused || 'Cannot seat them here now')}</span>`;
+  const next = n ? `<div class="tc-next"><span class="tc-k">Next on ${esc(tableName(d.table))}</span>
+      <b>${esc(n.name || 'No name')} · ${n.partySize} · ${esc(fmtHHMM(hhmmOf(n.time)).replace(/\s?[AP]M$/i, ''))}</b>
+      ${go}</div>` : '';
+  return `<div class="turn-card" role="dialog" aria-label="Table ${esc(tableName(d.table))}">
+    <div class="tc-h"><b>Table ${esc(tableName(d.table))}</b><button class="tc-x" data-act="turn-off" aria-label="Close">${I.cross}</button></div>
+    <span class="tc-who">${esc(p.name || 'No name')} · ${p.partySize} · ${esc(since)}</span>
+    <button class="tc-go" data-act="turn-clear" data-paid="${esc(p.id)}" data-table="${esc(d.table)}">Clear table</button>
+    ${next}
+  </div>`;
+}
+// Beside its table: to the right where it fits, else to the left, kept
+// inside the room's box; a phone docks it across the foot of the room.
+function placeTurn() {
+  const card = document.querySelector('.fl-box > .turn-card');
+  if (!card || !state.turn) return;
+  if (!matchMedia('(min-width:761px)').matches) return;
+  const box = card.parentElement.getBoundingClientRect();
+  const tb = document.querySelector(`.desk-main .fl-table[data-tid="${CSS.escape(state.turn.table)}"]`);
+  if (!tb) return;
+  const r = tb.getBoundingClientRect(), w = card.offsetWidth, h = card.offsetHeight, gap = 16;
+  let x = r.right - box.left + gap;
+  if (x + w > box.width - 8) x = r.left - box.left - gap - w;
+  x = Math.max(8, Math.min(box.width - w - 8, x));
+  const y = Math.max(8, Math.min(box.height - h - 8, r.top - box.top + r.height / 2 - h / 2));
+  card.style.left = Math.round(x) + 'px'; card.style.top = Math.round(y) + 'px';
+}
 function seatsWord(n) { return n + (Number(n) === 1 ? ' seat' : ' seats'); }
 // Seat from the row's tab. Part of a party at the door is that part at the
 // table — "2 of 6" stays 2 of 6, with +4 for the rest (daily round, 7 Oct:
@@ -16847,8 +17229,13 @@ function doorTable(r, room, now) {
   // start is not ready (daily round, 11 Oct): the tap was refused "Bar is
   // seating a walk-in at 13" under a card that said "13 is ready".
   const span = { from: now, to: now + durationOf(r) * 60000 };
-  const inHand = !occ ? held.find(id => holdAt(id, span)) : null;
+  // THE TURN (review, 12 Oct): the table held only by a party at the bill is
+  // ready — the row's Seat made big, and the tap is the turn. Nothing is
+  // said of who is paying (owner: "too much info").
+  const turn = occ ? turnOn(room, r) : null;
+  const inHand = !occ || turn ? held.find(id => holdAt(id, span)) : null;
   if (inHand) return { ready: false, words, occ: inHand, mins: null, frees: `${tableName(inHand)} in hand · ${holdAt(inHand, span).by}`, what: '' };
+  if (turn) return { ready: true, words, turn };
   if (!occ) return { ready: true, words };
   const f = room.find(x => x.id === occ);
   const on = f && f.r && f.r.id !== r.id && (isSat(f.r) || isHere(f.r)) ? f.r : null;
@@ -16887,11 +17274,12 @@ function doorCard(r, room, now) {
     if (frees) said.push(`<i>${esc(frees)}</i>`);
     if (t.what) said.push(`<i>${esc(t.what)}</i>`);
   }
-  const act = t.ready ? 'door-seat' : here ? 'edit-booking' : 'door-here';
+  const act = t.turn ? 'row-turn' : t.ready ? 'door-seat' : here ? 'edit-booking' : 'door-here';
+  const turnAt = t.turn ? ` data-paid="${esc(t.turn.paid.id)}" data-table="${esc(t.turn.table)}"` : '';
   const tab = here ? 'here' : late ? 'late' : t.ready ? 'seat' : '';
   const word = t.ready ? 'Seat' : here ? (t.at || '—') : 'Here';
   const aria = t.ready ? `Seat ${r.name || 'them'} at ${t.words}` : here ? `${r.name || 'Booking'}, here: ${t.frees}` : `${r.name || 'Booking'} is here: ${t.frees}`;
-  return `<button class="door-card${here ? ' is-here' : ''}" data-act="${act}" data-id="${esc(r.id)}" data-ih="${t.ready || !/ in hand · /.test(t.frees || '') ? '' : esc(t.frees)}" aria-label="${esc(aria)}">
+  return `<button class="door-card${here ? ' is-here' : ''}" data-act="${act}" data-id="${esc(r.id)}"${turnAt} data-ih="${t.ready || !/ in hand · /.test(t.frees || '') ? '' : esc(t.frees)}" aria-label="${esc(aria)}">
     <span class="dc-tab ${tab}${t.ready ? '' : ' busy'}"><span class="dc-no">${esc(label)}</span><span class="dc-do">${esc(word)}</span></span>
     <span class="dc-main"><span class="dc-name"><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span>
       <span class="dc-say">${said.map((u, i) => i ? `<b>·&nbsp;${u}</b>` : u).join(' ')}</span></span>
@@ -16910,7 +17298,9 @@ let _doorSig = '', _doorSigAt = 0, _downAt = 0, _doorShrinkAt = 0;
 function doorCards(list, room, now) {
   const cards = list.map(r => doorCard(r, room, now));
   // Who has it in hand is part of what a card says: a hold moving restamps it.
-  const sig = list.map((r, i) => r.id + ':' + (cards[i].match(/data-act="([^"]+)"/) || [])[1] + ':' + (cards[i].match(/data-ih="([^"]*)"/) || [])[1]).join(',');
+  // So is who the turn clears (data-paid): another party at the bill is another tap.
+  const sig = list.map((r, i) => r.id + ':' + (cards[i].match(/data-act="([^"]+)"/) || [])[1] + ':' + (cards[i].match(/data-ih="([^"]*)"/) || [])[1]
+    + ':' + (cards[i].match(/data-paid="([^"]*)"/) || [])[1]).join(',');
   if (sig !== _doorSig) { _doorSig = sig; _doorSigAt = Date.now(); }
   return `<div class="bl-head door"><span class="bl-h-name">Next at the door</span></div><div class="bl-rows door-rows">${cards.join('')}</div>`;
 }
@@ -17014,11 +17404,15 @@ function renderDayList() {
       : r.status === 'arrived' ? 'here' : r.status === 'part-arrived' ? 'phere'
         : r.status === 'check' || r.status === 'paid' ? 'bill' : sat ? 'in' : 'wait';
     const seatable = tonight && !sat && !ended && held.length && !occ;
-    const tabAct = seatable ? `data-act="row-seat" data-id="${esc(r.id)}" aria-label="Seat at ${esc(held.map(tableName).join(' + '))}"`
+    // THE TURN (v49): the table held only by a party at the bill — the tab
+    // and the one key mark them Left and seat this party, in one press.
+    const turn = occ ? turnOn(room, r) : null;
+    const turnAct = turn && busy ? `data-act="row-turn" data-id="${esc(r.id)}" data-paid="${esc(turn.paid.id)}" data-table="${esc(turn.table)}"` : '';
+    const tabAct = turnAct ? `${turnAct} aria-label="Seat at ${esc(held.map(tableName).join(' + '))} — ${esc(turn.paid.name || 'they')} left"` : seatable ? `data-act="row-seat" data-id="${esc(r.id)}" aria-label="Seat at ${esc(held.map(tableName).join(' + '))}"`
       : `data-act="row-table" data-id="${esc(r.id)}" aria-label="${held.length ? 'Table ' + esc(held.map(tableName).join(' + ')) + ' — pick another' : 'No table — pick one'}"`;
     // IN HAND (v65): another tablet is seating them — the tab does nothing.
     const ih = tonight && !ended && !sat ? holdOn(r.id) : null;
-    const tab = ended || ih ? `<span class="dk-tab${busy ? ' busy' : ''}">${esc(label)}</span>` : `<button class="dk-tab${auto ? ' auto' : ''}${held.length ? '' : ' none'}${late ? ' late' : ''}${busy ? ' busy' : ''}" ${tabAct}>${esc(label)}</button>`;
+    const tab = ended || ih ? `<span class="dk-tab${busy ? ' busy' : ''}">${esc(label)}</span>` : `<button class="dk-tab${auto ? ' auto' : ''}${held.length ? '' : ' none'}${late ? ' late' : ''}${busy && !turnAct ? ' busy' : ''}" ${tabAct}>${esc(label)}</button>`;
     // The line under the name: only what is different.
     const said = [];
     const part = r.partCount ? `${r.partCount} of ${r.partySize}` : 'Some';
@@ -17032,7 +17426,7 @@ function renderDayList() {
     if (r.status === 'paid') said.push('<i class="leave">Paid</i>');
     if (ended) said.push(esc(statusLabel(r.status)));
     if (late) said.push(`<i class="late">${esc(waitWords(late))} late</i>`);
-    if (busy) said.push(`<i class="quiet">${esc(busyWords(room, busy))}</i>`);
+    if (busy && !turnAct) said.push(`<i class="quiet">${esc(busyWords(room, busy))}</i>`);
     if (held.length > 1) said.push(esc(held.map(tableName).join(' + ')));
     if (setMenuName(r)) said.push(esc(setMenuName(r)));
     if (String(r.notes || '').trim()) said.push(esc(String(r.notes).trim().slice(0, 60)));
@@ -17041,6 +17435,7 @@ function renderDayList() {
     if (tonight && here && r.arrivedAt) rt = `<span class="dk-t">${esc(waitWords(Math.max(0, Math.round((now - r.arrivedAt) / 60000))))}</span>`;
     if (tonight && late && String(r.phone || '').trim()) rt = `<a class="dk-k" href="tel:${esc(String(r.phone).replace(/[^\d+]/g, ''))}" aria-label="Call ${esc(r.name || '')}">${I.phone}</a>`;
     if (busy && !here) rt = `<button class="dk-k" data-act="row-here" data-id="${esc(r.id)}">Here</button>`;
+    if (turnAct) rt = `<button class="dk-k ink" ${turnAct}>Seat</button>`;
     if (tonight && sat) {
       const left = sitLeft(r, now);
       // The minutes say what they are: "4 min" at the door, "39 min left"
@@ -18219,7 +18614,12 @@ function renderBookingEdit(m) {
     // IN ANOTHER TABLET'S HAND (daily round, 11 Oct): the row's key and its
     // ask, never a Seat the desk would refuse ("Bar is seating Lee").
     const ih = !isSat(r) ? holdOn(r.id) : null;
+    // THE TURN (review, 12 Oct): the table held only by a party at the bill
+    // is the row's Seat here too — never "Here — 4 still eating", nor
+    // nothing once they are Here — and it names nobody on the table.
+    const turn = occ ? turnFree(room, r, now) : null;
     if (ih) next = state.ihAsk === r.id ? ihAskHtml(ih) : `<button class="go ih" data-act="ih-take" data-id="${id}">In hand · ${esc(ih.by)}</button>`;
+    else if (turn) next = `<button class="go" data-act="row-turn" data-id="${id}" data-paid="${esc(turn.paid.id)}" data-table="${esc(turn.table)}">Seat at ${esc(tablesFor(r).map(tableName).join(' + '))}</button>`;
     else if (!isSat(r) && tablesFor(r).length && !occ) next = `<button class="go" data-act="row-seat" data-id="${id}">Seat at ${esc(tablesFor(r).map(tableName).join(' + '))}</button>`;
     else if (!isSat(r) && occ && !isHere(r)) next = `<button class="go ink" data-act="row-here" data-id="${id}">Here — ${esc(busyWords(room, occ))}</button>`;
     else if (r.status === 'part-seated') next = `<button class="go" data-act="row-rest" data-id="${id}">The other ${Math.max(1, r.partySize - (r.partCount || 0))} arrived</button>`;
@@ -19101,8 +19501,8 @@ document.addEventListener('click', async (ev) => {
       // once, then holds it for as long as this tab is open.
       // Leaving the room puts a walk-in away: its lit tables are about THIS
       // room, now, and nowhere else.
-      case 'view': state.walkin = null; setView(val); break;
-      case 'day': state.walkin = null; state.nightOpen = false; state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.picking = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
+      case 'view': state.walkin = null; state.turn = null; setView(val); break;
+      case 'day': state.walkin = null; state.turn = null; state.nightOpen = false; state.date = val === '0' ? tradingDay() : addDays(state.date, parseInt(val)); state.highlightTable = null; state.picking = null; state.service = defaultService(state.date); state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; render(); await loadDay(); render(); break;
       // Timeline and List flip instantly; only the sheet awaits a fetch.
       case 'mode': {
         state.tidy = false;
@@ -19127,7 +19527,7 @@ document.addEventListener('click', async (ev) => {
       case 'side': state.side = val; if (val !== 'waitlist') state.wlAt = null; render(); try { await loadSide(); state.today = await api('/api/today'); } catch (e) {} render(); break;
       case 'print-sheet': window.print(); break;
       case 'month': { if (val === '0') state.month = tradingDay().slice(0, 7); else { const [y, m] = state.month.split('-').map(Number); const d = new Date(y, m - 1 + parseInt(val), 1); state.month = localDay(d).slice(0, 7); } render(); try { await loadMonth(); } catch (e) {} render(); break; }
-      case 'open-day': state.walkin = null; state.date = val; state.view = 'today'; state.modal = null; state.service = defaultService(val); render(); await loadDay(); render(); break;
+      case 'open-day': state.walkin = null; state.turn = null; state.date = val; state.view = 'today'; state.modal = null; state.service = defaultService(val); render(); await loadDay(); render(); break;
       // Point at a table in the book and the room answers. A second tap puts
       // it back, so it is a question and not a mode you can get stuck in.
       // §§ THE ROW'S TWO KEYS
@@ -19241,6 +19641,25 @@ document.addEventListener('click', async (ev) => {
         } catch (e) { toastBad(e.message); }
         break;
       }
+      // THE TURN (v49): the row's tab or Seat — the party at the bill Left
+      // and this party sat, one press — and the room's card for a table at
+      // the bill, asked of the server as it opens (GET /api/turn).
+      case 'row-turn': if (state.modal && state.modal.kind === 'booking') state.modal = null; await turnSeat(id, el.dataset.paid, el.dataset.table); break;
+      case 'turn-seat': await turnSeat(id, el.dataset.paid, el.dataset.table); break;
+      case 'turn-clear': await turnClear(el.dataset.paid, el.dataset.table); break;
+      case 'turn-off': state.turn = null; render(); break;
+      case 'turn-open': {
+        const tb = el.dataset.table;
+        if (state.turn && state.turn.table === tb) { state.turn = null; render(); break; }
+        state.turn = { table: tb, data: null }; render();
+        try {
+          const d = await api('/api/turn?table=' + encodeURIComponent(tb));
+          if (!state.turn || state.turn.table !== tb) break;
+          if (!d.paid) { state.turn = null; await loadView(); render(); break; }
+          state.turn.data = d; render();
+        } catch (e) { state.turn = null; render(); toastBad(e.message); }
+        break;
+      }
       // Open, the message stands twenty seconds, and the ten-second poll
       // repaints it from this state rather than taking it away.
       case 'toast-some': {
@@ -19324,6 +19743,7 @@ document.addEventListener('click', async (ev) => {
       case 'ih-yes-t': await takeTable(el.dataset.table); break;
       case 'ih-yes': await takeHold(id); break;
       case 'row-table': {
+        state.turn = null;
         if (state.picking && state.picking.id === id) { state.picking = null; render(); break; }
         const r = (state.reservations || []).find(x => x.id === id);
         if (!r) { toastBad('That booking has gone'); break; }
@@ -19422,6 +19842,7 @@ document.addEventListener('click', async (ev) => {
       case 'walkin': {
         if (state.walkin) { state.walkin = null; render(); break; }
         const w = state.walkin = { size: 2, data: null };
+        state.turn = null;
         state.picking = null; state.modal = null;
         const moved = state.view !== 'today' || state.todayMode !== 'floor' || state.date !== tradingDay();
         state.view = 'today'; state.todayMode = 'floor';
@@ -20854,6 +21275,7 @@ document.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape' && state.lensOpen) { state.lensOpen = false; render(); return; }
   if (ev.key === 'Escape' && state.picking) { state.picking = null; render(); return; }
   if (ev.key === 'Escape' && state.walkin) { state.walkin = null; render(); return; }
+  if (ev.key === 'Escape' && state.turn) { state.turn = null; render(); return; }
   if (ev.key === 'Escape' && state.tidy && !typingInField()) { state.tidy = false; render(); return; }
   if (!state.modal && !typingInField() && ev.key === '/') { ev.preventDefault(); if (!slashFind()) openFind(true); return; }
   if (!state.modal && !typingInField() && (ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); openFind(true); }
