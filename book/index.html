@@ -2683,7 +2683,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .bl-rows > .dk-row:first-child{border-top:none;}
 .shell.simple .dk-row.selected,.shell.simple .dk-row.open{background:var(--accent-wash);box-shadow:none;}
 .dk-tab[class*="stg-"]{background:var(--tfree);color:var(--ink);border-left:none;text-decoration:none;}
-.dk-tab.stg-here{background:var(--accent);color:var(--on-accent);}
+.dk-tab.stg-here{background:var(--accent-wash);color:var(--accent);box-shadow:inset 0 0 0 var(--ring) var(--accent);}
 /* Just opened spends the one blue once: the tab's ring. Its head is a head,
    its words ink and its Text the ink key that does the thing (9 Oct: one
    row wore the blue five times). */
@@ -2693,12 +2693,13 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 a.dk-k,a.chip{text-decoration:none;}
 .dk-tab.stg-phere{background:var(--accent-wash);color:var(--accent);box-shadow:inset var(--ring) 0 0 var(--accent);}
 .dk-tab.stg-late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
-.dk-tab.stg-in{background:var(--seat);}
+.dk-tab.stg-in{background:var(--accent);color:var(--on-accent);}
+.dk-tab.stg-paid{background:var(--seat);}
 /* HALF, THEN FULL (owner, 12 Oct): some of the party sat is the tab HALF
    filled — the lower half the seated fill, the upper its own ground, one
    crisp line between — and the second tap fills it. The floor and the
    door's card the same. No new colour. */
-.dk-tab.stg-half{background:linear-gradient(to top,color-mix(in srgb,var(--seat),var(--ink) 22%) 50%,var(--tab-plain) 50%);}
+.dk-tab.stg-half{background:linear-gradient(to top,var(--accent) 50%,var(--tab-plain) 50%);}
 .dk-tab.stg-bill{background:var(--seat);box-shadow:inset var(--ring) 0 0 var(--leave);}
 .dk-tab.stg-gone{color:var(--mute);}
 .dk-tab.stg-none{background:none;color:var(--late);border:1px dashed var(--late);}
@@ -2706,7 +2707,7 @@ a.dk-k,a.chip{text-decoration:none;}
 /* Struck on the blue — a party at the door whose table is still eating, the
    tab's main use — the number keeps the blue's own ink: grey on the blue
    was 1.14 to 1 (9 Oct). */
-.dk-tab.stg-here.busy{color:var(--on-accent);}
+.dk-tab.stg-here.busy{color:var(--accent);}
 .dk-main b{font-size:var(--fs-lg);font-weight:600;}
 .dk-main i.here{color:var(--accent);} .dk-main i.late{color:var(--late);} .dk-main i.leave{color:var(--leave);}
 .dk-t{font-size:var(--fs-md);color:var(--mute);}
@@ -2720,8 +2721,9 @@ a.dk-k,a.chip{text-decoration:none;}
 .shell.simple .desk-main .fl-room{background:var(--surface);}
 .shell.simple .fl-wash{display:none;}
 .shell.simple .fl-in{background:none;box-shadow:none;color:inherit;padding:0;}
-.shell.simple .fl-table.stg-in{background:var(--seat);}
-.shell.simple .fl-table.stg-half{background:linear-gradient(to top,color-mix(in srgb,var(--seat),var(--ink) 22%) 50%,var(--tfree) 50%);}
+.shell.simple .fl-table.stg-in{background:var(--accent);color:var(--on-accent);}
+.shell.simple .fl-table.stg-paid{background:var(--seat);}
+.shell.simple .fl-table.stg-half{background:linear-gradient(to top,var(--accent) 50%,var(--tfree) 50%);}
 .shell.simple .fl-table.stg-here{background:var(--accent);color:var(--on-accent);}
 .shell.simple .fl-table.stg-phere{background:var(--accent-wash);color:var(--accent);border:.25cqw solid var(--accent);}
 .shell.simple .fl-table.stg-late{background:var(--late-wash);color:var(--late);border:.25cqw solid var(--late);outline:none;}
@@ -2978,7 +2980,7 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
    The late table keeps the simple desk's red EDGE — an inside edge, not a
    ring — or it was the faintest thing in the room (1.17 to 1) while its tab
    in the list wore a red edge (9 Oct: "make the floor match the list"). */
-.shell.simple .fl-table.over,.shell.simple .fl-table.check,.shell.simple .fl-table.paid{outline:none;}
+.shell.simple .fl-table.late,.shell.simple .fl-table.over,.shell.simple .fl-table.check,.shell.simple .fl-table.paid{outline:none;}
 .shell.simple .tl-block.check,.shell.simple .tl-block.paid{box-shadow:none;}
 .tl-now{width:1px;background:var(--ink);}
 .tl-now i{background:var(--ink);color:var(--surface);}
@@ -3307,9 +3309,9 @@ button.door-card{cursor:pointer;}
 .door-card > button{align-self:stretch;margin:0;border:none;border-radius:0;font:inherit;line-height:inherit;text-align:left;cursor:pointer;}
 .dc-tab{align-self:stretch;display:flex;align-items:center;justify-content:center;min-width:0;padding:0 4px;background:var(--tfree);color:var(--ink);}
 .dc-no{font-family:var(--font-mono);font-weight:700;line-height:1;white-space:nowrap;letter-spacing:-0.02em;}
-.dc-tab.half{background:linear-gradient(to top,color-mix(in srgb,var(--seat),var(--ink) 22%) 50%,var(--tfree) 50%);}
+.dc-tab.half{background:linear-gradient(to top,var(--accent) 50%,var(--tfree) 50%);}
 .dc-tab.late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
-.dc-tab.here{background:var(--accent);color:var(--on-accent);}
+.dc-tab.here{background:var(--accent-wash);color:var(--accent);box-shadow:inset 0 0 0 var(--ring) var(--accent);}
 .dc-tab.busy .dc-no{text-decoration:line-through;text-decoration-thickness:3px;}
 .dc-tab.busy:not(.here):not(.late) .dc-no{color:var(--mute);}
 .dc-main{display:flex;align-items:center;min-width:0;padding:0 8px 0 16px;background:none;color:inherit;}
