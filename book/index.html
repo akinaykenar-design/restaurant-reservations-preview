@@ -61,6 +61,9 @@
   --pos-topbar-band:var(--pos-surface);
   --pos-topbar-radius:0;
   --pos-topbar-line:1px solid var(--pos-steel-200);
+  --pos-bar-ic:44px;
+  --pos-bar-ic-glyph:24px;
+  --pos-bar-ic-stroke:2.15;
 }
 html[data-theme="dark"],body[data-theme="dark"]{
   --pos-steel-100:#161512;
@@ -2297,18 +2300,6 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 /* A count of nought is not news. */
 .rail .rail-n:empty,.rail-btn .rail-n[data-zero="1"]{display:none;}
 
-/* §§ The list's search — where a host's hand goes first
-   Sticky at the head of the book, so scrolling down the night never scrolls
-   it away. Its own row, not a chip: a field you type into is not a selector. */
-.bl-find{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;
-  padding:8px 8px 8px 4px;background:var(--surface);border-bottom:1px solid var(--steel-200);}
-.bl-find-i{display:flex;flex:none;color:var(--charcoal-soft);margin-left:4px;}
-.bl-find-i svg{width:18px;height:18px;}
-.bl-find input{flex:1;min-width:0;min-height:var(--tap);border:none;background:none;padding:0;}
-.bl-find input:focus{border:none;box-shadow:none;}
-.bl-find input::-webkit-search-cancel-button{display:none;}
-/* The finger's 44 — the well beside the book is 48 and holds it. */
-.bl-find .chip.sq{flex:none;min-height:var(--tap);width:var(--tap);}
 
 
 /* A COLOUR THE TILL OWNS IS SHOWN, NOT OFFERED. The dot still wears the
@@ -2353,11 +2344,6 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 }
 .side-sw{height:52px;padding:4px;border-radius:var(--r-control);}
 .side-seg{border-radius:var(--r-btn);}
-/* The search is a well too, glass and all: the magnifier sits inside it. */
-.desk-col .bl-find{margin:0 8px 8px;padding:0 4px 0 8px;min-height:48px;border-bottom:none;
-  border-radius:var(--r-control);background:var(--deck-pill-bg);}
-.desk-col .bl-find input,.desk-col .bl-find input:focus{min-height:48px;background:none;border:none;box-shadow:none;}
-.desk-col .bl-find:focus-within{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
 .bl-head{background:none;border-bottom:none;padding:0 16px;}
 .bl-rows{padding:0 8px 4px;gap:8px;}
 
@@ -2372,7 +2358,7 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
    A table number sits on a grey pad rather than inside a hairline. */
 .topbar{border-bottom:none;}
 .desk-col{border-right:none;background:var(--deck-pill-bg);}
-.desk-col .side-sw,.desk-col .bl-find{background:var(--surface);}
+.desk-col .side-sw{background:var(--surface);}
 .pace{border-top:none;}
 .fl-rooms{border:none;}
 
@@ -2728,17 +2714,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .fl-box > .fl-wrap{background:var(--surface);padding:16px;}
 .shell.simple .timeline,.shell.simple .tl-card{border:none;border-radius:0;}
 
-/* The search well and the groups, the prototype's own. The list's
-   nothing-here line reads like the list: from its left edge, in the
-   heads' weight, quiet — not the app's centred block 48 down (9 Oct). */
-.shell.simple .desk-col .bl-find ~ .empty{text-align:left;padding:12px 4px;font-weight:600;color:var(--mute);}
-.shell.simple .desk-col .bl-find{position:sticky;top:0;margin:0 0 16px;padding:0 4px 0 16px;min-height:48px;border:none;
-  border-radius:var(--r-pill);background:var(--surface);}
-/* THE PINNED SEARCH KEEPS ITS ROUND ENDS, AND THE ROWS SLIDE STRAIGHT UNDER
-   IT (9 Oct). The till settled this: a pinned card keeps its corners and
-   nothing stands between it and what passes beneath (its DESIGN.md,
-   Alignment law 5 — a band of ground was one of the four it turned down).
-   So no band: the rows show beside its round ends as they go under. */
+/* The list's nothing-here line reads like the list: from its left edge, in
+   the heads' weight, quiet — not the app's centred block 48 down (9 Oct).
+   The search is the bar's now (v69), so the rows start at the list's top. */
+.shell.simple .desk-col .empty.dl-empty{text-align:left;padding:12px 4px;font-weight:600;color:var(--mute);}
 .shell.simple .desk-col .side-sw{display:none;}
 .shell.simple .bl-head{display:flex;align-items:center;gap:8px;min-height:52px;padding:0 4px;border:none;background:none;}
 .shell.simple .bl-h-name{flex:none;font-size:var(--fs-lg);font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);}
@@ -2855,7 +2834,6 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
   :root{--sd-pad:16px;--tp-h:60px;}
   .tp{padding:8px 16px;gap:8px;}
   .tp-night{flex:1;order:0;justify-content:space-between;}
-  .tp-menu-a{order:1;}
   .tp-row2{order:2;flex:1 1 100%;}
   .tp-seg button{padding:0 12px;}
   .tp-btn{padding:0 12px;}
@@ -3114,8 +3092,6 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
    equal, the well hung 32 into the room's corner from 901 to 1199, and at
    their own widths it ends over the list, 5 short of its edge (review, 9 Oct). */
 @media (min-width:1200px){ .tp-views .vt{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;} }
-.tp > .tp-menu-a:last-child{margin-right:-8px;}
-.tp > .tp-menu-a:last-child > .tp-menu{right:8px;}
 /* DARK IS LIFTED, NOT SUNK (9 Oct). The segment you are on was the paper,
    #18191D, inside a #202227 well — darker than its own groove, a hole,
    where light lifts it white — so in dark it is the free table's grey, a
@@ -3678,6 +3654,34 @@ body{font-family:var(--font-body);}
 .tp .tp-make{padding:0;background:var(--pos-deck-chip-bg);box-shadow:inset 0 0 0 var(--ring) var(--pos-deck-chip-line);}
 .tp .tp-make .tp-btn{color:var(--pos-deck-chip-ink);}
 .tp .tp-make .tp-btn.on{background:var(--pos-deck-chip-on-bg);color:var(--pos-deck-chip-on-ink);}
+/* THE TILL'S KEYS, ON THE LEFT (owner, 12 Oct, v69: "Then the admin should
+   be on the left? And perhaps the search as well next to the admin bar just
+   like pos? And walkin and booking turn into icons???"). ☰ then the glass at
+   the bar's start, the till's one bar family off pos-look.css — a bare 44
+   square, its 24 glyph at its own stroke, lit in the blue's ink — the deck's
+   gap between them; the menu drops from ☰, inside the screen. */
+.tp-keys{flex:none;display:flex;align-items:center;gap:var(--pos-deck-gap);}
+.tp-key{flex:none;width:var(--pos-bar-ic);height:var(--pos-bar-ic);padding:0;border:none;border-radius:var(--pos-radius);
+  background:none;box-shadow:none;color:var(--pos-topbar-ink);display:inline-flex;align-items:center;justify-content:center;}
+.tp-key.on{color:var(--pos-orange);}
+.tp-key svg{display:block;width:var(--pos-bar-ic-glyph);height:var(--pos-bar-ic-glyph);stroke-width:var(--pos-bar-ic-stroke);}
+.tp-keys .tp-menu{left:0;right:auto;max-width:calc(100vw - 32px);}
+/* The search, in the bar where the night's title stood: a field on the
+   deck chip's ground, 44 tall, the title's own size of type, and its close. */
+.tp-find{position:relative;flex:1 1 auto;min-width:0;max-width:var(--sd-col);display:flex;align-items:center;}
+.tp-find input,.tp-find input:focus{flex:1;min-width:0;width:auto;min-height:var(--tap);padding:0 var(--tap) 0 16px;border:none;border-radius:var(--pos-r-pill);
+  background:var(--pos-deck-chip-bg);color:var(--pos-topbar-ink);font-size:var(--fs-xl);}
+.tp-find input:focus{box-shadow:inset 0 0 0 var(--ring) var(--pos-orange);}
+.tp-find input::-webkit-search-cancel-button{display:none;}
+.tp-find .tp-key{position:absolute;top:0;right:0;}
+.tp-find .tp-key svg{stroke-width:2;}
+/* Walk-in · New booking are the door and the book: two 44 keys in the one
+   pill, the bar family's glyph, no word at any width. */
+.tp .tp-make .tp-btn.icon{width:var(--tap);min-width:var(--tap);padding:0;justify-content:center;}
+.tp .tp-make .tp-btn.icon svg{width:var(--pos-bar-ic-glyph);height:var(--pos-bar-ic-glyph);}
+/* A phone gives the search the bar: the door and the book stand down
+   while it is open, and come back with the title. */
+@media (max-width:760px){ .tp-keys{gap:0;} .tp-find{max-width:none;} .tp:has(> .tp-find) > .tp-make{display:none;} }
 /* end THE TILL'S LOOK */
 </style>
 <body class="book-page">

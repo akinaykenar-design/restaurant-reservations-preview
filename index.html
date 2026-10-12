@@ -76,6 +76,9 @@
   --pos-topbar-band:var(--pos-surface);
   --pos-topbar-radius:0;
   --pos-topbar-line:1px solid var(--pos-steel-200);
+  --pos-bar-ic:44px;
+  --pos-bar-ic-glyph:24px;
+  --pos-bar-ic-stroke:2.15;
 }
 html[data-theme="dark"],body[data-theme="dark"]{
   --pos-steel-100:#161512;
@@ -2312,18 +2315,6 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 /* A count of nought is not news. */
 .rail .rail-n:empty,.rail-btn .rail-n[data-zero="1"]{display:none;}
 
-/* §§ The list's search — where a host's hand goes first
-   Sticky at the head of the book, so scrolling down the night never scrolls
-   it away. Its own row, not a chip: a field you type into is not a selector. */
-.bl-find{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;
-  padding:8px 8px 8px 4px;background:var(--surface);border-bottom:1px solid var(--steel-200);}
-.bl-find-i{display:flex;flex:none;color:var(--charcoal-soft);margin-left:4px;}
-.bl-find-i svg{width:18px;height:18px;}
-.bl-find input{flex:1;min-width:0;min-height:var(--tap);border:none;background:none;padding:0;}
-.bl-find input:focus{border:none;box-shadow:none;}
-.bl-find input::-webkit-search-cancel-button{display:none;}
-/* The finger's 44 — the well beside the book is 48 and holds it. */
-.bl-find .chip.sq{flex:none;min-height:var(--tap);width:var(--tap);}
 
 
 /* A COLOUR THE TILL OWNS IS SHOWN, NOT OFFERED. The dot still wears the
@@ -2368,11 +2359,6 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 }
 .side-sw{height:52px;padding:4px;border-radius:var(--r-control);}
 .side-seg{border-radius:var(--r-btn);}
-/* The search is a well too, glass and all: the magnifier sits inside it. */
-.desk-col .bl-find{margin:0 8px 8px;padding:0 4px 0 8px;min-height:48px;border-bottom:none;
-  border-radius:var(--r-control);background:var(--deck-pill-bg);}
-.desk-col .bl-find input,.desk-col .bl-find input:focus{min-height:48px;background:none;border:none;box-shadow:none;}
-.desk-col .bl-find:focus-within{box-shadow:inset 0 0 0 var(--ring) var(--orange);}
 .bl-head{background:none;border-bottom:none;padding:0 16px;}
 .bl-rows{padding:0 8px 4px;gap:8px;}
 
@@ -2387,7 +2373,7 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
    A table number sits on a grey pad rather than inside a hairline. */
 .topbar{border-bottom:none;}
 .desk-col{border-right:none;background:var(--deck-pill-bg);}
-.desk-col .side-sw,.desk-col .bl-find{background:var(--surface);}
+.desk-col .side-sw{background:var(--surface);}
 .pace{border-top:none;}
 .fl-rooms{border:none;}
 
@@ -2743,17 +2729,10 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .fl-box > .fl-wrap{background:var(--surface);padding:16px;}
 .shell.simple .timeline,.shell.simple .tl-card{border:none;border-radius:0;}
 
-/* The search well and the groups, the prototype's own. The list's
-   nothing-here line reads like the list: from its left edge, in the
-   heads' weight, quiet — not the app's centred block 48 down (9 Oct). */
-.shell.simple .desk-col .bl-find ~ .empty{text-align:left;padding:12px 4px;font-weight:600;color:var(--mute);}
-.shell.simple .desk-col .bl-find{position:sticky;top:0;margin:0 0 16px;padding:0 4px 0 16px;min-height:48px;border:none;
-  border-radius:var(--r-pill);background:var(--surface);}
-/* THE PINNED SEARCH KEEPS ITS ROUND ENDS, AND THE ROWS SLIDE STRAIGHT UNDER
-   IT (9 Oct). The till settled this: a pinned card keeps its corners and
-   nothing stands between it and what passes beneath (its DESIGN.md,
-   Alignment law 5 — a band of ground was one of the four it turned down).
-   So no band: the rows show beside its round ends as they go under. */
+/* The list's nothing-here line reads like the list: from its left edge, in
+   the heads' weight, quiet — not the app's centred block 48 down (9 Oct).
+   The search is the bar's now (v69), so the rows start at the list's top. */
+.shell.simple .desk-col .empty.dl-empty{text-align:left;padding:12px 4px;font-weight:600;color:var(--mute);}
 .shell.simple .desk-col .side-sw{display:none;}
 .shell.simple .bl-head{display:flex;align-items:center;gap:8px;min-height:52px;padding:0 4px;border:none;background:none;}
 .shell.simple .bl-h-name{flex:none;font-size:var(--fs-lg);font-weight:700;letter-spacing:0;text-transform:none;color:var(--ink);}
@@ -2870,7 +2849,6 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
   :root{--sd-pad:16px;--tp-h:60px;}
   .tp{padding:8px 16px;gap:8px;}
   .tp-night{flex:1;order:0;justify-content:space-between;}
-  .tp-menu-a{order:1;}
   .tp-row2{order:2;flex:1 1 100%;}
   .tp-seg button{padding:0 12px;}
   .tp-btn{padding:0 12px;}
@@ -3129,8 +3107,6 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
    equal, the well hung 32 into the room's corner from 901 to 1199, and at
    their own widths it ends over the list, 5 short of its edge (review, 9 Oct). */
 @media (min-width:1200px){ .tp-views .vt{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;} }
-.tp > .tp-menu-a:last-child{margin-right:-8px;}
-.tp > .tp-menu-a:last-child > .tp-menu{right:8px;}
 /* DARK IS LIFTED, NOT SUNK (9 Oct). The segment you are on was the paper,
    #18191D, inside a #202227 well — darker than its own groove, a hole,
    where light lifts it white — so in dark it is the free table's grey, a
@@ -3693,6 +3669,34 @@ body{font-family:var(--font-body);}
 .tp .tp-make{padding:0;background:var(--pos-deck-chip-bg);box-shadow:inset 0 0 0 var(--ring) var(--pos-deck-chip-line);}
 .tp .tp-make .tp-btn{color:var(--pos-deck-chip-ink);}
 .tp .tp-make .tp-btn.on{background:var(--pos-deck-chip-on-bg);color:var(--pos-deck-chip-on-ink);}
+/* THE TILL'S KEYS, ON THE LEFT (owner, 12 Oct, v69: "Then the admin should
+   be on the left? And perhaps the search as well next to the admin bar just
+   like pos? And walkin and booking turn into icons???"). ☰ then the glass at
+   the bar's start, the till's one bar family off pos-look.css — a bare 44
+   square, its 24 glyph at its own stroke, lit in the blue's ink — the deck's
+   gap between them; the menu drops from ☰, inside the screen. */
+.tp-keys{flex:none;display:flex;align-items:center;gap:var(--pos-deck-gap);}
+.tp-key{flex:none;width:var(--pos-bar-ic);height:var(--pos-bar-ic);padding:0;border:none;border-radius:var(--pos-radius);
+  background:none;box-shadow:none;color:var(--pos-topbar-ink);display:inline-flex;align-items:center;justify-content:center;}
+.tp-key.on{color:var(--pos-orange);}
+.tp-key svg{display:block;width:var(--pos-bar-ic-glyph);height:var(--pos-bar-ic-glyph);stroke-width:var(--pos-bar-ic-stroke);}
+.tp-keys .tp-menu{left:0;right:auto;max-width:calc(100vw - 32px);}
+/* The search, in the bar where the night's title stood: a field on the
+   deck chip's ground, 44 tall, the title's own size of type, and its close. */
+.tp-find{position:relative;flex:1 1 auto;min-width:0;max-width:var(--sd-col);display:flex;align-items:center;}
+.tp-find input,.tp-find input:focus{flex:1;min-width:0;width:auto;min-height:var(--tap);padding:0 var(--tap) 0 16px;border:none;border-radius:var(--pos-r-pill);
+  background:var(--pos-deck-chip-bg);color:var(--pos-topbar-ink);font-size:var(--fs-xl);}
+.tp-find input:focus{box-shadow:inset 0 0 0 var(--ring) var(--pos-orange);}
+.tp-find input::-webkit-search-cancel-button{display:none;}
+.tp-find .tp-key{position:absolute;top:0;right:0;}
+.tp-find .tp-key svg{stroke-width:2;}
+/* Walk-in · New booking are the door and the book: two 44 keys in the one
+   pill, the bar family's glyph, no word at any width. */
+.tp .tp-make .tp-btn.icon{width:var(--tap);min-width:var(--tap);padding:0;justify-content:center;}
+.tp .tp-make .tp-btn.icon svg{width:var(--pos-bar-ic-glyph);height:var(--pos-bar-ic-glyph);}
+/* A phone gives the search the bar: the door and the book stand down
+   while it is open, and come back with the title. */
+@media (max-width:760px){ .tp-keys{gap:0;} .tp-find{max-width:none;} .tp:has(> .tp-find) > .tp-make{display:none;} }
 /* end THE TILL'S LOOK */
 </style>
 <div id="app">Loading…</div>
@@ -14037,7 +14041,7 @@ module.exports = { app, posPass, relayPass };
 })();
 </script>
 <script>window.__RESV__.boot();</script>
-<script>// GENERATED from restaurant-pos e9470ad public/app.js and style.css by tools/pos-floor.js.
+<script>// GENERATED from restaurant-pos 20fae54 public/app.js and style.css by tools/pos-floor.js.
 // Do not edit: every line here is the till's own. Run `node tools/pos-floor.js`.
 const FLOOR_ROOM = 4;
 const STD_FLOOR_H = 560;
@@ -14134,6 +14138,8 @@ function floorHug(fp) {
 function hugObject(t, hug) {
   return { ...t, x: (t.x - hug.x0) / hug.w * 100, y: (t.y - hug.y0) / hug.h * 100, width: (t.width || 0) / hug.w * 100, height: (t.height || 0) / hug.h * 100 };
 }
+const SYS_SEARCH_SVG = `<svg class="sys-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.75" cy="10.75" r="8.75"/><path d="M22 22l-4.75 -4.75"/></svg>`;
+const SYS_ADMIN_SVG = `<svg class="sys-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h20"/><path d="M2 12h20"/><path d="M2 18h20"/></svg>`;
 const WALL_ARM_PX = { '--wall-arm': 14, '--wall-arm-thin': 7 }; // the till's style.css, :root
 </script>
 <script>// app.js — the front desk. One state object, one render(), taps handled by
@@ -14300,7 +14306,7 @@ const state = {
   // and the one booking opened out. Shut by DEFAULT are the three that are
   // over — a done, cancelled or no-show booking is a record, not work.
   listShut: { finished: true },
-  deskQ: '', gvJoin: '', gvSure: '',
+  deskQ: '', findOpen: false, gvJoin: '', gvSure: '',
   // Not tonight (v59): the answer for one search — { q, day, rows } — or null.
   nt: null,
   reservations: [], days: {}, month: localDay(new Date()).slice(0, 7), waitlist: [], guests: [], guestQ: '', audit: [], today: null,
@@ -15702,14 +15708,60 @@ function renderTop() {
   // booking"). The views left the bar for the room (they float over it, the
   // till's Map · Pass · Timeline · Bills: renderToday's `vt-float`), and the
   // two things you make are ONE glass pill of two segments.
-  return `<header class="tp">
-    <div class="tp-night">
+  // THE TILL'S KEYS, ON THE LEFT (owner, 12 Oct: "Then the admin should be
+  // on the left? And perhaps the search as well next to the admin bar just
+  // like pos? And walkin and booking turn into icons???"). ☰ then the glass,
+  // the till's own two glyphs (SYS_ADMIN_SVG, SYS_SEARCH_SVG, lifted into
+  // pos-floor.js), bare 44 keys; the glass opens the list's search IN the
+  // bar, where the night's title stood, and the list starts at its rows.
+  // Walk-in and New booking are the door and the book, one pill of two keys.
+  findLeft();
+  const finding = findShown();
+  const title = finding
+    ? `<div class="tp-find"><input type="search" id="desk-q" value="${esc(state.deskQ)}" data-field="deskQ" autocomplete="off" enterkeyhint="search" aria-label="Search"><button class="tp-key" data-act="desk-clear" aria-label="Close search" title="Close search">${I.cross}</button></div>`
+    : `<div class="tp-night">
       <span class="tp-night-a"><button class="tp-date${state.nightOpen ? ' on' : ''}" data-act="night-menu" aria-expanded="${state.nightOpen ? 'true' : 'false'}"><span class="tp-big">${esc(nightWord(d))}${I.chev}</span><span class="tp-when">${sub}</span></button>${state.nightOpen ? renderNightMenu() : ''}</span>
-    </div>
+    </div>`;
+  return `<header class="tp">
+    <span class="tp-keys"><span class="tp-menu-a"><button class="tp-key${state.menuOpen ? ' on' : ''}" data-act="menu" aria-label="Menu" title="Menu" aria-expanded="${state.menuOpen ? 'true' : 'false'}">${SYS_ADMIN_SVG}</button>${state.menuOpen ? renderMenu() : ''}</span><button class="tp-key${finding ? ' on' : ''}" data-act="bar-find" aria-label="Search" title="Search" aria-expanded="${finding ? 'true' : 'false'}">${SYS_SEARCH_SVG}</button></span>
+    ${title}
     <span class="tp-sp"></span>
-    <span class="tp-make"><span class="wk-anchor"><button class="tp-btn${state.walkin ? ' on' : ''}" data-act="walkin" aria-expanded="${state.walkin ? 'true' : 'false'}">Walk-in</button>${renderWalkinMenu()}</span><button class="tp-btn" data-act="new-booking" aria-label="New booking"><span class="tp-lg">New booking</span><span class="tp-sh">Book</span></button></span>
-    <span class="tp-menu-a"><button class="tp-btn icon${state.menuOpen ? ' on' : ''}" data-act="menu" aria-label="More" aria-expanded="${state.menuOpen ? 'true' : 'false'}">${I.menu}</button>${state.menuOpen ? renderMenu() : ''}</span>
+    <span class="tp-make"><span class="wk-anchor"><button class="tp-btn icon${state.walkin ? ' on' : ''}" data-act="walkin" aria-label="Walk-in" title="Walk-in" aria-expanded="${state.walkin ? 'true' : 'false'}">${I.srcWalkIn}</button>${renderWalkinMenu()}</span><button class="tp-btn icon" data-act="new-booking" aria-label="New booking" title="New booking">${I.book}</button></span>
   </header>`;
+}
+// The bar's search is open while it is asked for or holds a query.
+// Only over tonight's desk list (review, 12 Oct): the old box lived in the
+// list, so leaving it for Settings, Guests or the run sheet closes the
+// search, query and all, and the title comes back.
+function findShown() { return deskListOn() && !!(state.findOpen || String(state.deskQ || '')); }
+function deskListOn() { return state.view === 'today' && state.todayMode !== 'sheet' && (!state.side || state.side === 'book'); }
+function findLeft() {
+  if (deskListOn() || !(state.findOpen || String(state.deskQ || ''))) return;
+  state.findOpen = false; state.deskQ = ''; state.nt = null; state.gv = null;
+}
+// The glass: the list's search, in the bar. From anywhere it is the desk's
+// list it searches, so it puts the host on tonight's list first (up to 900
+// the List tab), then the caret in the field.
+function openBarFind() {
+  state.menuOpen = false; state.nightOpen = false; state.tidy = false;
+  if (window.matchMedia('(max-width:760px)').matches) state.walkin = null;
+  const away = state.view !== 'today' || state.todayMode === 'sheet' || (state.side && state.side !== 'book');
+  if (away) {
+    state.view = 'today'; state.side = 'book';
+    if (!isRoomView(state.todayMode) && state.todayMode !== 'book') state.todayMode = state.roomMode || 'floor';
+  }
+  if (window.matchMedia('(max-width:900px)').matches) state.todayMode = 'book';
+  state.findOpen = true;
+  render();
+  const el = document.getElementById('desk-q');
+  if (el) { el.focus(); el.select(); }
+  if (away && typeof loadView === 'function') loadView().then(render, () => {});
+  return true;
+}
+// The close key and Escape: the query goes with the field, the title comes back.
+function closeBarFind() {
+  state.findOpen = false; state.deskQ = ''; state.nt = null; state.gv = null;
+  render();
 }
 // The night's menu: the services of the day, back to now, and the month.
 function renderNightMenu() {
@@ -17847,7 +17899,7 @@ async function seatTonight(id, ids, till, back) {
   _ntSeating.add(id);
   try {
     const out = await post('/api/reservations/' + id + '/tonight', { tableId: ids[0], tableIds: ids.slice(1), till: !!till });
-    state.deskQ = ''; state.nt = null;
+    state.deskQ = ''; state.findOpen = false; state.nt = null;
     await loadView();
     if (back && state.todayMode === 'floor') state.todayMode = back;
     render();
@@ -17929,7 +17981,7 @@ async function seatFromGroup(x, ids, till, back) {
   _gvSeating.add(key);
   try {
     const out = await post('/api/group/seat', { venueId: x.venueId, id: x.id, tableId: ids[0], tableIds: ids.slice(1), till: !!till });
-    state.deskQ = ''; state.nt = null; state.gv = null;
+    state.deskQ = ''; state.findOpen = false; state.nt = null; state.gv = null;
     await loadView();
     if (back && state.todayMode === 'floor') state.todayMode = back;
     render();
@@ -18115,12 +18167,8 @@ function renderDayList() {
   // Tonight's line, each with its place in the WHOLE line, then the search.
   const lineAll = lineShown().map((w, i) => Object.assign({}, w, { place: i + 1 }));
   const line = q.on ? lineAll.filter(w => lineMatch(w, q)) : lineAll;
-  const find = `<div class="bl-find">
-    <span class="bl-find-i">${I.search}</span>
-    <input type="search" id="desk-q" value="${esc(state.deskQ)}"
-      data-field="deskQ" autocomplete="off" aria-label="Search">
-    ${q.on ? `<button class="chip sq" data-act="desk-clear" aria-label="Clear">${I.cross}</button>` : ''}
-  </div>`;
+  // The search is the bar's (renderTop, v69): the list starts at its rows.
+  const find = '';
   // Nobody tonight for this search: their bookings on other nights, if any.
   // Decided on LIVE rows (review, 9 Oct): a Macrae cancelled tonight and
   // rebooked for Thursday is the Thursday Macrae at the door, so the dead row
@@ -18136,9 +18184,9 @@ function renderDayList() {
   if (!all.length && !lineAll.length) {
     const sv = pickedService();
     // A cancellation can leave a service with nobody else on it; it still says so.
-    return find + renderOpened() + renderTidyLine() + `<div class="empty">${sv ? 'Nothing booked for ' + esc(sv.name) : 'No bookings this day'}</div>`;
+    return find + renderOpened() + renderTidyLine() + `<div class="empty dl-empty">${sv ? 'Nothing booked for ' + esc(sv.name) : 'No bookings this day'}</div>`;
   }
-  if (q.on && !rows.length && !line.length) return find + `<div class="empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d
+  if (q.on && !rows.length && !line.length) return find + `<div class="empty dl-empty">Nobody tonight matches \u201c${esc(state.deskQ)}\u201d
     <div style="margin-top:12px;"><button class="btn" data-act="find-every-day">${I.search} Look on every day</button></div></div>`;
 
   // THE DOCKET LINE (the clean desk, v38): the till's docket carries its
@@ -19232,22 +19280,11 @@ function renderFindModal() {
     <div class="modal-actions"><button class="icon-action neutral" data-act="close-modal">${I.cross}<span class="ia-label">Close</span></button></div>
   </div></div>`;
 }
-// "/" IS THE LIST'S OWN SEARCH (9 Oct). It opened a second search popup,
-// with a help sentence, beside the list's own box; the law is that find is
-// "/" and the list's own search box. Where the column shows tonight's book,
-// "/" goes into that box (up to 900 the List tab comes first); anywhere
-// else — the run sheet, the guests, the waitlist — and Cmd-K always, it is
-// the every-day find. A box that is in the page but not DRAWN — up to 900
-// with Tidy up open over the list — is not the list's search either, and
-// "/" there is the find again (review, 9 Oct: it focused nothing).
-function slashFind() {
-  if (state.view !== 'today' || state.todayMode === 'sheet' || (state.side && state.side !== 'book')) return false;
-  if (window.matchMedia('(max-width:900px)').matches && state.todayMode !== 'book') { state.todayMode = 'book'; render(); }
-  const el = document.getElementById('desk-q');
-  if (!el || !canFocus(el)) return false;
-  el.focus(); el.select();
-  return true;
-}
+// "/" IS THE BAR'S SEARCH (v69, owner, 12 Oct: "the search as well next to
+// the admin bar just like pos"). "/" and Cmd-K open the glass's field in the
+// bar from anywhere — on tonight's list, up to 900 the List tab first. The
+// every-day find is "Look on every day" under a search that finds nobody.
+function slashFind() { return openBarFind(); }
 // Focus AFTER the render, never before — the element does not exist until then.
 // From the deck, typing replaces the old query; coming back from a booking it
 // survives, because the call is still going on.
@@ -21067,7 +21104,8 @@ document.addEventListener('click', async (ev) => {
         render();
         break;
       }
-      case 'desk-clear': state.deskQ = ''; render(); break;
+      case 'desk-clear': closeBarFind(); break;
+      case 'bar-find': if (findShown()) closeBarFind(); else openBarFind(); break;
       case 'list-group': { state.listShut = Object.assign({}, state.listShut, { [val]: !state.listShut[val] }); render(); break; }
       case 'open-cal': {
         state.nightOpen = false;
@@ -22114,9 +22152,12 @@ document.addEventListener('keydown', (ev) => {
   if (ev.key === 'Escape' && state.picking) { state.picking = null; render(); return; }
   if (ev.key === 'Escape' && state.walkin) { state.walkin = null; render(); return; }
   if (ev.key === 'Escape' && state.turn) { state.turn = null; render(); return; }
+  // The search goes last: a menu or a picker open over the room closes first
+  // (review, 12 Oct: Escape cleared “Macrae” and left the walk-in open).
+  if (ev.key === 'Escape' && findShown()) { closeBarFind(); return; }
   if (ev.key === 'Escape' && state.tidy && !typingInField()) { state.tidy = false; render(); return; }
-  if (!state.modal && !typingInField() && ev.key === '/') { ev.preventDefault(); if (!slashFind()) openFind(true); return; }
-  if (!state.modal && !typingInField() && (ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); openFind(true); }
+  if (!state.modal && !typingInField() && ev.key === '/') { ev.preventDefault(); slashFind(); return; }
+  if (!state.modal && (ev.metaKey || ev.ctrlKey) && ev.key.toLowerCase() === 'k') { ev.preventDefault(); openBarFind(); }
 });
 
 // §§ IN HAND (owner, 10 Oct, v65: "Okay"). Two tablets both drew the same
