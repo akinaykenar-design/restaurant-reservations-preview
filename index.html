@@ -1552,7 +1552,6 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .dk-main i.leave{color:var(--st-check);} .dk-main i.ink{color:var(--text-primary);}
 .dk-rt{display:flex;align-items:center;justify-content:flex-end;padding-right:12px;}
 .dk-t{font-family:var(--font-mono);font-weight:600;font-size:var(--fs-md);color:var(--charcoal-soft);white-space:nowrap;}
-.dk-t.over{color:var(--red);font-weight:800;}
 .dk-k{display:flex;align-items:center;justify-content:center;min-width:56px;height:var(--tap);padding:0 8px;
   border:none;border-radius:var(--r-pill);background:var(--steel-100);color:var(--text-primary);
   font-family:var(--font-body);font-weight:700;font-size:var(--fs-md);text-decoration:none;cursor:pointer;}
@@ -2988,7 +2987,6 @@ body[data-theme="dark"]{--teal:var(--ink);--violet:var(--ink);--gold:var(--mute)
 .shell.simple .bl-head.red .bl-h-c{background:var(--well);}
 .dk-tab.stg-bill{box-shadow:none;}
 .dk-tab.stg-none{color:var(--mute);border-color:var(--faint);}
-.dk-t.over{color:var(--ink);font-weight:700;}
 .dk-main i.leave{color:var(--ink);}
 .dk-main i.quiet{color:var(--mute);font-weight:600;}
 /* The room: grey, darker grey, blue at the door, red only for late. No rings.
@@ -3335,7 +3333,6 @@ button.door-card{cursor:pointer;}
 .dc-name .td-n{flex:none;white-space:nowrap;}
 .dc-rt{box-sizing:content-box;min-width:2.8em;padding:0 16px 0 8px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--mute);white-space:nowrap;text-align:right;}
 .door-card.is-here{background:var(--accent-wash);}
-.dc-rt .dc-call{display:inline-flex;margin-left:auto;font-size:var(--fs-md);}
 /* In another tablet's hand (11 Oct): quiet, and the right column says whose,
    the row's own "in hand · Bar" at the row's size; the ask stands under. */
 .door-card.ih .dc-tab{color:var(--mute);opacity:var(--dim);}
@@ -3477,8 +3474,6 @@ a.cf-k{background:var(--well);color:var(--ink);}
 .dk-row.one .dk-main b{align-items:center;font-size:var(--fs-xl);font-weight:700;}
 .dk-row.one .dk-rt{box-sizing:content-box;min-width:2.8em;padding:0 16px 0 8px;}
 .dk-row.one .dk-t{font-family:inherit;font-size:var(--fs-xl);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:0;}
-.dk-row.one .dk-t.ink{color:var(--ink);font-weight:700;}
-.dk-row.one .dk-t.late{color:var(--late);font-weight:700;}
 .dk-row.one .dk-t.nt-when{color:var(--ink);}
 /* The dot hangs in the name's own left air, so every name still starts on
    one line down the list ("line up the time name and px"). */
@@ -17486,10 +17481,8 @@ function lineMatch(w, q) {
 // THE DOCKET LINE OF A PARTY IN THE LINE. The tab is their next step, as a
 // booking's is: the table the line's rule gives them now — one tap seats them
 // there — or "—", which shows the room lit for their size (the waitlist's own
-// Seat), with the time their table frees on the right. Under the name, how
-// long and where in the line, and what is different; "joined from their
-// phone" small when they did. Text when a table is ready and they have a
-// phone nobody has texted yet.
+// Seat). The right column is Text when a table is ready and they have a
+// phone nobody has texted yet, else nothing (NO STATUS ON THE LIST).
 function lineRow(w, place, now) {
   const s = w.seat, ready = !!(s && s.now && (s.tables || []).length);
   const where = ready ? s.tables.map(tableName).join(' + ') : '';
@@ -17498,15 +17491,14 @@ function lineRow(w, place, now) {
     : `<button class="dk-tab stg-wait" data-act="wl-seat" data-id="${esc(w.id)}" aria-label="No table yet for ${esc(w.name)}">—</button>`;
   const waited = Math.max(0, Math.round((now - Number(w.addedAt)) / 60000));
   // ONE LINE (owner, 12 Oct): nothing under the name. What it said is the
-  // reader's (aria); the right column is Text while a table is ready and
-  // nobody has texted them, the time their table frees, "no table" when
-  // nothing frees tonight, else how long they have waited.
+  // reader's (aria).
   const said = [waited < 1 ? 'just joined' : 'waiting ' + waitWords(waited), linePlace(place)];
+  // NO STATUS ON THE LIST (owner, 12 Oct): no "12 min", no "no table", no
+  // time their table frees — Text while it is owed, else nothing.
   if (!s) said.unshift('no table tonight');
-  let rt = `<span class="dk-t">${esc(waitWords(Math.max(1, waited)))}</span>`;
-  if (!s) rt = '<span class="dk-t">no table</span>';
-  else if (!ready) rt = `<span class="dk-t">${esc(fmtHHMM(s.time).replace(/\s?[AP]M$/i, ''))}</span>`;
-  else if (w.status !== 'notified' && smsHref(w.phone, '')) {
+  else if (!ready) said.push('table frees about ' + fmtHHMM(s.time));
+  let rt = '';
+  if (ready && w.status !== 'notified' && smsHref(w.phone, '')) {
     rt = `<a class="dk-k txt" href="${esc(smsHref(w.phone, textReady(w.name, w.partySize, (state.settings || {}).venueName)))}" data-act="wl-text" data-id="${esc(w.id)}">Text</a>`;
   }
   const seating = !!(state.walkin && state.walkin.wl && state.walkin.wl.id === w.id);
@@ -17802,7 +17794,7 @@ function doorShown() {
   return doorNextLocal().show;
 }
 // Whether the card's table is ready, and when not, when it frees — their
-// sitting's end, read off the clock as the row's "39 min left" is — said to
+// sitting's end, read off the clock as the booking's "39 min left" is — said to
 // a reader (aria) and stamped (data-ih), never drawn under the name.
 function doorTable(r, room, now) {
   const held = tablesFor(r), words = held.map(tableName).join(' + ');
@@ -17852,8 +17844,8 @@ function doorCard(r, room, now) {
   const half = r.status === 'part-seated';
   const tab = half ? 'half' : here ? 'here' : late ? 'late' : t.ready ? 'seat' : '';
   const aria = t.ready ? `Seat ${r.name || 'them'} at ${t.words}` : here ? `${r.name || 'Booking'}, here: ${t.frees}. Open the booking` : `${r.name || 'Booking'} is here: ${t.frees}`;
-  const tel = late ? String(r.phone || '').replace(/[^\d+]/g, '') : '';
-  const rt = tel ? `<a class="dk-k dc-call" href="tel:${esc(tel)}" aria-label="Call ${esc(r.name || '')}">${I.phone}</a>` : esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''));
+  // NO STATUS ON THE LIST (owner, 12 Oct): the right column is the time.
+  const rt = esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''));
   return `<div class="door-card${here ? ' is-here' : ''}" data-id="${esc(r.id)}">
     <button class="dc-tab ${tab}${t.ready ? '' : ' busy'}" data-act="${act}" data-id="${esc(r.id)}"${turnAt} data-ih="${t.ready || !/ in hand · /.test(t.frees || '') ? '' : esc(t.frees)}" aria-label="${esc(aria)}"><span class="dc-no">${esc(label)}</span></button>
     <button class="dc-main" data-act="edit-booking" data-id="${esc(r.id)}"><span class="dc-name">${allergyDot(r)}<span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span></button>
@@ -17938,9 +17930,8 @@ function renderDayList() {
   // the book carries the TABLE that way. The tab wears the status's own colour
   // — the one Settings gives it and the floor paints the table — and tapping
   // it is the next step: seat them there when it is free (one tap, v36), the
-  // table pick otherwise. The right edge is ONE column: the one time that
-  // matters for this row, or the one key it needs. The line under the name
-  // says only what is different about them, so most rows are one line.
+  // table pick otherwise. The right edge is ONE column: the booked time
+  // (NO STATUS ON THE LIST, 12 Oct). Nothing stands under the name.
   const nowM = tradingNowMin(), tonight = state.date === tradingDay();
   const room = tonight ? floorStateAt(pad2(Math.floor(nowM / 60)) + ':' + pad2(nowM % 60), true) : [];
   const busyOn = (r) => stillEating(room, r);
@@ -17970,7 +17961,7 @@ function renderDayList() {
         : r.status === 'check' || r.status === 'paid' ? 'bill' : half ? 'half' : sat ? 'in' : 'wait';
     const seatable = tonight && (!sat || half) && !ended && held.length && !occ;
     // THE TURN (v49): the table held only by a party at the bill — the tab
-    // and the one key mark them Left and seat this party, in one press.
+    // marks them Left and seats this party, in one press.
     const turn = occ ? turnOn(room, r) : null;
     const turnAct = turn && busy ? `data-act="row-turn" data-id="${esc(r.id)}" data-paid="${esc(turn.paid.id)}" data-table="${esc(turn.table)}"` : '';
     const tabAct = turnAct ? `${turnAct} aria-label="Seat at ${esc(held.map(tableName).join(' + '))} — ${esc(turn.paid.name || 'they')} left"` : seatable ? `data-act="row-seat" data-id="${esc(r.id)}" aria-label="Seat at ${esc(held.map(tableName).join(' + '))}"`
@@ -17980,26 +17971,13 @@ function renderDayList() {
     const tab = ended || ih ? `<span class="dk-tab${busy ? ' busy' : ''}">${esc(label)}</span>` : `<button class="dk-tab${auto ? ' auto' : ''}${held.length ? '' : ' none'}${late ? ' late' : ''}${busy && !turnAct ? ' busy' : ''}" ${tabAct}>${esc(label)}</button>`;
     // ONE LINE (owner, 12 Oct: "i said remove the bs text underneeth"):
     // nothing under the name. The tab says where they are up to, the right
-    // column the one time or the one key, and an allergy is the one red dot
+    // column the time, and an allergy is the one red dot
     // before the name.
-    // The one time, or the one key.
+    // NO STATUS ON THE LIST (owner, 12 Oct: "remove all status shit on the
+    // reservation. reserve that for the floor view, timeline etc"): the right
+    // column is the booked time, plain grey, on every row. Where they are up
+    // to is the tab's colour and the reader's (aria), never a word here.
     let rt = `<span class="dk-t">${esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''))}</span>`;
-    if (tonight && here && r.arrivedAt) rt = `<span class="dk-t">${esc(waitWords(Math.max(0, Math.round((now - r.arrivedAt) / 60000))))}</span>`;
-    if (tonight && late) rt = `<span class="dk-t late">${esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''))}</span>`;
-    if (tonight && late && String(r.phone || '').trim()) rt = `<a class="dk-k" href="tel:${esc(String(r.phone).replace(/[^\d+]/g, ''))}" aria-label="Call ${esc(r.name || '')}">${I.phone}</a>`;
-    if (busy && !here) rt = `<button class="dk-k" data-act="row-here" data-id="${esc(r.id)}">Here</button>`;
-    if (turnAct) rt = `<button class="dk-k ink" ${turnAct}>Seat</button>`;
-    if (tonight && sat) {
-      const left = sitLeft(r, now);
-      // The minutes say what they are: "4 min" at the door, "39 min left"
-      // of a sitting, "36 min over" — one column said all three as bare
-      // minutes, the last with a + (9 Oct). The rest of a party is the
-      // plain key Here is, not a blue pill (QUIET).
-      rt = half && r.partCount ? `<button class="dk-k" data-act="row-rest" data-id="${esc(r.id)}" aria-label="The rest arrived">+${Math.max(1, r.partySize - (r.partCount || 0))}</button>`
-        : r.status === 'check' || r.status === 'paid' ? `<span class="dk-t ink">${r.status === 'check' ? 'Bill' : 'Paid'}</span>`
-        : left >= 0 ? `<span class="dk-t">${esc(waitWords(left))} left</span>` : `<span class="dk-t over">${esc(waitWords(-left))} over</span>`;
-    }
-    if (ended && r.status !== 'done') rt = `<span class="dk-t">${esc(statusLabel(r.status))}</span>`;
     if (ih) rt = ihKeyHtml(ih);
     return `<div class="dk-row one${ih ? ' ih-row' : ''}${state.highlightTable && held.includes(state.highlightTable) ? ' selected' : ''}${state.modal && state.modal.kind === 'booking' && state.modal.b && state.modal.b.id === r.id ? ' open' : ''}">
       ${tab.replace('class="dk-tab', `class="dk-tab stg-${stage}`)}
