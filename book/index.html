@@ -6,7 +6,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2333352F' stroke-width='2' stroke-linecap='round'%3E%3Crect x='3' y='5' width='18' height='16' rx='3'/%3E%3Cpath d='M3 10h18M8 3v4M16 3v4'/%3E%3C/svg%3E">
 
 <style>
-/* GENERATED from restaurant-pos 561a564 public/style.css, server.js and app.js by tools/pos-look.js.
+/* GENERATED from restaurant-pos 20fae54 public/style.css, server.js and app.js by tools/pos-look.js.
    Do not edit: every value here is the till's own, under --pos-. Run `node tools/pos-look.js`. */
 @font-face{font-family:'Noto Sans';font-style:normal;font-weight:100 900;font-display:swap;src:url('../fonts/notosans-var.woff2') format('woff2');}
 @font-face{font-family:'IBM Plex Mono';font-style:normal;font-weight:400;font-display:swap;src:url('../fonts/plexmono-400.woff2') format('woff2');}
@@ -40,12 +40,27 @@
   --pos-ring:1px;
   --pos-hub-edge:12px;
   --pos-font-body:'Noto Sans',-apple-system,system-ui,sans-serif;
+  --pos-deck-h:60px;
+  --pos-deck-pad:8px;
+  --pos-deck-edge:16px;
+  --pos-deck-gap:8px;
+  --pos-radius:var(--pos-r-control);
+  --pos-deck-chip-bg:#E0DBCE;
+  --pos-deck-chip-line:#3A4149;
+  --pos-deck-chip-ink:#3A3833;
+  --pos-deck-chip-on-bg:#2E343B;
+  --pos-deck-chip-on-ink:#ffffff;
+  --pos-topbar-muted:#6E695E;
   --pos-font-num:'IBM Plex Mono',ui-monospace,monospace;
   --pos-num-chip:#F5F1E8;
   --pos-num-ink:#33352F;
   --pos-occupied:#0A84FF;
   --pos-wash:78%;
   --pos-occupied-table:color-mix(in srgb, var(--pos-occupied) 78%, var(--pos-table-plain));
+  --pos-topbar-ink:var(--pos-text-primary);
+  --pos-topbar-band:var(--pos-surface);
+  --pos-topbar-radius:0;
+  --pos-topbar-line:1px solid var(--pos-steel-200);
 }
 html[data-theme="dark"],body[data-theme="dark"]{
   --pos-steel-100:#161512;
@@ -65,6 +80,12 @@ html[data-theme="dark"],body[data-theme="dark"]{
   --pos-glass-sheen:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,0) 55%);
   --pos-glass-on:color-mix(in srgb, var(--pos-surface) 65%, transparent);
   --pos-glass-rim:color-mix(in srgb, var(--pos-text-primary) 24%, transparent);
+  --pos-deck-chip-bg:#2C2925;
+  --pos-deck-chip-line:#3A3733;
+  --pos-deck-chip-ink:#CFC9BE;
+  --pos-deck-chip-on-bg:#EDE6D6;
+  --pos-deck-chip-on-ink:#26231F;
+  --pos-topbar-muted:#D9D5CE;
   --pos-occupied-table:color-mix(in srgb, var(--pos-occupied) 78%, var(--pos-table-plain));
 }
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -3636,6 +3657,27 @@ body{font-family:var(--font-body);}
    table top: on the white timeline, flow and sheet a white block is no block. */
 .shell.simple .tl-block,.tl-block.tl-drag-ghost,.shell.simple .fg-tbl,.dk-tab.cf-t{background:var(--qty);color:var(--ink);}
 .bke-next .go.ih,.tc-go.ih{background:var(--qty);color:var(--mute);}
+/* THE TOP IS THE TILL'S APP BAR (owner, 12 Oct: "Lets make the top a bar
+   like the pos. The pos has the bar on the bottom and the desk has it on the
+   top"). Its .paged deck, lifted by tools/pos-look.js: 60 tall at the deck's
+   8 and 16, the paper band, its ink and its muted ink, square corners (the
+   bar is an edge of the screen) and the hairline on the edge toward the work.
+   The list and the room start the deck's gap under it, so --tp-h, the
+   sheet's top, is the two. */
+:root{--tp-h:calc(var(--pos-deck-h) + var(--pos-deck-gap));}
+.tp{min-height:var(--pos-deck-h);padding:var(--pos-deck-pad) var(--pos-deck-edge);margin-bottom:var(--pos-deck-gap);
+  background:var(--pos-topbar-band);color:var(--pos-topbar-ink);border-bottom:var(--pos-topbar-line);border-radius:var(--pos-topbar-radius);}
+.tp-date{color:var(--pos-topbar-ink);}
+.tp-when,.tp-big svg{color:var(--pos-topbar-muted);}
+/* 60 is the deck's 8 + 44 + 8, so in the bar the pill is its 44 segments
+   with no air of its own, and the hairline comes out of the foot's 8, never
+   on top of it. Glass on the bar's white paper is no pill at all, so in the
+   bar Walk-in · New booking wear the till's deck chip: its ground, its line,
+   its ink, and its dark chip while the walk-in menu hangs open. */
+.tp{padding-bottom:calc(var(--pos-deck-pad) - var(--pos-ring));}
+.tp .tp-make{padding:0;background:var(--pos-deck-chip-bg);box-shadow:inset 0 0 0 var(--ring) var(--pos-deck-chip-line);}
+.tp .tp-make .tp-btn{color:var(--pos-deck-chip-ink);}
+.tp .tp-make .tp-btn.on{background:var(--pos-deck-chip-on-bg);color:var(--pos-deck-chip-on-ink);}
 /* end THE TILL'S LOOK */
 </style>
 <body class="book-page">
