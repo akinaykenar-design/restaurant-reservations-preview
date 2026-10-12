@@ -710,6 +710,7 @@ h1,h2,h3{margin:0;}
 .settings-card.wide{grid-column:1 / -1;}
 .th{font-weight:800;font-size:var(--fs-lg);letter-spacing:.2px;}
 .ts{font-size:var(--fs-md);color:var(--charcoal-soft);}
+.ts.bad{color:var(--late);}
 .field-label,.modal label{font-size:var(--fs-chip);font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.5px;display:block;margin:12px 0 6px;}
 .field-label:first-child,.modal label:first-child{margin-top:0;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
@@ -767,7 +768,8 @@ body[data-theme="dark"] .row .cell.over{color:var(--steel-100);}
 /* Wrapped, one service's hours sit right above the next one's name: the
    Border law's hairline says where one ends. */
 .svc-row + .svc-row{border-top:1px solid var(--steel-200);padding-top:12px;margin-top:4px;}
-.days{display:flex;gap:4px;flex:none;}
+/* Wrapped inside its card at 320, every key still 44 (daily round, 12 Oct). */
+.days{display:flex;flex-wrap:wrap;gap:4px;flex:none;max-width:100%;}
 .days .chip{min-width:var(--tap);padding:7px 0;min-height:var(--tap);}
 .audit{font-size:var(--fs-md);display:flex;flex-direction:column;gap:6px;}
 .audit div{display:grid;grid-template-columns:120px 100px 1fr;gap:8px;}
@@ -2668,7 +2670,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
   border-radius:var(--r-surface);background:var(--surface);box-shadow:var(--lift-2);}
 .tp-mi{display:flex;align-items:center;justify-content:space-between;min-height:48px;padding:0 12px;border:none;
   border-radius:var(--r-control);background:none;color:var(--ink);font:inherit;font-weight:600;font-size:var(--fs-lg);text-align:left;}
-.tp-mi.on{background:var(--accent-wash);color:var(--accent);}
+.tp-mi.on{background:var(--accent-wash);color:var(--accent-ink);}
 .tp-mi-n{min-width:28px;height:24px;padding:0 8px;border-radius:var(--r-pill);background:var(--accent);color:var(--on-accent);
   font-family:var(--font-mono);font-size:var(--fs-md);display:flex;align-items:center;justify-content:center;}
 /* Away from tonight the page names itself and the way back. */
@@ -2779,7 +2781,7 @@ a.dk-k,a.chip{text-decoration:none;}
 .shell.simple .fl-table.stg-paid{background:var(--seat);}
 .shell.simple .fl-table.stg-half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tfree) 50%);}
 .shell.simple .fl-table.stg-here{background:var(--accent);color:var(--on-accent);}
-.shell.simple .fl-table.stg-phere{background:var(--accent-wash);color:var(--accent);border:.25cqw solid var(--accent);}
+.shell.simple .fl-table.stg-phere{background:var(--accent-wash);color:var(--accent-ink);border:.25cqw solid var(--accent);}
 .shell.simple .fl-table.stg-late{background:var(--late-wash);color:var(--late);border:.25cqw solid var(--late);outline:none;}
 /* A table's number is what a host reads across a room: 2 of the room's
    width, about 0.3 of a table as the till draws it (17–20 px), where 1.5
@@ -2792,7 +2794,7 @@ a.dk-k,a.chip{text-decoration:none;}
 /* The timeline and the flow wear the same few colours. */
 .shell.simple .tl-block{background:var(--tfree);color:var(--ink);}
 .shell.simple .tl-block.arrived{background:var(--accent);color:var(--on-accent);}
-.shell.simple .tl-block.part-arrived{background:var(--accent-wash);color:var(--accent);}
+.shell.simple .tl-block.part-arrived{background:var(--accent-wash);color:var(--accent-ink);}
 .shell.simple .tl-block.seated,.shell.simple .tl-block.part-seated{background:var(--seat);color:var(--ink);}
 .shell.simple .tl-block.check,.shell.simple .tl-block.paid{background:var(--seat);color:var(--ink);box-shadow:inset var(--ring) 0 0 var(--leave);}
 .shell.simple .tl-block.done,.shell.simple .tl-block.cancelled,.shell.simple .tl-block.no-show{background:var(--well);color:var(--mute);}
@@ -2813,14 +2815,14 @@ a.dk-k,a.chip{text-decoration:none;}
    be a shadow inside and outside at once — so late is its wash and its red. */
 .tl-block.tl-drag-ghost{background:var(--tfree);color:var(--ink);}
 .tl-block.tl-drag-ghost.arrived{background:var(--accent);color:var(--on-accent);}
-.tl-block.tl-drag-ghost.part-arrived{background:var(--accent-wash);color:var(--accent);}
+.tl-block.tl-drag-ghost.part-arrived{background:var(--accent-wash);color:var(--accent-ink);}
 .tl-block.tl-drag-ghost.seated,.tl-block.tl-drag-ghost.part-seated{background:var(--seat);color:var(--ink);}
 .tl-block.tl-drag-ghost.check,.tl-block.tl-drag-ghost.paid{background:var(--seat);color:var(--ink);}
 .tl-block.tl-drag-ghost.done,.tl-block.tl-drag-ghost.cancelled,.tl-block.tl-drag-ghost.no-show{background:var(--well);color:var(--mute);}
 .tl-block.tl-drag-ghost.late{background:var(--late-wash);color:var(--late);}
 .shell.simple .fg-tbl{background:var(--tfree);color:var(--ink);}
 .shell.simple .fg-tbl.arrived{background:var(--accent);color:var(--on-accent);}
-.shell.simple .fg-tbl.part-arrived{background:var(--accent-wash);color:var(--accent);}
+.shell.simple .fg-tbl.part-arrived{background:var(--accent-wash);color:var(--accent-ink);}
 .shell.simple .fg-tbl.sat{background:var(--seat);color:var(--ink);}
 .shell.simple .stat{border:none;border-radius:var(--r-control);background:var(--well);}
 
@@ -2885,7 +2887,7 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
 .tp-date.on .tp-big svg{transform:rotate(180deg);}
 .tp-menu-l{left:0;right:auto;width:260px;}
 .tp-mi-t{font-family:var(--font-mono);font-size:var(--fs-md);color:var(--mute);font-weight:500;}
-.tp-mi.on .tp-mi-t{color:var(--accent);}
+.tp-mi.on .tp-mi-t{color:var(--accent-ink);}
 .tp-mi-sep{display:block;height:8px;margin:0 8px;background:linear-gradient(var(--line), var(--line)) 0 4px / 100% 1px no-repeat;}
 @media (max-width:900px){ .tp-views{display:none;} }
 @media (max-width:1100px){ .tp-lg{display:none;} .tp-btn:not(.icon){width:var(--tap);padding:0;justify-content:center;} }
@@ -3106,7 +3108,7 @@ body[data-theme="dark"] .wk-t:not(.join){background:var(--tfree);}
 .tp-when{font-family:var(--font-body);font-size:var(--fs-md);font-weight:500;}
 .tp-btn{min-height:var(--tap);padding:0 20px;border:none;background:var(--well);}
 .tp-btn.ink{background:var(--ink);color:var(--surface);}
-.tp-btn.on{background:var(--accent-wash);color:var(--accent);}
+.tp-btn.on{background:var(--accent-wash);color:var(--accent-ink);}
 .tp-btn.icon{background:none;}
 .tp-sh{display:none;}
 @media (max-width:1100px){ .tp-lg{display:inline;} .tp-btn:not(.icon){width:auto;padding:0 20px;} }
@@ -3206,7 +3208,7 @@ input[type="time"].t-time{width:9.5em;min-width:9.5em;max-width:100%;flex:none;}
 .td-say > span:not(.td-dot){display:block;}
 .td-say .td-dot{display:none;}
 .dk-k.td-go{flex:none;padding:0 20px;font-size:var(--fs-lg);}
-.dk-k.td-go.on{background:var(--accent-wash);color:var(--accent);}
+.dk-k.td-go.on{background:var(--accent-wash);color:var(--accent-ink);}
 .d2-panel.td-panel{background:none;border-radius:0;}
 .td{flex:1;min-height:0;display:flex;flex-direction:column;container:tidy / inline-size;}
 .td-dhead{flex:none;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 0 4px 4px;}
@@ -3245,7 +3247,7 @@ input[type="time"].t-time{width:9.5em;min-width:9.5em;max-width:100%;flex:none;}
    words are in cqw, nothing in pixels. The pair key is the one blue key in
    the menu, the exception the QUIET block names; its words never spill
    (a long combination is said "B1 … B8", and anything longer is cut). */
-.wk-t.join{grid-column:1 / -1;height:56px;flex-direction:row;gap:12px;background:var(--accent-wash);color:var(--accent);
+.wk-t.join{grid-column:1 / -1;height:56px;flex-direction:row;gap:12px;background:var(--accent-wash);color:var(--accent-ink);
   box-shadow:inset 0 0 0 var(--tbl-sel-ring) var(--accent);font-size:var(--fs-xl);min-width:0;padding:0 16px;}
 .wk-t.join b{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .wk-t.join small{flex:none;font-size:var(--fs-md);font-weight:600;}
@@ -3369,7 +3371,10 @@ button.door-card{cursor:pointer;}
 .dc-name{display:flex;min-width:0;font-weight:700;}
 .dc-name .td-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .dc-name .td-n{flex:none;white-space:nowrap;}
-.dc-rt{box-sizing:content-box;min-width:2.8em;padding:0 16px 0 8px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--mute);white-space:nowrap;text-align:right;}
+/* The time column is the widest time — four tabular figures and the colon,
+   "10:15" — so every card's name ends at one place and gets the rest
+   (daily round, 12 Oct: 2.8em cut "Nguyen T" with 25 px of air beside it). */
+.dc-rt{box-sizing:content-box;min-width:calc(4ch + 0.3em);padding:0 16px 0 4px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--mute);white-space:nowrap;text-align:right;}
 .door-card.is-here{background:var(--accent-wash);}
 /* In another tablet's hand (11 Oct): quiet, and the right column says whose,
    the row's own "in hand · Bar" at the row's size; the ask stands under. */
@@ -3384,7 +3389,7 @@ button.door-card{cursor:pointer;}
 @media (max-width:420px){
   .door-card{--dc-tab:72px;min-height:80px;}
   .dc-main{padding:0 4px 0 12px;}
-  .dc-rt{padding:0 12px 0 8px;}
+  .dc-rt{padding:0 12px 0 4px;}
   .dc-ih i{display:none;}
   .dc-rt.dc-ih{max-width:88px;}
 }
@@ -3484,6 +3489,10 @@ body[data-theme="dark"] .turn-card{box-shadow:0 0 0 var(--ring) var(--line), var
 a.cf-k{background:var(--well);color:var(--ink);}
 .cf-k.ink{background:var(--ink);color:var(--surface);}
 .cf-row .dk-main span i.ink{color:var(--ink);font-weight:700;}
+.cf-line{display:flex;min-width:0;}
+.cf-also{flex:none;}
+.cf-said{min-width:0;}
+@media (max-width:420px){ .cf-bk{display:none;} }
 .shell.simple .bl-head.cf-fold{width:100%;border:none;font:inherit;color:inherit;cursor:pointer;text-align:left;}
 .cf-fold .bl-chev{display:flex;margin-left:8px;color:var(--mute);}
 .cf-fold .bl-chev svg{width:20px;height:20px;}
@@ -3542,6 +3551,9 @@ a.cf-k{background:var(--well);color:var(--ink);}
   --line:var(--pos-steel-200); --well:var(--pos-steel-200); --seat:var(--pos-steel-300);
   --tfree:var(--pos-table-plain); --table-plain:var(--pos-table-plain);
   --accent:var(--pos-orange); --accent-wash:color-mix(in srgb, var(--pos-orange) 12%, var(--pos-surface));
+  /* A word on that wash is the blue taken toward the ink (daily round, 12
+     Oct): the bare blue on its own wash was 4.0:1 here and 2.4:1 in dark. */
+  --accent-ink:color-mix(in srgb, var(--pos-orange) 70%, var(--pos-text-primary));
   --sat-blue:var(--pos-occupied-table);
   /* The list's tab is the till's docket qty cell: a filled panel fused to the
      line's left edge with a hairline down its right ("Bit too dark": the
@@ -3555,6 +3567,7 @@ body[data-theme="dark"]{
   --line:var(--pos-steel-300); --well:var(--pos-steel-200); --seat:var(--pos-steel-300);
   --tfree:var(--pos-table-plain); --table-plain:var(--pos-table-plain);
   --accent:var(--pos-orange); --accent-wash:color-mix(in srgb, var(--pos-orange) 27%, var(--pos-surface));
+  --accent-ink:color-mix(in srgb, var(--pos-orange) 45%, var(--pos-text-primary));
   --sat-blue:var(--pos-occupied-table);
   /* Dark's steel-200 is one point off the paper, so the panel is half a step
      on to steel-300: the till's two, mixed. */
@@ -3666,6 +3679,13 @@ body{font-family:var(--font-body);}
 .tp-key.on{color:var(--pos-orange);}
 .tp-key svg{display:block;width:var(--pos-bar-ic-glyph);height:var(--pos-bar-ic-glyph);stroke-width:var(--pos-bar-ic-stroke);}
 .tp-keys .tp-menu{left:0;right:auto;max-width:calc(100vw - 32px);}
+/* The night's menu hangs from the title, 108 in once ☰ and the glass stand
+   before it: under 400 that ran its 260 past the screen and the page slid
+   sideways (daily round, 12 Oct). There it hangs from the bar's edge. */
+@media (max-width:400px){
+  .tp-night-a{position:static;}
+  .tp-menu-l{left:var(--pos-deck-edge);max-width:calc(100vw - 2 * var(--pos-deck-edge));}
+}
 /* The search, in the bar where the night's title stood: a field on the
    deck chip's ground, 44 tall, the title's own size of type, and its close. */
 .tp-find{position:relative;flex:1 1 auto;min-width:0;max-width:var(--sd-col);display:flex;align-items:center;}
@@ -8111,7 +8131,7 @@ const DEFAULT_DATA = {
   // address it reported, and when the desk last told it what it may sell.
   // `mailKeyHash`: the Postmark key the relay last took, as a hash, so the
   // key itself crosses once (relaysync.mailKeyOwed).
-  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0, released: [], gone: [], officeOffOwed: false, closeOwed: false, closesOwed: [], group: null, groupOwed: [], groupAsked: [], mailKeyHash: '' },
+  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0, released: [], gone: [], officeOffOwed: false, closeOwed: false, closesOwed: [], group: null, groupOwed: [], groupAsked: [], mailKeyHash: '', mailError: '' },
   // What was asked of each of tonight's and tomorrow's guests, by booking id:
   //   { emailedAt, remindedAt, textedAt }
   // — the booked email and the day-before one (off the relay's ping), and
@@ -9142,6 +9162,18 @@ function guestLensCounts(guests, today) {
   return out;
 }
 
+// Whether a send stamped in confirmAsk was for the booking as it stands: the
+// day and time it went for (`emailedFor`, `remindedFor`), or no day said (a
+// stamp from before they were kept). Moved since, it is due again (daily
+// round, 12 Oct: Bea, reminded for Tuesday and moved to Wednesday, was never
+// asked about Wednesday). Its when, or 0.
+const SENT_KEYS = { booked: ['emailedAt', 'emailedFor'], remind: ['remindedAt', 'remindedFor'] };
+function slotOf(r) { return av.dayOf(r.time) + 'T' + av.hhmmOf(r.time); }
+function sentFor(a, kind, r) {
+  const [at, f] = SENT_KEYS[kind];
+  return a && a[at] && (!a[f] || a[f] === slotOf(r)) ? Number(a[at]) || 0 : 0;
+}
+
 // §§ CONFIRM TOMORROW (v50, r64). Tomorrow NIGHT's live bookings still to
 // come — booked, or confirmed already — by time: the ones to confirm, and the
 // ones that have, folded under them. One PERSON is one text (personKey: the
@@ -9163,7 +9195,7 @@ function confirmList(rows, settings, now, asked) {
     const a = asked[r.id] || {};
     return {
       id: r.id, name: r.name || '', partySize: Number(r.partySize) || 1, time: av.hhmmOf(r.time), phone: r.phone || '', status: r.status,
-      emailedAt: Number(a.remindedAt) || 0, textedAt: Math.max(0, ...group.map(x => Number((asked[x.id] || {}).textedAt) || 0)),
+      emailedAt: sentFor(a, 'remind', r), textedAt: Math.max(0, ...group.map(x => Number((asked[x.id] || {}).textedAt) || 0)),
       lead: group[0] === r, ids: group.map(x => x.id),
       also: group.filter(x => x !== r).map(x => ({ time: av.hhmmOf(x.time), partySize: Number(x.partySize) || 1 })),
     };
@@ -9177,7 +9209,7 @@ function confirmList(rows, settings, now, asked) {
 }
 
 module.exports = {
-  confirmList,
+  confirmList, sentFor, SENT_KEYS,
   personKey, tillCustomerFor, tillOnly,
   fold, digits, prepareQuery, matches, relevanceSort, searchReservations,
   bookingHit, primaryHit, whenWords, queryWords, bookingText, STATUS_WORDS, SOURCE_WORDS,
@@ -10064,6 +10096,7 @@ module.exports = { ready, ping, grant, pull, ack, officeOn, officeOff, group, gr
 
 const crypto = require('crypto');
 const av = require('./availability');
+const { sentFor } = require('./search');
 
 // Always this many days, from today. The relay only REPLACES the dates it is
 // sent, so a horizon that shortens has to send its far days back EMPTY, or
@@ -10232,8 +10265,8 @@ function mailOf(ctx, now, asked) {
     const a = asked[r.id] || {}, night = av.nightOfRes(s, r);
     const one = (kind) => ({ id: r.id, kind, name: String(r.name || '').slice(0, 60), email: String(r.email).trim().slice(0, 120), partySize: Number(r.partySize) || 1,
       date: av.dayOf(r.time), time: av.hhmmOf(r.time), night, ref: r.ref || '' });
-    if (!a.emailedAt && ['booked', 'confirmed'].includes(r.status) && Number(r.createdAt) >= since && av.timeMs(r.time) > now.getTime()) out.push(one('booked'));
-    if (!a.remindedAt && r.status === 'booked' && night === tomorrow) out.push(one('remind'));
+    if (!sentFor(a, 'booked', r) && ['booked', 'confirmed'].includes(r.status) && Number(r.createdAt) >= since && av.timeMs(r.time) > now.getTime()) out.push(one('booked'));
+    if (!sentFor(a, 'remind', r) && r.status === 'booked' && night === tomorrow) out.push(one('remind'));
   }
   return out.sort((x, y) => x.date.localeCompare(y.date) || x.time.localeCompare(y.time)).slice(0, MAIL_MAX);
 }
@@ -13222,6 +13255,7 @@ app.get('/api/relay/status', (req, res) => {
   res.json({
     enabled: !!c.enabled, baseUrl: c.baseUrl, hasToken: !!c.token, on: relay.ready(c),
     connected: !!st.connected, lastSeenAt: st.lastSeenAt, lastError: st.lastError, grantAt: st.grantAt, collected: st.collected,
+    mailError: data.settings.mail && data.settings.mail.enabled ? st.mailError || '' : '',
     // Only while the link is on: a QR code to a page this desk is not
     // feeding sends guests somewhere nobody collects from.
     bookingUrl: relay.ready(c) && st.bookingPath ? c.baseUrl + st.bookingPath : '',
@@ -13525,14 +13559,21 @@ function keepMailSent(ping) {
   let moved = false;
   const ids = new Set(data.reservations.map(r => r.id));
   for (const x of (Array.isArray(m.sent) ? m.sent : [])) {
-    const k = x && ({ booked: 'emailedAt', remind: 'remindedAt' })[x.kind];
+    const [k, f] = (x && search.SENT_KEYS[x.kind]) || [];
     if (!k || !ids.has(x.id)) continue;
     const a = data.confirmAsk[x.id] || {};
-    if (a[k]) continue;
-    data.confirmAsk[x.id] = Object.assign({}, a, { [k]: Number(x.at) || Date.now() });
+    // Stamped with the day and time it went for, so a booking moved after
+    // its email is due again (daily round, 12 Oct).
+    const slot = /^\d{4}-\d\d-\d\d$/.test(String(x.date || '')) && /^\d\d:\d\d$/.test(String(x.time || '')) ? x.date + 'T' + x.time : '';
+    if (a[k] && (!slot || a[f] === slot)) continue;
+    data.confirmAsk[x.id] = Object.assign({}, a, { [k]: Number(x.at) || Date.now() }, slot ? { [f]: slot } : {});
     moved = true;
   }
   if (m.hasKey === false && data.relayState.mailKeyHash && data.settings.mail && data.settings.mail.key) { data.relayState.mailKeyHash = ''; moved = true; }
+  // Why the relay could not send, said on the Emails card (daily round,
+  // 12 Oct: every email failed under "Key saved" and nothing said so).
+  const err = String(m.error || '').slice(0, 200);
+  if (err !== (data.relayState.mailError || '')) { data.relayState.mailError = err; moved = true; }
   if (pruneConfirmAsk(data)) moved = true;
   if (moved) writeData(data);
 }
