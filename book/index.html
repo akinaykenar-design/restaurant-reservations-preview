@@ -2536,7 +2536,7 @@ a.btn{color:var(--text-primary);text-decoration:none;}
   --font-mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
   --bg:#F3F3F1; --ink:#17181B; --mute:#6A6D75; --faint:#A3A6AD; --line:#E4E4E0;
   --accent:#2D55E6; --accent-wash:#E8EDFD; --on-accent:#FFFFFF; --late:#C8412D; --late-wash:#FBEAE6;
-  --leave:var(--ink); --seat:#D9DBE2; --well:#E7E7E3; --tfree:#E9E9E5;
+  --leave:var(--ink); --seat:#D9DBE2; --sat-blue:#8DA6F5; --well:#E7E7E3; --tfree:#E9E9E5;
   --surface:#FFFFFF; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#D4D4CF;
   --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
   --orange:var(--accent); --red:var(--late); --red-btn:var(--late); --green:var(--leave);
@@ -2557,7 +2557,7 @@ a.btn{color:var(--text-primary);text-decoration:none;}
 body[data-theme="dark"]{
   --bg:#0E0F11; --ink:#F1F1EE; --mute:#9A9DA5; --faint:#62656D; --line:#2A2C31;
   --accent:#7090FF; --accent-wash:#1C2546; --on-accent:#0E0F11; --late:#FF6E58; --late-wash:#3A1F1A;
-  --leave:var(--ink); --seat:#3A3C44; --well:#202227; --tfree:#2A2D34;
+  --leave:var(--ink); --seat:#3A3C44; --sat-blue:#3A50B0; --well:#202227; --tfree:#2A2D34;
   --surface:#18191D; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#33363C;
   --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
   --orange:var(--accent); --red:var(--late); --red-btn:var(--late); --green:var(--leave);
@@ -2683,7 +2683,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .bl-rows > .dk-row:first-child{border-top:none;}
 .shell.simple .dk-row.selected,.shell.simple .dk-row.open{background:var(--accent-wash);box-shadow:none;}
 .dk-tab[class*="stg-"]{background:var(--tfree);color:var(--ink);border-left:none;text-decoration:none;}
-.dk-tab.stg-here{background:var(--accent-wash);color:var(--accent);box-shadow:none;}
+.dk-tab.stg-here{background:var(--accent-wash);color:var(--ink);box-shadow:none;}
 /* Just opened spends the one blue once: the tab's ring. Its head is a head,
    its words ink and its Text the ink key that does the thing (9 Oct: one
    row wore the blue five times). */
@@ -2691,15 +2691,15 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .dk-k.ink{background:var(--ink);color:var(--surface);}
 .dk-k.txt{background:var(--ink);color:var(--surface);}
 a.dk-k,a.chip{text-decoration:none;}
-.dk-tab.stg-phere{background:var(--accent-wash);color:var(--accent);box-shadow:inset var(--ring) 0 0 var(--accent);}
-.dk-tab.stg-late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
-.dk-tab.stg-in{background:var(--accent);color:var(--on-accent);}
+.dk-tab.stg-phere{background:var(--accent-wash);color:var(--ink);box-shadow:inset var(--ring) 0 0 var(--accent);}
+.dk-tab.stg-late{background:var(--late-wash);color:var(--ink);box-shadow:inset var(--ring) 0 0 var(--late);}
+.dk-tab.stg-in{background:var(--sat-blue);color:var(--ink);}
 .dk-tab.stg-paid{background:var(--seat);}
 /* HALF, THEN FULL (owner, 12 Oct): some of the party sat is the tab HALF
    filled — the lower half the seated fill, the upper its own ground, one
    crisp line between — and the second tap fills it. The floor and the
    door's card the same. No new colour. */
-.dk-tab.stg-half{background:linear-gradient(to top,var(--accent) 50%,var(--tab-plain) 50%);}
+.dk-tab.stg-half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tab-plain) 50%);}
 .dk-tab.stg-bill{background:var(--seat);box-shadow:inset var(--ring) 0 0 var(--leave);}
 .dk-tab.stg-gone{color:var(--mute);}
 .dk-tab.stg-none{background:none;color:var(--late);border:1px dashed var(--late);}
@@ -2707,7 +2707,7 @@ a.dk-k,a.chip{text-decoration:none;}
 /* Struck on the blue — a party at the door whose table is still eating, the
    tab's main use — the number keeps the blue's own ink: grey on the blue
    was 1.14 to 1 (9 Oct). */
-.dk-tab.stg-here.busy{color:var(--accent);}
+.dk-tab.stg-here.busy{color:var(--ink);}
 .dk-main b{font-size:var(--fs-lg);font-weight:600;}
 .dk-main i.here{color:var(--accent);} .dk-main i.late{color:var(--late);} .dk-main i.leave{color:var(--leave);}
 .dk-t{font-size:var(--fs-md);color:var(--mute);}
@@ -2721,9 +2721,9 @@ a.dk-k,a.chip{text-decoration:none;}
 .shell.simple .desk-main .fl-room{background:var(--surface);}
 .shell.simple .fl-wash{display:none;}
 .shell.simple .fl-in{background:none;box-shadow:none;color:inherit;padding:0;}
-.shell.simple .fl-table.stg-in{background:var(--accent);color:var(--on-accent);}
+.shell.simple .fl-table.stg-in{background:var(--sat-blue);color:var(--ink);}
 .shell.simple .fl-table.stg-paid{background:var(--seat);}
-.shell.simple .fl-table.stg-half{background:linear-gradient(to top,var(--accent) 50%,var(--tfree) 50%);}
+.shell.simple .fl-table.stg-half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tfree) 50%);}
 .shell.simple .fl-table.stg-here{background:var(--accent);color:var(--on-accent);}
 .shell.simple .fl-table.stg-phere{background:var(--accent-wash);color:var(--accent);border:.25cqw solid var(--accent);}
 .shell.simple .fl-table.stg-late{background:var(--late-wash);color:var(--late);border:.25cqw solid var(--late);outline:none;}
@@ -3309,9 +3309,9 @@ button.door-card{cursor:pointer;}
 .door-card > button{align-self:stretch;margin:0;border:none;border-radius:0;font:inherit;line-height:inherit;text-align:left;cursor:pointer;}
 .dc-tab{align-self:stretch;display:flex;align-items:center;justify-content:center;min-width:0;padding:0 4px;background:var(--tfree);color:var(--ink);}
 .dc-no{font-family:var(--font-mono);font-weight:700;line-height:1;white-space:nowrap;letter-spacing:-0.02em;}
-.dc-tab.half{background:linear-gradient(to top,var(--accent) 50%,var(--tfree) 50%);}
-.dc-tab.late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
-.dc-tab.here{background:var(--accent-wash);color:var(--accent);box-shadow:none;}
+.dc-tab.half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tfree) 50%);}
+.dc-tab.late{background:var(--late-wash);color:var(--ink);box-shadow:inset var(--ring) 0 0 var(--late);}
+.dc-tab.here{background:var(--accent-wash);color:var(--ink);box-shadow:none;}
 .dc-tab.busy .dc-no{text-decoration:line-through;text-decoration-thickness:3px;}
 .dc-tab.busy:not(.here):not(.late) .dc-no{color:var(--mute);}
 .dc-main{display:flex;align-items:center;min-width:0;padding:0 8px 0 16px;background:none;color:inherit;}
