@@ -2695,6 +2695,11 @@ a.dk-k,a.chip{text-decoration:none;}
 .dk-tab.stg-phere{background:var(--accent-wash);color:var(--accent);box-shadow:inset var(--ring) 0 0 var(--accent);}
 .dk-tab.stg-late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
 .dk-tab.stg-in{background:var(--seat);}
+/* HALF, THEN FULL (owner, 12 Oct): some of the party sat is the tab HALF
+   filled — the lower half the seated fill, the upper its own ground, one
+   crisp line between — and the second tap fills it. The floor and the
+   door's card the same. No new colour. */
+.dk-tab.stg-half{background:linear-gradient(to top,color-mix(in srgb,var(--seat),var(--ink) 22%) 50%,var(--tab-plain) 50%);}
 .dk-tab.stg-bill{background:var(--seat);box-shadow:inset var(--ring) 0 0 var(--leave);}
 .dk-tab.stg-gone{color:var(--mute);}
 .dk-tab.stg-none{background:none;color:var(--late);border:1px dashed var(--late);}
@@ -2717,6 +2722,7 @@ a.dk-k,a.chip{text-decoration:none;}
 .shell.simple .fl-wash{display:none;}
 .shell.simple .fl-in{background:none;box-shadow:none;color:inherit;padding:0;}
 .shell.simple .fl-table.stg-in{background:var(--seat);}
+.shell.simple .fl-table.stg-half{background:linear-gradient(to top,color-mix(in srgb,var(--seat),var(--ink) 22%) 50%,var(--tfree) 50%);}
 .shell.simple .fl-table.stg-here{background:var(--accent);color:var(--on-accent);}
 .shell.simple .fl-table.stg-phere{background:var(--accent-wash);color:var(--accent);border:.25cqw solid var(--accent);}
 .shell.simple .fl-table.stg-late{background:var(--late-wash);color:var(--late);border:.25cqw solid var(--late);outline:none;}
@@ -3310,6 +3316,7 @@ button.door-card{cursor:pointer;}
 .door-card > button{align-self:stretch;margin:0;border:none;border-radius:0;font:inherit;line-height:inherit;text-align:left;cursor:pointer;}
 .dc-tab{align-self:stretch;display:flex;align-items:center;justify-content:center;min-width:0;padding:0 4px;background:var(--tfree);color:var(--ink);}
 .dc-no{font-family:var(--font-mono);font-weight:700;line-height:1;white-space:nowrap;letter-spacing:-0.02em;}
+.dc-tab.half{background:linear-gradient(to top,color-mix(in srgb,var(--seat),var(--ink) 22%) 50%,var(--tfree) 50%);}
 .dc-tab.late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
 .dc-tab.here{background:var(--accent);color:var(--on-accent);}
 .dc-tab.busy .dc-no{text-decoration:line-through;text-decoration-thickness:3px;}
@@ -7600,17 +7607,19 @@ function doorNext(ctx, day, opts) {
   const wait = noShowWait(settings);
   // Late first, then by time, IS by time: the late are the earliest still
   // due, so one sort says both.
-  const rank = (r) => isHere(r) ? 0 : 1;
+  // Part of a party sat (owner, 12 Oct: half, then full) keeps its card,
+  // first, until the rest are seated.
+  const rank = (r) => isHere(r) || r.status === 'part-seated' ? 0 : 1;
   out.list = heldBook(ctx, day).reservations
     .filter(r => r && onNight(settings, r, day) && heldTables(r).length
-      && (['booked', 'confirmed'].includes(r.status) || (isHere(r) && kept.has(r.id))))
+      && (['booked', 'confirmed', 'part-seated'].includes(r.status) || (isHere(r) && kept.has(r.id))))
     .map(r => ({ r, t: nightMin(r, day) }))
-    .filter(({ t }) => { const home = tidyHomeOf(svcs, t); return !!home && now < toMin(home.end) && (!picked || home.id === picked.id); })
+    .filter(({ r, t }) => { const home = tidyHomeOf(svcs, t); return !!home && (r.status === 'part-seated' || now < toMin(home.end)) && (!picked || home.id === picked.id); })
     // Past the venue's no-show wait a party that never came is the tidy's,
     // not the door's: three from 5:15 held every card at 8:44 and Okafor,
     // due at 8:45, was not on one (review, 10 Oct). One the door marked
     // Here is standing there, however late.
-    .filter(({ r, t }) => isHere(r) || now - t <= wait)
+    .filter(({ r, t }) => isHere(r) || r.status === 'part-seated' || now - t <= wait)
     .sort((a, b) => (rank(a.r) - rank(b.r)) || (a.t - b.t))
     .slice(0, DOOR_MAX)
     .map(({ r }) => (ctx.reservations || []).find(x => x && x.id === r.id) || r);
@@ -11445,8 +11454,12 @@ app.post('/api/reservations/:id/seat', (req, res) => {
   const r = data.reservations.find(x => x.id === req.params.id);
   if (!r) return res.status(404).json({ error: 'Booking not found' });
   if (!av.isLive(r)) return res.status(400).json({ error: 'That booking is over' });
-  if (av.isSat(r)) return res.status(409).json({ error: `${r.name} is already seated` });
+  // HALF, THEN FULL (owner, 12 Oct): the first tap sits SOME of the party
+  // (`part: true`, part-seated, no count), the second tap on the same tab
+  // sits the rest — so a part-seated party may be seated again, nobody else.
+  if (av.isSat(r) && r.status !== 'part-seated') return res.status(409).json({ error: `${r.name} is already seated` });
   const b = req.body || {};
+  if (r.status === 'part-seated' && b.part) return res.status(409).json({ error: `${r.name} is already partly seated` });
   const tableId = typeof b.tableId === 'string' && b.tableId ? b.tableId : null;
   if (!tableId) return res.status(400).json({ error: 'Which table?' });
   const tableIds = Array.isArray(b.tableIds) ? b.tableIds.map(String).filter(id => id !== tableId).slice(0, 8) : [];
@@ -11469,6 +11482,7 @@ app.post('/api/reservations/:id/seat', (req, res) => {
   if (inHand) return res.status(409).json({ error: seatRefusedWords(data, { id: inHand.id, at: null, by: inHand.by, name: inHand.name }) });
   const body = { tableId, tableIds, status: 'seated' };
   if (r.status === 'part-arrived' && r.partCount) { body.status = 'part-seated'; body.partCount = r.partCount; }
+  else if (b.part && r.status !== 'part-seated') body.status = 'part-seated';
   const out = changeReservation(data, r, body, staffFromReq(req));
   if (out.error) return res.status(400).json({ error: out.error });
   writeData(data);
