@@ -2891,6 +2891,9 @@ body.book-page{background:var(--bg);color:var(--ink);font-size:var(--fs-lg);line
 .gp .gp-f input,.gp .gp-f textarea{width:100%;min-height:48px;padding:4px 0;border:none;border-bottom:1px solid var(--steel-300);border-radius:0;
   background:none;box-shadow:none;color:var(--ink);font:inherit;font-size:var(--fs-xl);}
 .gp .gp-f textarea{min-height:56px;resize:vertical;}
+/* A date of birth is a date field (Online booking asks for, 12 Oct): a phone
+   draws one at its own width unless told, and 320 then slides sideways. */
+.gp .gp-f input[type="date"]{display:block;min-width:0;-webkit-appearance:none;appearance:none;text-align:left;}
 .gp .gp-f input:focus,.gp .gp-f textarea:focus{outline:none;border-bottom-color:var(--accent);box-shadow:inset 0 calc(-1 * var(--ring)) 0 var(--accent);}
 .gp-go{width:100%;min-height:56px;padding:12px 20px;border:none;border-radius:var(--r-control);background:var(--ink);color:var(--surface);
   font:inherit;font-size:var(--fs-lg);font-weight:800;}
@@ -3431,6 +3434,32 @@ body[data-theme="dark"] .turn-card{box-shadow:0 0 0 var(--ring) var(--line), var
 @media (max-width:760px){
   .turn-card{position:fixed;left:16px;right:16px;top:auto;bottom:16px;width:auto;max-width:none;}
 }
+
+/* §§ ONLINE BOOKING ASKS FOR (owner, 12 Oct). One row a detail in Settings →
+   Bookings: its word, then Off · Optional · Required; the chips go under the
+   word where a phone has no room beside it. */
+.ask-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;padding:4px 0;}
+.ask-row > span{font-weight:600;}
+
+/* §§ CONFIRM TOMORROW (v50, r64). A page of docket lines: the time the tab,
+   the name and how many, one line under them, and ONE key — Text in the
+   well's grey, then Yes in ink, the key that does the thing. QUIET: ink
+   and greys, nothing in a pill but a key. The page caps its line as the run
+   sheet does. */
+.cf{max-width:900px;padding-bottom:24px;}
+.cf-sub{margin:0 0 8px;padding:0 4px;color:var(--mute);font-size:var(--fs-lg);}
+.cf .dk-row{grid-template-columns:76px minmax(0,1fr) auto;}
+.dk-tab.cf-t{background:var(--tfree);color:var(--ink);font-size:var(--fs-lg);}
+.cf-k{min-width:76px;min-height:var(--tap);padding:0 16px;font-size:var(--fs-lg);}
+a.cf-k{background:var(--well);color:var(--ink);}
+.cf-k.ink{background:var(--ink);color:var(--surface);}
+.cf-row .dk-main span i.ink{color:var(--ink);font-weight:700;}
+.shell.simple .bl-head.cf-fold{width:100%;border:none;font:inherit;color:inherit;cursor:pointer;text-align:left;}
+.cf-fold .bl-chev{display:flex;margin-left:8px;color:var(--mute);}
+.cf-fold .bl-chev svg{width:20px;height:20px;}
+.cf-fold.shut .bl-chev{transform:rotate(-90deg);}
+.cf-done .dk-tab.cf-t{color:var(--mute);}
+/* end CONFIRM TOMORROW */
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "6dc907770d041db55efc3d5645d8e62e67e6f30f";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -5011,471 +5040,6 @@ module.exports = {
 (function () {
   var module = { exports: {} };
   (function (module, exports, require, __dirname, process) {
-// db.js
-// The "database" for the reservations system — the same shape of thing the
-// POS uses, so a venue that already runs restaurant-pos finds nothing new:
-//   - data/store.json        = the shipped SEED. Tracked in git, read once.
-//   - data/store.local.json  = this venue's LIVE data. Gitignored. The app
-//                              reads and writes ONLY this file at runtime.
-// First run seeds the live file from the template; after that the venue owns
-// it, and a `git pull` can never touch what has been booked.
-
-const fs = require('fs');
-const path = require('path');
-
-const DATA_DIR = path.join(__dirname, 'data');
-const DB_FILE = path.join(DATA_DIR, 'store.local.json');
-const SEED_FILE = path.join(DATA_DIR, 'store.json');
-
-// Statuses a booking moves through, in the order a night actually goes. Five
-// of them are the POS's own (its floor knows booked / seated / done /
-// cancelled / no-show); the other six are ours and fold down to one of those
-// when mirrored to the POS (see posStatus in pos.js).
-//
-// PARTLY IS NOT A DIFFERENT PLACE, IT IS A DIFFERENT AMOUNT. Two of a six
-// through the door is still "they are here"; four of a six sat down is still
-// "somebody is on that table". So `part-arrived` and `part-seated` wear the
-// same colour as the thing they are part of and fold to the same POS status —
-// what they change is the WORD, which is the one thing a host needs, because
-// a table that is half down is a table you cannot yet run the order on.
-//
-// CHECK AND PAID ARE THE END OF THE SITTING, NOT THE END OF THE BOOKING. The
-// party is still in the chair; what has changed is that the table has started
-// to turn. That is the question a host asks the room forty times a night —
-// "which of these is nearly free" — and until now the floor had no answer to
-// it between `seated` and an empty table.
-const STATUSES = [
-  'booked', 'confirmed',
-  'part-arrived', 'arrived',
-  'part-seated', 'seated',
-  'check', 'paid',
-  'done', 'cancelled', 'no-show',
-];
-// A booking that still holds its table. Paid and still sitting is still
-// sitting: the table is theirs until somebody marks them LEFT.
-const LIVE_STATUSES = ['booked', 'confirmed', 'part-arrived', 'arrived', 'part-seated', 'seated', 'check', 'paid'];
-// A booking with somebody down at the table. The sitting has begun, so the
-// table is held past its turn time, the till's orders on it are this
-// booking's, and the online cancel is closed.
-const SAT_STATUSES = ['part-seated', 'seated', 'check', 'paid'];
-const SOURCES = ['staff', 'online', 'walk-in', 'pos'];
-const TAGS = ['VIP', 'Birthday', 'Anniversary', 'Allergy', 'Pram', 'Wheelchair', 'Window', 'Quiet', 'High chair', 'Large group'];
-// Where a notify entry can be. 'waiting' and 'told' are both live (told = we
-// rang them and got no answer, the waitlist's 'notified' by another name);
-// 'booked' and 'removed' are dead. Expiry is NOT a status: an entry whose
-// date has passed is simply not live, read-time, with nothing written.
-const NOTIFY_STATUSES = ['waiting', 'told', 'booked', 'removed'];
-
-// Fallback floor when no POS is linked: the POS's own default tables, same
-// ids, so linking later maps every booking onto the real floor unchanged.
-// The fallback floor is a ROOM, not a list. It carries the POS's own layout
-// maths verbatim — x/y are the CENTRE of a table as a percentage of a 900x560
-// canvas, width/height are percentages of each axis, rotation is degrees — so
-// a venue with no POS gets the same drawing the linked one does, and the same
-// drawing is what Settings arranges. Without geometry the Floor view can only
-// deal the tables out in reading order, and a room that is not the room is
-// worse than no room: a host reads position before they read a number.
-const T = (id, label, seats, x, y, width, height, shape) =>
-  ({ id, label, seats, x, y, width, height, shape: shape || 'rect', rotation: 0 });
-const D = (id, decorType, x, y, width, height) =>
-  ({ id, type: 'decor', decorType, x, y, width, height, rotation: 0 });
-const DEFAULT_TABLES = [
-  D('w1', '', 50, 2, 95, 0.5), D('w2', '', 2.2, 50, 0.35, 95),
-  D('w3', '', 97.8, 50, 0.35, 95), D('w4', '', 50, 98, 95, 0.5),
-  D('bar', 'bar', 24, 11, 34, 6), D('pass', 'pass', 79, 10, 24, 5.5),
-  T('t1', '1', 2, 11, 30, 8, 11), T('t2', '2', 2, 11, 48, 8, 11),
-  T('t3', '3', 2, 11, 66, 8, 11), T('t4', '4', 2, 11, 84, 8, 11),
-  T('t5', '5', 4, 36, 34, 12, 15), T('t6', '6', 4, 36, 60, 12, 15),
-  T('t7', '7', 4, 57, 34, 12, 15), T('t8', '8', 4, 57, 60, 12, 15),
-  T('t9', '9', 6, 81, 36, 14, 21, 'circle'), T('t10', '10', 6, 81, 70, 14, 21, 'circle'),
-  T('t11', '11', 6, 40, 86, 20, 10),
-];
-const DEFAULT_FLOORPLANS = [{ id: 'fp1', name: 'Main', tables: DEFAULT_TABLES }];
-
-const DEFAULT_SETTINGS = {
-  venueName: '',
-  venueAddress: '',
-  venuePhone: '',
-  // When each day of the week takes bookings. days: 0=Sun … 6=Sat.
-  services: [
-    { id: 'sv1', name: 'Lunch', days: [0, 1, 2, 3, 4, 5, 6], start: '11:30', end: '14:30' },
-    { id: 'sv2', name: 'Dinner', days: [0, 1, 2, 3, 4, 5, 6], start: '17:00', end: '21:30' },
-  ],
-  // Dated overrides of the weekly pattern above: Christmas Day shut, New
-  // Year's Eve on one late sitting. One entry a date:
-  //   { id, date: 'YYYY-MM-DD', closed: bool, note: '', services: [{ id, name, start, end }] }
-  // `closed: true` implies no windows, and a window-less entry IS closed.
-  exceptions: [],
-  slotMinutes: 15,          // bookings start on these
-  defaultDuration: 90,      // minutes a table is held (the POS's sitting length wins when linked)
-  durationByParty: [        // bigger tables sit longer
-    { upTo: 2, minutes: 75 }, { upTo: 4, minutes: 90 }, { upTo: 8, minutes: 120 }, { upTo: 99, minutes: 150 },
-  ],
-  maxPartySize: 12,
-  seatSlack: 2,             // a table may have this many seats more than the party
-  // WHICH TABLES ACTUALLY PUSH TOGETHER. A fact about the furniture, so the
-  // only place it can come from is the venue — the till has no stored list
-  // either, its own "combine" being a live ticket merge a waiter does in the
-  // moment. Keyed on the POS's own table ids, so if the till ever grows a
-  // list this one is deleted rather than migrated.
-  //   [{ id, tables: [tableId, …], seats }]
-  // `seats` is STATED, not summed: two four-tops pushed together are usually
-  // eight and sometimes six, because the join eats a setting at each end. 0
-  // means nobody said, and availability.js falls back to the sum.
-  tableCombos: [],
-  // §§ THE TIMELINE'S OWN RULES — what a drag may do, and what it says first.
-  // The drop is one motion with no Save key to think at, so every one of
-  // these decides something a host cannot take back by hesitating. They live
-  // in the settings rather than in the code because a venue that runs two
-  // sittings a table wants the guard rails a venue running one does not.
-  timeline: {
-    drag: true,           // a block can be picked up at all
-    moveTime: true,       // a drag may change the hour at all
-    pinSeated: true,      // a party already sitting keeps its hour whatever the drag says
-    clearTable: true,     // a drop on the No table lane takes the booking's table away
-    join: true,           // a drop may land a stated COMBINATION, not only the lane itself
-    laneOrder: 'number',  // the lanes run in table order: 'number' | 'seats'
-    openAt: 'now',        // where an opened timeline rests: 'now' | 'first' | 'start'
-    onClash: 'warn',      // another booking already holds that table: 'warn' | 'refuse'
-    onSmall: 'refuse',    // the tables seat fewer than the party: 'refuse' | 'warn'
-    snapMinutes: 0,       // the grid a drop lands on. 0 is the venue's own slot
-    holdMs: 250,          // a finger holds this long before a block lifts
-    showFinished: false,  // draw left, cancelled and no-show as well
-  },
-  // 0 = off. `night` and `week` are the Flow's own limits for one slot:
-  // { 'YYYY-MM-DD': { 'HH:MM': covers } } and { '0'..'6': { 'HH:MM': covers } }.
-  pacing: { maxCoversPer15: 0, maxBookingsPer15: 0, night: {}, week: {} },
-  // What the venue has recoloured. A key here is a CSS custom property the
-  // client re-points at boot; a key ABSENT (or '') means the stylesheet's own
-  // token stands. The accent is NOT in here — it comes from the POS with the
-  // rest of the theme, and a second source for it is exactly what POS-LINK.md
-  // forbids.
-  statusColours: {},
-  online: {
-    enabled: true,
-    minNoticeMinutes: 60,
-    maxDaysAhead: 60,
-    maxPartySize: 8,
-    largerPartyMessage: 'For groups of more than 8 please call us.',
-    notesPrompt: 'Allergies, occasions, pram or high chair — anything we should know?',
-    holdTables: false,      // online bookings get a table when staff assign one, unless this is on
-    notifyList: true,       // a full day offers "tell me if something opens" instead of a dead end
-    // GUESTS JOIN THE LINE FROM THEIR PHONE (owner, 8 Oct): a code on the
-    // desk's screen and a sign at the door; the guest adds themselves to the
-    // waitlist and is quoted the desk's own wait. Off, the code goes and the
-    // guests' page says "Ask at the door".
-    line: true,
-  },
-  noShowAfterMinutes: 30,   // the "mark no-show" prompt appears this long after the time
-  dayStartsAt: 4,           // the trading day rolls at 4am, like the POS
-  // The POS link. baseUrl like http://192.168.1.42:3000 (the POS server).
-  // `useOrders` is the one read that is not on the 8-second pass: off means no
-  // order is ever fetched from the till, and no money is shown anywhere.
-  // `useMenus` off means the desk's set menus are the local `setMenus` list
-  // below, even while the POS is linked.
-  pos: { enabled: false, baseUrl: '', pushBookings: true, pullStatus: true, useFloor: true, useOrders: true, useMenus: true, useCustomers: true },
-  // The booking relay (cloud/, CLOUD-LINK.md): where guests book when they are
-  // not on the venue's wifi. baseUrl like https://book.example.com; the token
-  // is the one the relay showed once when the venue was created. It lives in
-  // store.local.json, which is gitignored, and is never sent back to a screen.
-  // `office` on means the relay also holds a copy of the book for a phone team
-  // in another building (CLOUD-LINK.md) — switched on and off from the desk.
-  relay: { enabled: false, baseUrl: '', token: '', office: false },
-};
-
-const DEFAULT_DATA = {
-  settings: DEFAULT_SETTINGS,
-  floorPlans: DEFAULT_FLOORPLANS, // replaced by the POS's when linked
-  // The venue's own set menus — "Christmas menu", the eight-course tasting —
-  // as [{ id: 'sm…', name }]: the fallback the desk edits in Settings, with
-  // the POS's own combos winning whenever the link is on (see `posCombos`).
-  setMenus: [],
-  // The POS's set menus (its combos), cached on the last moved pass, as
-  // [{ id: 'c…', name }]. Declared here — unlike the older `posSettings`
-  // cache — so /api/set-menus can read it without a branch.
-  posCombos: [],
-  theme: { accent: '#3692E7', mode: 'auto' },
-  reservations: [],
-  // The waitlist — the line at the door tonight.
-  //   { id, name, phone, partySize, quotedMin, notes, status, addedAt,
-  //     addedBy, source, ref }
-  // `source` is WHERE it came from, in the record's one vocabulary (SOURCES):
-  // 'staff' (the host typed it) or 'online' (the guest joined the line on
-  // their own phone, here or on the relay). Only a guest who joined from
-  // their phone has a `ref`: their page holds it. `quotedMin` is the wait
-  // they were told, and null is "nothing frees tonight", not "no wait".
-  waitlist: [],
-  // What became of a guest who joined the line from their phone and is no
-  // longer in it — seated, left, removed by the host, or refused — so their
-  // page can say so: { ref, how, at }. Tonight's only matter; a day is kept.
-  lineGone: [],
-  // People waiting for a cancellation, and the cancellations themselves.
-  //   notify   { id, ref, name, phone, email, partySize, date, from, to,
-  //              wanted, notes, source, status, createdAt, createdBy,
-  //              notifiedAt, bookedAt, bookingId }
-  //   openings { id, resId, date, time, partySize, tableId, seats, fromName,
-  //              reason, freedAt, dismissedAt }
-  // An opening is an EVENT — a deleted booking leaves nothing to derive it
-  // from — so it is stored. Whether it is still worth acting on is never
-  // stored: av.openingOpen() recomputes it against the live bookings.
-  notify: [],
-  openings: [],
-  guests: [],
-  auditLog: [],
-  // `floorFrom`: the till address the floor plans last came from, '' while
-  // the room is the desk's own — the till's joins are the combinations only
-  // then (daily round, 9 Oct).
-  posState: { lastSyncAt: 0, lastError: '', version: null, connected: false, wiped: 0, floorFrom: '' },
-  // The relay link's last word: whether it answered, the booking page's
-  // address it reported, and when the desk last told it what it may sell.
-  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0, released: [], gone: [], officeOffOwed: false, closeOwed: false, closesOwed: [], group: null, groupOwed: [], groupAsked: [] },
-};
-
-function ensureStore() {
-  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (!fs.existsSync(DB_FILE)) {
-    let seed;
-    try {
-      seed = fs.readFileSync(SEED_FILE, 'utf-8');
-      JSON.parse(seed);
-    } catch (e) {
-      seed = JSON.stringify(DEFAULT_DATA, null, 2);
-    }
-    fs.writeFileSync(DB_FILE, seed);
-  }
-}
-
-function statMs(p) { try { return fs.statSync(p).mtimeMs; } catch (e) { return -1; } }
-
-// One process, one writer: keep the parsed store in memory and only re-read
-// when the file changed underneath us (a restored backup, a hand edit).
-//
-// "One process" is not a hope — lock.js enforces it at startup. Two copies of
-// this app on one data folder would each hold their own parsed store and
-// write the whole file back, so the second to write would erase everything
-// the first had booked, in silence. That is why the lock exists.
-let _cache = null;
-let _cacheMtime = -1;
-
-function readData() {
-  ensureStore();
-  const m = statMs(DB_FILE);
-  if (_cache !== null && m === _cacheMtime) return _cache;
-  let data;
-  try {
-    data = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
-  } catch (e) {
-    // A half-written file: fall back to the .bak sibling before giving up.
-    try { data = JSON.parse(fs.readFileSync(DB_FILE + '.bak', 'utf-8')); } catch (e2) { data = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
-  }
-  migrate(data);
-  _cache = data;
-  _cacheMtime = statMs(DB_FILE);
-  return data;
-}
-
-// Every key the app expects exists after this, whatever version wrote the file.
-function migrate(data) {
-  for (const k of Object.keys(DEFAULT_DATA)) {
-    if (data[k] === undefined) data[k] = JSON.parse(JSON.stringify(DEFAULT_DATA[k]));
-  }
-  const s = data.settings;
-  for (const k of Object.keys(DEFAULT_SETTINGS)) {
-    if (s[k] === undefined) s[k] = JSON.parse(JSON.stringify(DEFAULT_SETTINGS[k]));
-  }
-  for (const k of Object.keys(DEFAULT_SETTINGS.online)) if (s.online[k] === undefined) s.online[k] = DEFAULT_SETTINGS.online[k];
-  for (const k of Object.keys(DEFAULT_SETTINGS.pos)) if (s.pos[k] === undefined) s.pos[k] = DEFAULT_SETTINGS.pos[k];
-  for (const k of Object.keys(DEFAULT_SETTINGS.relay)) if (s.relay[k] === undefined) s.relay[k] = DEFAULT_SETTINGS.relay[k];
-  for (const k of Object.keys(DEFAULT_DATA.relayState)) if (data.relayState[k] === undefined) data.relayState[k] = DEFAULT_DATA.relayState[k];
-  // A store from before the floor was stamped: a pass that succeeded took the
-  // floor from the address the link holds, unless the floor was never taken.
-  if (data.posState.floorFrom === undefined) {
-    data.posState.floorFrom = data.posState.version && s.pos.baseUrl && s.pos.useFloor !== false ? String(s.pos.baseUrl) : '';
-  }
-  for (const k of Object.keys(DEFAULT_SETTINGS.pacing)) if (s.pacing[k] === undefined) s.pacing[k] = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.pacing[k]));
-  for (const k of ['night', 'week']) if (!s.pacing[k] || typeof s.pacing[k] !== 'object' || Array.isArray(s.pacing[k])) s.pacing[k] = {};
-  // The loop above already gives an older store `exceptions: []`; this catches
-  // a hand-edited or half-written file that has the key but not an array.
-  if (!Array.isArray(s.exceptions)) s.exceptions = [];
-  if (!Array.isArray(s.tableCombos)) s.tableCombos = [];
-  if (!s.timeline || typeof s.timeline !== 'object' || Array.isArray(s.timeline)) s.timeline = {};
-  for (const k of Object.keys(DEFAULT_SETTINGS.timeline)) if (s.timeline[k] === undefined) s.timeline[k] = DEFAULT_SETTINGS.timeline[k];
-  if (!s.statusColours || typeof s.statusColours !== 'object' || Array.isArray(s.statusColours)) s.statusColours = {};
-  for (const k of RETIRED_COLOUR_KEYS) delete s.statusColours[k];
-  // The desk has no users any more — no sign-in, no PIN, nobody to pick. An
-  // older store still carries the list, and a PIN that nothing checks is only
-  // a credential waiting to leak, so it goes on the first read after update.
-  delete data.staff; delete data.posStaff; delete s.pos.useStaff;
-  // "Walk-in" is not a person. Every walk-in with no phone was filed on one
-  // card under that name, which then read as a regular with everybody's
-  // visits (daily round, 1 Oct). A card nobody wrote on goes, and its
-  // bookings stand on no card, as they do now when they are made.
-  const anon = data.guests.find(g => g.key === 'n:walk-in' && !g.notes && !(g.tags || []).length && !g.dob);
-  if (anon) {
-    data.guests = data.guests.filter(g => g !== anon);
-    for (const r of data.reservations) if (r.guestId === anon.id) r.guestId = null;
-  }
-  for (const g of data.guests) {
-    if (g.dob === undefined) g.dob = '';
-    if (!Array.isArray(g.tags)) g.tags = [];
-  }
-  for (const r of data.reservations) {
-    if (!r.status) r.status = 'booked';
-    if (!r.source) r.source = 'staff';
-    if (!Array.isArray(r.tags)) r.tags = [];
-    if (r.durationMin === undefined) r.durationMin = null;
-    if (r.updatedAt === undefined) r.updatedAt = r.createdAt || Date.now();
-    // The booking's own change history. There is no DEFAULT_RESERVATION to
-    // look for: the per-row default lives here and in the four creation
-    // paths in server.js/sync.js, which each set `events` explicitly. Old
-    // rows start empty on purpose — an append-only log nobody wrote is a lie,
-    // and the popup's "Made by X · date" line already carries the creation.
-    if (!Array.isArray(r.events)) r.events = [];
-    // The set menu this booking is committed to: null, or { id, name }. A
-    // very early hand-edited file may hold a bare string; the name is the
-    // identity, so a string becomes one with no POS id behind it.
-    if (typeof r.setMenu === 'string') r.setMenu = r.setMenu.trim() ? { id: null, name: r.setMenu.trim() } : null;
-    if (r.setMenu === undefined) r.setMenu = null;
-  }
-  // The generic loop above gives an older store `notify` and `openings`; these
-  // fill in the per-record fields a hand-edited or half-written row may lack.
-  if (!Array.isArray(data.waitlist)) data.waitlist = [];
-  // The first build of the line wrote 'desk' and 'phone'; the house's words
-  // for the same two places are 'staff' and 'online' (review, 8 Oct).
-  for (const w of data.waitlist) if (w) w.source = w.source === 'phone' || w.source === 'online' ? 'online' : 'staff';
-  if (!Array.isArray(data.lineGone)) data.lineGone = [];
-  if (!Array.isArray(data.notify)) data.notify = [];
-  if (!Array.isArray(data.openings)) data.openings = [];
-  for (const e of data.notify) {
-    if (!e.status) e.status = 'waiting';
-    if (!e.source) e.source = 'staff';
-    if (!e.wanted) e.wanted = e.from || '';
-    if (e.notifiedAt === undefined) e.notifiedAt = null;
-    if (e.bookingId === undefined) e.bookingId = null;
-  }
-  for (const o of data.openings) {
-    if (o.dismissedAt === undefined) o.dismissedAt = null;
-    if (o.seats === undefined) o.seats = 0;
-  }
-  return data;
-}
-
-// Every write this process made, counted: two writes inside one tick of the
-// file system's clock share a last-write time, and a thing worked out once
-// per version of the store (the night's line) must not outlive either.
-let _writes = 0;
-function writeData(data) {
-  ensureStore();
-  const json = JSON.stringify(data, null, 2);
-  const tmp = DB_FILE + '.tmp';
-  fs.writeFileSync(tmp, json);
-  fs.renameSync(tmp, DB_FILE);
-  try { fs.writeFileSync(DB_FILE + '.bak.tmp', json); fs.renameSync(DB_FILE + '.bak.tmp', DB_FILE + '.bak'); } catch (e) {}
-  _cache = data;
-  _cacheMtime = statMs(DB_FILE);
-  _writes++;
-}
-function writeCount() { return _writes; }
-
-// What the client's poll asks instead of fetching everything: the store's
-// last-write time. Any write moves it.
-function dataVersion() { return { store: statMs(DB_FILE) }; }
-
-function newId(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-
-// A guest's date of birth, off the wire. The YEAR IS OPTIONAL and that is the
-// point: a venue is told "the twelfth of March" far more often than it is told
-// a year, and a card that refuses the day because it was not given the year is
-// a card nobody fills in. A missing year is stored as 0000, which is not a
-// date anyone was born on and cannot be mistaken for one.
-//
-// Returns '' for "no date of birth", a 'YYYY-MM-DD' string, or null when what
-// came in was not a date at all — so a caller can tell "cleared" from "wrong".
-function cleanDob(input) {
-  const raw = String(input == null ? '' : input).trim();
-  if (!raw) return '';
-  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
-  if (!m) return null;
-  const y = +m[1], mo = +m[2], d = +m[3];
-  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
-  // The day has to exist in that month. With no year, February is given its
-  // leap day: somebody born on the 29th still has a birthday to record.
-  const days = [31, (y === 0 || (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0))) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1];
-  if (d > days) return null;
-  // A year nobody alive was born in is a typo, not a birthday. 0000 is the
-  // agreed "not given" and passes.
-  if (y !== 0 && (y < 1900 || y > new Date().getFullYear())) return null;
-  return `${String(y).padStart(4, '0')}-${m[2]}-${m[3]}`;
-}
-
-// THE THREE COLOURS BOTH APPS PAINT ON THE SAME TABLE.
-//
-// The till's whole table-colour vocabulary is three words — `available`,
-// `occupied` and `billPrinted` — and each is a table state this app draws
-// too, on the SAME floor plan, pulled from the same POS. A table that is
-// green on the till and violet on the desk is one table saying two things,
-// so those three come FROM the till and are not editable here: the accent
-// already works that way, and this is the same rule, not a new one.
-//
-// The other eight (booked, confirmed, arrived, paid, left, cancelled,
-// no-show, due, over) stay OURS, because the till has no notion of any of
-// them and so has nothing to disagree with. `free` is not in either list:
-// on this floor a free table is the plain surface, never a colour.
-const TILL_COLOURS = { seated: 'occupied', check: 'billPrinted' };
-// Which of OUR status keys the till really paints: the ones it sends a colour
-// for. A till sending them as null paints nothing, and treating it as owning
-// them dropped the venue's own Seated and Bill on every colour save.
-function tillOwns(tsc) { return Object.keys(TILL_COLOURS).filter(k => !!(tsc && tsc[TILL_COLOURS[k]])); }
-
-// Reading a venue's colour code off the wire. Pure, so the rule that decides
-// whether a colour is kept can be read and tested without a request: a key we
-// do not know how to re-point, or a value that is not a full six-digit hex, is
-// REFUSED rather than dropped — a colour that silently did not save is a
-// colour somebody spends a service squinting at. An empty value is not an
-// error; it means "give me the built-in back", so it is simply left out.
-function cleanColours(input) {
-  if (!input || typeof input !== 'object' || Array.isArray(input)) {
-    return { ok: false, error: 'Colours must be sent as an object' };
-  }
-  const out = {};
-  for (const [k, v] of Object.entries(input)) {
-    // A slot that was offered once and has gone: dropped, not refused, so a
-    // tablet still showing the old card can save the colours that ARE ours.
-    if (RETIRED_COLOUR_KEYS.includes(k)) continue;
-    if (!Object.prototype.hasOwnProperty.call(COLOUR_KEYS, k)) {
-      return { ok: false, error: `There is nothing called "${k}" to colour` };
-    }
-    const hex = String(v == null ? '' : v).trim();
-    if (!hex) continue;
-    if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return { ok: false, error: `${k} needs a colour like #2F74C9` };
-    out[k] = hex.toUpperCase();
-  }
-  return { ok: true, colours: out };
-}
-
-// Due was a colour of its own until the floor started painting a waiting
-// table in its booking's Booked or Confirmed — a stored one is dropped.
-const RETIRED_COLOUR_KEYS = ['due'];
-// Every colour a venue may change, and the custom property each one
-// re-points. `free` and `joined` are deliberately absent: free is the plain
-// surface, and joined is the accent ring, which follows the POS.
-const COLOUR_KEYS = {
-  booked: '--st-booked', confirmed: '--st-confirmed', arrived: '--st-arrived',
-  seated: '--st-seated', check: '--st-check', paid: '--st-paid',
-  done: '--st-done', cancelled: '--st-cancelled', 'no-show': '--st-noshow',
-  over: '--st-over',
-  online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
-};
-module.exports = { readData, writeData, dataVersion, writeCount, newId, migrate, TILL_COLOURS, tillOwns, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
-
-  })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
-  window.__RESV__.modules['./db'] = module;
-})();
-</script>
-<script>
-(function () {
-  var module = { exports: {} };
-  (function (module, exports, require, __dirname, process) {
 // availability.js
 // The booking arithmetic, with no server or store in it so it can be tested
 // on its own: which slots a day offers, how long a party sits, which tables
@@ -6593,6 +6157,100 @@ function lineRefusal(p, max, taken) {
   if (n > max) return { code: 400, why: 'big', error: 'Please ask at the door for that many.' };
   const mine = lineNumber(p.phone);
   if ((taken || []).some(t => lineNumber(t) === mine)) return { code: 409, why: 'taken', error: 'That number is already in the line.' };
+  return null;
+}
+// ONLINE BOOKING ASKS FOR WHAT THE VENUE SAYS (owner, 12 Oct: "so online
+// have some prerequisites or the option to add or remove details"). Five
+// fields, each Off, Optional or Required, set in Settings → Bookings, and
+// asked by the desk's own page and the relay's alike. The default is the
+// form as it always was: a name and a phone, an email if they like. The
+// record keeps ONE name, so a first and a last are joined into it and
+// nothing downstream learns a second field. Somebody is always named: a
+// form asking neither name would make a booking decide() skips. The relay
+// keeps a copy (cloud/allocation.js), held to this one by test/asks.test.js.
+const ASK_FIELDS = ['first', 'last', 'mobile', 'email', 'dob'];
+const ASK_MODES = ['off', 'optional', 'required'];
+const ASKS_DEFAULT = { first: 'required', last: 'off', mobile: 'required', email: 'optional', dob: 'off' };
+function asksOf(raw) {
+  raw = raw && typeof raw === 'object' ? raw : {};
+  const a = {};
+  for (const k of ASK_FIELDS) a[k] = ASK_MODES.includes(raw[k]) ? raw[k] : ASKS_DEFAULT[k];
+  if (a.first !== 'required' && a.last !== 'required') a.first = 'required';
+  return a;
+}
+function onlineAsks(s) { return asksOf(s && s.online && s.online.asks); }
+// A date of birth is a real day, or a day and month with 0000 for the year
+// nobody gave; '' is none and null is not a date at all. db.js stores the
+// guest card's with this same rule.
+function cleanDob(input) {
+  const raw = String(input == null ? '' : input).trim();
+  if (!raw) return '';
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+  if (!m) return null;
+  const y = +m[1], mo = +m[2], d = +m[3];
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;
+  // The day has to exist in that month. With no year, February is given its
+  // leap day: somebody born on the 29th still has a birthday to record.
+  const days = [31, (y === 0 || (y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0))) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][mo - 1];
+  if (d > days) return null;
+  // A year nobody alive was born in is a typo, not a birthday. 0000 is the
+  // agreed "not given" and passes.
+  if (y !== 0 && (y < 1900 || y > new Date().getFullYear())) return null;
+  return `${String(y).padStart(4, '0')}-${m[2]}-${m[3]}`;
+}
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// An address an email can be sent to — the shape the guests' form asks for,
+// and the one the relay is handed (EMAILS FROM THE RELAY, 12 Oct).
+function emailOk(e) { return EMAIL_RE.test(String(e == null ? '' : e).trim()); }
+// The NIGHT a booking belongs to: 00:15 is the night before's.
+function nightOfRes(settings, r) { return nightAt(settings, dayOf(r.time), hhmmOf(r.time)).day; }
+function guestName(p) {
+  p = p || {};
+  const joined = [p.firstName, p.lastName].map(x => String(x == null ? '' : x).trim()).filter(Boolean).join(' ');
+  return (joined || String(p.name == null ? '' : p.name).trim()).slice(0, 60);
+}
+// What a guest typed, as it is kept: trimmed, a field the venue switched off
+// dropped, an old page's one `name` read as the first.
+function onlineGuest(p, asks) {
+  p = p || {};
+  const a = asksOf(asks);
+  const t = (x, n) => String(x == null ? '' : x).trim().slice(0, n);
+  const on = (k) => a[k] !== 'off';
+  const firstName = on('first') ? t(p.firstName !== undefined ? p.firstName : p.name, 60) : '';
+  const lastName = on('last') ? t(p.lastName, 60) : '';
+  return {
+    name: guestName({ firstName, lastName }),
+    firstName, lastName,
+    phone: on('mobile') ? t(p.phone, 30) : '',
+    email: on('email') ? t(p.email, 80) : '',
+    dob: on('dob') ? (cleanDob(p.dob) || '') : '',
+  };
+}
+// Why a booking from a guests' page is refused, field by field in the
+// form's own order, or null. Required means there; anything given is right
+// in shape — six digits of a mobile (the line's own number), an email with
+// an @ and a dot, a date that exists; Off is never read.
+function onlineRefusal(p, asks) {
+  p = p || {};
+  const a = asksOf(asks);
+  const g = onlineGuest(p, a);
+  const no = (field, error) => ({ code: 400, field, error });
+  const need = (k) => a[k] === 'required';
+  if (need('first') && !g.firstName) return no('first', a.last === 'off' ? 'Please tell us your name.' : 'Please tell us your first name.');
+  if (need('last') && !g.lastName) return no('last', 'Please tell us your last name.');
+  if (a.mobile !== 'off') {
+    if (!g.phone) { if (need('mobile')) return no('mobile', 'A phone number lets us reach you if anything changes.'); }
+    else if (g.phone.replace(/\D/g, '').length < LINE_DIGITS) return no('mobile', 'Please check your phone number.');
+  }
+  if (a.email !== 'off') {
+    if (!g.email) { if (need('email')) return no('email', 'Please give us your email.'); }
+    else if (!EMAIL_RE.test(g.email)) return no('email', 'Please check your email address.');
+  }
+  if (a.dob !== 'off') {
+    const d = String(p.dob == null ? '' : p.dob).trim();
+    if (!d) { if (need('dob')) return no('dob', 'Please give us your date of birth.'); }
+    else if (cleanDob(d) === null) return no('dob', 'Please check your date of birth.');
+  }
   return null;
 }
 function lineOf(entries, settings, now) {
@@ -7978,7 +7636,7 @@ module.exports = {
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, TURN_BILL, TURN_SOON, turnOf, turnBackRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, TURN_BILL, TURN_SOON, turnOf, turnBackRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, ASK_FIELDS, asksOf, onlineAsks, emailOk, nightOfRes, onlineRefusal, onlineGuest, guestName, cleanDob, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
@@ -7992,6 +7650,482 @@ module.exports = {
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./availability'] = module;
+})();
+</script>
+<script>
+(function () {
+  var module = { exports: {} };
+  (function (module, exports, require, __dirname, process) {
+// db.js
+// The "database" for the reservations system — the same shape of thing the
+// POS uses, so a venue that already runs restaurant-pos finds nothing new:
+//   - data/store.json        = the shipped SEED. Tracked in git, read once.
+//   - data/store.local.json  = this venue's LIVE data. Gitignored. The app
+//                              reads and writes ONLY this file at runtime.
+// First run seeds the live file from the template; after that the venue owns
+// it, and a `git pull` can never touch what has been booked.
+
+const fs = require('fs');
+const path = require('path');
+
+const DATA_DIR = path.join(__dirname, 'data');
+const DB_FILE = path.join(DATA_DIR, 'store.local.json');
+const SEED_FILE = path.join(DATA_DIR, 'store.json');
+
+// Statuses a booking moves through, in the order a night actually goes. Five
+// of them are the POS's own (its floor knows booked / seated / done /
+// cancelled / no-show); the other six are ours and fold down to one of those
+// when mirrored to the POS (see posStatus in pos.js).
+//
+// PARTLY IS NOT A DIFFERENT PLACE, IT IS A DIFFERENT AMOUNT. Two of a six
+// through the door is still "they are here"; four of a six sat down is still
+// "somebody is on that table". So `part-arrived` and `part-seated` wear the
+// same colour as the thing they are part of and fold to the same POS status —
+// what they change is the WORD, which is the one thing a host needs, because
+// a table that is half down is a table you cannot yet run the order on.
+//
+// CHECK AND PAID ARE THE END OF THE SITTING, NOT THE END OF THE BOOKING. The
+// party is still in the chair; what has changed is that the table has started
+// to turn. That is the question a host asks the room forty times a night —
+// "which of these is nearly free" — and until now the floor had no answer to
+// it between `seated` and an empty table.
+const STATUSES = [
+  'booked', 'confirmed',
+  'part-arrived', 'arrived',
+  'part-seated', 'seated',
+  'check', 'paid',
+  'done', 'cancelled', 'no-show',
+];
+// A booking that still holds its table. Paid and still sitting is still
+// sitting: the table is theirs until somebody marks them LEFT.
+const LIVE_STATUSES = ['booked', 'confirmed', 'part-arrived', 'arrived', 'part-seated', 'seated', 'check', 'paid'];
+// A booking with somebody down at the table. The sitting has begun, so the
+// table is held past its turn time, the till's orders on it are this
+// booking's, and the online cancel is closed.
+const SAT_STATUSES = ['part-seated', 'seated', 'check', 'paid'];
+const SOURCES = ['staff', 'online', 'walk-in', 'pos'];
+const TAGS = ['VIP', 'Birthday', 'Anniversary', 'Allergy', 'Pram', 'Wheelchair', 'Window', 'Quiet', 'High chair', 'Large group'];
+// Where a notify entry can be. 'waiting' and 'told' are both live (told = we
+// rang them and got no answer, the waitlist's 'notified' by another name);
+// 'booked' and 'removed' are dead. Expiry is NOT a status: an entry whose
+// date has passed is simply not live, read-time, with nothing written.
+const NOTIFY_STATUSES = ['waiting', 'told', 'booked', 'removed'];
+
+// Fallback floor when no POS is linked: the POS's own default tables, same
+// ids, so linking later maps every booking onto the real floor unchanged.
+// The fallback floor is a ROOM, not a list. It carries the POS's own layout
+// maths verbatim — x/y are the CENTRE of a table as a percentage of a 900x560
+// canvas, width/height are percentages of each axis, rotation is degrees — so
+// a venue with no POS gets the same drawing the linked one does, and the same
+// drawing is what Settings arranges. Without geometry the Floor view can only
+// deal the tables out in reading order, and a room that is not the room is
+// worse than no room: a host reads position before they read a number.
+const T = (id, label, seats, x, y, width, height, shape) =>
+  ({ id, label, seats, x, y, width, height, shape: shape || 'rect', rotation: 0 });
+const D = (id, decorType, x, y, width, height) =>
+  ({ id, type: 'decor', decorType, x, y, width, height, rotation: 0 });
+const DEFAULT_TABLES = [
+  D('w1', '', 50, 2, 95, 0.5), D('w2', '', 2.2, 50, 0.35, 95),
+  D('w3', '', 97.8, 50, 0.35, 95), D('w4', '', 50, 98, 95, 0.5),
+  D('bar', 'bar', 24, 11, 34, 6), D('pass', 'pass', 79, 10, 24, 5.5),
+  T('t1', '1', 2, 11, 30, 8, 11), T('t2', '2', 2, 11, 48, 8, 11),
+  T('t3', '3', 2, 11, 66, 8, 11), T('t4', '4', 2, 11, 84, 8, 11),
+  T('t5', '5', 4, 36, 34, 12, 15), T('t6', '6', 4, 36, 60, 12, 15),
+  T('t7', '7', 4, 57, 34, 12, 15), T('t8', '8', 4, 57, 60, 12, 15),
+  T('t9', '9', 6, 81, 36, 14, 21, 'circle'), T('t10', '10', 6, 81, 70, 14, 21, 'circle'),
+  T('t11', '11', 6, 40, 86, 20, 10),
+];
+const DEFAULT_FLOORPLANS = [{ id: 'fp1', name: 'Main', tables: DEFAULT_TABLES }];
+
+const DEFAULT_SETTINGS = {
+  venueName: '',
+  venueAddress: '',
+  venuePhone: '',
+  // When each day of the week takes bookings. days: 0=Sun … 6=Sat.
+  services: [
+    { id: 'sv1', name: 'Lunch', days: [0, 1, 2, 3, 4, 5, 6], start: '11:30', end: '14:30' },
+    { id: 'sv2', name: 'Dinner', days: [0, 1, 2, 3, 4, 5, 6], start: '17:00', end: '21:30' },
+  ],
+  // Dated overrides of the weekly pattern above: Christmas Day shut, New
+  // Year's Eve on one late sitting. One entry a date:
+  //   { id, date: 'YYYY-MM-DD', closed: bool, note: '', services: [{ id, name, start, end }] }
+  // `closed: true` implies no windows, and a window-less entry IS closed.
+  exceptions: [],
+  slotMinutes: 15,          // bookings start on these
+  defaultDuration: 90,      // minutes a table is held (the POS's sitting length wins when linked)
+  durationByParty: [        // bigger tables sit longer
+    { upTo: 2, minutes: 75 }, { upTo: 4, minutes: 90 }, { upTo: 8, minutes: 120 }, { upTo: 99, minutes: 150 },
+  ],
+  maxPartySize: 12,
+  seatSlack: 2,             // a table may have this many seats more than the party
+  // WHICH TABLES ACTUALLY PUSH TOGETHER. A fact about the furniture, so the
+  // only place it can come from is the venue — the till has no stored list
+  // either, its own "combine" being a live ticket merge a waiter does in the
+  // moment. Keyed on the POS's own table ids, so if the till ever grows a
+  // list this one is deleted rather than migrated.
+  //   [{ id, tables: [tableId, …], seats }]
+  // `seats` is STATED, not summed: two four-tops pushed together are usually
+  // eight and sometimes six, because the join eats a setting at each end. 0
+  // means nobody said, and availability.js falls back to the sum.
+  tableCombos: [],
+  // §§ THE TIMELINE'S OWN RULES — what a drag may do, and what it says first.
+  // The drop is one motion with no Save key to think at, so every one of
+  // these decides something a host cannot take back by hesitating. They live
+  // in the settings rather than in the code because a venue that runs two
+  // sittings a table wants the guard rails a venue running one does not.
+  timeline: {
+    drag: true,           // a block can be picked up at all
+    moveTime: true,       // a drag may change the hour at all
+    pinSeated: true,      // a party already sitting keeps its hour whatever the drag says
+    clearTable: true,     // a drop on the No table lane takes the booking's table away
+    join: true,           // a drop may land a stated COMBINATION, not only the lane itself
+    laneOrder: 'number',  // the lanes run in table order: 'number' | 'seats'
+    openAt: 'now',        // where an opened timeline rests: 'now' | 'first' | 'start'
+    onClash: 'warn',      // another booking already holds that table: 'warn' | 'refuse'
+    onSmall: 'refuse',    // the tables seat fewer than the party: 'refuse' | 'warn'
+    snapMinutes: 0,       // the grid a drop lands on. 0 is the venue's own slot
+    holdMs: 250,          // a finger holds this long before a block lifts
+    showFinished: false,  // draw left, cancelled and no-show as well
+  },
+  // 0 = off. `night` and `week` are the Flow's own limits for one slot:
+  // { 'YYYY-MM-DD': { 'HH:MM': covers } } and { '0'..'6': { 'HH:MM': covers } }.
+  pacing: { maxCoversPer15: 0, maxBookingsPer15: 0, night: {}, week: {} },
+  // What the venue has recoloured. A key here is a CSS custom property the
+  // client re-points at boot; a key ABSENT (or '') means the stylesheet's own
+  // token stands. The accent is NOT in here — it comes from the POS with the
+  // rest of the theme, and a second source for it is exactly what POS-LINK.md
+  // forbids.
+  statusColours: {},
+  online: {
+    enabled: true,
+    minNoticeMinutes: 60,
+    maxDaysAhead: 60,
+    maxPartySize: 8,
+    largerPartyMessage: 'For groups of more than 8 please call us.',
+    notesPrompt: 'Allergies, occasions, pram or high chair — anything we should know?',
+    holdTables: false,      // online bookings get a table when staff assign one, unless this is on
+    notifyList: true,       // a full day offers "tell me if something opens" instead of a dead end
+    // GUESTS JOIN THE LINE FROM THEIR PHONE (owner, 8 Oct): a code on the
+    // desk's screen and a sign at the door; the guest adds themselves to the
+    // waitlist and is quoted the desk's own wait. Off, the code goes and the
+    // guests' page says "Ask at the door".
+    line: true,
+    // ONLINE BOOKING ASKS FOR WHAT THE VENUE SAYS (owner, 12 Oct): each of
+    // the five Off, Optional or Required — av.asksOf() is the rule, and
+    // this is the form as it always was.
+    asks: { first: 'required', last: 'off', mobile: 'required', email: 'optional', dob: 'off' },
+  },
+  noShowAfterMinutes: 30,   // the "mark no-show" prompt appears this long after the time
+  dayStartsAt: 4,           // the trading day rolls at 4am, like the POS
+  // The POS link. baseUrl like http://192.168.1.42:3000 (the POS server).
+  // `useOrders` is the one read that is not on the 8-second pass: off means no
+  // order is ever fetched from the till, and no money is shown anywhere.
+  // `useMenus` off means the desk's set menus are the local `setMenus` list
+  // below, even while the POS is linked.
+  pos: { enabled: false, baseUrl: '', pushBookings: true, pullStatus: true, useFloor: true, useOrders: true, useMenus: true, useCustomers: true },
+  // The booking relay (cloud/, CLOUD-LINK.md): where guests book when they are
+  // not on the venue's wifi. baseUrl like https://book.example.com; the token
+  // is the one the relay showed once when the venue was created. It lives in
+  // store.local.json, which is gitignored, and is never sent back to a screen.
+  // `office` on means the relay also holds a copy of the book for a phone team
+  // in another building (CLOUD-LINK.md) — switched on and off from the desk.
+  relay: { enabled: false, baseUrl: '', token: '', office: false },
+  // EMAILS FROM THE RELAY (owner, 12 Oct): the relay sends them through the
+  // venue's own Postmark key (CLOUD-LINK.md). The key lives here and on the
+  // relay, never on a screen. `remindAt`: the day-before email, venue time.
+  // `since`: stamped when the switch goes on, so only bookings made from then
+  // are told "Your table at" — switching on never mails the whole book.
+  mail: { enabled: false, key: '', from: '', remindAt: '10:00', since: 0 },
+};
+
+const DEFAULT_DATA = {
+  settings: DEFAULT_SETTINGS,
+  floorPlans: DEFAULT_FLOORPLANS, // replaced by the POS's when linked
+  // The venue's own set menus — "Christmas menu", the eight-course tasting —
+  // as [{ id: 'sm…', name }]: the fallback the desk edits in Settings, with
+  // the POS's own combos winning whenever the link is on (see `posCombos`).
+  setMenus: [],
+  // The POS's set menus (its combos), cached on the last moved pass, as
+  // [{ id: 'c…', name }]. Declared here — unlike the older `posSettings`
+  // cache — so /api/set-menus can read it without a branch.
+  posCombos: [],
+  theme: { accent: '#3692E7', mode: 'auto' },
+  reservations: [],
+  // The waitlist — the line at the door tonight.
+  //   { id, name, phone, partySize, quotedMin, notes, status, addedAt,
+  //     addedBy, source, ref }
+  // `source` is WHERE it came from, in the record's one vocabulary (SOURCES):
+  // 'staff' (the host typed it) or 'online' (the guest joined the line on
+  // their own phone, here or on the relay). Only a guest who joined from
+  // their phone has a `ref`: their page holds it. `quotedMin` is the wait
+  // they were told, and null is "nothing frees tonight", not "no wait".
+  waitlist: [],
+  // What became of a guest who joined the line from their phone and is no
+  // longer in it — seated, left, removed by the host, or refused — so their
+  // page can say so: { ref, how, at }. Tonight's only matter; a day is kept.
+  lineGone: [],
+  // People waiting for a cancellation, and the cancellations themselves.
+  //   notify   { id, ref, name, phone, email, partySize, date, from, to,
+  //              wanted, notes, source, status, createdAt, createdBy,
+  //              notifiedAt, bookedAt, bookingId }
+  //   openings { id, resId, date, time, partySize, tableId, seats, fromName,
+  //              reason, freedAt, dismissedAt }
+  // An opening is an EVENT — a deleted booking leaves nothing to derive it
+  // from — so it is stored. Whether it is still worth acting on is never
+  // stored: av.openingOpen() recomputes it against the live bookings.
+  notify: [],
+  openings: [],
+  guests: [],
+  auditLog: [],
+  // `floorFrom`: the till address the floor plans last came from, '' while
+  // the room is the desk's own — the till's joins are the combinations only
+  // then (daily round, 9 Oct).
+  posState: { lastSyncAt: 0, lastError: '', version: null, connected: false, wiped: 0, floorFrom: '' },
+  // The relay link's last word: whether it answered, the booking page's
+  // address it reported, and when the desk last told it what it may sell.
+  // `mailKeyHash`: the Postmark key the relay last took, as a hash, so the
+  // key itself crosses once (relaysync.mailKeyOwed).
+  relayState: { connected: false, lastSeenAt: 0, lastError: '', bookingPath: '', grantAt: 0, grantHash: '', collected: 0, released: [], gone: [], officeOffOwed: false, closeOwed: false, closesOwed: [], group: null, groupOwed: [], groupAsked: [], mailKeyHash: '' },
+  // What was asked of each of tonight's and tomorrow's guests, by booking id:
+  //   { emailedAt, remindedAt, textedAt }
+  // — the booked email and the day-before one (off the relay's ping), and
+  // the desk's own Text on Confirm tomorrow. NOT on the booking: a stamp
+  // there moves its updatedAt, and the office's next change would be refused
+  // as changed since. A night gone by is dropped.
+  confirmAsk: {},
+};
+
+function ensureStore() {
+  if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+  if (!fs.existsSync(DB_FILE)) {
+    let seed;
+    try {
+      seed = fs.readFileSync(SEED_FILE, 'utf-8');
+      JSON.parse(seed);
+    } catch (e) {
+      seed = JSON.stringify(DEFAULT_DATA, null, 2);
+    }
+    fs.writeFileSync(DB_FILE, seed);
+  }
+}
+
+function statMs(p) { try { return fs.statSync(p).mtimeMs; } catch (e) { return -1; } }
+
+// One process, one writer: keep the parsed store in memory and only re-read
+// when the file changed underneath us (a restored backup, a hand edit).
+//
+// "One process" is not a hope — lock.js enforces it at startup. Two copies of
+// this app on one data folder would each hold their own parsed store and
+// write the whole file back, so the second to write would erase everything
+// the first had booked, in silence. That is why the lock exists.
+let _cache = null;
+let _cacheMtime = -1;
+
+function readData() {
+  ensureStore();
+  const m = statMs(DB_FILE);
+  if (_cache !== null && m === _cacheMtime) return _cache;
+  let data;
+  try {
+    data = JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+  } catch (e) {
+    // A half-written file: fall back to the .bak sibling before giving up.
+    try { data = JSON.parse(fs.readFileSync(DB_FILE + '.bak', 'utf-8')); } catch (e2) { data = JSON.parse(JSON.stringify(DEFAULT_DATA)); }
+  }
+  migrate(data);
+  _cache = data;
+  _cacheMtime = statMs(DB_FILE);
+  return data;
+}
+
+// Every key the app expects exists after this, whatever version wrote the file.
+function migrate(data) {
+  for (const k of Object.keys(DEFAULT_DATA)) {
+    if (data[k] === undefined) data[k] = JSON.parse(JSON.stringify(DEFAULT_DATA[k]));
+  }
+  const s = data.settings;
+  for (const k of Object.keys(DEFAULT_SETTINGS)) {
+    if (s[k] === undefined) s[k] = JSON.parse(JSON.stringify(DEFAULT_SETTINGS[k]));
+  }
+  for (const k of Object.keys(DEFAULT_SETTINGS.online)) if (s.online[k] === undefined) s.online[k] = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.online[k]));
+  if (!s.online.asks || typeof s.online.asks !== 'object') s.online.asks = {};
+  for (const k of Object.keys(DEFAULT_SETTINGS.online.asks)) if (s.online.asks[k] === undefined) s.online.asks[k] = DEFAULT_SETTINGS.online.asks[k];
+  for (const k of Object.keys(DEFAULT_SETTINGS.pos)) if (s.pos[k] === undefined) s.pos[k] = DEFAULT_SETTINGS.pos[k];
+  for (const k of Object.keys(DEFAULT_SETTINGS.relay)) if (s.relay[k] === undefined) s.relay[k] = DEFAULT_SETTINGS.relay[k];
+  if (!s.mail || typeof s.mail !== 'object') s.mail = {};
+  for (const k of Object.keys(DEFAULT_SETTINGS.mail)) if (s.mail[k] === undefined) s.mail[k] = DEFAULT_SETTINGS.mail[k];
+  if (!data.confirmAsk || typeof data.confirmAsk !== 'object' || Array.isArray(data.confirmAsk)) data.confirmAsk = {};
+  for (const k of Object.keys(DEFAULT_DATA.relayState)) if (data.relayState[k] === undefined) data.relayState[k] = DEFAULT_DATA.relayState[k];
+  // A store from before the floor was stamped: a pass that succeeded took the
+  // floor from the address the link holds, unless the floor was never taken.
+  if (data.posState.floorFrom === undefined) {
+    data.posState.floorFrom = data.posState.version && s.pos.baseUrl && s.pos.useFloor !== false ? String(s.pos.baseUrl) : '';
+  }
+  for (const k of Object.keys(DEFAULT_SETTINGS.pacing)) if (s.pacing[k] === undefined) s.pacing[k] = JSON.parse(JSON.stringify(DEFAULT_SETTINGS.pacing[k]));
+  for (const k of ['night', 'week']) if (!s.pacing[k] || typeof s.pacing[k] !== 'object' || Array.isArray(s.pacing[k])) s.pacing[k] = {};
+  // The loop above already gives an older store `exceptions: []`; this catches
+  // a hand-edited or half-written file that has the key but not an array.
+  if (!Array.isArray(s.exceptions)) s.exceptions = [];
+  if (!Array.isArray(s.tableCombos)) s.tableCombos = [];
+  if (!s.timeline || typeof s.timeline !== 'object' || Array.isArray(s.timeline)) s.timeline = {};
+  for (const k of Object.keys(DEFAULT_SETTINGS.timeline)) if (s.timeline[k] === undefined) s.timeline[k] = DEFAULT_SETTINGS.timeline[k];
+  if (!s.statusColours || typeof s.statusColours !== 'object' || Array.isArray(s.statusColours)) s.statusColours = {};
+  for (const k of RETIRED_COLOUR_KEYS) delete s.statusColours[k];
+  // The desk has no users any more — no sign-in, no PIN, nobody to pick. An
+  // older store still carries the list, and a PIN that nothing checks is only
+  // a credential waiting to leak, so it goes on the first read after update.
+  delete data.staff; delete data.posStaff; delete s.pos.useStaff;
+  // "Walk-in" is not a person. Every walk-in with no phone was filed on one
+  // card under that name, which then read as a regular with everybody's
+  // visits (daily round, 1 Oct). A card nobody wrote on goes, and its
+  // bookings stand on no card, as they do now when they are made.
+  const anon = data.guests.find(g => g.key === 'n:walk-in' && !g.notes && !(g.tags || []).length && !g.dob);
+  if (anon) {
+    data.guests = data.guests.filter(g => g !== anon);
+    for (const r of data.reservations) if (r.guestId === anon.id) r.guestId = null;
+  }
+  for (const g of data.guests) {
+    if (g.dob === undefined) g.dob = '';
+    if (!Array.isArray(g.tags)) g.tags = [];
+  }
+  for (const r of data.reservations) {
+    if (!r.status) r.status = 'booked';
+    if (!r.source) r.source = 'staff';
+    if (!Array.isArray(r.tags)) r.tags = [];
+    if (r.durationMin === undefined) r.durationMin = null;
+    if (r.updatedAt === undefined) r.updatedAt = r.createdAt || Date.now();
+    // The booking's own change history. There is no DEFAULT_RESERVATION to
+    // look for: the per-row default lives here and in the four creation
+    // paths in server.js/sync.js, which each set `events` explicitly. Old
+    // rows start empty on purpose — an append-only log nobody wrote is a lie,
+    // and the popup's "Made by X · date" line already carries the creation.
+    if (!Array.isArray(r.events)) r.events = [];
+    // The set menu this booking is committed to: null, or { id, name }. A
+    // very early hand-edited file may hold a bare string; the name is the
+    // identity, so a string becomes one with no POS id behind it.
+    if (typeof r.setMenu === 'string') r.setMenu = r.setMenu.trim() ? { id: null, name: r.setMenu.trim() } : null;
+    if (r.setMenu === undefined) r.setMenu = null;
+  }
+  // The generic loop above gives an older store `notify` and `openings`; these
+  // fill in the per-record fields a hand-edited or half-written row may lack.
+  if (!Array.isArray(data.waitlist)) data.waitlist = [];
+  // The first build of the line wrote 'desk' and 'phone'; the house's words
+  // for the same two places are 'staff' and 'online' (review, 8 Oct).
+  for (const w of data.waitlist) if (w) w.source = w.source === 'phone' || w.source === 'online' ? 'online' : 'staff';
+  if (!Array.isArray(data.lineGone)) data.lineGone = [];
+  if (!Array.isArray(data.notify)) data.notify = [];
+  if (!Array.isArray(data.openings)) data.openings = [];
+  for (const e of data.notify) {
+    if (!e.status) e.status = 'waiting';
+    if (!e.source) e.source = 'staff';
+    if (!e.wanted) e.wanted = e.from || '';
+    if (e.notifiedAt === undefined) e.notifiedAt = null;
+    if (e.bookingId === undefined) e.bookingId = null;
+  }
+  for (const o of data.openings) {
+    if (o.dismissedAt === undefined) o.dismissedAt = null;
+    if (o.seats === undefined) o.seats = 0;
+  }
+  return data;
+}
+
+// Every write this process made, counted: two writes inside one tick of the
+// file system's clock share a last-write time, and a thing worked out once
+// per version of the store (the night's line) must not outlive either.
+let _writes = 0;
+function writeData(data) {
+  ensureStore();
+  const json = JSON.stringify(data, null, 2);
+  const tmp = DB_FILE + '.tmp';
+  fs.writeFileSync(tmp, json);
+  fs.renameSync(tmp, DB_FILE);
+  try { fs.writeFileSync(DB_FILE + '.bak.tmp', json); fs.renameSync(DB_FILE + '.bak.tmp', DB_FILE + '.bak'); } catch (e) {}
+  _cache = data;
+  _cacheMtime = statMs(DB_FILE);
+  _writes++;
+}
+function writeCount() { return _writes; }
+
+// What the client's poll asks instead of fetching everything: the store's
+// last-write time. Any write moves it.
+function dataVersion() { return { store: statMs(DB_FILE) }; }
+
+function newId(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+// A guest's date of birth, off the wire. The YEAR IS OPTIONAL and that is the
+// point: a venue is told "the twelfth of March" far more often than it is told
+// a year, and a card that refuses the day because it was not given the year is
+// a card nobody fills in. A missing year is stored as 0000, which is not a
+// date anyone was born on and cannot be mistaken for one.
+//
+// Returns '' for "no date of birth", a 'YYYY-MM-DD' string, or null when what
+// came in was not a date at all — so a caller can tell "cleared" from "wrong".
+// The rule itself is availability.js's (av.cleanDob), so the card and an
+// online booking's date of birth are one rule.
+const cleanDob = require('./availability').cleanDob;
+
+// THE THREE COLOURS BOTH APPS PAINT ON THE SAME TABLE.
+//
+// The till's whole table-colour vocabulary is three words — `available`,
+// `occupied` and `billPrinted` — and each is a table state this app draws
+// too, on the SAME floor plan, pulled from the same POS. A table that is
+// green on the till and violet on the desk is one table saying two things,
+// so those three come FROM the till and are not editable here: the accent
+// already works that way, and this is the same rule, not a new one.
+//
+// The other eight (booked, confirmed, arrived, paid, left, cancelled,
+// no-show, due, over) stay OURS, because the till has no notion of any of
+// them and so has nothing to disagree with. `free` is not in either list:
+// on this floor a free table is the plain surface, never a colour.
+const TILL_COLOURS = { seated: 'occupied', check: 'billPrinted' };
+// Which of OUR status keys the till really paints: the ones it sends a colour
+// for. A till sending them as null paints nothing, and treating it as owning
+// them dropped the venue's own Seated and Bill on every colour save.
+function tillOwns(tsc) { return Object.keys(TILL_COLOURS).filter(k => !!(tsc && tsc[TILL_COLOURS[k]])); }
+
+// Reading a venue's colour code off the wire. Pure, so the rule that decides
+// whether a colour is kept can be read and tested without a request: a key we
+// do not know how to re-point, or a value that is not a full six-digit hex, is
+// REFUSED rather than dropped — a colour that silently did not save is a
+// colour somebody spends a service squinting at. An empty value is not an
+// error; it means "give me the built-in back", so it is simply left out.
+function cleanColours(input) {
+  if (!input || typeof input !== 'object' || Array.isArray(input)) {
+    return { ok: false, error: 'Colours must be sent as an object' };
+  }
+  const out = {};
+  for (const [k, v] of Object.entries(input)) {
+    // A slot that was offered once and has gone: dropped, not refused, so a
+    // tablet still showing the old card can save the colours that ARE ours.
+    if (RETIRED_COLOUR_KEYS.includes(k)) continue;
+    if (!Object.prototype.hasOwnProperty.call(COLOUR_KEYS, k)) {
+      return { ok: false, error: `There is nothing called "${k}" to colour` };
+    }
+    const hex = String(v == null ? '' : v).trim();
+    if (!hex) continue;
+    if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return { ok: false, error: `${k} needs a colour like #2F74C9` };
+    out[k] = hex.toUpperCase();
+  }
+  return { ok: true, colours: out };
+}
+
+// Due was a colour of its own until the floor started painting a waiting
+// table in its booking's Booked or Confirmed — a stored one is dropped.
+const RETIRED_COLOUR_KEYS = ['due'];
+// Every colour a venue may change, and the custom property each one
+// re-points. `free` and `joined` are deliberately absent: free is the plain
+// surface, and joined is the accent ring, which follows the POS.
+const COLOUR_KEYS = {
+  booked: '--st-booked', confirmed: '--st-confirmed', arrived: '--st-arrived',
+  seated: '--st-seated', check: '--st-check', paid: '--st-paid',
+  done: '--st-done', cancelled: '--st-cancelled', 'no-show': '--st-noshow',
+  over: '--st-over',
+  online: '--src-online', 'walk-in': '--src-walkin', pos: '--src-pos',
+};
+module.exports = { readData, writeData, dataVersion, writeCount, newId, migrate, TILL_COLOURS, tillOwns, STATUSES, LIVE_STATUSES, SAT_STATUSES, NOTIFY_STATUSES, SOURCES, TAGS, COLOUR_KEYS, cleanColours, cleanDob, DEFAULT_DATA, DEFAULT_SETTINGS, DEFAULT_TABLES, DB_FILE, DATA_DIR };
+
+  })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
+  window.__RESV__.modules['./db'] = module;
 })();
 </script>
 <script>
@@ -8559,7 +8693,10 @@ function welcomeFor(g, bookings, r) {
   // disagree about the same guest.
   const al = av.allergyOf(r, guest);
   const allergy = al ? { text: [al.notes, al.guestNotes].filter(Boolean).join(' · '), tagged: !!al.tagged } : null;
-  const bday = guest ? daysToBirthday(guest.dob, day) : null;
+  // The card's own date of birth, else the one this booking brought from the
+  // guests' page (Online booking asks for, 12 Oct) — the booking's own, so
+  // it speaks even with no card.
+  const bday = daysToBirthday((guest && guest.dob) || r.dob, day);
   const birthdayIn = bday !== null && bday <= BIRTHDAY_WINDOW ? bday : null;
   if (!before.length && !vip && !occasion && !allergy && !needs.length && birthdayIn === null) return null;
   const lastDay = before.length ? before[0].time.slice(0, 10) : null;
@@ -8692,7 +8829,42 @@ function guestLensCounts(guests, today) {
   return out;
 }
 
+// §§ CONFIRM TOMORROW (v50, r64). Tomorrow NIGHT's live bookings still to
+// come — booked, or confirmed already — by time: the ones to confirm, and the
+// ones that have, folded under them. One PERSON is one text (personKey: the
+// phone, then the email, never a name — two Vellas are two people), so each
+// row carries every id that text covers and the other bookings it names; the
+// first of a person's bookings leads. `asked` is the desk's confirmAsk: the
+// day-before email off the relay (`emailedAt` here is when it went) and the
+// desk's own Text, which is the whole person's.
+function confirmList(rows, settings, now, asked) {
+  asked = asked || {};
+  const tomorrow = av.addDays(av.lineNight(settings, now || new Date()), 1);
+  const mine = (rows || []).filter(r => r && ['booked', 'confirmed'].includes(r.status) && r.source !== 'walk-in' && av.nightOfRes(settings, r) === tomorrow)
+    .sort((a, b) => String(a.time).localeCompare(String(b.time)));
+  const toDo = mine.filter(r => r.status === 'booked'), done = mine.filter(r => r.status === 'confirmed');
+  const people = new Map();
+  for (const r of toDo) { const k = personKey(r) || 'id:' + r.id; if (!people.has(k)) people.set(k, []); people.get(k).push(r); }
+  const line = (r) => {
+    const group = people.get(personKey(r) || 'id:' + r.id) || [r];
+    const a = asked[r.id] || {};
+    return {
+      id: r.id, name: r.name || '', partySize: Number(r.partySize) || 1, time: av.hhmmOf(r.time), phone: r.phone || '', status: r.status,
+      emailedAt: Number(a.remindedAt) || 0, textedAt: Math.max(0, ...group.map(x => Number((asked[x.id] || {}).textedAt) || 0)),
+      lead: group[0] === r, ids: group.map(x => x.id),
+      also: group.filter(x => x !== r).map(x => ({ time: av.hhmmOf(x.time), partySize: Number(x.partySize) || 1 })),
+    };
+  };
+  const covers = (list) => list.reduce((n, r) => n + (Number(r.partySize) || 0), 0);
+  return {
+    date: tomorrow, toConfirm: toDo.length, confirmed: done.length, people: covers(toDo), confirmedPeople: covers(done),
+    rows: toDo.map(line),
+    done: done.map(r => ({ id: r.id, name: r.name || '', partySize: Number(r.partySize) || 1, time: av.hhmmOf(r.time), phone: r.phone || '', status: r.status })),
+  };
+}
+
 module.exports = {
+  confirmList,
   personKey, tillCustomerFor, tillOnly,
   fold, digits, prepareQuery, matches, relevanceSort, searchReservations,
   MIN_CHARS, MIN_PHONE_DIGITS, DEFAULT_LIMIT, MAX_LIMIT,
@@ -9576,6 +9748,7 @@ module.exports = { ready, ping, grant, pull, ack, officeOn, officeOff, group, gr
 //
 // No names, no phones, no notes cross in the grant. The room is numbers.
 
+const crypto = require('crypto');
 const av = require('./availability');
 
 // Always this many days, from today. The relay only REPLACES the dates it is
@@ -9606,6 +9779,9 @@ function infoOf(ctx, opts) {
     // NIGHT it is at the venue: the line at ten past twelve is still the
     // night before's (review, 8 Oct).
     dayStartsAt: av.rollsOf(s) / 60,
+    // What the guests' page asks for (av.onlineAsks), so the relay's page
+    // and its route ask what the desk's do.
+    asks: av.onlineAsks(s),
   };
 }
 
@@ -9704,7 +9880,80 @@ function grantsFor(ctx, opts) {
   out.line = lineGrant(ctx, now);
   // OUR OTHER VENUES: the slim copy, only while this desk is in a group.
   out.group = opts.group ? groupCopyOf(ctx, now) : null;
+  // EMAILS FROM THE RELAY: who is due one, and from whom — never the key,
+  // which the pass adds only when it is owed (mailKeyOwed).
+  out.mail = mailGrant(ctx, now);
   return out;
+}
+
+// ---------- emails ----------
+//
+// EMAILS FROM THE RELAY (owner, 12 Oct: "there should be an email
+// confirmation"). The desk never sends mail — it has no road out but the
+// relay's, and a venue's computer is no mail server. It decides WHO is due
+// one, and the relay sends through the venue's own Postmark key and says
+// what it sent on the next ping. Two kinds:
+//
+//   booked  "Your table at <venue>": a booking made since the switch went on
+//           (`mail.since` — switching on never mails the whole book), still
+//           to come, booked or confirmed, with an address, never a walk-in
+//   remind  the day before, with ONE key, Confirm: tomorrow night's bookings
+//           still booked. The relay sends it from `remindAt` that day.
+//
+// Each once: what was sent is stamped in the desk's `confirmAsk`, never on
+// the booking — a stamp there would move its `updatedAt`, and the office's
+// next change to it would be refused as "changed while you had it open".
+// Of each only who, the address, how many and when — no phone, no notes.
+const MAIL_MAX = 200;
+function mailOf(ctx, now, asked) {
+  const s = ctx.settings || {}, m = s.mail || {};
+  if (!m.enabled) return [];
+  now = now || new Date();
+  asked = asked || {};
+  const tonight = av.lineNight(s, now), tomorrow = av.addDays(tonight, 1);
+  const since = Number(m.since) || 0;
+  const out = [];
+  for (const r of (ctx.reservations || [])) {
+    if (!r || r.source === 'walk-in' || !av.emailOk(r.email)) continue;
+    const a = asked[r.id] || {}, night = av.nightOfRes(s, r);
+    const one = (kind) => ({ id: r.id, kind, name: String(r.name || '').slice(0, 60), email: String(r.email).trim().slice(0, 120), partySize: Number(r.partySize) || 1,
+      date: av.dayOf(r.time), time: av.hhmmOf(r.time), night, ref: r.ref || '' });
+    if (!a.emailedAt && ['booked', 'confirmed'].includes(r.status) && Number(r.createdAt) >= since && av.timeMs(r.time) > now.getTime()) out.push(one('booked'));
+    if (!a.remindedAt && r.status === 'booked' && night === tomorrow) out.push(one('remind'));
+  }
+  return out.sort((x, y) => x.date.localeCompare(y.date) || x.time.localeCompare(y.time)).slice(0, MAIL_MAX);
+}
+// What rides the grant: off is null, and the relay drops the key and the list.
+function mailGrant(ctx, now) {
+  const m = (ctx.settings || {}).mail || {};
+  if (!m.enabled) return null;
+  return { on: true, from: String(m.from || ''), remindAt: m.remindAt || '10:00', due: mailOf(ctx, now, ctx.confirmAsk || {}), held: mailHeld(ctx, now, ctx.confirmAsk || {}) };
+}
+// The reminded bookings that still stand — booked or confirmed, tonight or
+// later — at the day and time they stand at NOW. The relay thanks a Confirm
+// only for one emailed at that day and time (review, 12 Oct: a booking
+// cancelled at two was "confirmed" that evening). Who, never: an id, a day,
+// a time.
+function mailHeld(ctx, now, asked) {
+  const s = ctx.settings || {};
+  const tonight = av.lineNight(s, now || new Date());
+  const out = [];
+  for (const r of (ctx.reservations || [])) {
+    if (!r || !(asked[r.id] || {}).remindedAt || !['booked', 'confirmed'].includes(r.status)) continue;
+    if (av.nightOfRes(s, r) < tonight) continue;
+    out.push({ id: r.id, date: av.dayOf(r.time), time: av.hhmmOf(r.time) });
+  }
+  return out.slice(0, MAIL_MAX * 5);
+}
+// THE KEY CROSSES ONCE. The desk keeps the hash of the key the relay last
+// took (`relayState.mailKeyHash`); a key the relay has not got is owed, an
+// emptied one is owed as '', and anything else is null — nothing to send.
+// Off owes nothing: the grant's `mail: null` drops it there.
+function mailKeyHash(key) { return key ? crypto.createHash('sha1').update(String(key)).digest('hex') : ''; }
+function mailKeyOwed(m, hash) {
+  if (!m || !m.enabled) return null;
+  const now = mailKeyHash(m.key);
+  return now === (hash || '') ? null : String(m.key || '');
 }
 
 // ---------- our other venues ----------
@@ -10022,6 +10271,15 @@ function decide(item, diary, now) {
     if (!r || ['cancelled', 'no-show', 'done'].includes(r.status)) return 'skip';
     return av.isSat(r) || av.isHere(r) ? 'keep' : 'cancel';
   }
+  //   confirm  the guest pressed Confirm in the day-before email: only a
+  //            booking still `booked`, at the day and time it was emailed —
+  //            one already confirmed, at the door or sat is further on and
+  //            stays; one moved since was not what they confirmed (skip)
+  if (item.kind === 'confirm') {
+    const r = rows.find(x => x.id === p.id);
+    if (!r || r.status !== 'booked' || av.dayOf(r.time) !== p.date || av.hhmmOf(r.time) !== p.time) return 'skip';
+    return 'confirm';
+  }
   if (item.kind === 'edit') {
     //   edit     an office change the desk applies
     //   refuse   one it will not (editRefusal says why)
@@ -10123,9 +10381,16 @@ function bookingFrom(payload, ctx, opts) {
   const held = av.heldBook(ctx, day);
   const stillFree = known && av.freeTables(held, day, hhmm, party).some(t => t.id === payload.tableId);
   const t = stillFree ? { id: payload.tableId } : av.suggestTable(held, day, hhmm, party);
+  // A guest's page asks what the venue says (av.onlineAsks); what it has
+  // switched off since the guest booked is not kept. Never refused here: the
+  // guest was told it is booked. The office's is the desk's own kind.
+  const office = payload.by === 'Office';
+  const asks = av.onlineAsks(ctx.settings);
+  const keep = (k, v) => (office || asks[k] !== 'off' ? v : '');
   return {
-    id: opts.id, name: String(payload.name).trim().slice(0, 60),
-    phone: String(payload.phone || '').trim().slice(0, 30), email: String(payload.email || '').trim().slice(0, 80),
+    id: opts.id, name: String(payload.name || av.guestName(payload)).trim().slice(0, 60),
+    phone: keep('mobile', String(payload.phone || '').trim().slice(0, 30)), email: keep('email', String(payload.email || '').trim().slice(0, 80)),
+    dob: office ? '' : keep('dob', av.cleanDob(payload.dob) || ''),
     partySize: party, time: av.joinTime(day, hhmm), durationMin: null,
     tableId: t ? t.id : null, tableIds: [], notes: String(payload.notes || '').trim().slice(0, 500),
     // A booking the office took on the phone is the desk's own kind of
@@ -10135,7 +10400,7 @@ function bookingFrom(payload, ctx, opts) {
   };
 }
 
-module.exports = { GROUP_GONE, askerRefusal, GROUP_DAYS, groupCopyOf, groupCancelRefusal, GRANT_DAYS, LINE_HOW, lineGrant, lineEntry, officeWasOn, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
+module.exports = { MAIL_MAX, mailOf, mailGrant, mailKeyHash, mailKeyOwed, GROUP_GONE, askerRefusal, GROUP_DAYS, groupCopyOf, groupCancelRefusal, GRANT_DAYS, LINE_HOW, lineGrant, lineEntry, officeWasOn, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relaysync'] = module;
@@ -10360,6 +10625,9 @@ function safeSettings(data) {
     // One whose desk switched its relay link off is not offered (daily
     // round, 10 Oct): its book on the relay is empty and collected by nobody.
     venues: groupOf(data).venues.filter(v => !v.off).map(v => ({ id: v.id, name: v.name })) };
+  // The Postmark key the same: it sends as the venue. "Key saved" is all.
+  const m = s.mail || {};
+  s.mail = { enabled: !!m.enabled, from: m.from || '', hasKey: !!m.key, remindAt: m.remindAt || '10:00' };
   return s;
 }
 app.get('/api/settings', (req, res) => { res.json(safeSettings(readData())); });
@@ -10420,6 +10688,17 @@ app.put('/api/settings', async (req, res) => {
   const bad = av.badWindows(nextServices)[0]
     || (nextExceptions || []).map(x => { const w = av.badWindows(x.services)[0]; return w ? Object.assign({ date: x.date }, w) : null; }).find(Boolean);
   if (bad) return res.status(400).json({ error: (bad.date ? `${bad.date}: ` : '') + bad.says });
+  // What the guests' page asks for: each of the five Off, Optional or
+  // Required and nothing else, refused before a field is written.
+  const asksIn = b.online && b.online.asks;
+  if (asksIn !== undefined && (!asksIn || typeof asksIn !== 'object' || Object.keys(asksIn).some(k => !av.ASK_FIELDS.includes(k) || !['off', 'optional', 'required'].includes(asksIn[k])))) {
+    return res.status(400).json({ error: 'Each detail is Off, Optional or Required' });
+  }
+  // The emails' From is an address, and the day before's hour is HH:MM —
+  // refused, never filled in.
+  const mailIn = b.mail && typeof b.mail === 'object' ? b.mail : null;
+  if (mailIn && mailIn.from !== undefined && String(mailIn.from || '').trim() && !av.emailOk(mailIn.from)) return res.status(400).json({ error: 'The From needs to be an email address' });
+  if (mailIn && mailIn.remindAt !== undefined && !HHMM.test(String(mailIn.remindAt))) return res.status(400).json({ error: 'The day before needs a time like 10:00' });
 
   // The venue's colour code. A key must be one we know how to re-point and a
   // value must be a full six-digit hex or empty — empty meaning "give me the
@@ -10507,6 +10786,7 @@ app.put('/api/settings', async (req, res) => {
     if (o.holdTables !== undefined) s.online.holdTables = !!o.holdTables;
     if (o.notifyList !== undefined) s.online.notifyList = !!o.notifyList;
     if (o.line !== undefined) s.online.line = !!o.line;
+    if (o.asks !== undefined) s.online.asks = av.asksOf(Object.assign({}, s.online.asks, o.asks));
   }
   if (b.noShowAfterMinutes !== undefined) s.noShowAfterMinutes = Math.max(5, Math.min(180, parseInt(b.noShowAfterMinutes) || 30));
   if (b.dayStartsAt !== undefined) { const h = parseInt(b.dayStartsAt, 10); s.dayStartsAt = Number.isFinite(h) && h >= 0 && h <= 12 ? h : 4; }
@@ -10551,6 +10831,17 @@ app.put('/api/settings', async (req, res) => {
     // the office page said "not switched on" (daily round, 4 Oct). Back on,
     // the office is switched on afresh, with a new code, as after a move.
     if (wasOn && !relay.ready(s.relay)) { s.relay.office = false; data.relayState.officeOffOwed = false; }
+  }
+  if (mailIn) {
+    const m = s.mail, wasOn = !!m.enabled;
+    if (mailIn.enabled !== undefined) m.enabled = !!mailIn.enabled;
+    // On from off: only bookings made from now are told "Your table at".
+    if (m.enabled && !wasOn) m.since = Date.now();
+    if (mailIn.from !== undefined) m.from = String(mailIn.from || '').trim().slice(0, 120);
+    if (mailIn.remindAt !== undefined) m.remindAt = String(mailIn.remindAt);
+    // As the relay token: only a key actually typed replaces the saved one.
+    if (typeof mailIn.key === 'string' && mailIn.key.trim()) m.key = mailIn.key.trim().slice(0, 200);
+    if (mailIn.clearKey) m.key = '';
   }
   logAudit(data, staffFromReq(req), 'Updated settings');
   writeData(data);
@@ -10773,6 +11064,10 @@ function touchGuest(data, r) {
   }
   if (r.name && !g.name) g.name = r.name;
   if (r.email && !g.email) g.email = r.email;
+  // A date of birth the guest gave online goes on their card when it has
+  // none — a card keyed on their PHONE only: a card under a name is every
+  // Smith, and one Smith's birthday is not another's.
+  if (r.dob && !g.dob && key.startsWith('p:')) g.dob = r.dob;
   g.lastSeen = Date.now();
   r.guestId = g.id;
   return g;
@@ -11974,7 +12269,7 @@ app.get('/api/public/info', (req, res) => {
   // times. Windowed to the horizon, and the array is capped at 120 on save.
   const today = av.localDay(new Date());
   const horizon = av.addDays(today, s.online.maxDaysAhead || 60);
-  res.json({ venueName: s.venueName || 'Our restaurant', venueAddress: s.venueAddress, venuePhone: s.venuePhone, enabled: !!s.online.enabled, notifyList: !!s.online.notifyList, line: s.online.line !== false, maxPartySize: s.online.maxPartySize, largerPartyMessage: s.online.largerPartyMessage, notesPrompt: s.online.notesPrompt, maxDaysAhead: s.online.maxDaysAhead, services: s.services, exceptions: (s.exceptions || []).filter(x => x.date >= today && x.date <= horizon).map(({ date, closed, note }) => ({ date, closed, note })), theme: data.theme });
+  res.json({ venueName: s.venueName || 'Our restaurant', venueAddress: s.venueAddress, venuePhone: s.venuePhone, enabled: !!s.online.enabled, notifyList: !!s.online.notifyList, line: s.online.line !== false, maxPartySize: s.online.maxPartySize, largerPartyMessage: s.online.largerPartyMessage, notesPrompt: s.online.notesPrompt, asks: av.onlineAsks(s), maxDaysAhead: s.online.maxDaysAhead, services: s.services, exceptions: (s.exceptions || []).filter(x => x.date >= today && x.date <= horizon).map(({ date, closed, note }) => ({ date, closed, note })), theme: data.theme });
 });
 
 app.get('/api/public/availability', (req, res) => {
@@ -12006,13 +12301,15 @@ app.post('/api/public/book', (req, res) => {
   if (!s.online.enabled) return res.status(400).json({ error: 'Online bookings are off. Please call us.' });
   if (publicRateBlocked(req, res)) return;
   const b = req.body || {};
-  const name = String(b.name || '').trim().slice(0, 60);
-  const phone = String(b.phone || '').trim().slice(0, 30);
-  const email = String(b.email || '').trim().slice(0, 80);
+  // ONLINE BOOKING ASKS FOR WHAT THE VENUE SAYS (12 Oct): the one rule,
+  // av.onlineRefusal(), and what is kept is av.onlineGuest()'s — a field the
+  // venue switched off is not stored, the two names are the record's one.
+  const asks = av.onlineAsks(s);
+  const no = av.onlineRefusal(b, asks);
+  if (no) return res.status(no.code).json({ error: no.error, field: no.field });
+  const { name, phone, email, dob } = av.onlineGuest(b, asks);
   const party = parseInt(b.partySize) || 0;
   const day = String(b.date || ''), hhmm = String(b.time || '');
-  if (!name) return res.status(400).json({ error: 'Please tell us your name' });
-  if (!phone) return res.status(400).json({ error: 'Please give us a phone number so we can reach you' });
   if (!(party >= 1)) return res.status(400).json({ error: 'How many people?' });
   if (party > s.online.maxPartySize) return res.status(400).json({ error: s.online.largerPartyMessage || 'Please call us for that many.' });
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !HHMM.test(hhmm)) return res.status(400).json({ error: 'Pick a date and time' });
@@ -12022,6 +12319,7 @@ app.post('/api/public/book', (req, res) => {
   if (!slot) return res.status(400).json({ error: 'That time is not offered' });
   if (!slot.ok) return res.status(409).json({ error: 'That time has just gone. Pick another.' });
   const r = { id: newId('rv'), name, phone, email, partySize: party, time: av.joinTime(day, hhmm), durationMin: null, tableId: s.online.holdTables ? slot.tableId : null, tableIds: [], notes: pos.plainText(b.notes).trim().slice(0, 300), tags: [], setMenu: null, status: 'booked', source: 'online', ref: refCode(), createdAt: Date.now(), updatedAt: Date.now(), createdBy: 'Online' };
+  if (dob) r.dob = dob;
   // Online bookings hold a table anyway when the venue asked for it; otherwise
   // the day's best free table is still noted so the floor can see it coming.
   if (!r.tableId && slot.tableId) r.tableId = slot.tableId;
@@ -12423,9 +12721,30 @@ app.get('/api/today', (req, res) => {
     // one if its party was taken.
     holds: ctx.holds, took: tookFor(deskKeyOf(req)),
     noShows: rows.filter(r => r.status === 'no-show').length,
+    // CONFIRM TOMORROW (v50): tomorrow's still to confirm, for the menu.
+    toConfirm: search.confirmList(data.reservations, ctx.settings, new Date(), data.confirmAsk).toConfirm,
     notify: waitingList.length, openings,
     room: { tables: floor.length, free: count('free'), seated: count('seated'), over: count('over'), due: count('due'), check: count('check'), paid: count('paid') },
   });
+});
+
+// §§ CONFIRM TOMORROW (v50, r64). Tomorrow's bookings nobody has confirmed,
+// by time, with what was asked of each (search.confirmList). Text is the
+// tablet's own messages app, so the desk only hears that it was pressed:
+// stamped in confirmAsk, never on the booking. Yes is the ordinary PUT.
+app.get('/api/confirm-tomorrow', (req, res) => {
+  const data = readData(), s = effectiveSettings(data);
+  res.json(Object.assign(search.confirmList(data.reservations, s, new Date(), data.confirmAsk), { venueName: s.venueName || '' }));
+});
+app.post('/api/confirm-tomorrow/texted', (req, res) => {
+  const ids = Array.isArray(req.body && req.body.ids) ? req.body.ids.slice(0, 20).map(String) : [];
+  if (!ids.length) return res.status(400).json({ error: 'Which bookings were texted?' });
+  const data = readData(), at = Date.now();
+  const known = new Set(data.reservations.map(r => r.id));
+  for (const id of ids) if (known.has(id)) data.confirmAsk[id] = Object.assign({}, data.confirmAsk[id], { textedAt: at });
+  pruneConfirmAsk(data);
+  writeData(data);
+  res.json({ ok: true, at });
 });
 
 // ---------- the POS link ----------
@@ -12875,6 +13194,39 @@ function keepPingGroup(ping) {
   }).filter(a => Date.now() - a.at < 2 * 86400000).slice(-200);
   writeData(data);
 }
+// WHAT THE RELAY SENT, off its ping: the booked email and the day-before
+// one, stamped in `confirmAsk` once each, so neither is asked for again and
+// Confirm tomorrow can say "Emailed 10:02 AM". And a relay that says it has
+// no key while the desk believes it sent one is sent it again.
+function keepMailSent(ping) {
+  const m = ping && ping.mail;
+  if (!m || typeof m !== 'object') return;
+  const data = readData();
+  let moved = false;
+  const ids = new Set(data.reservations.map(r => r.id));
+  for (const x of (Array.isArray(m.sent) ? m.sent : [])) {
+    const k = x && ({ booked: 'emailedAt', remind: 'remindedAt' })[x.kind];
+    if (!k || !ids.has(x.id)) continue;
+    const a = data.confirmAsk[x.id] || {};
+    if (a[k]) continue;
+    data.confirmAsk[x.id] = Object.assign({}, a, { [k]: Number(x.at) || Date.now() });
+    moved = true;
+  }
+  if (m.hasKey === false && data.relayState.mailKeyHash && data.settings.mail && data.settings.mail.key) { data.relayState.mailKeyHash = ''; moved = true; }
+  if (pruneConfirmAsk(data)) moved = true;
+  if (moved) writeData(data);
+}
+// A night gone by is nothing more to ask: its stamps go.
+function pruneConfirmAsk(data) {
+  const s = effectiveSettings(data), tonight = av.lineNight(s, new Date());
+  const keep = new Map(data.reservations.map(r => [r.id, r]));
+  let gone = false;
+  for (const id of Object.keys(data.confirmAsk || {})) {
+    const r = keep.get(id);
+    if (!r || av.nightOfRes(s, r) < tonight) { delete data.confirmAsk[id]; gone = true; }
+  }
+  return gone;
+}
 async function groupPass(cfg) {
   let data = readData();
   const due = (data.relayState.groupOwed || []).filter(o => o.dueAt <= Date.now());
@@ -12975,6 +13327,18 @@ function applyRelayItem(data, item, asWas, relayNow) {
     raiseOpening(data, r, 'cancelled', 'Online');
     recountGuest(data, r.guestId);
     logAudit(data, 'Online', `Guest cancelled online: ${r.name} (${r.time})`);
+  } else if (what === 'confirm') {
+    // THE GUEST PRESSED CONFIRM in the day-before email: the PUT's own path,
+    // by Online, the record's word for the guests' own pages.
+    const r = data.reservations.find(x => x.id === p.id);
+    changeReservation(data, r, { status: 'confirmed' }, 'Online');
+    r.events = history.append(r.events, [history.noteEvent('Online', now, 'Confirmed by email', 'note')]);
+    logAudit(data, 'Online', `${r.name} confirmed by email (${r.time})`);
+  } else if (item.kind === 'confirm' && what === 'skip') {
+    // Confirmed already, at the door, sat, moved or gone: it stays as it is,
+    // and the log says why nothing happened.
+    const r = data.reservations.find(x => x.id === p.id);
+    logAudit(data, 'Online', `${String(p.name || (r && r.name) || 'A guest').slice(0, 60)} confirmed by email, but the booking ${r ? 'is ' + (r.time !== p.date + 'T' + p.time ? 'at another time now' : r.status + ' now') : 'is not in the book any more'} — nothing changed`);
   } else if (what === 'keep') {
     const r = data.reservations.find(x => x.ref === String(p.ref).toUpperCase());
     logAudit(data, 'Online', `${r.name} tried to cancel online, but they are already here — nothing changed`);
@@ -13079,7 +13443,7 @@ async function relayPass(forceGrant) {
         ctx.settings = Object.assign({}, ctx.settings, { online: Object.assign({}, ctx.settings.online, { enabled: false, line: false }) });
         // `closed`: the relay refuses guests' changes from now on — a cancel
         // there would sit in a queue nobody collects (3 Oct).
-        await relay.grant(oc, Object.assign(relaysync.grantsFor(ctx, { now: new Date(), office: false }), { closed: true }));
+        await relay.grant(oc, Object.assign(relaysync.grantsFor(ctx, { now: new Date(), office: false }), { closed: true, mail: null }));
         try { await relay.officeOff(oc); } catch (e) {}
         letGo(old);
         data = readData(); data.relayState.grantHash = ''; writeData(data);
@@ -13101,14 +13465,18 @@ async function relayPass(forceGrant) {
     // refused the minute two desks link, nor applied after they part
     // (review, 10 Oct).
     keepPingGroup(ping);
+    keepMailSent(ping);
     await collectFrom(cfg, ping.waiting, out);
     if (out.changed) kickPos(); // the till's floor hears about them too
     await groupPass(cfg);
     // GRANT: what may be sold from here on, when it changed, and at least
     // hourly so the relay never goes a day thinking the venue has vanished.
     data = readData();
-    const body = relaysync.grantsFor(Object.assign(ctxOf(data), { released: keepRecent(data.relayState.released), gone: keepRecent(data.relayState.gone), waitlist: data.waitlist, lineGone: data.lineGone }),
+    const body = relaysync.grantsFor(Object.assign(ctxOf(data), { released: keepRecent(data.relayState.released), gone: keepRecent(data.relayState.gone), waitlist: data.waitlist, lineGone: data.lineGone, confirmAsk: data.confirmAsk }),
       { now: new Date(), accent: (data.theme && data.theme.accent) || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel, group: groupOf(data).venues.length > 0 });
+    // The Postmark key, only when the relay has not got this one.
+    const keyOwed = relaysync.mailKeyOwed(data.settings.mail, data.relayState.mailKeyHash);
+    if (body.mail && keyOwed !== null) body.mail.key = keyOwed;
     const hash = crypto.createHash('sha1').update(JSON.stringify(body)).digest('hex');
     const st = data.relayState;
     let said = null;
@@ -13125,6 +13493,14 @@ async function relayPass(forceGrant) {
     // thinks it has one — closed and opened again, or wiped. The desk follows
     // the relay, so the switch shows off and switching it on makes a code.
     if (out.granted && cfg.office && said && said.office === false && data.settings.relay) data.settings.relay.office = false;
+    // What the relay now holds of the key: none once the mail is off, the
+    // one just sent — and a relay that answers it has none while one was
+    // sent before (wiped, moved) is sent it again on the next pass.
+    if (out.granted) {
+      if (!body.mail) data.relayState.mailKeyHash = '';
+      else if (body.mail.key !== undefined) data.relayState.mailKeyHash = relaysync.mailKeyHash(body.mail.key);
+      else if (said && said.mail && said.mail.hasKey === false && data.settings.mail.key) data.relayState.mailKeyHash = '';
+    }
     Object.assign(data.relayState, { connected: true, lastSeenAt: Date.now(), lastError: '', bookingPath: (ping.venue && ping.venue.bookingUrl) || data.relayState.bookingPath },
       out.granted ? { grantAt: Date.now(), grantHash: hash } : {}, out.collected ? { collected: (data.relayState.collected || 0) + out.collected } : {});
     writeData(data);
@@ -13199,7 +13575,24 @@ function tidyLists() {
 }
 snapshotIfDue();
 setInterval(() => { snapshotIfDue(); tidyLists(); }, 3600000);
-app.get('/api/export', (req, res) => { res.setHeader('Content-Disposition', 'attachment; filename="reservations-export.json"'); res.json(readData()); });
+// The export is the whole store, and the desk has no sign-in on a wifi the
+// guests are sent to (/book?line=1, the booking page's code): so it carries
+// no secret. The Postmark key sends as the venue and the relay token collects
+// its bookings; the export says one is saved, as Settings does, and no more.
+function exportOf(data) {
+  const s = data.settings || {};
+  const out = Object.assign({}, data, { settings: Object.assign({}, s) });
+  if (s.mail) { const { key, ...mail } = s.mail; out.settings.mail = Object.assign(mail, { hasKey: !!key }); }
+  if (s.relay) { const { token, ...relay } = s.relay; out.settings.relay = Object.assign(relay, { hasToken: !!token }); }
+  // A relay moved from keeps its old token until its closing grant lands.
+  const rs = data.relayState;
+  if (rs) {
+    const bare = (c) => (c && typeof c === 'object') ? (({ token, ...rest }) => rest)(c) : c;
+    out.relayState = Object.assign({}, rs, { closesOwed: (rs.closesOwed || []).map(bare), closeOwed: bare(rs.closeOwed) });
+  }
+  return out;
+}
+app.get('/api/export', (req, res) => { res.setHeader('Content-Disposition', 'attachment; filename="reservations-export.json"'); res.json(exportOf(readData())); });
 
 // ---------- errors never take the desk down ----------
 app.use((err, req, res, next) => {
@@ -14535,6 +14928,7 @@ async function loadView() {
     try { state.wifiOrigin = (await api('/api/lan-info')).origin; } catch (e) {}
   }
   else if (state.view === 'sign') state.sign = await api('/api/line/sign');
+  else if (state.view === 'confirm') { state.confirm = await api('/api/confirm-tomorrow'); state.today = await api('/api/today'); }
 }
 // The list down the left can be the waitlist or the notify list instead of
 // the book, and each keeps its own data: fetched when it is on screen.
@@ -14951,6 +15345,7 @@ function renderMenu() {
   return `<div class="tp-veil" data-act="menu"></div><div class="tp-menu" role="menu">
     ${item('menu-go', 'waitlist', 'Waitlist', t.waiting || 0, state.view === 'today' && state.side === 'waitlist')}
     ${item('menu-go', 'notify', 'Notify', t.openings || 0, state.view === 'today' && state.side === 'notify')}
+    ${item('menu-go', 'confirm', 'Confirm tomorrow', t.toConfirm || 0, state.view === 'confirm')}
     ${item('menu-go', 'sheet', 'Run sheet', 0, state.view === 'today' && state.todayMode === 'sheet')}
     ${item('menu-go', 'guests', 'Guests', 0, state.view === 'guests')}
     ${ps && ps.enabled && ps.baseUrl ? item('to-till', '', 'Open the till', 0, false) : ''}
@@ -14962,6 +15357,7 @@ function renderMenu() {
 function renderPageHead() {
   const name = state.view === 'guests' ? 'Guests' : state.view === 'settings' ? 'Settings'
     : state.view === 'sign' ? 'Sign for the door'
+    : state.view === 'confirm' ? 'Confirm tomorrow'
     : state.view === 'today' && state.todayMode === 'sheet' ? 'Run sheet' : '';
   if (!name) return '';
   return `<div class="pg-head"><button class="pg-back" data-act="menu-go" data-val="desk">${I.left}<span>Tonight</span></button><h1>${esc(name)}</h1>${name === 'Run sheet' ? `<button class="tp-btn" data-act="print-sheet" ${state.sheet && state.sheet.date === state.date ? '' : 'disabled'}>Print</button>`
@@ -15319,6 +15715,7 @@ function renderView() {
     case 'guests': return renderGuests();
     case 'settings': return renderSettings();
     case 'sign': return renderSign();
+    case 'confirm': return renderConfirm();
   }
   return '';
 }
@@ -17802,6 +18199,52 @@ function textOpened(name, size, time, when, venue) {
   return `Hi ${firstName(name)}, a table for ${size} at ${time} ${when} just opened${venue ? ' at ' + venue : ''}. Reply YES and it's yours.`;
 }
 
+// §§ CONFIRM TOMORROW (v50, r64). The quiet hour before service has a job
+// waiting: the menu says how many of tomorrow's bookings nobody has
+// confirmed, and this page lists them by time as docket lines — the time the
+// tab — each with ONE key. Text opens the tablet's own messages app with the
+// words written (smsHref, as the line's Text); once texted, the key is Yes,
+// which marks them Confirmed through the ordinary PUT. One guest with two
+// bookings is one text, and each row says the other ("Also booked 11:45").
+// The day-before email already sent says so ("Emailed 10:02 AM") and still
+// offers Text. Confirmed ones fold under a quiet head. The list is the
+// server's (search.confirmList); this only draws it.
+function textConfirm(name, list, venue) {
+  const at = list.map(b => `at ${fmtHHMM(b.time)}, a table for ${b.partySize}`).join(', and ');
+  return `Hi ${firstName(name)}, see you tomorrow ${at}${venue ? ' at ' + venue : ''}. Reply YES to confirm.`;
+}
+function clockAt(ms) { return new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
+const shortClock = (hhmm) => fmtHHMM(hhmm).replace(/\s?[AP]M$/i, '');
+function cfRow(r, venue) {
+  const all = [{ time: r.time, partySize: r.partySize }].concat(r.also || []).sort((a, b) => a.time.localeCompare(b.time));
+  const said = [r.textedAt ? 'Texted ' + clockAt(r.textedAt) : r.emailedAt ? 'Emailed ' + clockAt(r.emailedAt) : '']
+    .concat((r.also || []).length ? ['<i class="ink">Also booked ' + r.also.map(a => esc(shortClock(a.time))).join(', ') + '</i>'] : []).filter(Boolean);
+  const line = said.length ? said.map(x => x.startsWith('<i') ? x : esc(x)).join(' · ') : esc(r.phone || 'No phone');
+  const sms = !r.textedAt && smsHref(r.phone, textConfirm(r.name, all, venue));
+  const key = sms
+    ? `<a class="dk-k cf-k" href="${esc(sms)}" data-act="cf-text" data-ids="${esc((r.ids || [r.id]).join(','))}" aria-label="Text ${esc(r.name)}">Text</a>`
+    : `<button class="dk-k ink cf-k" data-act="cf-yes" data-id="${esc(r.id)}" aria-label="${esc(r.name)} confirmed">Yes</button>`;
+  return `<div class="dk-row cf-row">
+      <span class="dk-tab cf-t">${esc(shortClock(r.time))}</span>
+      <div class="dk-main"><b><span class="td-nm">${esc(r.name)}</span><span class="td-n">&nbsp;· ${r.partySize}</span></b><span>${line}</span></div>
+      <span class="dk-rt">${key}</span>
+    </div>`;
+}
+function renderConfirm() {
+  const c = state.confirm;
+  if (!c) return '<div class="empty">Loading…</div>';
+  const venue = (state.settings || {}).venueName || '';
+  const ppl = (n) => n + (n === 1 ? ' person' : ' people');
+  const sub = [parseDay(c.date).toLocaleDateString([], { weekday: 'short' }) + ' ' + dayMonth(c.date), c.toConfirm ? c.toConfirm + ' to confirm' : 'Nobody to confirm', c.confirmed ? c.confirmed + ' already ' + (c.confirmed === 1 ? 'has' : 'have') : ''].filter(Boolean).join(' · ');
+  const open = !!state.cfOpen;
+  return `<div class="cf"><p class="cf-sub">${esc(sub)}</p>
+    ${c.rows.length ? `<div class="bl-head"><span class="bl-h-name">To confirm</span><span class="bl-h-c">${c.toConfirm}</span><span class="bl-h-p">${ppl(c.people)}</span></div>
+    <div class="bl-rows">${c.rows.map(r => cfRow(r, venue)).join('')}</div>` : ''}
+    ${c.done.length ? `<button class="bl-head cf-fold${open ? '' : ' shut'}" data-act="cf-fold" aria-expanded="${open}"><span class="bl-h-name">Confirmed</span><span class="bl-h-c">${c.confirmed}</span><span class="bl-h-p">${ppl(c.confirmedPeople)}</span><span class="bl-chev">${I.chev}</span></button>
+    ${open ? `<div class="bl-rows">${c.done.map(r => `<div class="dk-row cf-row cf-done"><span class="dk-tab cf-t">${esc(shortClock(r.time))}</span><div class="dk-main"><b><span class="td-nm">${esc(r.name)}</span><span class="td-n">&nbsp;· ${r.partySize}</span></b><span>${esc(r.phone || '')}</span></div><span class="dk-rt"></span></div>`).join('')}</div>` : ''}` : ''}
+  </div>`;
+}
+
 // §§ Notify — people waiting for a cancellation
 // An opening is a freed slot; under it are the people it could seat, closest
 // to the time they asked for first. Tapping one opens the ordinary booking
@@ -18040,7 +18483,7 @@ function renderOtherVenues(rs) {
 }
 function renderSettings() {
   const s = state.settings, p = s.pos, ps = state.posStatus || {}, tl = s.timeline || {};
-  const rl = s.relay || {}, rs = state.relayStatus || {};
+  const rl = s.relay || {}, rs = state.relayStatus || {}, ml = s.mail || {};
   const linkedFloor = p.enabled && p.baseUrl && p.useFloor !== false;
   const origin = bookOrigin();
   const g = setGroupOf(state.setGroup);
@@ -18109,6 +18552,8 @@ function renderSettings() {
       <label class="toggle-row">${switchHtml(!!s.online.holdTables, 'set-toggle', 'online.holdTables')} Online bookings take a table straight away</label>
       <label class="toggle-row">${switchHtml(!!s.online.notifyList, 'set-toggle', 'online.notifyList')} Offer a notify list when a day is full</label>
       <label class="toggle-row">${switchHtml(s.online.line !== false, 'set-toggle', 'online.line')} Guests can join the line from their phone</label>
+      <div class="field-label">Online booking asks for</div>
+      ${askRowsHtml(s.online.asks)}
       <div class="inline" style="margin-top:8px;"><img class="qr" src="${rs.bookingUrl ? '/connect.svg?host=' + encodeURIComponent(rs.bookingUrl) : '/connect.svg?to=book'}" alt="QR code for the booking page">${rs.bookingUrl ? `<div class="ts mono">${esc(rs.bookingUrl)}</div>` : '<div class="ts">This computer&rsquo;s address, on the wifi only</div>'}</div>
     </div>
     <div class="settings-card">
@@ -18134,6 +18579,16 @@ function renderSettings() {
       </div>
       ${state.officeCode ? '<div class="ts">Shown once.</div>' : ''}
       <div><button class="btn" data-act="office-code">New code</button></div>` : ''}
+    </div>
+    <div class="settings-card">
+      <div class="th">Emails</div>
+      ${!rl.enabled ? '<div class="ts">Needs the booking relay.</div>' : `<label class="toggle-row">${switchHtml(!!ml.enabled, 'set-toggle', 'mail.enabled')} Email guests</label>
+      <label class="field-label" for="mail-from">From</label>
+      <input id="mail-from" type="email" autocomplete="off" value="${esc(ml.from || '')}" placeholder="bookings@yourvenue.com" data-field="settings.mail.from" data-save="mail" data-save-on="change">
+      <label class="field-label" for="mail-key">Postmark key</label>
+      <input id="mail-key" type="password" autocomplete="off" value="" placeholder="${ml.hasKey ? 'Key saved' : ''}" data-field="settings.mail.key" data-save="mail" data-save-on="change">
+      <label class="field-label" for="mail-at">Day before at</label>
+      <input id="mail-at" type="time" class="t-time" value="${esc(ml.remindAt || '10:00')}" data-field="settings.mail.remindAt" data-save="mail" data-save-on="blur">`}
     </div>`,
     room: `    ${linkedFloor ? '' : `<div class="settings-card wide">
       <div class="th">The room</div>
@@ -19381,7 +19836,7 @@ function saveKeys(g) {
     pos: ['pos'], relay: ['relay'], venue: ['venueName', 'venueAddress', 'venuePhone'],
     services: ['services', 'slotMinutes'],
     sittings: ['defaultDuration', 'seatSlack', 'durationByParty', 'maxPartySize', 'noShowAfterMinutes'],
-    pacing: ['pacing'], online: ['online'], colours: ['statusColours'], combos: ['tableCombos'], timeline: ['timeline'],
+    pacing: ['pacing'], online: ['online'], mail: ['mail'], colours: ['statusColours'], combos: ['tableCombos'], timeline: ['timeline'],
   })[g] || [];
 }
 function keptOwed(answer, rest) {
@@ -19389,6 +19844,15 @@ function keptOwed(answer, rest) {
   if (!s || !answer) return answer;
   for (const g of new Set(Object.keys(_savePending).concat(rest || []))) for (const k of saveKeys(g)) if (k in s) answer[k] = s[k];
   return answer;
+}
+// ONLINE BOOKING ASKS FOR WHAT THE VENUE SAYS (owner, 12 Oct): one row a
+// detail, Off · Optional · Required, saved on the press. The rule is the
+// server's (av.asksOf): with neither name required, the first is.
+const ASK_ROWS = [['first', 'First name'], ['last', 'Last name'], ['mobile', 'Mobile'], ['email', 'Email'], ['dob', 'Date of birth']];
+const ASK_DEFAULT = { first: 'required', last: 'off', mobile: 'required', email: 'optional', dob: 'off' };
+function askRowsHtml(stored) {
+  const a = Object.assign({}, ASK_DEFAULT, stored || {});
+  return ASK_ROWS.map(([k, w]) => `<div class="ask-row"><span>${w}</span><div class="chips">${[['off', 'Off'], ['optional', 'Optional'], ['required', 'Required']].map(([v, l]) => `<button class="chip${a[k] === v ? ' active' : ''}" data-act="set-pick" data-path="online.asks.${k}" data-val="${v}">${l}</button>`).join('')}</div></div>`).join('');
 }
 function queueSave(group, ms) {
   _savePending[group] = true; _saveGen++;
@@ -20019,6 +20483,15 @@ document.addEventListener('click', async (ev) => {
       }
       // The link opens the messages app by itself; this only writes down that it was sent.
       case 'wl-text': await put('/api/waitlist/' + id, { status: 'notified' }); await loadView(); render(); break;
+      // CONFIRM TOMORROW: the messages app opens on the link itself; the desk
+      // only hears that Text was pressed, and the key turns to Yes.
+      case 'cf-text': { const ids = String(el.dataset.ids || '').split(',').filter(Boolean); try { await post('/api/confirm-tomorrow/texted', { ids }); } catch (e) { toastBad(e.message); } await loadView(); render(); break; }
+      case 'cf-yes': {
+        const r = ((state.confirm || {}).rows || []).find(x => x.id === id);
+        try { await put('/api/reservations/' + id, { status: 'confirmed' }); toast((r ? r.name : 'They') + ' confirmed'); } catch (e) { toastBad(e.message); }
+        await loadView(); render(); break;
+      }
+      case 'cf-fold': state.cfOpen = !state.cfOpen; render(); break;
       case 'op-text': await put('/api/notify/' + id, { status: 'told' }); await loadView(); render(); break;
       case 'wl-notify': { const w = state.waitlist.find(x => x.id === id); await put('/api/waitlist/' + id, { status: w.status === 'notified' ? 'waiting' : 'notified' }); await loadView(); render(); break; }
       case 'wl-remove': await del('/api/waitlist/' + id); await loadView(); render(); break;
