@@ -3251,10 +3251,6 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 .ln-sign-note{margin:0;font-size:var(--fs-lg);color:var(--mute);}
 /* The list's own count beside its name, plain: no box, no pill. */
 .sd-head .ln-n{margin-left:-4px;font-family:var(--font-mono);font-size:var(--fs-lg);font-weight:600;color:var(--mute);}
-/* THE LINE STANDS IN THE LIST (owner, 9 Oct, v55). A party in the line is the
-   list's own docket line; only one thing is new: a guest who joined from
-   their phone says so, small, under the line. */
-.dk-main .ln-from{font-size:var(--fs-chip);font-weight:600;color:var(--mute);}
 /* HERE ON THE WRONG NIGHT (owner, 9 Oct, v59). "Not tonight" is a group head
    that is only a word — nothing to press, no count — and its rows are the
    list's own docket lines; Look on every day stands under them on the
@@ -3272,10 +3268,7 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
    its end; the code is read across a room, so it is the number rung in the
    mono face, spaced. */
 .gv-row .dk-main{cursor:default;}
-/* The night leads the line under the name and WRAPS: the right column is
-   Call, so the line is all the night has, and at 320 the ellipsis took the
-   time (review, 10 Oct). A venue's long name wraps in its head. */
-.dk-main > span.gv-said{white-space:normal;overflow:visible;}
+/* A venue's long name wraps in its head. */
 .shell.simple .nt-head .bl-h-name{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere;}
 .gv-keys{display:flex;gap:8px;flex:none;}
 .gv-venue{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:4px 0;}
@@ -3453,6 +3446,38 @@ a.cf-k{background:var(--well);color:var(--ink);}
 .q-find{position:relative;display:flex;align-items:center;flex:1;min-width:0;}
 .q-find > svg{position:absolute;left:12px;width:18px;height:18px;color:var(--charcoal-soft);pointer-events:none;}
 .q-find > input{flex:1;min-width:0;padding-left:40px;}
+/* §§ ONE LINE (owner, 12 Oct: "i thought it was already like that? i said
+   remove the bs text underneath"). Every docket line of the desk's list —
+   Upcoming and the line, Seated, Finished, No table, Just opened, Not
+   tonight, At Bondi and the tidy's lists — is the five cards made small
+   (v66 idea 1): the tab, "Name · size", the one time or the one key, on ONE
+   line, each row its own slab 4 apart on the ground, one even height, the
+   cards' own columns. Nothing under the name. An allergy is the one red dot
+   before it. */
+.shell.simple .bl-rows.one{display:flex;flex-direction:column;gap:4px;background:none;border-radius:0;overflow:visible;}
+.shell.simple .bl-rows.one > .dk-row{grid-template-columns:88px minmax(0,1fr) auto;min-height:64px;border-top:none;border-radius:var(--r-control);overflow:hidden;}
+.shell.simple .bl-rows.one > .ih-ask{border-top:none;border-radius:var(--r-control);padding-left:16px;}
+.dk-row.one .dk-tab{font-family:var(--font-mono);font-weight:700;font-size:var(--fs-xl);letter-spacing:-0.02em;}
+.dk-row.one .dk-main{flex-direction:row;align-items:center;justify-content:flex-start;gap:0;padding:0 8px 0 16px;text-align:left;}
+.dk-row.one .dk-main b{align-items:center;font-size:var(--fs-xl);font-weight:700;}
+.dk-row.one .dk-rt{box-sizing:content-box;min-width:2.8em;padding:0 16px 0 8px;}
+.dk-row.one .dk-t{font-family:inherit;font-size:var(--fs-xl);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:0;}
+.dk-row.one .dk-t.ink{color:var(--ink);font-weight:700;}
+.dk-row.one .dk-t.late{color:var(--late);font-weight:700;}
+.dk-row.one .dk-t.nt-when{color:var(--ink);}
+/* The dot hangs in the name's own left air, so every name still starts on
+   one line down the list ("line up the time name and px"). */
+.dk-row.one .dk-main b{overflow:visible;}
+.dk-al{flex:none;width:8px;height:8px;margin:0 4px 0 -12px;border-radius:50%;background:var(--late);align-self:center;}
+@media (max-width:1100px){ .shell.simple .bl-rows.one > .dk-row{grid-template-columns:80px minmax(0,1fr) auto;} }
+@media (max-width:420px){
+  .shell.simple .bl-rows.one > .dk-row{grid-template-columns:72px minmax(0,1fr) auto;min-height:56px;}
+  .dk-row.one .dk-main{padding:0 4px 0 12px;}
+  .dk-row.one .dk-rt{padding:0 12px 0 8px;}
+  .dk-al{margin:0 2px 0 -10px;}
+  .dk-row.one .dk-tab,.dk-row.one .dk-main b,.dk-row.one .dk-t{font-size:var(--fs-lg);}
+}
+/* end ONE LINE */
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>

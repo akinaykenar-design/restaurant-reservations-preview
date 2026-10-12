@@ -3266,10 +3266,6 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 .ln-sign-note{margin:0;font-size:var(--fs-lg);color:var(--mute);}
 /* The list's own count beside its name, plain: no box, no pill. */
 .sd-head .ln-n{margin-left:-4px;font-family:var(--font-mono);font-size:var(--fs-lg);font-weight:600;color:var(--mute);}
-/* THE LINE STANDS IN THE LIST (owner, 9 Oct, v55). A party in the line is the
-   list's own docket line; only one thing is new: a guest who joined from
-   their phone says so, small, under the line. */
-.dk-main .ln-from{font-size:var(--fs-chip);font-weight:600;color:var(--mute);}
 /* HERE ON THE WRONG NIGHT (owner, 9 Oct, v59). "Not tonight" is a group head
    that is only a word — nothing to press, no count — and its rows are the
    list's own docket lines; Look on every day stands under them on the
@@ -3287,10 +3283,7 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
    its end; the code is read across a room, so it is the number rung in the
    mono face, spaced. */
 .gv-row .dk-main{cursor:default;}
-/* The night leads the line under the name and WRAPS: the right column is
-   Call, so the line is all the night has, and at 320 the ellipsis took the
-   time (review, 10 Oct). A venue's long name wraps in its head. */
-.dk-main > span.gv-said{white-space:normal;overflow:visible;}
+/* A venue's long name wraps in its head. */
 .shell.simple .nt-head .bl-h-name{flex:1;min-width:0;white-space:normal;overflow-wrap:anywhere;}
 .gv-keys{display:flex;gap:8px;flex:none;}
 .gv-venue{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:4px 0;}
@@ -3468,6 +3461,38 @@ a.cf-k{background:var(--well);color:var(--ink);}
 .q-find{position:relative;display:flex;align-items:center;flex:1;min-width:0;}
 .q-find > svg{position:absolute;left:12px;width:18px;height:18px;color:var(--charcoal-soft);pointer-events:none;}
 .q-find > input{flex:1;min-width:0;padding-left:40px;}
+/* §§ ONE LINE (owner, 12 Oct: "i thought it was already like that? i said
+   remove the bs text underneath"). Every docket line of the desk's list —
+   Upcoming and the line, Seated, Finished, No table, Just opened, Not
+   tonight, At Bondi and the tidy's lists — is the five cards made small
+   (v66 idea 1): the tab, "Name · size", the one time or the one key, on ONE
+   line, each row its own slab 4 apart on the ground, one even height, the
+   cards' own columns. Nothing under the name. An allergy is the one red dot
+   before it. */
+.shell.simple .bl-rows.one{display:flex;flex-direction:column;gap:4px;background:none;border-radius:0;overflow:visible;}
+.shell.simple .bl-rows.one > .dk-row{grid-template-columns:88px minmax(0,1fr) auto;min-height:64px;border-top:none;border-radius:var(--r-control);overflow:hidden;}
+.shell.simple .bl-rows.one > .ih-ask{border-top:none;border-radius:var(--r-control);padding-left:16px;}
+.dk-row.one .dk-tab{font-family:var(--font-mono);font-weight:700;font-size:var(--fs-xl);letter-spacing:-0.02em;}
+.dk-row.one .dk-main{flex-direction:row;align-items:center;justify-content:flex-start;gap:0;padding:0 8px 0 16px;text-align:left;}
+.dk-row.one .dk-main b{align-items:center;font-size:var(--fs-xl);font-weight:700;}
+.dk-row.one .dk-rt{box-sizing:content-box;min-width:2.8em;padding:0 16px 0 8px;}
+.dk-row.one .dk-t{font-family:inherit;font-size:var(--fs-xl);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:0;}
+.dk-row.one .dk-t.ink{color:var(--ink);font-weight:700;}
+.dk-row.one .dk-t.late{color:var(--late);font-weight:700;}
+.dk-row.one .dk-t.nt-when{color:var(--ink);}
+/* The dot hangs in the name's own left air, so every name still starts on
+   one line down the list ("line up the time name and px"). */
+.dk-row.one .dk-main b{overflow:visible;}
+.dk-al{flex:none;width:8px;height:8px;margin:0 4px 0 -12px;border-radius:50%;background:var(--late);align-self:center;}
+@media (max-width:1100px){ .shell.simple .bl-rows.one > .dk-row{grid-template-columns:80px minmax(0,1fr) auto;} }
+@media (max-width:420px){
+  .shell.simple .bl-rows.one > .dk-row{grid-template-columns:72px minmax(0,1fr) auto;min-height:56px;}
+  .dk-row.one .dk-main{padding:0 4px 0 12px;}
+  .dk-row.one .dk-rt{padding:0 12px 0 8px;}
+  .dk-al{margin:0 2px 0 -10px;}
+  .dk-row.one .dk-tab,.dk-row.one .dk-main b,.dk-row.one .dk-t{font-size:var(--fs-lg);}
+}
+/* end ONE LINE */
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "6dc907770d041db55efc3d5645d8e62e67e6f30f";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -17301,15 +17326,14 @@ function renderOpened() {
     const href = smsHref(e.phone, textOpened(e.name, e.partySize, fmtHHMM(o.time), when, venue));
     const key = told || !href ? `<button class="dk-k ink" data-act="notify-book" data-id="${esc(e.id)}" data-op="${esc(o.id)}">Book</button>`
       : `<a class="dk-k txt" href="${esc(href)}" data-act="op-text" data-id="${esc(e.id)}">Text</a>`;
-    const said = told ? `<i class="ink">${esc(textedWords(e.notifiedAt))}</i>`
-      : `<i class="ink">${esc(hm(o.time))} opened</i> · asked ${esc(fmtRange(e.from, e.to))}`;
-    return `<div class="dk-row">
-      <span class="dk-tab stg-open">${esc(ts.length ? ts[0] + (ts.length > 1 ? '+' : '') : '—')}</span>
-      <button class="dk-main" data-act="notify-book" data-id="${esc(e.id)}" data-op="${esc(o.id)}"><b><span class="td-nm">${esc(e.name)}</span><span class="td-n">&nbsp;· ${e.partySize}</span></b><span>${said}</span></button>
+    const said = told ? textedWords(e.notifiedAt) : `${hm(o.time)} opened · asked ${fmtRange(e.from, e.to)}`;
+    return `<div class="dk-row one">
+      <span class="dk-tab stg-open">${esc(ts.length ? ts[0] : '—')}</span>
+      <button class="dk-main" data-act="notify-book" data-id="${esc(e.id)}" data-op="${esc(o.id)}" aria-label="${esc(e.name + ', ' + e.partySize + ', ' + said)}"><b><span class="td-nm">${esc(e.name)}</span><span class="td-n">&nbsp;· ${e.partySize}</span></b></button>
       <span class="dk-rt">${key}</span>
     </div>`;
   });
-  return `<div class="bl-head opened"><span class="bl-h-name">Just opened</span><span class="bl-h-c">${opens.length}</span></div><div class="bl-rows">${lines.join('')}</div>`;
+  return `<div class="bl-head opened"><span class="bl-h-name">Just opened</span><span class="bl-h-c">${opens.length}</span></div><div class="bl-rows one">${lines.join('')}</div>`;
 }
 // THE LINE (v52/tidy). One quiet line at the top of tonight's list, below
 // Just opened and above No table and Upcoming, the way a group heading is
@@ -17333,7 +17357,7 @@ function renderTidyLine() {
 // name, never the Paid or the party's size (review, 8 Oct).
 function tidyRow(r, kind, now) {
   const held = tablesFor(r);
-  const label = held.length ? tableName(held[0]) + (held.length > 1 ? '+' : '') : '—';
+  const label = held.length ? tableName(held[0]) : '—';
   const hm = (hhmm) => fmtHHMM(hhmm).replace(/\s?[AP]M$/i, '');
   let said = `booked ${hm(hhmmOf(r.time))}`;
   if (kind === 'sat') {
@@ -17343,9 +17367,9 @@ function tidyRow(r, kind, now) {
     said = `${lead}sat ${hm(pad2(d.getHours()) + ':' + pad2(d.getMinutes()))}`;
   }
   const key = kind === 'sat' ? 'left' : 'no-show';
-  return `<div class="dk-row td-row">
+  return `<div class="dk-row one td-row">
     <span class="dk-tab stg-${kind === 'sat' ? 'in' : 'wait'}">${esc(label)}</span>
-    <button class="dk-main" data-act="edit-booking" data-id="${esc(r.id)}" aria-label="${esc((r.name || 'No name') + ', ' + r.partySize + ', ' + said)}"><b><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></b><span>${esc(said)}</span></button>
+    <button class="dk-main" data-act="edit-booking" data-id="${esc(r.id)}" aria-label="${esc((r.name || 'No name') + ', ' + r.partySize + ', ' + said)}"><b>${allergyDot(r)}<span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></b></button>
     <span class="dk-rt"><button class="dk-k td-k" data-act="tidy-one" data-val="${key}" data-id="${esc(r.id)}"${_tidyBusy ? ' disabled' : ''}>${kind === 'sat' ? 'Left' : 'No-show'}</button></span>
   </div>`;
 }
@@ -17359,7 +17383,7 @@ function renderTidy(t) {
   const now = Date.now();
   const group = (key, name, list, all) => !list.length ? '' : `<section class="td-g ${key === 'left' ? 'sat' : 'never'}">
     <div class="bl-head td-h"><span class="bl-h-name">${name}</span><span class="bl-h-c">${list.length}</span><button class="dk-k ink td-all" data-act="tidy-all" data-val="${key}"${_tidyBusy ? ' disabled' : ''}>${all}</button></div>
-    <div class="bl-rows">${list.map(r => tidyRow(r, key === 'left' ? 'sat' : 'never', now)).join('')}</div></section>`;
+    <div class="bl-rows one">${list.map(r => tidyRow(r, key === 'left' ? 'sat' : 'never', now)).join('')}</div></section>`;
   return `<div class="td">
     <div class="pg-head td-phead"><button class="pg-back" data-act="tidy-close">${I.left}<span>Tonight</span></button><h1>Tidy up</h1></div>
     <div class="td-dhead"><h2>Tidy up</h2><button class="td-x" data-act="tidy-close" aria-label="Close">${I.cross}</button></div>
@@ -17470,27 +17494,27 @@ function lineRow(w, place, now) {
   const s = w.seat, ready = !!(s && s.now && (s.tables || []).length);
   const where = ready ? s.tables.map(tableName).join(' + ') : '';
   const tab = ready
-    ? `<button class="dk-tab stg-wait" data-act="line-seat" data-id="${esc(w.id)}" aria-label="Seat ${esc(w.name)} at ${esc(where)}">${esc(tableName(s.tables[0]) + (s.tables.length > 1 ? '+' : ''))}</button>`
+    ? `<button class="dk-tab stg-wait" data-act="line-seat" data-id="${esc(w.id)}" aria-label="Seat ${esc(w.name)} at ${esc(where)}">${esc(tableName(s.tables[0]))}</button>`
     : `<button class="dk-tab stg-wait" data-act="wl-seat" data-id="${esc(w.id)}" aria-label="No table yet for ${esc(w.name)}">—</button>`;
   const waited = Math.max(0, Math.round((now - Number(w.addedAt)) / 60000));
-  // Nothing frees tonight LEADS (review, 9 Oct): said last, it was what the
-  // ellipsis took, on a phone and after a long name alike.
+  // ONE LINE (owner, 12 Oct): nothing under the name. What it said is the
+  // reader's (aria); the right column is Text while a table is ready and
+  // nobody has texted them, the time their table frees, "no table" when
+  // nothing frees tonight, else how long they have waited.
   const said = [waited < 1 ? 'just joined' : 'waiting ' + waitWords(waited), linePlace(place)];
   if (!s) said.unshift('no table tonight');
-  if (w.status === 'notified') said.push(textedWords(w.notifiedAt).toLowerCase());
-  if (ready && s.tables.length > 1) said.push(where);
-  if (String(w.notes || '').trim()) said.push(String(w.notes).trim().slice(0, 60));
-  let rt = '';
-  if (s && !ready) rt = `<span class="dk-t">${esc(fmtHHMM(s.time).replace(/\s?[AP]M$/i, ''))}</span>`;
-  else if (ready && w.status !== 'notified' && smsHref(w.phone, '')) {
+  let rt = `<span class="dk-t">${esc(waitWords(Math.max(1, waited)))}</span>`;
+  if (!s) rt = '<span class="dk-t">no table</span>';
+  else if (!ready) rt = `<span class="dk-t">${esc(fmtHHMM(s.time).replace(/\s?[AP]M$/i, ''))}</span>`;
+  else if (w.status !== 'notified' && smsHref(w.phone, '')) {
     rt = `<a class="dk-k txt" href="${esc(smsHref(w.phone, textReady(w.name, w.partySize, (state.settings || {}).venueName)))}" data-act="wl-text" data-id="${esc(w.id)}">Text</a>`;
   }
   const seating = !!(state.walkin && state.walkin.wl && state.walkin.wl.id === w.id);
   // IN HAND (v65): another tablet is seating them from the line.
   const ih = holdOn(w.id);
-  return `<div class="dk-row ln-row${ih ? ' ih-row' : ''}${seating ? ' selected' : ''}">
-      ${ih ? `<span class="dk-tab stg-wait">${esc(ready ? tableName(s.tables[0]) + (s.tables.length > 1 ? '+' : '') : '—')}</span>` : tab}
-      <button class="dk-main" data-act="line-open" data-id="${esc(w.id)}" aria-label="${esc(w.name + ', ' + w.partySize + ', waiting')}"><b><span class="td-nm">${esc(w.name)}</span><span class="td-n">&nbsp;· ${w.partySize}</span></b><span>${esc(said.join(' · '))}</span>${w.source === 'online' ? '<span class="ln-from">joined from their phone</span>' : ''}</button>
+  return `<div class="dk-row one ln-row${ih ? ' ih-row' : ''}${seating ? ' selected' : ''}">
+      ${ih ? `<span class="dk-tab stg-wait">${esc(ready ? tableName(s.tables[0]) : '—')}</span>` : tab}
+      <button class="dk-main" data-act="line-open" data-id="${esc(w.id)}" aria-label="${esc(w.name + ', ' + w.partySize + ', ' + said.join(', '))}"><b><span class="td-nm">${esc(w.name)}</span><span class="td-n">&nbsp;· ${w.partySize}</span></b></button>
       <span class="dk-rt">${ih ? ihKeyHtml(ih) : rt}</span>
     </div>${ih && state.ihAsk === w.id ? ihAskHtml(ih) : ''}`;
 }
@@ -17583,21 +17607,14 @@ function ntRow(x) {
   const s = x.seat, ready = !!(s && s.now && (s.tables || []).length);
   const where = ready ? s.tables.map(tableName).join(' + ') : '';
   const tab = ready
-    ? `<button class="dk-tab stg-wait" data-act="nt-seat" data-id="${esc(x.id)}" aria-label="Seat ${esc(x.name)} at ${esc(where)} tonight">${esc(tableName(s.tables[0]) + (s.tables.length > 1 ? '+' : ''))}</button>`
+    ? `<button class="dk-tab stg-wait" data-act="nt-seat" data-id="${esc(x.id)}" aria-label="Seat ${esc(x.name)} at ${esc(where)} tonight">${esc(tableName(s.tables[0]))}</button>`
     : `<button class="dk-tab stg-wait" data-act="nt-pick" data-id="${esc(x.id)}" aria-label="No table yet for ${esc(x.name)}">—</button>`;
-  const said = [];
-  if (!s) said.push('<i class="late">no table tonight</i>');
-  if ((x.tags || []).some(t => String(t).toLowerCase() === 'allergy')) said.push('<i class="late">Allergy</i>');
-  said.push('booked ' + esc(fmtHHMM(hhmmOf(x.time))));
-  if (x.by === 'phone' && x.phone) said.push(esc(x.phone));
-  if (ready && s.tables.length > 1) said.push(esc(where));
-  if (String(x.notes || '').trim()) said.push(esc(String(x.notes).trim().slice(0, 60)));
   const seating = !!(state.walkin && state.walkin.nt && state.walkin.wl && state.walkin.wl.id === x.id);
-  // The line wraps, as At Bondi's does (gv-said): at 320 an allergy and a
-  // note left "booke…", and the hour they were booked is the point.
-  return `<div class="dk-row nt-row${seating ? ' selected' : ''}">
+  // ONE LINE (owner, 12 Oct): nothing under the name — the night is the
+  // right column, the allergy the dot before the name, the rest the reader's.
+  return `<div class="dk-row one nt-row${seating ? ' selected' : ''}">
       ${tab}
-      <button class="dk-main" data-act="nt-open" data-id="${esc(x.id)}" aria-label="${esc(x.name + ', booked for ' + x.when)}"><b><span class="td-nm">${esc(x.name)}</span><span class="td-n">&nbsp;· ${x.partySize}</span></b><span class="gv-said">${said.join(' · ')}</span></button>
+      <button class="dk-main" data-act="nt-open" data-id="${esc(x.id)}" aria-label="${esc(x.name + ', booked for ' + x.when + (allergyDot(x) ? ', allergy' : '') + (s ? '' : ', no table tonight'))}"><b>${allergyDot(x)}<span class="td-nm">${esc(x.name)}</span><span class="td-n">&nbsp;· ${x.partySize}</span></b></button>
       <span class="dk-rt"><span class="dk-t nt-when">${esc(ntWhen(x))}</span></span>
     </div>`;
 }
@@ -17606,7 +17623,7 @@ function ntRow(x) {
 function ntHtml(q) {
   const rows = ntShown(q);
   if (!rows.length) return '';
-  return `<div class="bl"><div class="bl-head nt-head"><span class="bl-h-name">Not tonight</span></div><div class="bl-rows">${rows.map(ntRow).join('')}</div></div>
+  return `<div class="bl"><div class="bl-head nt-head"><span class="bl-h-name">Not tonight</span></div><div class="bl-rows one">${rows.map(ntRow).join('')}</div></div>
     <div class="nt-more"><button class="btn" data-act="find-every-day">${I.search} Look on every day</button></div>`;
 }
 // ONE PRESS: the booking moved to tonight and seated (POST …/tonight, which
@@ -17672,17 +17689,13 @@ function gvRow(x) {
   const s = x.seat, ready = !!(s && s.now && (s.tables || []).length);
   const where = ready ? s.tables.map(tableName).join(' + ') : '';
   const tab = ready
-    ? `<button class="dk-tab stg-wait" data-act="gv-seat" data-id="${esc(x.venueId + ':' + x.id)}" aria-label="Book ${esc(x.name)} here and seat at ${esc(where)}">${esc(tableName(s.tables[0]) + (s.tables.length > 1 ? '+' : ''))}</button>`
+    ? `<button class="dk-tab stg-wait" data-act="gv-seat" data-id="${esc(x.venueId + ':' + x.id)}" aria-label="Book ${esc(x.name)} here and seat at ${esc(where)}">${esc(tableName(s.tables[0]))}</button>`
     : `<button class="dk-tab stg-wait" data-act="gv-pick" data-id="${esc(x.venueId + ':' + x.id)}" aria-label="No table yet for ${esc(x.name)}">—</button>`;
-  const said = [];
-  if (!s) said.push('<i class="late">no table tonight</i>');
-  said.push('<i class="ink">booked ' + esc(x.when) + '</i>');
-  if (ready && s.tables.length > 1) said.push(esc(where));
   const tel = String(x.venuePhone || '').replace(/[^\d+]/g, '');
   const seating = !!(state.walkin && state.walkin.gv && state.walkin.gv.key === x.venueId + ':' + x.id);
-  return `<div class="dk-row gv-row${seating ? ' selected' : ''}">
+  return `<div class="dk-row one gv-row${seating ? ' selected' : ''}">
       ${tab}
-      <span class="dk-main" aria-label="${esc(x.name + ', booked at ' + x.venue + ' ' + x.when)}"><b><span class="td-nm">${esc(x.name)}</span><span class="td-n">&nbsp;· ${x.size}</span></b><span class="gv-said">${said.join(' · ')}</span></span>
+      <span class="dk-main" aria-label="${esc(x.name + ', booked at ' + x.venue + ' ' + x.when + (s ? '' : ', no table tonight'))}"><b><span class="td-nm">${esc(x.name)}</span><span class="td-n">&nbsp;· ${x.size}</span></b></span>
       <span class="dk-rt">${tel ? `<a class="dk-k" href="tel:${esc(tel)}" aria-label="Call ${esc(x.venue)}">${I.phone}</a>` : ''}</span>
     </div>`;
 }
@@ -17692,7 +17705,7 @@ function gvHtml(q) {
   if (!rows.length) return '';
   const venues = [];
   for (const x of rows) { let v = venues.find(y => y.id === x.venueId); if (!v) venues.push(v = { id: x.venueId, name: x.venue, rows: [] }); v.rows.push(x); }
-  return venues.map(v => `<div class="bl"><div class="bl-head nt-head"><span class="bl-h-name">At ${esc(v.name)}</span></div><div class="bl-rows">${v.rows.map(gvRow).join('')}</div></div>`).join('')
+  return venues.map(v => `<div class="bl"><div class="bl-head nt-head"><span class="bl-h-name">At ${esc(v.name)}</span></div><div class="bl-rows one">${v.rows.map(gvRow).join('')}</div></div>`).join('')
     + `<div class="nt-more"><button class="btn" data-act="find-every-day">${I.search} Look on every day</button></div>`;
 }
 function gvFind(key) { return ((state.gv && state.gv.rows) || []).find(y => y.venueId + ':' + y.id === key) || null; }
@@ -17826,7 +17839,7 @@ function doorCard(r, room, now) {
   const ih = holdOn(r.id);
   if (ih) return `<button class="door-card ih" data-act="ih-take" data-id="${esc(r.id)}" data-ih="${esc(ih.by)}" aria-label="${esc(`${r.name || 'Booking'}: in hand at ${ih.by}. Take it?`)}">
     <span class="dc-tab"><span class="dc-no">${esc(label)}</span></span>
-    <span class="dc-main"><span class="dc-name"><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span></span>
+    <span class="dc-main"><span class="dc-name">${allergyDot(r)}<span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span></span>
     <span class="dc-rt dc-ih"><i>in hand ·</i><span>${esc(ih.by)}</span></span>
   </button>${state.ihAsk === r.id ? ihAskHtml(ih) : ''}`;
   // THE ROW MADE BIG (review, 12 Oct): the tab is the next step, the middle
@@ -17843,7 +17856,7 @@ function doorCard(r, room, now) {
   const rt = tel ? `<a class="dk-k dc-call" href="tel:${esc(tel)}" aria-label="Call ${esc(r.name || '')}">${I.phone}</a>` : esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''));
   return `<div class="door-card${here ? ' is-here' : ''}" data-id="${esc(r.id)}">
     <button class="dc-tab ${tab}${t.ready ? '' : ' busy'}" data-act="${act}" data-id="${esc(r.id)}"${turnAt} data-ih="${t.ready || !/ in hand · /.test(t.frees || '') ? '' : esc(t.frees)}" aria-label="${esc(aria)}"><span class="dc-no">${esc(label)}</span></button>
-    <button class="dc-main" data-act="edit-booking" data-id="${esc(r.id)}"><span class="dc-name"><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span></button>
+    <button class="dc-main" data-act="edit-booking" data-id="${esc(r.id)}"><span class="dc-name">${allergyDot(r)}<span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span></button>
     <span class="dc-rt">${rt}</span>
   </div>`;
 }
@@ -17946,7 +17959,8 @@ function renderDayList() {
     const half = r.status === 'part-seated';
     const occ = tonight && (!sat || half) && !ended ? busyOn(r) : null;
     const busy = occ && (here || new Date(r.time).getTime() - now <= DESK_DUE_SOON * 60000) ? occ : null;
-    const label = held.length ? tableName(held[0]) + (held.length > 1 ? '+' : '') : '—';
+    // The table's number alone: a join is its first number, no "+" (12 Oct).
+    const label = held.length ? tableName(held[0]) : '—';
     // THE TAB SAYS WHERE THEY ARE UP TO, in the simple design's few colours
     // (owner, 6 Oct): blue at the door, pale blue for part of a party, red
     // late, the darker grey sat down, a green edge for the bill, the light
@@ -17964,26 +17978,14 @@ function renderDayList() {
     // IN HAND (v65): another tablet is seating them — the tab does nothing.
     const ih = tonight && !ended && !sat ? holdOn(r.id) : null;
     const tab = ended || ih ? `<span class="dk-tab${busy ? ' busy' : ''}">${esc(label)}</span>` : `<button class="dk-tab${auto ? ' auto' : ''}${held.length ? '' : ' none'}${late ? ' late' : ''}${busy && !turnAct ? ' busy' : ''}" ${tabAct}>${esc(label)}</button>`;
-    // The line under the name: only what is different.
-    const said = [];
-    const part = r.partCount ? `${r.partCount} of ${r.partySize}` : 'Some';
-    // The allergy leads: an ellipsis takes the line's end, and "Here · 13
-    // still eating · Al…" ate the one word a kitchen can hurt somebody over.
-    if ((r.tags || []).some(t => String(t).toLowerCase() === 'allergy')) said.push('<i class="late">Allergy</i>');
-    if (r.status === 'arrived') said.push('<i class="here">Here</i>');
-    if (r.status === 'part-arrived') said.push(`<i class="here">${part} here</i>`);
-    if (r.status === 'part-seated') said.push(`<i class="ink">${part} seated</i>`);
-    if (r.status === 'check') said.push('<i class="leave">Bill</i>');
-    if (r.status === 'paid') said.push('<i class="leave">Paid</i>');
-    if (ended) said.push(esc(statusLabel(r.status)));
-    if (late) said.push(`<i class="late">${esc(waitWords(late))} late</i>`);
-    if (busy && !turnAct) said.push(`<i class="quiet">${esc(busyWords(room, busy))}</i>`);
-    if (held.length > 1) said.push(esc(held.map(tableName).join(' + ')));
-    if (setMenuName(r)) said.push(esc(setMenuName(r)));
-    if (String(r.notes || '').trim()) said.push(esc(String(r.notes).trim().slice(0, 60)));
+    // ONE LINE (owner, 12 Oct: "i said remove the bs text underneeth"):
+    // nothing under the name. The tab says where they are up to, the right
+    // column the one time or the one key, and an allergy is the one red dot
+    // before the name.
     // The one time, or the one key.
     let rt = `<span class="dk-t">${esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''))}</span>`;
     if (tonight && here && r.arrivedAt) rt = `<span class="dk-t">${esc(waitWords(Math.max(0, Math.round((now - r.arrivedAt) / 60000))))}</span>`;
+    if (tonight && late) rt = `<span class="dk-t late">${esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''))}</span>`;
     if (tonight && late && String(r.phone || '').trim()) rt = `<a class="dk-k" href="tel:${esc(String(r.phone).replace(/[^\d+]/g, ''))}" aria-label="Call ${esc(r.name || '')}">${I.phone}</a>`;
     if (busy && !here) rt = `<button class="dk-k" data-act="row-here" data-id="${esc(r.id)}">Here</button>`;
     if (turnAct) rt = `<button class="dk-k ink" ${turnAct}>Seat</button>`;
@@ -17994,13 +17996,15 @@ function renderDayList() {
       // minutes, the last with a + (9 Oct). The rest of a party is the
       // plain key Here is, not a blue pill (QUIET).
       rt = half && r.partCount ? `<button class="dk-k" data-act="row-rest" data-id="${esc(r.id)}" aria-label="The rest arrived">+${Math.max(1, r.partySize - (r.partCount || 0))}</button>`
+        : r.status === 'check' || r.status === 'paid' ? `<span class="dk-t ink">${r.status === 'check' ? 'Bill' : 'Paid'}</span>`
         : left >= 0 ? `<span class="dk-t">${esc(waitWords(left))} left</span>` : `<span class="dk-t over">${esc(waitWords(-left))} over</span>`;
     }
+    if (ended && r.status !== 'done') rt = `<span class="dk-t">${esc(statusLabel(r.status))}</span>`;
     if (ih) rt = ihKeyHtml(ih);
-    return `<div class="dk-row${ih ? ' ih-row' : ''}${state.highlightTable && held.includes(state.highlightTable) ? ' selected' : ''}${state.modal && state.modal.kind === 'booking' && state.modal.b && state.modal.b.id === r.id ? ' open' : ''}">
+    return `<div class="dk-row one${ih ? ' ih-row' : ''}${state.highlightTable && held.includes(state.highlightTable) ? ' selected' : ''}${state.modal && state.modal.kind === 'booking' && state.modal.b && state.modal.b.id === r.id ? ' open' : ''}">
       ${tab.replace('class="dk-tab', `class="dk-tab stg-${stage}`)}
-      <button class="dk-main" data-act="edit-booking" data-id="${r.id}" aria-label="${esc((r.name || 'No name') + ', ' + statusLabel(r.status))}">
-        <b><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></b>${said.length ? `<span>${said.join(' · ')}</span>` : ''}
+      <button class="dk-main" data-act="edit-booking" data-id="${r.id}" aria-label="${esc((r.name || 'No name') + ', ' + statusLabel(r.status) + (allergyDot(r) ? ', allergy' : ''))}">
+        <b>${allergyDot(r)}<span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></b>
       </button>
       <span class="dk-rt">${rt}</span>
     </div>${ih && state.ihAsk === r.id ? ihAskHtml(ih) : ''}`;
@@ -18062,7 +18066,7 @@ function renderDayList() {
         const body = list.slice(0, at).map(row).concat(waiting.map(w => lineRow(w, w.place, now)), list.slice(at).map(row));
         // The five stand on the ground, 4 apart, each its own card; the rest
         // are the white block of docket lines under them, 4 below the last.
-        return head(key, name, five.concat(list), waiting) + (state.listShut[key] ? '' : top + (body.length ? `<div class="bl-rows">${body.join('')}</div>` : ''));
+        return head(key, name, five.concat(list), waiting) + (state.listShut[key] ? '' : top + (body.length ? `<div class="bl-rows one">${body.join('')}</div>` : ''));
       }).join('');
     })()}
   </div>`;
@@ -22074,6 +22078,11 @@ function pollDelay() { return holdsLive() ? HOLD_POLL_MS : 10000; }
 // The row's right column, and the ask under it (a plain tap, 44 tall).
 // The tablet's name is its own span and gives way, never the party's name
 // beside it (review, 10 Oct: "Upstairs Bar Station" left Okafor "· 4").
+// ONE LINE's allergy (owner, 12 Oct): no word under the name — one small
+// red dot before it, the only red on a row that is not late.
+function allergyDot(r) {
+  return (r && r.tags || []).some(t => String(t).trim().toLowerCase() === 'allergy') ? '<span class="dk-al" role="img" aria-label="Allergy"></span>' : '';
+}
 function ihKeyHtml(h) {
   return `<button class="dk-k ih-k" data-act="ih-take" data-id="${esc(h.party)}" aria-label="In hand at ${esc(h.by)}. Take it?"><i>in hand ·</i><span>${esc(h.by)}</span></button>`;
 }
