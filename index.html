@@ -3303,62 +3303,57 @@ body[data-theme="dark"] .ln-qr{background:var(--tbl-num-bg);}
 .vs-pick select{padding-right:44px;}
 .vs-pick svg{position:absolute;right:12px;top:50%;width:20px;height:20px;transform:translateY(-50%);color:var(--mute);pointer-events:none;}
 .vs-pick select:disabled{opacity:var(--dim);}
-/* NEXT AT THE DOOR (owner, 10 Oct, v61). The docket line made big, inside the
-   list's own white block: the tab is the table and the next step, the name
-   and how many at twice the row's type, the time in the right column, and
-   one line saying whether the table is ready. The few colours by where the
-   party is up to — the light grey still to come, the late red edge, the one
-   blue at the door — and the ink "Seat" for the one key that does the thing
-   (QUIET). Its type is the scale's own rungs, doubled where it is read from
-   the door: the row's name is --fs-lg, the card's is two of it. */
-.door-card{--dc-big:calc(var(--fs-lg) * 2);--dc-time:var(--fs-num);--dc-say:var(--fs-xl);
-  display:grid;grid-template-columns:88px minmax(0,1fr) auto;align-items:stretch;width:100%;min-height:112px;
-  padding:0;border:none;border-top:1px solid var(--line);background:var(--surface);color:var(--ink);text-align:left;font:inherit;cursor:pointer;}
-.door-rows > .door-card:first-child{border-top:none;}
-.dc-tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:var(--tfree);color:var(--ink);}
-.dc-tab .dc-no{font-family:var(--font-mono);font-weight:700;font-size:var(--dc-big);line-height:1;}
-.dc-tab .dc-do{font-size:var(--fs-lg);font-weight:700;line-height:1;}
-.dc-tab.seat{background:var(--ink);color:var(--surface);}
+/* NEXT AT THE DOOR — THE FIVE (owner, 10 Oct, v61; 12 Oct: "make the first
+   5 bigger… remove the bs text info underneath the name"; "line up the time
+   name and px make it clean"). Five cards, one size, 4 apart on the list's
+   ground, the white block of the rest 4 under the last. Each is ONE line:
+   the table's number alone on the tab, "Name · size", and the time, all at
+   twice the row's type (--fs-lg doubled) and centred on the card. The tab
+   wears where the party is up to, the row's own few colours: light grey
+   still to come (a tap seats them, as the row's tab does — five ink slabs
+   were five shouts), struck and grey when the table is not ready, the blue
+   at the door, the late red edge. A long name takes the
+   ellipsis; the size never does. */
+.door-five{display:flex;flex-direction:column;gap:4px;margin-bottom:16px;}
+.door-five:has(+ .bl-rows){margin-bottom:4px;}
+.door-card{--dc-big:calc(var(--fs-lg) * 2);--dc-tab:88px;
+  display:grid;grid-template-columns:var(--dc-tab) minmax(0,1fr) auto;align-items:center;width:100%;min-height:96px;
+  padding:0;border:none;border-radius:var(--r-control);overflow:hidden;background:var(--surface);color:var(--ink);
+  text-align:left;font:inherit;font-size:var(--dc-big);line-height:1.15;}
+button.door-card{cursor:pointer;}
+/* The row made big: the tab is the step, the middle the booking (12 Oct). */
+.door-card > button{align-self:stretch;margin:0;border:none;border-radius:0;font:inherit;line-height:inherit;text-align:left;cursor:pointer;}
+.dc-tab{align-self:stretch;display:flex;align-items:center;justify-content:center;min-width:0;padding:0 4px;background:var(--tfree);color:var(--ink);}
+.dc-no{font-family:var(--font-mono);font-weight:700;line-height:1;white-space:nowrap;letter-spacing:-0.02em;}
 .dc-tab.late{background:var(--late-wash);color:var(--late);box-shadow:inset var(--ring) 0 0 var(--late);}
-.dc-tab.late .dc-do{color:var(--ink);}
 .dc-tab.here{background:var(--accent);color:var(--on-accent);}
 .dc-tab.busy .dc-no{text-decoration:line-through;text-decoration-thickness:3px;}
-.dc-tab.busy:not(.here) .dc-no{color:var(--mute);}
-.dc-main{display:flex;flex-direction:column;justify-content:center;gap:4px;min-width:0;padding:12px 8px 12px 16px;}
-.dc-name{display:flex;min-width:0;font-size:var(--dc-big);font-weight:700;line-height:1.15;}
+.dc-tab.busy:not(.here):not(.late) .dc-no{color:var(--mute);}
+.dc-main{display:flex;align-items:center;min-width:0;padding:0 8px 0 16px;background:none;color:inherit;}
+.dc-name{display:flex;min-width:0;font-weight:700;}
 .dc-name .td-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .dc-name .td-n{flex:none;white-space:nowrap;}
-.dc-say{font-size:var(--dc-say);font-weight:600;line-height:1.3;color:var(--mute);}
-.dc-say i{font-style:normal;}
-/* A unit is led by its dot and kept whole, so a wrap never leaves a dot at
-   a line's end. */
-.dc-say b{font-weight:inherit;white-space:nowrap;}
-.dc-say .ink{color:var(--ink);} .dc-say .late{color:var(--late);} .dc-say .here{color:var(--accent);}
-.dc-rt{display:flex;align-items:flex-start;padding:16px 12px 0 4px;font-family:var(--font-mono);font-weight:600;font-size:var(--dc-time);color:var(--mute);white-space:nowrap;}
+.dc-rt{box-sizing:content-box;min-width:2.8em;padding:0 16px 0 8px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--mute);white-space:nowrap;text-align:right;}
 .door-card.is-here{background:var(--accent-wash);}
-/* In another tablet's hand (11 Oct): the row's quiet, at the door's size. */
+.dc-rt .dc-call{display:inline-flex;margin-left:auto;font-size:var(--fs-md);}
+/* In another tablet's hand (11 Oct): quiet, and the right column says whose,
+   the row's own "in hand · Bar" at the row's size; the ask stands under. */
 .door-card.ih .dc-tab{color:var(--mute);opacity:var(--dim);}
 .door-card.ih .dc-name{color:var(--mute);}
+.dc-rt.dc-ih{display:flex;align-items:center;justify-content:flex-end;max-width:min(32vw,200px);min-width:0;font-family:inherit;font-size:var(--fs-lg);}
+.dc-ih i{flex:none;font-style:normal;font-weight:400;margin-right:4px;}
+.dc-ih span{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+.door-five > .ih-ask{border-top:none;border-radius:var(--r-control);padding-left:16px;}
+/* A tablet: the scale steps down whole, so the name keeps its width. */
+@media (max-width:1100px){ .door-card{--dc-big:var(--fs-num);--dc-tab:80px;min-height:88px;} }
 @media (max-width:420px){
-  .door-card{--dc-big:var(--fs-num);--dc-time:var(--fs-xl);--dc-say:var(--fs-lg);grid-template-columns:80px minmax(0,1fr) auto;min-height:108px;}
+  .door-card{--dc-tab:72px;min-height:80px;}
+  .dc-main{padding:0 4px 0 12px;}
+  .dc-rt{padding:0 12px 0 8px;}
+  .dc-ih i{display:none;}
+  .dc-rt.dc-ih{max-width:88px;}
 }
-/* 320: the name keeps its line; the tab and the gutter take a step less. */
-@media (max-width:360px){
-  .door-card{--dc-time:var(--fs-lg);grid-template-columns:72px minmax(0,1fr) auto;}
-  .dc-rt{padding-right:8px;}
-  .dc-main{padding-left:12px;}
-}
-/* Up to 380 the time stands in the top-right corner, a row of its own, and
-   the name and what is said take the card's whole width (daily round,
-   11 Oct: the time held a column down the card's whole edge and at 320
-   "Castellano · 4" read "Castella… · 4"). */
-@media (max-width:380px){
-  .door-card{grid-template-columns:80px minmax(0,1fr);grid-template-rows:auto 1fr;}
-  .door-card > .dc-tab{grid-column:1;grid-row:1 / span 2;}
-  .door-card > .dc-rt{grid-column:2;grid-row:1;justify-self:end;padding:8px 12px 0 4px;}
-  .door-card > .dc-main{grid-column:2;grid-row:2;padding-top:0;}
-}
-@media (max-width:360px){ .door-card{grid-template-columns:72px minmax(0,1fr);} }
+@media (max-width:360px){ .door-card{--dc-big:var(--fs-xl);--dc-tab:64px;min-height:72px;} }
 @media print{
   /* Paper, not a slab: no ground anywhere, and a light canvas under it — a
      dark theme's canvas is dark even with every ground taken away. */
@@ -3460,6 +3455,12 @@ a.cf-k{background:var(--well);color:var(--ink);}
 .cf-fold.shut .bl-chev{transform:rotate(-90deg);}
 .cf-done .dk-tab.cf-t{color:var(--mute);}
 /* end CONFIRM TOMORROW */
+/* A SEARCH BOX IS THE GLASS ALONE (owner, 12 Oct: "remove the descriptions
+   of what you can enter the search field"). No words in the box: the glass
+   says what it is, and the search reads the whole booking. */
+.q-find{position:relative;display:flex;align-items:center;flex:1;min-width:0;}
+.q-find > svg{position:absolute;left:12px;width:18px;height:18px;color:var(--charcoal-soft);pointer-events:none;}
+.q-find > input{flex:1;min-width:0;padding-left:40px;}
 </style>
 <div id="app">Loading…</div>
 <script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "6dc907770d041db55efc3d5645d8e62e67e6f30f";window.__RESV_ROOM__ = [{"id":"fp1","name":"Inside","tables":[{"id":"t1784116477960","label":"21","seats":2,"x":7,"y":33.8,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116479124","label":"22","seats":2,"x":12.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116485821","label":"222","seats":4,"x":21,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116486766","label":"11","seats":4,"x":28,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487291","label":"1","seats":6,"x":7,"y":11.3,"width":8.8,"height":6.6,"shape":"rect","rotation":315,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116487840","label":"4","seats":4,"x":22.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488381","label":"24","seats":4,"x":17.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1784116488882","label":"23","seats":8,"x":35,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359357489","label":"13","seats":4,"x":42,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359372691","label":"14","seats":4,"x":49,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359374499","label":"15","seats":4,"x":56,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359375000","label":"17","seats":4,"x":63,"y":11.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359452749","label":"41","seats":4,"x":62.5,"y":32.1,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453148","label":"42","seats":4,"x":62.5,"y":44.2,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359453929","label":"43","seats":4,"x":62.5,"y":56.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359454484","label":"44","seats":4,"x":62.5,"y":68.3,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786359455030","label":"45","seats":4,"x":62.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437103635","label":"31","seats":4,"x":45,"y":36.2,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786437104445","label":"32","seats":4,"x":37.5,"y":60.3,"width":6.8,"height":10.9,"shape":"round","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786443757237","label":"46","seats":4,"x":62.5,"y":92.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498817","label":"25","seats":2,"x":27.5,"y":80.4,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786450498853","label":"26","seats":2,"x":33.6,"y":92.6,"width":6,"height":9.8,"shape":"square","rotation":0,"type":"table","finish":"cloth-burgundy"},{"id":"t1786498348976","label":"B1","seats":1,"x":77.5,"y":12.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350216","label":"B7","seats":1,"x":77.5,"y":80.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498350814","label":"B2","seats":1,"x":77.5,"y":24.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498352255","label":"B3","seats":1,"x":77.5,"y":35.3,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498353190","label":"B4","seats":1,"x":77.5,"y":46.6,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354189","label":"B5","seats":1,"x":77.5,"y":57.8,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498354685","label":"B6","seats":1,"x":77.5,"y":69.1,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"},{"id":"t1786498355328","label":"B8","seats":1,"x":77.5,"y":92.4,"width":4.4,"height":7.1,"shape":"round","rotation":0,"type":"table","finish":"walnut"}]},{"id":"fp1783937423539","name":"Outside","tables":[]}];window.__RESV_IS_BOOK__ = false;</script>
@@ -8445,19 +8446,100 @@ function prepareQuery(raw) {
   return { text, digits: digits(raw), ref: text.replace(/[^a-z0-9]/g, '').toUpperCase(), ok: text.length >= MIN_CHARS };
 }
 
+// §§ THE SEARCH READS THE WHOLE BOOKING (owner, 12 Oct: "make sure it
+// searches every aspect or information of the booking itself"). A name, a
+// phone, an email or a reference is the FIRST question — the whole query, as
+// it always was, and those hits rank first (`primaryHit`). Failing that the
+// query is read as WORDS, every one of which has to hold somewhere on the
+// booking (`wordHit`): the note, the tags, the set menu, the occasion, where
+// it came from, where it is up to, who made it, the guest card's note it
+// carries, the date of birth, the history; the tables, each of a join, a
+// whole number ("4" is not 45, "t5" is 5); the party size ("6", "6 people");
+// the time as a host says it ("7:30", "730", "19:30", "7pm"). A number of one
+// or two digits is a table, a size or a time, never a note's stray "2".
+// The desk's list keeps a copy of this rule (public/app.js, deskHit) and
+// test/desksearch.test.js holds the two to one answer.
+const STATUS_WORDS = {
+  booked: 'booked', confirmed: 'confirmed', 'part-arrived': 'some arrived here', arrived: 'arrived here',
+  'part-seated': 'some seated', seated: 'seated', check: 'bill check', paid: 'paid',
+  done: 'left done finished', cancelled: 'cancelled canceled', 'no-show': 'no-show noshow',
+};
+const SOURCE_WORDS = { staff: 'phone desk', online: 'online', 'walk-in': 'walk-in walkin', pos: 'till pos' };
+const WHEN_DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+const WHEN_MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+// Every way a host says the booking's time and day, matched WHOLE.
+function whenWords(t) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(String(t || ''));
+  if (!m) return [];
+  const H = +m[4], mm = m[5], h = H % 12 || 12, ap = H < 12 ? 'am' : 'pm';
+  const out = [m[4] + ':' + mm, m[4] + mm, H + ':' + mm, H + mm, h + ':' + mm, h + mm, h + ':' + mm + ap, h + mm + ap, ap,
+    m[1] + '-' + m[2] + '-' + m[3], (+m[3]) + '/' + (+m[2]), m[3] + '/' + m[2]];
+  if (mm === '00') out.push(h + ap);
+  const y = +m[1] - (+m[2] < 3 ? 1 : 0), wd = WHEN_DAYS[(y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) + [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4][+m[2] - 1] + +m[3]) % 7], mo = WHEN_MONTHS[+m[2] - 1];
+  out.push(wd, wd.slice(0, 3), mo, mo.slice(0, 3));
+  return out;
+}
+// Everything written on the booking, folded into one string to read words in.
+function bookingText(r) {
+  const dob = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(r.dob || ''));
+  return fold([r.name, r.email, r.notes, (Array.isArray(r.tags) ? r.tags : []).join(' '),
+    r.setMenu && r.setMenu.name, r.occasion, STATUS_WORDS[r.status] || r.status, SOURCE_WORDS[r.source] || r.source,
+    r.createdBy, r.guestNotes, r.dob, dob ? dob[3] + '/' + dob[2] + '/' + dob[1] : '',
+    (Array.isArray(r.events) ? r.events : []).map(e => e && e.text).join(' ')]
+    .filter(x => x != null && x !== '').join(' | '));
+}
+// The query as words: "6 people" is one word, the size; "45 + 46" is two.
+function queryWords(text) {
+  return String(text || '')
+    .replace(/(\d+)\s*(people|persons|person|pax|guests|guest|covers|ppl|p)\b/g, '$1p')
+    .split(/[\s,+]+/)
+    .filter(w => /[a-z0-9]/.test(w));
+}
+function primaryHit(r, q) {
+  const text = q.text || '';
+  if (text && fold(r.name).includes(text)) return true;
+  if (text && fold(r.email).includes(text)) return true;
+  // A phone is a query of digits and the marks a number is written with:
+  // "jones 0400" is a name and a number, not a phone.
+  if (/^[\d\s()+\-.]+$/.test(text) && q.digits.length >= MIN_PHONE_DIGITS && digits(r.phone).includes(q.digits)) return true;
+  // A reference is matched from its start, so a short query cannot sweep
+  // every booking made through /book; punctuation alone matches none.
+  const ref = text.replace(/[^a-z0-9]/g, '').toUpperCase();
+  if (ref && r.ref && String(r.ref).toUpperCase().startsWith(ref)) return true;
+  return false;
+}
+function wordHit(w, r, hay, when, labels) {
+  const size = /^(\d+)p$/.exec(w);
+  if (size) return String(r.partySize) === size[1];
+  if (!/^\d{1,2}$/.test(w) && hay.includes(w)) return true;
+  const bare = w.replace(/^t(?=[a-z]?\d)/, '');
+  if (labels.some(l => fold(l) === bare || fold(l) === w)) return true;
+  if (/^\d+$/.test(w) && String(r.partySize) === w) return true;
+  if (when.includes(w.replace(/^(\d{1,2})\.(\d{2})/, '$1:$2'))) return true;
+  const d = /^[\d()+\-.]+$/.test(w) ? digits(w) : '';
+  if (d.length >= MIN_PHONE_DIGITS && digits(r.phone).includes(d)) return true;
+  const ref = w.replace(/[^a-z0-9]/g, '').toUpperCase();
+  if (ref.length >= MIN_CHARS && r.ref && String(r.ref).toUpperCase().startsWith(ref)) return true;
+  return false;
+}
+// `labels` are the booking's tables as the room names them.
+function bookingHit(r, q, labels) {
+  if (!r || !q || !q.text) return false;
+  if (primaryHit(r, q)) return true;
+  const words = queryWords(q.text);
+  if (!words.length) return false;
+  const hay = bookingText(r), when = whenWords(r.time), tl = (labels || []).map(String);
+  return words.every(w => wordHit(w, r, hay, when, tl));
+}
+function tableLabels(r, tableName) {
+  const ids = [r && r.tableId].concat((r && Array.isArray(r.tableIds)) ? r.tableIds : []).filter(Boolean);
+  return ids.map(id => (typeof tableName === 'function' ? tableName(id) : id)).filter(Boolean);
+}
 // Every field goes through fold()/digits(), which tolerate undefined: a row
 // imported from the till has no email and no reference.
-function matches(r, q) {
+function matches(r, q, opts) {
   if (!r || !q || !q.ok) return false;
-  if (fold(r.name).includes(q.text)) return true;
-  if (q.text && fold(r.email).includes(q.text)) return true;
-  if (q.digits.length >= MIN_PHONE_DIGITS && digits(r.phone).includes(q.digits)) return true;
-  // A reference is matched from its start, so a short query cannot sweep every
-  // booking made through /book. `q.ref` must be non-empty or startsWith('')
-  // would say yes to all of them — which is how a punctuation-only query
-  // stays empty.
-  if (q.ref && r.ref && String(r.ref).toUpperCase().startsWith(q.ref)) return true;
-  return false;
+  return bookingHit(r, q, tableLabels(r, opts && opts.tableName));
 }
 
 // Both buckets read outward from now: the next booking first, and behind it
@@ -8488,8 +8570,14 @@ function searchReservations(reservations, rawQ, opts) {
   // Too short to mean anything: answer without touching the book at all.
   if (!q.ok) return { q: q.text, total: 0, capped: false, limit, upcomingCount: 0, results: [] };
   const nowTime = opts.nowTime || av.localTime(opts.now || new Date());
-  const hits = (reservations || []).filter(r => matches(r, q));
-  const results = relevanceSort(hits, nowTime).slice(0, limit);
+  const hits = (reservations || []).filter(r => matches(r, q, opts));
+  // A name, phone or reference hit ranks above a hit on anything else —
+  // inside each bucket, so upcoming still comes first and upcomingCount
+  // still draws the line between them.
+  const up = (r) => String((r && r.time) || '') >= nowTime;
+  const firstOf = (list) => list.filter(r => primaryHit(r, q)).concat(list.filter(r => !primaryHit(r, q)));
+  const ranked = relevanceSort(hits, nowTime);
+  const results = firstOf(ranked.filter(up)).concat(firstOf(ranked.filter(r => !up(r)))).slice(0, limit);
   return {
     q: q.text,
     total: hits.length,
@@ -8867,6 +8955,7 @@ module.exports = {
   confirmList,
   personKey, tillCustomerFor, tillOnly,
   fold, digits, prepareQuery, matches, relevanceSort, searchReservations,
+  bookingHit, primaryHit, whenWords, queryWords, bookingText, STATUS_WORDS, SOURCE_WORDS,
   MIN_CHARS, MIN_PHONE_DIGITS, DEFAULT_LIMIT, MAX_LIMIT,
   REGULAR_VISITS, VIP_TAGS, LENSES, hasAllergy, guestMatches, guestLens, guestLensCounts,
   BIRTHDAY_WINDOW, dobParts, daysToBirthday, ageOn, birthdaySoon,
@@ -11177,7 +11266,8 @@ app.get('/api/reservations/days', (req, res) => {
 // this route or Express will swallow "search" as an id.
 app.get('/api/reservations/search', (req, res) => {
   const data = readData();
-  res.json(search.searchReservations(data.reservations, req.query.q, { limit: req.query.limit, now: new Date() }));
+  const label = history.tableLabeller(tablesOf(data));
+  res.json(search.searchReservations(data.reservations, req.query.q, { limit: req.query.limit, now: new Date(), tableName: (id) => { const l = label(id); return l === 'a table' ? '' : l; } }));
 });
 
 app.post('/api/reservations', (req, res) => {
@@ -14530,20 +14620,81 @@ function deskFold(v) {
     .trim();
 }
 function deskDigits(v) { return String(v == null ? '' : v).replace(/\D+/g, ''); }
+// THE SEARCH READS THE WHOLE BOOKING (owner, 12 Oct): search.js's
+// bookingHit(), copied — the name, phone, email or reference first, else
+// every word of the query somewhere on the booking: the note, the tags, the
+// set menu, the occasion, where it came from and is up to, who made it, the
+// date of birth, the history, a table (whole: "4" is not 45, "t5" is 5), the
+// size ("6", "6 people") and the time ("7:30", "730", "19:30", "7pm").
+function deskWhenWords(t) {
+  const DAYS = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+  const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+  const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(String(t || ''));
+  if (!m) return [];
+  const H = +m[4], mm = m[5], h = H % 12 || 12, ap = H < 12 ? 'am' : 'pm';
+  const out = [m[4] + ':' + mm, m[4] + mm, H + ':' + mm, H + mm, h + ':' + mm, h + mm, h + ':' + mm + ap, h + mm + ap, ap,
+    m[1] + '-' + m[2] + '-' + m[3], (+m[3]) + '/' + (+m[2]), m[3] + '/' + m[2]];
+  if (mm === '00') out.push(h + ap);
+  const y = +m[1] - (+m[2] < 3 ? 1 : 0), wd = DAYS[(y + Math.floor(y / 4) - Math.floor(y / 100) + Math.floor(y / 400) + [0, 3, 2, 5, 0, 3, 5, 1, 4, 6, 2, 4][+m[2] - 1] + +m[3]) % 7], mo = MONTHS[+m[2] - 1];
+  out.push(wd, wd.slice(0, 3), mo, mo.slice(0, 3));
+  return out;
+}
+function deskText(r) {
+  const STATUS = {
+    booked: 'booked', confirmed: 'confirmed', 'part-arrived': 'some arrived here', arrived: 'arrived here',
+    'part-seated': 'some seated', seated: 'seated', check: 'bill check', paid: 'paid',
+    done: 'left done finished', cancelled: 'cancelled canceled', 'no-show': 'no-show noshow',
+  };
+  const SOURCE = { staff: 'phone desk', online: 'online', 'walk-in': 'walk-in walkin', pos: 'till pos' };
+  const dob = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(r.dob || ''));
+  return deskFold([r.name, r.email, r.notes, (Array.isArray(r.tags) ? r.tags : []).join(' '),
+    r.setMenu && r.setMenu.name, r.occasion, STATUS[r.status] || r.status, SOURCE[r.source] || r.source,
+    r.createdBy, r.guestNotes, r.dob, dob ? dob[3] + '/' + dob[2] + '/' + dob[1] : '',
+    (Array.isArray(r.events) ? r.events : []).map(e => e && e.text).join(' ')]
+    .filter(x => x != null && x !== '').join(' | '));
+}
+function deskWords(text) {
+  return String(text || '')
+    .replace(/(\d+)\s*(people|persons|person|pax|guests|guest|covers|ppl|p)\b/g, '$1p')
+    .split(/[\s,+]+/)
+    .filter(w => /[a-z0-9]/.test(w));
+}
+function deskPrimary(r, q) {
+  const text = q.text || '';
+  if (text && deskFold(r.name).includes(text)) return true;
+  if (text && deskFold(r.email).includes(text)) return true;
+  if (/^[\d\s()+\-.]+$/.test(text) && q.digits.length >= DESK_MIN_PHONE_DIGITS && deskDigits(r.phone).includes(q.digits)) return true;
+  const ref = text.replace(/[^a-z0-9]/g, '').toUpperCase();
+  if (ref && r.ref && String(r.ref).toUpperCase().startsWith(ref)) return true;
+  return false;
+}
+function deskWordHit(w, r, hay, when, labels) {
+  const size = /^(\d+)p$/.exec(w);
+  if (size) return String(r.partySize) === size[1];
+  if (!/^\d{1,2}$/.test(w) && hay.includes(w)) return true;
+  const bare = w.replace(/^t(?=[a-z]?\d)/, '');
+  if (labels.some(l => deskFold(l) === bare || deskFold(l) === w)) return true;
+  if (/^\d+$/.test(w) && String(r.partySize) === w) return true;
+  if (when.includes(w.replace(/^(\d{1,2})\.(\d{2})/, '$1:$2'))) return true;
+  const d = /^[\d()+\-.]+$/.test(w) ? deskDigits(w) : '';
+  if (d.length >= DESK_MIN_PHONE_DIGITS && deskDigits(r.phone).includes(d)) return true;
+  const ref = w.replace(/[^a-z0-9]/g, '').toUpperCase();
+  if (ref.length >= 2 && r.ref && String(r.ref).toUpperCase().startsWith(ref)) return true;
+  return false;
+}
+function deskHit(r, q, labels) {
+  if (!r || !q || !q.text) return false;
+  if (deskPrimary(r, q)) return true;
+  const words = deskWords(q.text);
+  if (!words.length) return false;
+  const hay = deskText(r), when = deskWhenWords(r.time), tl = (labels || []).map(String);
+  return words.every(w => deskWordHit(w, r, hay, when, tl));
+}
 function deskMatch(r, q) {
   if (!q.text && !q.digits) return true;
-  if (q.text && deskFold(r.name).includes(q.text)) return true;
-  if (q.text && deskFold(r.email).includes(q.text)) return true;
-  if (q.text && String(r.ref || '').toLowerCase().startsWith(q.text)) return true;
-  // The table is what a host has in their hand as often as the name:
-  // "who is on six?"
-  // A leading "t" is forgiven: the screens dropped it, the habit has not.
-  const asTable = q.text.replace(/^t(?=\d)/, '');
   // The tables the row SHOWS — the desk's own pick too, drawn faint on the
   // row: "44" found nobody while the nine's row said 44 (daily round, 1 Oct).
-  if (q.text && tablesFor(r).some(id => deskFold(tableName(id)).includes(asTable))) return true;
-  if (q.digits.length >= DESK_MIN_PHONE_DIGITS && deskDigits(r.phone).includes(q.digits)) return true;
-  return false;
+  return deskHit(r, q, tablesFor(r).map(id => String(tableName(id)).split(' \u00b7 ').pop()).filter(l => l && l !== '\u2014'));
 }
 function deskQuery() {
   const raw = String(state.deskQ || '').trim();
@@ -17593,32 +17744,36 @@ function elsewhereTonight(q) {
   return `<div class="nt-more">${hits.map(r => { const sv = home(r);
     return `<button class="btn" data-act="svc-pick" data-val="${esc(sv ? sv.id : '')}">${esc(r.name)} · ${sv ? esc(sv.name) + ' ' : ''}${esc(fmtHHMM(hhmmOf(r.time)))}</button>`; }).join('')}</div>`;
 }
-// §§ NEXT AT THE DOOR (owner, 10 Oct, v61: "Yes"). Twenty seconds with
-// nobody touching the desk during a service, and the top of the list is the
-// next three parties due as big cards, readable from the door: the tab is
-// the table and the next step, then the name and how many, the time, and
-// one line saying whether their table is ready — "13 is ready", "12 frees
-// about 8:05 · Duarte paid" — the tab's own answer (stillEating() on the
-// floor at the clock) and the sitting's own end (sitLeft()). WHO is
-// doorNextLocal(), the tested rule's copy. Never while a message, a menu,
-// the welcome card, a booking, a picker, the tidy or a search is open, never
-// while a pointer is down, and never on another night or after service.
-const DOOR_QUIET_MS = 20000;
-let _doorQuietAt = Date.now(), _doorDrawn = false;
+// §§ NEXT AT THE DOOR (owner, 10 Oct, v61; THE FIVE, 12 Oct: "make the
+// first 5 bigger… remove the bs text info underneath the name"). During a
+// service on tonight the next five due (doorNextLocal(), the tested rule's
+// copy) are the first thing in Upcoming: five big cards, one size, evenly
+// spaced — the table's number alone on the tab, then "Name · size" and the
+// time on ONE line. Nothing under the name. A tap on a card is the tab's next
+// step. They are ALWAYS there during the service: nothing that comes and
+// goes (a message, the welcome card, a booking, a picker, a menu, a touch)
+// takes them down, because cards that left and came back would be the list
+// jumping under the host. A search is a different list and the tidy another
+// page, so they stand down for those, and for the run sheet and another side.
+let _doorDrawn = false;
+// THEY RISE ONLY ON A LIST AT ITS TOP (review, 10 Oct; again 12 Oct): the
+// service opening on the clock put five cards above rows being read and
+// pushed them 500 down. Already drawn, they stay; not yet, they wait for a
+// list that is drawn, at its top, and no finger down.
+function doorMayRise() {
+  if (pressing()) return false;
+  const col = document.querySelector('.desk-col');
+  return !!col && col.getClientRects().length > 0 && !(col.scrollTop > 8);
+}
+function doorWant(was) { return doorShown() && (was || doorMayRise()); }
 function doorShown() {
   if (state.view !== 'today' || state.side !== 'book' || state.todayMode === 'sheet') return false;
-  if (state.toast || state.modal || state.welcome || state.walkin || state.picking || state.nightOpen || state.menuOpen || state.tidy || state.dragging) return false;
-  if (deskQuery().on || pressing() || Date.now() - _doorQuietAt < DOOR_QUIET_MS) return false;
-  // Only on a list that is DRAWN and at its top (review, 10 Oct): scrolled
-  // down, the cards rose above the rows being read and pushed them 200 down,
-  // and behind a phone's Floor they were three cards nobody could see.
-  const col = document.querySelector('.desk-col');
-  if (!col || !col.getClientRects().length || col.scrollTop > 8) return false;
+  if (state.tidy || deskQuery().on) return false;
   return doorNextLocal().show;
 }
-// What the card says about the table: ready, or who is on it and when it
-// frees — their sitting's end, read off the clock as the row's "39 min left"
-// is — and, while they are waiting at the door, what to tell them.
+// Whether the card's table is ready, and when not, when it frees — their
+// sitting's end, read off the clock as the row's "39 min left" is — said to
+// a reader (aria) and stamped (data-ih), never drawn under the name.
 function doorTable(r, room, now) {
   const held = tablesFor(r), words = held.map(tableName).join(' + ');
   const occ = stillEating(room, r);
@@ -17631,109 +17786,87 @@ function doorTable(r, room, now) {
   // said of who is paying (owner: "too much info").
   const turn = occ ? turnOn(room, r) : null;
   const inHand = !occ || turn ? held.find(id => holdAt(id, span)) : null;
-  if (inHand) return { ready: false, words, occ: inHand, mins: null, frees: `${tableName(inHand)} in hand · ${holdAt(inHand, span).by}`, what: '' };
+  if (inHand) return { ready: false, words, occ: inHand, mins: null, frees: `${tableName(inHand)} in hand · ${holdAt(inHand, span).by}` };
   if (turn) return { ready: true, words, turn };
   if (!occ) return { ready: true, words };
   const f = room.find(x => x.id === occ);
   const on = f && f.r && f.r.id !== r.id && (isSat(f.r) || isHere(f.r)) ? f.r : null;
-  const name = on ? (on.name || 'Walk-in') : '';
   if (on && isSat(on)) {
-    const left = sitLeft(on, now), mins = Math.max(0, left);
+    const mins = Math.max(0, sitLeft(on, now));
     const at = fmtHHMM(fromMin(tradingNowMin() + mins)).replace(/\s?[AP]M$/i, '');
-    const what = on.status === 'paid' ? `${name} paid` : on.status === 'check' ? `${name} have the bill` : left < 0 ? `${name} ${waitWords(-left)} over` : `${name} eating`;
-    return { ready: false, words, occ, mins, at, frees: mins ? `${tableName(occ)} frees about ${at}` : `${tableName(occ)} frees any minute`, what };
+    return { ready: false, words, occ, mins, frees: mins ? `${tableName(occ)} frees about ${at}` : `${tableName(occ)} frees any minute` };
   }
-  if (on) return { ready: false, words, occ, mins: null, frees: `${tableName(occ)} taken`, what: `${name} waiting for it` };
-  return { ready: false, words, occ, mins: null, frees: `${tableName(occ)} still eating`, what: 'on the till' };
+  if (on) return { ready: false, words, occ, mins: null, frees: `${tableName(occ)} taken` };
+  return { ready: false, words, occ, mins: null, frees: `${tableName(occ)} still eating` };
 }
 function doorCard(r, room, now) {
   const late = lateBy(r, now), here = isHere(r), t = doorTable(r, room, now);
-  const held = tablesFor(r), label = tableName(held[0]) + (held.length > 1 ? '+' : '');
-  // IN ANOTHER TABLET'S HAND (daily round, 11 Oct): the card is the row,
-  // quiet — "in hand · Bar", and a tap asks "Take it from Bar?" under the
-  // row it shrinks back to, as the row's own key does.
+  // The table's number alone: no "+" for a join, no word under it (owner, 12 Oct).
+  const held = tablesFor(r), label = tableName(held[0]);
+  // IN ANOTHER TABLET'S HAND (daily round, 11 Oct): the card goes quiet and
+  // its right column says whose hand — "in hand · Bar", the row's own key —
+  // and a tap asks "Take it from Bar?" under the card, as the row does.
   const ih = holdOn(r.id);
   if (ih) return `<button class="door-card ih" data-act="ih-take" data-id="${esc(r.id)}" data-ih="${esc(ih.by)}" aria-label="${esc(`${r.name || 'Booking'}: in hand at ${ih.by}. Take it?`)}">
-    <span class="dc-tab"><span class="dc-no">${esc(label)}</span><span class="dc-do"></span></span>
-    <span class="dc-main"><span class="dc-name"><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span>
-      <span class="dc-say"><i>in hand · ${esc(ih.by)}</i></span></span>
-    <span class="dc-rt">${esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''))}</span>
-  </button>`;
-  const said = [];
-  if (here) said.push('<i class="here">Here</i>');
-  if (late) said.push(`<i class="late">${esc(waitWords(late))} late</i>`);
-  if (t.ready) said.push(`<i class="ink">${esc(t.words)} is ready</i>`);
-  else {
-    // At the door the wait is said once: what to tell them, and the tab
-    // already says when the table frees (review, 10 Oct).
-    if (here) said.push(`<i class="here">${t.mins ? 'say about ' + esc(waitWords(t.mins)) : t.mins === 0 ? 'say any minute' : 'say a few minutes'}</i>`);
-    const frees = here && t.mins !== null ? null : t.frees;
-    if (frees) said.push(`<i>${esc(frees)}</i>`);
-    if (t.what) said.push(`<i>${esc(t.what)}</i>`);
-  }
+    <span class="dc-tab"><span class="dc-no">${esc(label)}</span></span>
+    <span class="dc-main"><span class="dc-name"><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span></span>
+    <span class="dc-rt dc-ih"><i>in hand ·</i><span>${esc(ih.by)}</span></span>
+  </button>${state.ihAsk === r.id ? ihAskHtml(ih) : ''}`;
+  // THE ROW MADE BIG (review, 12 Oct): the tab is the next step, the middle
+  // opens the booking, as a row's do — a tap on the name seated Okafor — and
+  // a late party with a phone has the row's Call where the time stood.
   const act = t.turn ? 'row-turn' : t.ready ? 'door-seat' : here ? 'edit-booking' : 'door-here';
   const turnAt = t.turn ? ` data-paid="${esc(t.turn.paid.id)}" data-table="${esc(t.turn.table)}"` : '';
   const tab = here ? 'here' : late ? 'late' : t.ready ? 'seat' : '';
-  const word = t.ready ? 'Seat' : here ? (t.at || '—') : 'Here';
-  const aria = t.ready ? `Seat ${r.name || 'them'} at ${t.words}` : here ? `${r.name || 'Booking'}, here: ${t.frees}` : `${r.name || 'Booking'} is here: ${t.frees}`;
-  return `<button class="door-card${here ? ' is-here' : ''}" data-act="${act}" data-id="${esc(r.id)}"${turnAt} data-ih="${t.ready || !/ in hand · /.test(t.frees || '') ? '' : esc(t.frees)}" aria-label="${esc(aria)}">
-    <span class="dc-tab ${tab}${t.ready ? '' : ' busy'}"><span class="dc-no">${esc(label)}</span><span class="dc-do">${esc(word)}</span></span>
-    <span class="dc-main"><span class="dc-name"><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span>
-      <span class="dc-say">${said.map((u, i) => i ? `<b>·&nbsp;${u}</b>` : u).join(' ')}</span></span>
-    <span class="dc-rt">${esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''))}</span>
-  </button>`;
+  const aria = t.ready ? `Seat ${r.name || 'them'} at ${t.words}` : here ? `${r.name || 'Booking'}, here: ${t.frees}. Open the booking` : `${r.name || 'Booking'} is here: ${t.frees}`;
+  const tel = late ? String(r.phone || '').replace(/[^\d+]/g, '') : '';
+  const rt = tel ? `<a class="dk-k dc-call" href="tel:${esc(tel)}" aria-label="Call ${esc(r.name || '')}">${I.phone}</a>` : esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''));
+  return `<div class="door-card${here ? ' is-here' : ''}" data-id="${esc(r.id)}">
+    <button class="dc-tab ${tab}${t.ready ? '' : ' busy'}" data-act="${act}" data-id="${esc(r.id)}"${turnAt} data-ih="${t.ready || !/ in hand · /.test(t.frees || '') ? '' : esc(t.frees)}" aria-label="${esc(aria)}"><span class="dc-no">${esc(label)}</span></button>
+    <button class="dc-main" data-act="edit-booking" data-id="${esc(r.id)}"><span class="dc-name"><span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></span></button>
+    <span class="dc-rt">${rt}</span>
+  </div>`;
 }
-// A CARD ANSWERS ONLY ONCE IT HAS STOOD STILL (review, 10 Oct). The cards
-// rise on a timer, so they rose under a finger already on its way to a row:
-// aimed at Lee, the tap seated Okafor. What the cards say — who, in what
-// order, and what a tap does — is remembered with when it was first drawn
-// (_doorSig, _doorSigAt), and a card's tap counts only from a press that
-// went down DOOR_SETTLE_MS after that; the poll redrawing the same cards
-// keeps the stamp, a different first card is a new one.
-const DOOR_SETTLE_MS = 600;
-let _doorSig = '', _doorSigAt = 0, _downAt = 0, _doorShrinkAt = 0;
+// A CARD ANSWERS ONLY ONCE IT HAS STOOD STILL (review, 10 Oct). The five
+// move as parties are seated and the next comes up, so a finger already on
+// its way can land on a card that just slid there. What the cards say — who,
+// in what order, what a tap does, whose hand a party or table is in, who the
+// turn clears — is stamped when first drawn (_doorSig, _doorSigAt), and a
+// card's tap counts only from a press that went down DOOR_SETTLE_MS after
+// that; the poll redrawing the same cards keeps the stamp.
+const DOOR_SETTLE_MS = 300;
+let _doorSig = '', _doorSigAt = 0, _downAt = 0, _doorMovedAt = 0, _doorCount = 0;
 function doorCards(list, room, now) {
   const cards = list.map(r => doorCard(r, room, now));
-  // Who has it in hand is part of what a card says: a hold moving restamps it.
-  // So is who the turn clears (data-paid): another party at the bill is another tap.
-  const sig = list.map((r, i) => r.id + ':' + (cards[i].match(/data-act="([^"]+)"/) || [])[1] + ':' + (cards[i].match(/data-ih="([^"]*)"/) || [])[1]
-    + ':' + (cards[i].match(/data-paid="([^"]*)"/) || [])[1]).join(',');
+  // Who has it in hand is part of what a card says (a hand moving restamps
+  // it); so is who the turn clears (data-paid).
+  const sig = cards.map((c, k) => list[k].id + ':' + (c.match(/data-act="([^"]+)"/) || [])[1] + ':' + (c.match(/data-ih="([^"]*)"/) || [])[1]
+    + ':' + (c.match(/data-paid="([^"]*)"/) || [])[1]).join('|');
   if (sig !== _doorSig) { _doorSig = sig; _doorSigAt = Date.now(); }
-  return `<div class="bl-head door"><span class="bl-h-name">Next at the door</span></div><div class="bl-rows door-rows">${cards.join('')}</div>`;
+  return `<div class="door-five">${cards.join('')}</div>`;
 }
-// A TOUCH NEVER REPAINTS UNDER THE PRESS (review, 10 Oct). The cards shrank
-// on pointerdown, which replaced the element under a mouse and sent its
-// click to the parent: New booking, Walk-in, the search and a table all did
-// nothing the first time. The press only marks the desk busy; the cards
-// shrink once it has landed — the turn after its click, which a finger's
-// tap sends a task AFTER pointerup (a shrink on pointerup slid a row under
-// the click), or, for a press that sends no click (a scroll, a held finger),
-// DOOR_SETTLE_MS after it lifts.
-document.addEventListener('pointerdown', (e) => {
-  _downAt = _doorQuietAt = Date.now();
-}, true);
-function doorShrink() { if (_doorDrawn && !doorShown()) { _doorShrinkAt = Date.now(); render(); } }
-for (const k of ['pointerup', 'pointercancel']) document.addEventListener(k, () => { setTimeout(doorShrink, DOOR_SETTLE_MS); }, true);
-for (const k of ['keydown', 'wheel']) document.addEventListener(k, () => { _doorQuietAt = Date.now(); if (_doorDrawn) render(); }, { capture: true, passive: true });
-// A card's tap from a press that came before the card stood still is
-// swallowed; so is any tap pressed while the list was still sliding up
-// after the shrink (SEAT_SETTLE_MS), so a second tap aimed at a row that
-// moved never lands on what slid under it.
+// A PRESS NEVER REPAINTS UNDER ITSELF (review, 10 Oct): the press only
+// stamps when it went down. A card's tap from a press that came before the
+// card stood still is swallowed.
+document.addEventListener('pointerdown', () => { _downAt = Date.now(); }, true);
 document.addEventListener('click', (ev) => {
-  if (_doorDrawn) setTimeout(doorShrink, 0);
   if (!ev.detail) return;
   const card = closest(ev.target, '.door-card');
   const fresh = card && _downAt - _doorSigAt < DOOR_SETTLE_MS;
-  const sliding = _doorShrinkAt && _downAt > _doorShrinkAt && _downAt - _doorShrinkAt < SEAT_SETTLE_MS;
-  if (fresh || sliding) { ev.stopImmediatePropagation(); ev.preventDefault(); }
+  // The five came, went or changed in number on the clock: the list under
+  // them slid, and for a moment a tap on it answers nothing.
+  const slid = _doorMovedAt && closest(ev.target, '.desk-col') && Math.abs(_downAt - _doorMovedAt) < SEAT_SETTLE_MS;
+  if (fresh || slid) { ev.stopImmediatePropagation(); ev.preventDefault(); }
 }, true);
-// They come back after the next twenty quiet seconds, asked between presses.
+// The service opening, or closing, brings them or takes them, asked once a
+// second between presses.
 setInterval(() => {
   if (pressing() || state.dragging) return;
-  if (doorShown() !== _doorDrawn) render();
+  if (doorWant(_doorDrawn) !== _doorDrawn) render();
 }, 1000);
 
 function renderDayList() {
+  const was = _doorDrawn;
   _doorDrawn = false;
   const all = state.reservations.filter(onPickedBook).slice().sort((a, b) => a.time.localeCompare(b.time));
   const q = deskQuery();
@@ -17743,8 +17876,8 @@ function renderDayList() {
   const line = q.on ? lineAll.filter(w => lineMatch(w, q)) : lineAll;
   const find = `<div class="bl-find">
     <span class="bl-find-i">${I.search}</span>
-    <input type="search" id="desk-q" placeholder="Name, phone or table" value="${esc(state.deskQ)}"
-      data-field="deskQ" autocomplete="off" aria-label="Search tonight's bookings">
+    <input type="search" id="desk-q" value="${esc(state.deskQ)}"
+      data-field="deskQ" autocomplete="off" aria-label="Search">
     ${q.on ? `<button class="chip sq" data-act="desk-clear" aria-label="Clear">${I.cross}</button>` : ''}
   </div>`;
   // Nobody tonight for this search: their bookings on other nights, if any.
@@ -17778,11 +17911,11 @@ function renderDayList() {
   const nowM = tradingNowMin(), tonight = state.date === tradingDay();
   const room = tonight ? floorStateAt(pad2(Math.floor(nowM / 60)) + ':' + pad2(nowM % 60), true) : [];
   const busyOn = (r) => stillEating(room, r);
-  // NEXT AT THE DOOR (v61): on a quiet desk the next three due stand above
-  // the groups as cards, and Upcoming lists the rest.
-  const door = tonight && doorShown() ? doorNextLocal().list : [];
+  // NEXT AT THE DOOR: the next five due are the top of Upcoming, as cards.
+  const door = tonight && doorShown() && (was || doorMayRise()) ? doorNextLocal().list : [];
   const doorIds = new Set(door.map(r => r.id));
   _doorDrawn = door.length > 0;
+  if (door.length !== _doorCount) { _doorCount = door.length; _doorMovedAt = Date.now(); }
   const row = (r) => {
     const held = tablesFor(r), auto = isAutoTable(r), now = Date.now();
     const ended = !isLive(r), sat = isSat(r), here = isHere(r), late = tonight ? lateBy(r, now) : 0;
@@ -17872,7 +18005,6 @@ function renderDayList() {
   // list, and they live on the Flow now, where there is a row for them.
   return find + nt + `<div class="bl">
     ${q.on ? '' : renderOpened() + renderTidyLine()}
-    ${door.length ? doorCards(door, room, Date.now()) : ''}
     ${(() => {
       // A group with a PICK takes its rows out of the day before the rest see
       // it, so nothing is listed twice — and the door's cards take theirs.
@@ -17899,10 +18031,17 @@ function renderDayList() {
         // · 0 people" stood on Tomorrow and under every search, and
         // "Upcoming 0" on last night. What a group lists is what it counts,
         // the line included.
-        if (!list.length && !waiting.length) return '';
+        // THE FIVE ARE THE TOP OF UPCOMING (owner, 12 Oct: "I don't want a
+        // separate section"): first under its head, then Upcoming's own order
+        // without them; the head counts them all.
+        const five = key === 'upcoming' ? door : [];
+        if (!list.length && !waiting.length && !five.length) return '';
         const at = list.filter(isHere).length;
+        const top = five.length && !state.listShut[key] ? doorCards(five, room, now) : '';
         const body = list.slice(0, at).map(row).concat(waiting.map(w => lineRow(w, w.place, now)), list.slice(at).map(row));
-        return head(key, name, list, waiting) + (state.listShut[key] || !body.length ? '' : `<div class="bl-rows">${body.join('')}</div>`);
+        // The five stand on the ground, 4 apart, each its own card; the rest
+        // are the white block of docket lines under them, 4 below the last.
+        return head(key, name, five.concat(list), waiting) + (state.listShut[key] ? '' : top + (body.length ? `<div class="bl-rows">${body.join('')}</div>` : ''));
       }).join('');
     })()}
   </div>`;
@@ -18341,7 +18480,7 @@ function renderGuests() {
   const searching = !!String(state.guestQ || '').trim();
   return `
   <div class="band">
-    <input type="search" id="guest-q" placeholder="Search name, phone or email" value="${esc(state.guestQ)}" data-field="guestQ" style="max-width:360px;min-height:var(--tap);" autocomplete="off">
+    <label class="q-find" style="max-width:360px;">${I.search}<input type="search" id="guest-q" aria-label="Search" value="${esc(state.guestQ)}" data-field="guestQ" style="min-height:var(--tap);" autocomplete="off"></label>
     <span class="spacer"></span>
     <span class="ts mono">${total} guest${total === 1 ? '' : 's'}${shown < total ? ' · showing ' + shown : ''}${state.guestFromTill ? ' · ' + state.guestFromTill + ' on the till' : ''}</span>
   </div>
@@ -18859,13 +18998,13 @@ function renderFindModal() {
   // With the server unreachable the error above is the honest line — do not
   // also claim nothing matched, because nothing was asked.
   const hint = f.q.trim().length < FIND_MIN
-    ? '<div class="ts" style="margin-top:8px;">Type at least two letters of a name, three digits of a phone number, or a booking reference.</div>'
+    ? ''
     : !f.results.length && !f.error ? `<div class="ts" style="margin-top:8px;">No booking matches “${esc(f.q)}”.</div>` : '';
   return `<div class="modal-bg" data-act="close-modal"><div class="modal" data-stop="1">
     <h2>Find a booking${f.total ? ` <span class="tag mono">${f.total} match${f.total === 1 ? '' : 'es'}</span>` : ''}</h2>
     ${f.error ? `<div class="err">${esc(f.error)}</div>` : ''}
-    <input id="find-q" type="search" value="${esc(f.q)}" data-field="find.q" placeholder="Name, phone, email or reference" autocomplete="off" aria-label="Find a booking">
-    ${f.capped ? `<div class="ts" style="margin-top:8px;">Showing the first ${f.limit} of ${f.total}. Type more of the name, number or reference to narrow it.</div>` : ''}
+    <label class="q-find">${I.search}<input id="find-q" type="search" value="${esc(f.q)}" data-field="find.q" autocomplete="off" aria-label="Search"></label>
+    ${f.capped ? `<div class="ts" style="margin-top:8px;">Showing the first ${f.limit} of ${f.total}. Type more to narrow it.</div>` : ''}
     <div class="find-list" data-keep="find">
       ${up.length ? `<div class="section-h">Upcoming <span class="count">${up.length}</span></div><div class="rows">${up.map(row).join('')}</div>` : ''}
       ${past.length ? `<div class="section-h">Earlier <span class="count">${past.length}</span></div><div class="rows">${past.map(row).join('')}</div>` : ''}
