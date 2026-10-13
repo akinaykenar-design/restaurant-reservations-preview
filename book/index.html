@@ -3664,6 +3664,7 @@ body{font-family:var(--font-body);}
 .dk-tab.stg-bill{background:var(--fill-bill);color:var(--ink);}
 .dk-tab.stg-paid{background:var(--fill-paid);color:var(--ink);}
 .dk-tab.stg-noshow{background:var(--fill-noshow);color:var(--fill-noshow-ink);}
+.dk-tab.stg-gone{color:var(--mute);}
 .shell.simple .fl-table.stg-bill{background:var(--fill-bill);}
 .shell.simple .fl-table.stg-paid{background:var(--fill-paid);}
 /* And the timeline and the flow say the same: a party at the door is a
@@ -6425,6 +6426,31 @@ function mergeTables(plans, list, newId) {
   return plans.map((fp, pi) => Object.assign({}, fp, { id: fp.id || 'fp' + (pi + 1), name: fp.name || 'Main', tables: rooms[pi].decor.concat(rooms[pi].tables) }));
 }
 
+// THE ROOM'S NUMBERS ARE ITS OWN (daily round, 13 Oct). A cleared number was
+// stored as a copy of another table's, 22 could be typed twice, and a table
+// went with Petrov still booked on it tonight. Asked before the room is
+// written: every table a number, no number twice, and no table taken away
+// while a live booking from tonight on still names it.
+function tablesRefusal(list, oldTables, reservations, today) {
+  const seen = new Set();
+  for (const t of (Array.isArray(list) ? list : [])) {
+    if (!t) continue;
+    const n = String(t.label == null ? '' : t.label).trim();
+    if (!n) return 'Every table needs a number';
+    const k = n.toLowerCase();
+    if (seen.has(k)) return 'Two tables are called ' + n;
+    seen.add(k);
+  }
+  const kept = new Set((list || []).filter(Boolean).map(t => t.id));
+  for (const t of (oldTables || [])) {
+    if (!t || kept.has(t.id)) continue;
+    const r = (reservations || []).find(x => x && isLive(x) && String(x.time || '').slice(0, 10) >= today
+      && [x.tableId].concat(x.tableIds || []).includes(t.id));
+    if (r) return (r.name || 'A booking') + ' is booked on ' + t.label + ' · move them first';
+  }
+  return null;
+}
+
 // §§ THE BILL AND THE PAYMENT COME FROM THE TILL
 // A bill is printed at the till and paid at the till, so a host pressing
 // "Bill" or "Paid" at the desk is typing out something another machine
@@ -8572,7 +8598,7 @@ function doorNext(ctx, day, opts) {
 }
 
 module.exports = {
-  statusStamps, mergeTables,
+  statusStamps, mergeTables, tablesRefusal,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
@@ -9334,7 +9360,7 @@ function append(list, events, max) {
   return out.length > cap ? out.slice(-cap) : out;
 }
 
-module.exports = { MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, auditWords, diffReservation, changeEvents, createdEvent, noteEvent, append };
+module.exports = { STATUS_TEXT, MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, auditWords, diffReservation, changeEvents, createdEvent, noteEvent, append };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./history'] = module;
@@ -9447,10 +9473,22 @@ function primaryHit(r, q) {
   if (ref && r.ref && String(r.ref).toUpperCase().startsWith(ref)) return true;
   return false;
 }
+// A word shaped like a time ("7:30", "730", "7pm") is the booking's own time
+// and nothing else: read inside the history it found "17:30" for "7:30"
+// (daily round, 13 Oct).
+function timeWord(w) {
+  const m = /^(\d{1,2})(?:[:.]?(\d{2}))?(am|pm)?$/.exec(w);
+  if (!m || (!m[2] && !m[3]) || (!m[2] && w.length < 3)) return false;
+  return +m[1] < 24 && (!m[2] || +m[2] < 60);
+}
 function wordHit(w, r, hay, when, labels) {
   const size = /^(\d+)p$/.exec(w);
   if (size) return String(r.partySize) === size[1];
-  if (!/^\d{1,2}$/.test(w) && hay.includes(w)) return true;
+  if (!/^\d{1,2}$/.test(w) && !timeWord(w) && hay.includes(w)) return true;
+  // "F. Duarte", the short form the list shows (THE WHOLE NAME): a lone
+  // initial is a name word that starts with it.
+  const ini = /^([a-z])\.$/.exec(w);
+  if (ini) return fold(r.name).split(/[^a-z0-9]+/).some(x => x.startsWith(ini[1]));
   const bare = w.replace(/^t(?=[a-z]?\d)/, '');
   if (labels.some(l => fold(l) === bare || fold(l) === w)) return true;
   if (/^\d+$/.test(w) && String(r.partySize) === w) return true;
@@ -11829,6 +11867,9 @@ app.put('/api/settings', async (req, res) => {
     if (o.line !== undefined) s.online.line = !!o.line;
     if (o.asks !== undefined) s.online.asks = av.asksOf(Object.assign({}, s.online.asks, o.asks));
   }
+  // Online never books more than the desk books (daily round, 13 Oct: a nine
+  // booked online past a Largest party of six, here and on the relay).
+  if (s.online) s.online.maxPartySize = Math.min(s.online.maxPartySize, s.maxPartySize || 200);
   if (b.noShowAfterMinutes !== undefined) s.noShowAfterMinutes = Math.max(5, Math.min(180, parseInt(b.noShowAfterMinutes) || 30));
   if (b.dayStartsAt !== undefined) { const h = parseInt(b.dayStartsAt, 10); s.dayStartsAt = Number.isFinite(h) && h >= 0 && h <= 12 ? h : 4; }
   if (b.pos) {
@@ -11997,6 +12038,8 @@ app.put('/api/tables', async (req, res) => {
   const data = readData();
   if (pos.ready(data.settings.pos) && data.settings.pos.useFloor !== false) return res.status(400).json({ error: 'Tables come from the POS while it is linked. Edit them there.' });
   const list = Array.isArray(req.body && req.body.tables) ? req.body.tables : [];
+  const refused = av.tablesRefusal(list, tablesOf(data), data.reservations, tradingDay(data));
+  if (refused) return res.status(400).json({ error: refused });
   // Every table back to its own room, every room kept (av.mergeTables).
   const plans = av.mergeTables(data.floorPlans, list, () => newId('t'));
   const tables = [].concat(...plans.map(fp => fp.tables.filter(t => t.type !== 'decor')));
@@ -12332,7 +12375,8 @@ function changeReservation(data, cur, body, who, opts) {
   if (cur.name !== next.name || cur.phone !== next.phone) touchGuest(data, cur);
   if (!cur.guestId) touchGuest(data, cur);
   recountGuest(data, cur.guestId);
-  logAudit(data, who, statusChanged ? `${cur.name}: ${cur.status}` : `Edited booking for ${cur.name}`);
+  // In the desk's words: "Okafor: done" in Recent activity (daily round, 13 Oct).
+  logAudit(data, who, statusChanged ? `${cur.name}: ${history.STATUS_TEXT[cur.status] || cur.status}` : `Edited booking for ${cur.name}`);
   return { r: cur };
 }
 

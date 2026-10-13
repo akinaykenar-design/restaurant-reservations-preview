@@ -3679,6 +3679,7 @@ body{font-family:var(--font-body);}
 .dk-tab.stg-bill{background:var(--fill-bill);color:var(--ink);}
 .dk-tab.stg-paid{background:var(--fill-paid);color:var(--ink);}
 .dk-tab.stg-noshow{background:var(--fill-noshow);color:var(--fill-noshow-ink);}
+.dk-tab.stg-gone{color:var(--mute);}
 .shell.simple .fl-table.stg-bill{background:var(--fill-bill);}
 .shell.simple .fl-table.stg-paid{background:var(--fill-paid);}
 /* And the timeline and the flow say the same: a party at the door is a
@@ -6439,6 +6440,31 @@ function mergeTables(plans, list, newId) {
   return plans.map((fp, pi) => Object.assign({}, fp, { id: fp.id || 'fp' + (pi + 1), name: fp.name || 'Main', tables: rooms[pi].decor.concat(rooms[pi].tables) }));
 }
 
+// THE ROOM'S NUMBERS ARE ITS OWN (daily round, 13 Oct). A cleared number was
+// stored as a copy of another table's, 22 could be typed twice, and a table
+// went with Petrov still booked on it tonight. Asked before the room is
+// written: every table a number, no number twice, and no table taken away
+// while a live booking from tonight on still names it.
+function tablesRefusal(list, oldTables, reservations, today) {
+  const seen = new Set();
+  for (const t of (Array.isArray(list) ? list : [])) {
+    if (!t) continue;
+    const n = String(t.label == null ? '' : t.label).trim();
+    if (!n) return 'Every table needs a number';
+    const k = n.toLowerCase();
+    if (seen.has(k)) return 'Two tables are called ' + n;
+    seen.add(k);
+  }
+  const kept = new Set((list || []).filter(Boolean).map(t => t.id));
+  for (const t of (oldTables || [])) {
+    if (!t || kept.has(t.id)) continue;
+    const r = (reservations || []).find(x => x && isLive(x) && String(x.time || '').slice(0, 10) >= today
+      && [x.tableId].concat(x.tableIds || []).includes(t.id));
+    if (r) return (r.name || 'A booking') + ' is booked on ' + t.label + ' · move them first';
+  }
+  return null;
+}
+
 // §§ THE BILL AND THE PAYMENT COME FROM THE TILL
 // A bill is printed at the till and paid at the till, so a host pressing
 // "Bill" or "Paid" at the desk is typing out something another machine
@@ -8586,7 +8612,7 @@ function doorNext(ctx, day, opts) {
 }
 
 module.exports = {
-  statusStamps, mergeTables,
+  statusStamps, mergeTables, tablesRefusal,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
@@ -9348,7 +9374,7 @@ function append(list, events, max) {
   return out.length > cap ? out.slice(-cap) : out;
 }
 
-module.exports = { MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, auditWords, diffReservation, changeEvents, createdEvent, noteEvent, append };
+module.exports = { STATUS_TEXT, MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, auditWords, diffReservation, changeEvents, createdEvent, noteEvent, append };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./history'] = module;
@@ -9461,10 +9487,22 @@ function primaryHit(r, q) {
   if (ref && r.ref && String(r.ref).toUpperCase().startsWith(ref)) return true;
   return false;
 }
+// A word shaped like a time ("7:30", "730", "7pm") is the booking's own time
+// and nothing else: read inside the history it found "17:30" for "7:30"
+// (daily round, 13 Oct).
+function timeWord(w) {
+  const m = /^(\d{1,2})(?:[:.]?(\d{2}))?(am|pm)?$/.exec(w);
+  if (!m || (!m[2] && !m[3]) || (!m[2] && w.length < 3)) return false;
+  return +m[1] < 24 && (!m[2] || +m[2] < 60);
+}
 function wordHit(w, r, hay, when, labels) {
   const size = /^(\d+)p$/.exec(w);
   if (size) return String(r.partySize) === size[1];
-  if (!/^\d{1,2}$/.test(w) && hay.includes(w)) return true;
+  if (!/^\d{1,2}$/.test(w) && !timeWord(w) && hay.includes(w)) return true;
+  // "F. Duarte", the short form the list shows (THE WHOLE NAME): a lone
+  // initial is a name word that starts with it.
+  const ini = /^([a-z])\.$/.exec(w);
+  if (ini) return fold(r.name).split(/[^a-z0-9]+/).some(x => x.startsWith(ini[1]));
   const bare = w.replace(/^t(?=[a-z]?\d)/, '');
   if (labels.some(l => fold(l) === bare || fold(l) === w)) return true;
   if (/^\d+$/.test(w) && String(r.partySize) === w) return true;
@@ -11843,6 +11881,9 @@ app.put('/api/settings', async (req, res) => {
     if (o.line !== undefined) s.online.line = !!o.line;
     if (o.asks !== undefined) s.online.asks = av.asksOf(Object.assign({}, s.online.asks, o.asks));
   }
+  // Online never books more than the desk books (daily round, 13 Oct: a nine
+  // booked online past a Largest party of six, here and on the relay).
+  if (s.online) s.online.maxPartySize = Math.min(s.online.maxPartySize, s.maxPartySize || 200);
   if (b.noShowAfterMinutes !== undefined) s.noShowAfterMinutes = Math.max(5, Math.min(180, parseInt(b.noShowAfterMinutes) || 30));
   if (b.dayStartsAt !== undefined) { const h = parseInt(b.dayStartsAt, 10); s.dayStartsAt = Number.isFinite(h) && h >= 0 && h <= 12 ? h : 4; }
   if (b.pos) {
@@ -12011,6 +12052,8 @@ app.put('/api/tables', async (req, res) => {
   const data = readData();
   if (pos.ready(data.settings.pos) && data.settings.pos.useFloor !== false) return res.status(400).json({ error: 'Tables come from the POS while it is linked. Edit them there.' });
   const list = Array.isArray(req.body && req.body.tables) ? req.body.tables : [];
+  const refused = av.tablesRefusal(list, tablesOf(data), data.reservations, tradingDay(data));
+  if (refused) return res.status(400).json({ error: refused });
   // Every table back to its own room, every room kept (av.mergeTables).
   const plans = av.mergeTables(data.floorPlans, list, () => newId('t'));
   const tables = [].concat(...plans.map(fp => fp.tables.filter(t => t.type !== 'decor')));
@@ -12346,7 +12389,8 @@ function changeReservation(data, cur, body, who, opts) {
   if (cur.name !== next.name || cur.phone !== next.phone) touchGuest(data, cur);
   if (!cur.guestId) touchGuest(data, cur);
   recountGuest(data, cur.guestId);
-  logAudit(data, who, statusChanged ? `${cur.name}: ${cur.status}` : `Edited booking for ${cur.name}`);
+  // In the desk's words: "Okafor: done" in Recent activity (daily round, 13 Oct).
+  logAudit(data, who, statusChanged ? `${cur.name}: ${history.STATUS_TEXT[cur.status] || cur.status}` : `Edited booking for ${cur.name}`);
   return { r: cur };
 }
 
@@ -15649,10 +15693,17 @@ function deskPrimary(r, q) {
   if (ref && r.ref && String(r.ref).toUpperCase().startsWith(ref)) return true;
   return false;
 }
+function deskTimeWord(w) {
+  const m = /^(\d{1,2})(?:[:.]?(\d{2}))?(am|pm)?$/.exec(w);
+  if (!m || (!m[2] && !m[3]) || (!m[2] && w.length < 3)) return false;
+  return +m[1] < 24 && (!m[2] || +m[2] < 60);
+}
 function deskWordHit(w, r, hay, when, labels) {
   const size = /^(\d+)p$/.exec(w);
   if (size) return String(r.partySize) === size[1];
-  if (!/^\d{1,2}$/.test(w) && hay.includes(w)) return true;
+  if (!/^\d{1,2}$/.test(w) && !deskTimeWord(w) && hay.includes(w)) return true;
+  const ini = /^([a-z])\.$/.exec(w);
+  if (ini) return deskFold(r.name).split(/[^a-z0-9]+/).some(x => x.startsWith(ini[1]));
   const bare = w.replace(/^t(?=[a-z]?\d)/, '');
   if (labels.some(l => deskFold(l) === bare || deskFold(l) === w)) return true;
   if (/^\d+$/.test(w) && String(r.partySize) === w) return true;
@@ -16226,7 +16277,7 @@ function motionMs(tok) {
   return (parseFloat(getComputedStyle(document.documentElement).getPropertyValue(tok)) || 0) * 1000;
 }
 const CALM_ROWS = '.desk-col .dk-row, .desk-col .door-card';
-const CALM_WASH = '.desk-col .dk-tab[data-id], .desk-main .fl-table[data-tid]';
+const CALM_WASH = '.desk-col .dk-tab[data-id], .desk-col .dc-tab[data-id], .desk-main .fl-table[data-tid]';
 function calmKey(el) {
   const k = el.matches('[data-id]') ? el : el.querySelector('[data-id]');
   return k ? k.dataset.id : null;
@@ -16236,15 +16287,20 @@ function washOf(el) {
   const cs = getComputedStyle(el);
   return { bg: cs.backgroundColor, img: cs.backgroundImage };
 }
+// A page is the view, the night, the service and the tab: up to 900 the List
+// tab coming back is a page arriving, not a list moving (daily round, 13 Oct).
+function calmView() { return [state.view, state.todayMode, state.date, state.service || ''].join(':'); }
 function calmSnap() {
   if (motionOff()) return null;
   const rows = {}, washes = {};
   document.querySelectorAll(CALM_ROWS).forEach(el => {
+    // A row the list does not draw (the List tab hidden up to 900) has no
+    // place to glide from: measured, it read the corner (daily round, 13 Oct).
     const k = calmKey(el);
-    if (k) { const r = el.getBoundingClientRect(); rows[k] = [r.left, r.top]; }
+    if (k && el.getClientRects().length) { const r = el.getBoundingClientRect(); rows[k] = [r.left, r.top]; }
   });
   document.querySelectorAll(CALM_WASH).forEach(el => { washes[washKey(el)] = washOf(el); });
-  return { rows, washes, lit: litSnap(), view: state.view + ':' + state.date + ':' + (state.service || '') };
+  return { rows, washes, lit: litSnap(), view: calmView() };
 }
 // THE LIT KEY SLIDES, the till's own (its _applyLit): Floor · Timeline ·
 // Flow put the light out on one key and lit the other in one frame; now a
@@ -16289,7 +16345,7 @@ function litApply(was) {
 }
 function calmApply(was) {
   if (was && !motionOff()) litApply(was.lit || {});
-  if (!was || motionOff() || was.view !== state.view + ':' + state.date + ':' + (state.service || '')) return;
+  if (!was || motionOff() || was.view !== calmView()) return;
   const move = motionMs('--t-move'), fade = motionMs('--t-state');
   const had = Object.keys(was.rows).length > 0;
   if (had) document.querySelectorAll(CALM_ROWS).forEach(el => {
@@ -18464,7 +18520,7 @@ function tidyRow(r, kind, now) {
   }
   const key = kind === 'sat' ? 'left' : 'no-show';
   return `<div class="dk-row one td-row">
-    <span class="dk-tab stg-${kind === 'sat' ? 'in' : 'wait'}">${esc(label)}</span>
+    <span class="dk-tab stg-${tidyStage(r, kind)}">${esc(label)}</span>
     <button class="dk-main" data-act="edit-booking" data-id="${esc(r.id)}" aria-label="${esc((r.name || 'No name') + ', ' + r.partySize + ', ' + said)}"><b>${allergyDot(r)}<span class="td-nm">${esc(r.name || 'No name')}</span><span class="td-n">&nbsp;· ${r.partySize}</span></b></button>
     <span class="dk-rt"><button class="dk-k td-k" data-act="tidy-one" data-val="${key}" data-id="${esc(r.id)}"${_tidyBusy ? ' disabled' : ''}>${kind === 'sat' ? 'Left' : 'No-show'}</button></span>
   </div>`;
@@ -18944,7 +19000,7 @@ function doorCard(r, room, now) {
   // its tab is half filled; the tap sits the rest.
   const half = r.status === 'part-seated';
   const tab = half ? 'half' : here ? (r.status === 'part-arrived' ? 'phere' : 'here') : late ? 'late' : t.ready ? 'seat' : '';
-  const aria = t.ready ? `Seat ${r.name || 'them'} at ${t.words}` : here ? `${r.name || 'Booking'}, here: ${t.frees}. Open the booking` : `${r.name || 'Booking'} is here: ${t.frees}`;
+  const aria = t.ready ? `Seat ${r.name || 'them'} at ${t.words}` : here ? `${r.name || 'Booking'}, here: ${t.frees}. Open the booking` : `Mark ${r.name || 'them'} here · ${t.frees}`;
   // NO STATUS ON THE LIST (owner, 12 Oct): the right column is the time.
   const rt = esc(fmtHHMM(hhmmOf(r.time)).replace(/\s?[AP]M$/i, ''));
   return `<div class="door-card${here ? ' is-here' : ''}" data-id="${esc(r.id)}">
@@ -18975,8 +19031,29 @@ function doorCards(list, room, now) {
 // stamps when it went down. A card's tap from a press that came before the
 // card stood still is swallowed.
 document.addEventListener('pointerdown', () => { _downAt = Date.now(); }, true);
+// THE SECOND TAP IS THE SAME PARTY'S (daily round, 13 Oct). The first tap of
+// HALF, THEN FULL sits some of them and lifts them to the top, so a second
+// later another party's tab stood where the finger was and the "rest" seated
+// Wolfeschlegelsteinhausen. For a few seconds a press where the first one
+// landed, on another party, is the rest of the party that moved.
+const HALF_KEEP_MS = 6000, HALF_NEAR = 40;
+let _halfAt = null;
+function halfAgain(half, now, x, y, id) {
+  if (!half || now - half.t > HALF_KEEP_MS) return null;
+  if (Math.abs(x - half.x) > HALF_NEAR || Math.abs(y - half.y) > HALF_NEAR) return null;
+  return id && id !== half.id ? half.id : null;
+}
 document.addEventListener('click', (ev) => {
   if (!ev.detail) return;
+  const tap = closest(ev.target, '.desk-col [data-id]');
+  const rest = tap && halfAgain(_halfAt, Date.now(), ev.clientX, ev.clientY, tap.dataset.id);
+  if (rest) {
+    ev.stopImmediatePropagation(); ev.preventDefault();
+    const tab = document.querySelector(`.desk-col [data-act="row-seat"][data-id="${CSS.escape(rest)}"], .desk-col [data-act="door-seat"][data-id="${CSS.escape(rest)}"]`);
+    _halfAt = null;
+    if (tab) tab.click();
+    return;
+  }
   const card = closest(ev.target, '.door-card');
   const fresh = card && _downAt - _doorSigAt < DOOR_SETTLE_MS;
   // The five came, went or changed in number on the clock: the list under
@@ -19033,15 +19110,32 @@ function rollList(stamp) {
 // ("M. Sinclair"), then the surname alone — never cut mid-surname. Only a
 // person's name gives way so: "Two at the bar" keeps its ellipsis. Reads
 // and writes in passes, so the list lays out three times at most.
+// The tidy's tabs wear the list's colours (daily round, 13 Oct): the bill
+// light green, paid green, part of a party half blue.
+function tidyStage(r, kind) {
+  if (kind !== 'sat') return 'wait';
+  return r.status === 'paid' ? 'paid' : r.status === 'check' ? 'bill' : r.status === 'part-seated' ? 'half' : 'in';
+}
+// Which way round it was typed decides what goes first (daily round, 13
+// Oct): a title goes before anything ("Dr Anna Lindqvist" — "Anna
+// Lindqvist"), and a name typed surname first ("Nguyen T", "Smith JK")
+// loses its initials, never its surname — "P. KM" said nothing.
+const NAME_TITLES = /^(dr|mr|mrs|ms|miss|mx|prof|sir|dame)\.?$/i;
 function nameForms(n) {
-  const w = String(n || '').trim().split(/\s+/);
-  if (w.length < 2 || !w.every(x => /^[A-Z\u00C0-\u024F]/.test(x))) return [n];
-  return [n, w[0][0] + '. ' + w.slice(1).join(' '), w.slice(1).join(' ')];
+  const all = String(n || '').trim().split(/\s+/);
+  if (all.length < 2 || !all.every(x => /^[A-Z\u00C0-\u024F]/.test(x))) return [n];
+  const out = [n];
+  const w = NAME_TITLES.test(all[0]) && all.length > 2 ? all.slice(1) : all;
+  if (w !== all) out.push(w.join(' '));
+  const last = w[w.length - 1];
+  if (/^[A-Z]{1,3}\.?$/.test(last)) { out.push(w.slice(0, -1).join(' ')); return out; }
+  out.push(w[0][0] + '. ' + w.slice(1).join(' '), w.slice(1).join(' '));
+  return out;
 }
 function fitNames(root) {
-  const els = [...(root || document).querySelectorAll('.desk-col .td-nm')];
+  const els = [...(root || document).querySelectorAll('.desk-col .td-nm, .td-row .td-nm')];
   els.forEach(el => { if (el.dataset.full == null) el.dataset.full = el.textContent; el.textContent = el.dataset.full; });
-  for (let step = 1; step < 3; step++) {
+  for (let step = 1; step < 4; step++) {
     const over = els.filter(el => el.scrollWidth > el.clientWidth + 1);
     if (!over.length) return;
     over.forEach(el => { const f = nameForms(el.dataset.full); if (f[step]) el.textContent = f[step]; });
@@ -19983,8 +20077,7 @@ function renderSettings() {
       ${s.services.map((sv, i) => `<div class="svc-row">
         <input type="text" value="${esc(sv.name)}" data-field="settings.services.${i}.name" data-save="services" aria-label="Service name">
         <div class="days">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, di) => `<button class="chip${sv.days.includes(di) ? ' active' : ''}" data-act="svc-day" data-i="${i}" data-val="${di}">${d}</button>`).join('')}</div>
-        <div class="inline"><input type="time" class="t-time" value="${sv.start}" data-field="settings.services.${i}.start" data-save="services" data-save-on="blur" aria-label="Start"> <span class="ts">to</span> <input type="time" class="t-time" value="${sv.end}" data-field="settings.services.${i}.end" data-save="services" data-save-on="blur" aria-label="End"></div>
-        <button class="chip sq" data-act="svc-remove" data-i="${i}" aria-label="Remove service">${I.cross}</button>
+        <div class="inline"><input type="time" class="t-time" value="${sv.start}" data-field="settings.services.${i}.start" data-save="services" data-save-on="blur" aria-label="Start"> <span class="ts">to</span> <input type="time" class="t-time" value="${sv.end}" data-field="settings.services.${i}.end" data-save="services" data-save-on="blur" aria-label="End"><button class="chip sq" data-act="svc-remove" data-i="${i}" aria-label="Remove service">${I.cross}</button></div>
       </div>`).join('')}
       <div class="inline"><button class="btn" data-act="svc-add">${I.plus} Add a service</button><span class="spacer"></span><span class="field-label" style="margin:0;">Bookings start every</span>${[15, 30].map(m => `<button class="chip${s.slotMinutes === m ? ' active' : ''}" data-act="set-num" data-key="slotMinutes" data-val="${m}">${m} min</button>`).join('')}</div>
     </div>
@@ -21259,6 +21352,9 @@ async function flushSaves() {
       refused = true;
       toastBad(e.message);
       try { state.settings = keptOwed(await api('/api/settings'), rest); applyStatusColours(); } catch (e2) {}
+      // The room too: a refused number or a table still booked comes back
+      // as it was kept (daily round, 13 Oct).
+      if (g === 'tables' && !_savePending.tables) { try { const t = await api('/api/tables'); state.tables = t.tables; state.floorPlans = t.floorPlans; } catch (e3) {} }
     }
   } } finally { _saveBusy--; _saveGen++; }
   const typing = savingField();
@@ -21433,6 +21529,8 @@ document.addEventListener('click', async (ev) => {
         // (part-seated, no count: the tab half filled), the second the rest.
         const first = r.status !== 'part-seated' && !body.partCount;
         if (first) body.status = 'part-seated';
+        if (first) { const b = el.getBoundingClientRect(); _halfAt = { id, x: b.left + b.width / 2, y: b.top + b.height / 2, t: Date.now() }; }
+        else if (_halfAt && _halfAt.id === id) _halfAt = null;
         // A DOUBLE TAP SEATS ONE PARTY (review, 9 Oct): the seat slides the
         // row up and the next party's tab comes under the finger, so
         // Duarte's second tap seated Petrov. From the press, and again as the
@@ -21780,10 +21878,12 @@ document.addEventListener('click', async (ev) => {
         // or the floor after midnight, booked tonight in the past (2 Oct).
         // Nor is one no service offers: a 10:30 cell after a dinner that
         // ends at 9:30 booked 10:30 with a green toast (3 Oct). So the next
-        // of the day's OWN slots within one step, av.slotTimes()' rule.
+        // of the day's OWN slots within one step, av.slotTimes()' rule — the
+        // step's own end too: at 7:30:05 7:30 has gone and 7:45 is next, and
+        // the tapped table was dropped with no time (daily round, 13 Oct).
         const slots = [];
         for (const x of servicesOnDay(state.date)) for (let m = toMin(x.start); m < toMin(x.end); m += step) slots.push(m);
-        const hit = slots.sort((a, b) => a - b).find(m => m >= at && m < at + step && m < 1440 && !slotGone(state.date, fromMin(m)));
+        const hit = slots.sort((a, b) => a - b).find(m => m >= at && m <= at + step && m < 1440 && !slotGone(state.date, fromMin(m)));
         const t = hit === undefined ? '' : fromMin(hit);
         // No time, no table: a table kept without the time it was tapped at
         // let the page fill in 8:00 on table 1, where Rowntree was sitting
