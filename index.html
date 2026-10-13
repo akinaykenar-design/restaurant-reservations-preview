@@ -3715,15 +3715,17 @@ body{font-family:var(--font-body);}
    then ☰ last, its menu dropping to the left inside the screen. */
 .tp .tp-end{margin-left:var(--pos-deck-gap,8px);}
 .tp-keys.tp-end .tp-menu{left:auto;right:0;}
+/* It stands where the views stand (owner, 13 Oct: "line these equally
+   from the top bar"): the hub edge under the bar and the views' 52 tall. */
 /* THE LIST'S OWN SEARCH, above the reservations (owner, 13 Oct: "Its nicer
    if the search bar is above the reservations. Move it back"): the till's
    pill on the paper, pinned at the list's top, the rows sliding under it. */
-.bl-find{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;margin:0 0 8px;padding:0 4px 0 16px;min-height:48px;
+.bl-find{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;margin:var(--pos-hub-edge) 0 8px;padding:0 4px 0 16px;min-height:52px;
   background:var(--surface);border-radius:var(--pos-r-pill);}
 .bl-find:focus-within{box-shadow:inset 0 0 0 var(--ring) var(--pos-orange);}
 .bl-find-i{display:flex;flex:none;color:var(--mute);}
 .bl-find-i svg{width:20px;height:20px;}
-.bl-find input[type="search"]{flex:1;min-width:0;min-height:48px;padding:0;border:none;background:none;box-shadow:none;font:inherit;font-size:var(--fs-xl);}
+.bl-find input[type="search"]{flex:1;min-width:0;min-height:52px;padding:0;border:none;background:none;box-shadow:none;font:inherit;font-size:var(--fs-xl);}
 .bl-find input[type="search"]:focus{border:none;box-shadow:none;}
 .bl-find input::-webkit-search-cancel-button{display:none;}
 .bl-find-x{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;background:none;color:var(--ink);border-radius:50%;}
