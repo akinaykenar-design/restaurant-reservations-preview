@@ -2579,6 +2579,9 @@ a.btn{color:var(--text-primary);text-decoration:none;}
    and The other 2 arrived were a 56-tall slab of the one blue beside Here,
    Bill, Paid and Left in ink (QUIET, 9 Oct). */
 .bke-next{display:flex;gap:8px;}
+.bke-also{display:flex;flex-wrap:wrap;gap:8px;}
+.bke-also button{min-height:var(--tap);padding:0 16px;border:none;border-radius:var(--r-control);background:var(--qty);color:var(--ink);font:inherit;font-weight:600;}
+.bke-also button:active{background:var(--steel-300);}
 .bke-next .go{flex:1;height:56px;padding:0 20px;border:none;border-radius:var(--r-control);background:var(--ink);color:var(--surface);
   font:inherit;font-size:var(--fs-lg);font-weight:800;}
 .bke-next .go.ink{background:var(--text-primary);color:var(--surface);}
@@ -19506,6 +19509,24 @@ function bkeStage(r, b) {
   const due = Math.round((new Date(r.time).getTime() - now) / 60000);
   return esc(statusLabel(r.status)) + (due > 0 && due <= 180 ? ` · in ${waitWords(due)}` : due <= 0 ? ' · due now' : '');
 }
+// The steps a host reaches for from where the party is up to, besides the
+// one the big key offers: before the door, Confirmed, No-show and
+// Cancelled; at the door, Not here (a mis-tap); sat, the bill, paid and
+// left; finished, back on the book. The till's own Bill and Paid are not
+// offered while it sends them (offeredStatuses()).
+function alsoSteps(r, late) {
+  const st = r.status, till = state.billFromTill;
+  const L = k => [k, statusLabel(k)];
+  let ks = [];
+  if (st === 'booked') ks = ['confirmed', 'no-show', 'cancelled'];
+  else if (st === 'confirmed') ks = ['no-show', 'cancelled'];
+  else if (isHere(r)) return [['booked', 'Not here']];
+  else if (st === 'part-seated' || st === 'seated') ks = ['check', 'paid', 'done'];
+  else if (st === 'check') ks = ['paid', 'done'];
+  else if (st === 'paid') ks = ['done'];
+  else return [['booked', 'Back on the book']];
+  return ks.filter(k => !(late && k === 'no-show') && !(till && (k === 'check' || k === 'paid'))).map(L);
+}
 function renderBookingEdit(m) {
   const b = m.b, r = (state.reservations || []).find(x => x.id === b.id) || null;
   const tonight = b.date === tradingDay(), now = Date.now();
@@ -19540,6 +19561,14 @@ function renderBookingEdit(m) {
     else if (!state.billFromTill && r.status === 'check') next = `<button class="go ink" data-act="bke-step" data-id="${id}" data-val="paid">Paid</button>`;
     else if (r.status === 'paid' || (state.billFromTill && r.status === 'check')) next = `<button class="go ink" data-act="bke-step" data-id="${id}" data-val="done">Left</button>`;
   }
+  // THE OTHER STEPS, ONE TAP (owner, 13 Oct: "do whatever you think is
+  // efficient"). The status line opens all eleven, two taps away; the few a
+  // host actually reaches for from where the party is up to stand under the
+  // next step as quiet keys, each saved on the press with Undo
+  // (`alsoSteps()`). Never the one the big key already offers, nor a
+  // No-show the late line carries.
+  const also = r && tonight && !dirty ? alsoSteps(r, late).filter(k => !next.includes(`data-val="${k[0]}"`)) : [];
+  const alsoRow = also.length ? `<div class="bke-also">${also.map(k => `<button data-act="bke-also" data-id="${esc(r.id)}" data-val="${k[0]}">${esc(k[1])}</button>`).join('')}</div>` : '';
   const hot = (b.tags || []).some(t => String(t).toLowerCase() === 'allergy');
   const note = String(b.notes || '').trim();
   const allergy = hot ? (/allerg|nut|gluten|shellfish|dairy|coeliac|celiac/i.test(note) ? note : 'Allergy') : '';
@@ -19558,6 +19587,7 @@ function renderBookingEdit(m) {
       ${sent}
       ${renderLateBanner(r)}
       ${next ? `<div class="bke-next">${next}</div>` : ''}
+      ${alsoRow}
       ${allergy ? `<button class="bke-alert" data-act="bk-page" data-val="notes">${I.alert}<span>${esc(allergy)}</span></button>` : ''}
       ${tagRow}
       ${note && note !== allergy ? `<button class="bke-note" data-act="bk-page" data-val="notes">${esc(note)}</button>` : ''}
@@ -20645,6 +20675,23 @@ document.addEventListener('click', async (ev) => {
       case 'row-rest': if (state.modal && state.modal.kind === 'booking') state.modal = null; _seatedAt = Date.now(); await setStatus(id, 'seated'); _seatedAt = Date.now(); break;
       // The booking's own next step past the chair: Bill, Paid, Left.
       case 'bke-step': state.modal = null; await setStatus(id, val); break;
+      // One tap from the booking's own page, with Undo: the PUT of the
+      // status alone, and Undo puts back what it was.
+      case 'bke-also': {
+        const r = (state.reservations || []).find(x => x.id === id);
+        if (!r) { toastBad('That booking has gone'); break; }
+        const was = r.status;
+        state.modal = null; render();
+        try {
+          await put('/api/reservations/' + id, { status: val });
+          await loadView();
+          if (!await greet(id, was, val)) {
+            toastUndo(`${r.name || 'Booking'} · ${statusLabel(val)}`, async () => { await put('/api/reservations/' + id, { status: was }); await loadView(); });
+          }
+          render();
+        } catch (e) { toastBad(e.message); }
+        break;
+      }
       case 'flow-slot': state.flowSlot = state.flowSlot === val ? null : val; render(); break;
       // − and + walk the limit from where it stands; from no limit they start
       // at what is already booked there, which is the number a host is
