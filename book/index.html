@@ -112,6 +112,8 @@ html[data-theme="dark"],body[data-theme="dark"]{
 /* §§ Palette — :root is LIGHT, body[data-theme="dark"] is DARK. Literals on
    purpose (see the POS: a var() inside a token resolves where declared). */
 :root{
+  /* COLOURED IN (owner, 13 Oct): the list's status fills, read at the foot. */
+  --fill-late:#F2C94C;--fill-here:#B9B4AA;--fill-bill:#A8DDB5;--fill-paid:#4CAF6A;--fill-noshow:#E5604D;--fill-noshow-ink:#FFFFFF;
   color-scheme:light;
   --font-body:'Noto Sans',-apple-system,system-ui,sans-serif;
   --font-mono:'IBM Plex Mono','Noto Sans',monospace;
@@ -287,6 +289,7 @@ html[data-theme="dark"],body[data-theme="dark"]{
    override on the body (applyStatusColours) still wins inside the app. */
 html[data-theme="dark"],
 body[data-theme="dark"]{
+  --fill-late:#9C7A1C;--fill-here:#55524C;--fill-bill:#2F5E3D;--fill-paid:#2E8049;--fill-noshow:#A63A2A;--fill-noshow-ink:#FFFFFF;
   /* The browser's own controls follow: a time field's clock and a date
      field's calendar were drawn black on slate (daily round, 30 Sep). */
   color-scheme:dark;
@@ -3651,6 +3654,18 @@ body{font-family:var(--font-body);}
 .dk-tab.stg-late,.dc-tab.late{background:var(--tab-plain);box-shadow:inset var(--ring) 0 0 var(--late),inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
 .dk-tab.stg-none{background:none;box-shadow:none;}
 .dk-row.one .dk-tab,.dc-no{font-family:var(--pos-font-num);font-weight:700;}
+/* COLOURED IN (owner, 13 Oct; CLAUDE.md). The box IS the status, filled
+   solid, the number in ink: late yellow, the door grey half then full,
+   seated blue half then full, the bill and paid two shades (--fill-bill,
+   --fill-paid, the floor's too), a no-show red with a white number. */
+.dk-tab.stg-late,.dc-tab.late{background:var(--fill-late);color:var(--ink);box-shadow:inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
+.dk-tab.stg-here,.dc-tab.here{background:var(--fill-here);color:var(--ink);}
+.dk-tab.stg-phere,.dc-tab.phere{background:linear-gradient(to top,var(--fill-here) 50%,var(--tab-plain) 50%);color:var(--ink);}
+.dk-tab.stg-bill{background:var(--fill-bill);color:var(--ink);}
+.dk-tab.stg-paid{background:var(--fill-paid);color:var(--ink);}
+.dk-tab.stg-noshow{background:var(--fill-noshow);color:var(--fill-noshow-ink);}
+.shell.simple .fl-table.stg-bill{background:var(--fill-bill);}
+.shell.simple .fl-table.stg-paid{background:var(--fill-paid);}
 /* And the timeline and the flow say the same: a party at the door is a
    plain block until it sits. */
 .shell.simple .tl-block.arrived,.shell.simple .tl-block.part-arrived,.tl-block.tl-drag-ghost.arrived,.tl-block.tl-drag-ghost.part-arrived,
