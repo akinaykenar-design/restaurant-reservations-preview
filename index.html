@@ -3730,6 +3730,13 @@ body{font-family:var(--font-body);}
 .bl-find input::-webkit-search-cancel-button{display:none;}
 .bl-find-x{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;background:none;color:var(--ink);border-radius:50%;}
 .bl-find-x svg{width:20px;height:20px;}
+/* THE ROLL: the five at the top of the list wherever it rests are the
+   door's cards in size (owner, 13 Oct: "i want to scroll and the top 5 to
+   be big"). */
+.shell.simple .bl-rows.one > .dk-row.big{--dc-big:calc(var(--fs-lg) * 2);min-height:96px;}
+.dk-row.one.big .dk-tab,.dk-row.one.big .dk-main b,.dk-row.one.big .dk-t{font-size:var(--dc-big);}
+@media (max-width:1100px){ .shell.simple .bl-rows.one > .dk-row.big{--dc-big:var(--fs-num);min-height:88px;} }
+@media (max-width:760px){ .shell.simple .bl-rows.one > .dk-row.big{min-height:80px;} }
 
 .notice.special{display:none;}
 </style>
@@ -16099,6 +16106,7 @@ function render() {
   // nothing. Runs after the restore, so it wins on the day that changed.
   markRailEnds();
   insetWalkin();
+  rollAgain();
   placeTurn();
   dockToast();
   syncHold();                     // what is open here is what this tablet has in hand
@@ -18814,6 +18822,51 @@ document.addEventListener('click', (ev) => {
   // them slid, and for a moment a tap on it answers nothing.
   const slid = _doorMovedAt && closest(ev.target, '.desk-col') && Math.abs(_downAt - _doorMovedAt) < SEAT_SETTLE_MS;
   if (fresh || slid) { ev.stopImmediatePropagation(); ev.preventDefault(); }
+}, true);
+// THE ROLL (owner, 13 Oct: "i want to scroll and the top 5 to be big").
+// Wherever the list rests, the five rows at its top are drawn as big as the
+// door's cards — counted with any of the five cards still in view. It is
+// decided only once the scroll has stopped and no finger is down, the row
+// a host was looking at stays where it was (the scroll is moved by what the
+// rows above it grew or shrank), and for DOOR_SETTLE_MS after the rows
+// change size a tap on the list answers nothing, so a row that grew under a
+// finger is never the one pressed.
+const ROLL_MAX = 5;
+let _rollAt = 0, _rollTimer = null, _rollIds = [];
+function rollList(stamp) {
+  const col = document.querySelector('.desk-col');
+  if (!col) return;
+  const find = col.querySelector('.bl-find');
+  const edge = (find ? find.getBoundingClientRect().bottom : col.getBoundingClientRect().top) + 8;
+  const seen = (el) => { const r = el.getBoundingClientRect(); return (r.top + r.bottom) / 2 > edge; };
+  const cards = [...col.querySelectorAll('.door-five .door-card')].filter(seen).length;
+  const rows = [...col.querySelectorAll('.bl-rows.one > .dk-row')];
+  const want = rows.filter(seen).slice(0, Math.max(0, ROLL_MAX - cards));
+  const ids = want.map(r => rows.indexOf(r));
+  const now = rows.filter(r => r.classList.contains('big')).map(r => rows.indexOf(r));
+  if (ids.join() === now.join()) { _rollIds = ids; return; }
+  const hold = rows.find(seen) || null, at = hold ? hold.getBoundingClientRect().top : 0;
+  rows.forEach((r, i) => r.classList.toggle('big', ids.includes(i)));
+  if (hold) col.scrollTop += hold.getBoundingClientRect().top - at;
+  _rollIds = ids;
+  if (stamp) _rollAt = Date.now();
+}
+// A repaint draws the rows again: the same ones are big at once, then the
+// list is asked again where it rests.
+function rollAgain() {
+  const rows = [...document.querySelectorAll('.desk-col .bl-rows.one > .dk-row')];
+  _rollIds.forEach(i => rows[i] && rows[i].classList.add('big'));
+  rollList(false);
+}
+document.addEventListener('scroll', (ev) => {
+  if (!ev.target.classList || !ev.target.classList.contains('desk-col')) return;
+  clearTimeout(_rollTimer);
+  const settle = () => { if (pressing()) { _rollTimer = setTimeout(settle, 120); return; } rollList(true); };
+  _rollTimer = setTimeout(settle, 120);
+}, true);
+document.addEventListener('click', (ev) => {
+  if (!ev.detail || !_rollAt) return;
+  if (closest(ev.target, '.desk-col') && Math.abs(_downAt - _rollAt) < DOOR_SETTLE_MS) { ev.stopImmediatePropagation(); ev.preventDefault(); }
 }, true);
 // The service opening, or closing, brings them or takes them, asked once a
 // second between presses.

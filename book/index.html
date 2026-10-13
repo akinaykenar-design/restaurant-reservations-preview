@@ -3715,6 +3715,13 @@ body{font-family:var(--font-body);}
 .bl-find input::-webkit-search-cancel-button{display:none;}
 .bl-find-x{flex:none;width:var(--tap);height:var(--tap);display:flex;align-items:center;justify-content:center;border:none;background:none;color:var(--ink);border-radius:50%;}
 .bl-find-x svg{width:20px;height:20px;}
+/* THE ROLL: the five at the top of the list wherever it rests are the
+   door's cards in size (owner, 13 Oct: "i want to scroll and the top 5 to
+   be big"). */
+.shell.simple .bl-rows.one > .dk-row.big{--dc-big:calc(var(--fs-lg) * 2);min-height:96px;}
+.dk-row.one.big .dk-tab,.dk-row.one.big .dk-main b,.dk-row.one.big .dk-t{font-size:var(--dc-big);}
+@media (max-width:1100px){ .shell.simple .bl-rows.one > .dk-row.big{--dc-big:var(--fs-num);min-height:88px;} }
+@media (max-width:760px){ .shell.simple .bl-rows.one > .dk-row.big{min-height:80px;} }
 
 .notice.special{display:none;}
 </style>
