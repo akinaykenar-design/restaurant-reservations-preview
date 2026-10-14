@@ -113,7 +113,7 @@ html[data-theme="dark"],body[data-theme="dark"]{
    purpose (see the POS: a var() inside a token resolves where declared). */
 :root{
   /* COLOURED IN (owner, 13 Oct): the list's status fills, read at the foot. */
-  --fill-late:#F2C94C;--fill-here:#B9B4AA;--fill-bill:#A8DDB5;--fill-paid:#4CAF6A;--fill-noshow:#E5604D;--fill-noshow-ink:#FFFFFF;
+  --fill-late:#F2C94C;--fill-here:#B9B4AA;--fill-bill:#A8DDB5;--fill-paid:#55B873;--fill-noshow:#E5604D;--fill-noshow-ink:#FFFFFF;
   color-scheme:light;
   --font-body:'Noto Sans',-apple-system,system-ui,sans-serif;
   --font-mono:'IBM Plex Mono','Noto Sans',monospace;
@@ -289,7 +289,7 @@ html[data-theme="dark"],body[data-theme="dark"]{
    override on the body (applyStatusColours) still wins inside the app. */
 html[data-theme="dark"],
 body[data-theme="dark"]{
-  --fill-late:#9C7A1C;--fill-here:#55524C;--fill-bill:#2F5E3D;--fill-paid:#2E8049;--fill-noshow:#A63A2A;--fill-noshow-ink:#FFFFFF;
+  --fill-late:#7A5F14;--fill-here:#55524C;--fill-bill:#2F5E3D;--fill-paid:#256B3C;--fill-noshow:#A63A2A;--fill-noshow-ink:#FFFFFF;
   /* The browser's own controls follow: a time field's clock and a date
      field's calendar were drawn black on slate (daily round, 30 Sep). */
   color-scheme:dark;
@@ -478,7 +478,7 @@ h1,h2,h3{margin:0;}
 [data-more="start end"]{-webkit-mask-image:linear-gradient(var(--rail-axis,180deg),#000 var(--fade-top,0px),transparent var(--fade-top,0px),#000 calc(var(--fade-top,0px) + var(--rail-fade)),#000 calc(100% - var(--fade-foot,0px) - var(--rail-fade)),transparent calc(100% - var(--fade-foot,0px)),#000 calc(100% - var(--fade-foot,0px)));mask-image:linear-gradient(var(--rail-axis,180deg),#000 var(--fade-top,0px),transparent var(--fade-top,0px),#000 calc(var(--fade-top,0px) + var(--rail-fade)),#000 calc(100% - var(--fade-foot,0px) - var(--rail-fade)),transparent calc(100% - var(--fade-foot,0px)),#000 calc(100% - var(--fade-foot,0px)));}
 /* A ROW WEARS A ROW'S AXIS. A row given a column's fade shades its top and
    bottom and slices its ends anyway. */
-.tabs,.secband,.fl-box > .fl-wrap,.bkq-days{--rail-axis:90deg;}
+.tabs,.secband,.fl-box > .fl-wrap,.fl-wrap.arrange,.bkq-days{--rail-axis:90deg;}
 
 /* §§ Login — the POS's number pad, the same five tokens */
 /* The keypad the front door used to wear. There is no front door now — the
@@ -3598,6 +3598,7 @@ body{font-family:var(--font-body);}
   color:var(--ink);font-weight:600;}
 .vt button:not(.on){color:var(--ink);}
 .vt button.on,body[data-theme="dark"] .vt button.on,.tp-make .tp-btn.on{background:var(--pos-glass-on);color:var(--pos-orange);box-shadow:none;}
+body[data-theme="dark"] .vt button.on,body[data-theme="dark"] .tp-make .tp-btn.on{color:var(--accent-ink);}
 /* THE VIEWS FLOAT OVER THE ROOM (owner: "put it center and above the floor
    plan just like the pos"): centred at the top of the room panel, the till's
    hub edge in, and what the panel holds starts under it. */
@@ -3647,7 +3648,7 @@ body{font-family:var(--font-body);}
    blue?"): blue means seated, and nothing else. */
 .dk-tab[class*="stg-"],.dc-tab{background:var(--tab-plain);color:var(--ink);box-shadow:inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
 .dk-tab.stg-here,.dk-tab.stg-phere,.dc-tab.here{background:var(--tab-plain);color:var(--ink);box-shadow:inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
-.dk-tab.stg-here.busy{color:var(--mute);}
+.dk-tab.stg-here.busy{color:var(--ink);}
 .dk-tab.stg-in{background:var(--sat-blue);color:var(--ink);}
 .dk-tab.stg-paid,.dk-tab.stg-bill{background:var(--seat);}
 .dk-tab.stg-half,.dc-tab.half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tab-plain) 50%);}
@@ -6431,6 +6432,19 @@ function mergeTables(plans, list, newId) {
 // went with Petrov still booked on it tonight. Asked before the room is
 // written: every table a number, no number twice, and no table taken away
 // while a live booking from tonight on still names it.
+// THE ONLINE LIMIT IS THE SMALLER OF THE TWO (daily round, 14 Oct): the
+// venue's own online number is kept as typed, and the desk's Largest party
+// caps it where it is read — written into the store, a pause while typing 14
+// left online booking at 1 for good. The stock refusal names the real limit.
+const ONLINE_STOCK_MESSAGE = 'For groups of more than 8 please call us.';
+function onlineMax(s) {
+  const o = (s && s.online && parseInt(s.online.maxPartySize, 10)) || 8;
+  return Math.max(1, Math.min(o, (s && parseInt(s.maxPartySize, 10)) || 200));
+}
+function onlineMessage(s) {
+  const m = (s && s.online && s.online.largerPartyMessage) || '';
+  return !m || m === ONLINE_STOCK_MESSAGE ? 'For groups of more than ' + onlineMax(s) + ' please call us.' : m;
+}
 function tablesRefusal(list, oldTables, reservations, today) {
   const seen = new Set();
   for (const t of (Array.isArray(list) ? list : [])) {
@@ -8470,7 +8484,10 @@ function tidyKind(ctx, day, r, now) {
   const t = nightMin(r, day);
   const home = tidyHomeOf(servicesInOrder(settings, day), t);
   if (!home || now < toMin(home.end)) return null;
-  if (isSat(r)) {
+  // Met at the door and never sat is somebody who was here: past their
+  // sitting they are the Left list's (daily round, 14 Oct: Moreau, Here since
+  // 7:15, topped Upcoming at 10:41 with nothing to clear him).
+  if (isSat(r) || isHere(r)) {
     const sat = tidySeatMin(r, day);
     return Math.max(t, sat === null ? t : sat) + durationFor(settings, r.partySize, r.durationMin) + TIDY_AFTER < now ? 'sat' : null;
   }
@@ -8598,7 +8615,7 @@ function doorNext(ctx, day, opts) {
 }
 
 module.exports = {
-  statusStamps, mergeTables, tablesRefusal,
+  statusStamps, mergeTables, tablesRefusal, onlineMax, onlineMessage,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
@@ -8816,6 +8833,7 @@ const DEFAULT_DATA = {
   // cache — so /api/set-menus can read it without a branch.
   posCombos: [],
   theme: { accent: '#3692E7', mode: 'auto' },
+  tillTheme: null,
   reservations: [],
   // The waitlist — the line at the door tonight.
   //   { id, name, phone, partySize, quotedMin, notes, status, addedAt,
@@ -9899,11 +9917,14 @@ function guestLensCounts(guests, today) {
 // stamp from before they were kept). Moved since, it is due again (daily
 // round, 12 Oct: Bea, reminded for Tuesday and moved to Wednesday, was never
 // asked about Wednesday). Its when, or 0.
-const SENT_KEYS = { booked: ['emailedAt', 'emailedFor'], remind: ['remindedAt', 'remindedFor'] };
+const SENT_KEYS = { booked: ['emailedAt', 'emailedFor', 'emailedTo'], remind: ['remindedAt', 'remindedFor', 'remindedTo'] };
+const mailTo = (e) => String(e || '').trim().toLowerCase();
 function slotOf(r) { return av.dayOf(r.time) + 'T' + av.hhmmOf(r.time); }
 function sentFor(a, kind, r) {
-  const [at, f] = SENT_KEYS[kind];
-  return a && a[at] && (!a[f] || a[f] === slotOf(r)) ? Number(a[at]) || 0 : 0;
+  // And for the address it went to: a corrected one is due again, even
+  // when the old one took it and bounced later (daily round, 14 Oct).
+  const [at, f, to] = SENT_KEYS[kind];
+  return a && a[at] && (!a[f] || a[f] === slotOf(r)) && (!a[to] || mailTo(a[to]) === mailTo(r.email)) ? Number(a[at]) || 0 : 0;
 }
 
 // §§ CONFIRM TOMORROW (v50, r64). Tomorrow NIGHT's live bookings still to
@@ -10846,8 +10867,8 @@ function infoOf(ctx, opts) {
     phone: s.venuePhone || '',
     accent: opts.accent || '',
     notesPrompt: s.online.notesPrompt || '',
-    maxPartySize: s.online.maxPartySize || 8,
-    largerPartyMessage: s.online.largerPartyMessage || '',
+    maxPartySize: av.onlineMax(s),
+    largerPartyMessage: av.onlineMessage(s),
     tzOffsetMinutes: -now.getTimezoneOffset(),
     // The zone by NAME too, so the relay keeps the venue's clock across a
     // clock change while the desk is off.
@@ -10998,7 +11019,12 @@ function mailOf(ctx, now, asked) {
     const one = (kind) => ({ id: r.id, kind, name: String(r.name || '').slice(0, 60), email: String(r.email).trim().slice(0, 120), partySize: Number(r.partySize) || 1,
       date: av.dayOf(r.time), time: av.hhmmOf(r.time), night, ref: r.ref || '' });
     if (!sentFor(a, 'booked', r) && ['booked', 'confirmed'].includes(r.status) && Number(r.createdAt) >= since && av.timeMs(r.time) > now.getTime()) out.push(one('booked'));
-    if (!sentFor(a, 'remind', r) && r.status === 'booked' && night === tomorrow) out.push(one('remind'));
+    // Made after the day-before email would have gone, the booking has had
+    // its own email: no "See you tomorrow… Confirm" a second after "Your
+    // table at…" (daily round, 14 Oct). One moved since its sends gets both again.
+    const remindFrom = new Date(av.addDays(night, -1) + 'T' + (/^\d{2}:\d{2}$/.test(m.remindAt || '') ? m.remindAt : '10:00')).getTime();
+    const madeLate = !a.emailedAt && !a.remindedAt && Number(r.createdAt) >= remindFrom;
+    if (!sentFor(a, 'remind', r) && r.status === 'booked' && night === tomorrow && !madeLate) out.push(one('remind'));
   }
   return out.sort((x, y) => x.date.localeCompare(y.date) || x.time.localeCompare(y.time)).slice(0, MAIL_MAX);
 }
@@ -11406,7 +11432,7 @@ function decide(item, diary, now) {
     // forty eight months out, three times over, reached the list.
     const s = diary && diary.settings;
     if (s && s.online) {
-      if (parseInt(p.partySize, 10) > (s.online.maxPartySize || 8)) return 'skip';
+      if (parseInt(p.partySize, 10) > av.onlineMax(s)) return 'skip';
       if (av.onlineDayReason(s, p.date, now || new Date())) return 'skip';
     }
     const key = String(p.phone || '').replace(/\D/g, '');
@@ -11613,6 +11639,13 @@ function effectiveSettings(data) {
 function tillFloor(data, s) {
   s = s || data.settings;
   return pos.ready(s.pos) && s.pos.useFloor !== false && !!(data.posState && data.posState.floorFrom) && data.posState.floorFrom === s.pos.baseUrl;
+}
+// The look the desk wears: the till's while the link is on and it has sent
+// one, else the venue's own. The till's is kept beside it, never over it
+// (daily round, 14 Oct: linking once left a Dark desk on the till's Light).
+function themeOf(data) {
+  const own = data.theme || { accent: '#3692E7', mode: 'auto' };
+  return pos.ready(data.settings.pos) && data.tillTheme && data.tillTheme.accent ? data.tillTheme : own;
 }
 function tablesOf(data) { return av.tablesFrom(data.floorPlans); }
 // The floor's own view of the tables: the booking arithmetic's four fields
@@ -11867,9 +11900,6 @@ app.put('/api/settings', async (req, res) => {
     if (o.line !== undefined) s.online.line = !!o.line;
     if (o.asks !== undefined) s.online.asks = av.asksOf(Object.assign({}, s.online.asks, o.asks));
   }
-  // Online never books more than the desk books (daily round, 13 Oct: a nine
-  // booked online past a Largest party of six, here and on the relay).
-  if (s.online) s.online.maxPartySize = Math.min(s.online.maxPartySize, s.maxPartySize || 200);
   if (b.noShowAfterMinutes !== undefined) s.noShowAfterMinutes = Math.max(5, Math.min(180, parseInt(b.noShowAfterMinutes) || 30));
   if (b.dayStartsAt !== undefined) { const h = parseInt(b.dayStartsAt, 10); s.dayStartsAt = Number.isFinite(h) && h >= 0 && h <= 12 ? h : 4; }
   if (b.pos) {
@@ -11934,14 +11964,14 @@ app.put('/api/settings', async (req, res) => {
   setTimeout(() => relayPass(true), 10);
 });
 
-app.get('/api/theme', (req, res) => { res.json(readData().theme || { accent: '#3692E7', mode: 'auto' }); });
+app.get('/api/theme', (req, res) => { res.json(themeOf(readData())); });
 app.put('/api/theme', (req, res) => {
   const data = readData();
   const t = req.body || {};
   if (['auto', 'light', 'dark'].includes(t.mode)) data.theme.mode = t.mode;
   if (typeof t.accent === 'string' && /^#[0-9A-Fa-f]{6}$/.test(t.accent)) data.theme.accent = t.accent;
   writeData(data);
-  res.json(data.theme);
+  res.json(themeOf(data));
 });
 
 // A WALK-IN, NOW: which tables can take a party of this size this minute,
@@ -13360,7 +13390,7 @@ app.get('/api/public/info', (req, res) => {
   // times. Windowed to the horizon, and the array is capped at 120 on save.
   const today = av.localDay(new Date());
   const horizon = av.addDays(today, s.online.maxDaysAhead || 60);
-  res.json({ venueName: s.venueName || 'Our restaurant', venueAddress: s.venueAddress, venuePhone: s.venuePhone, enabled: !!s.online.enabled, notifyList: !!s.online.notifyList, line: s.online.line !== false, maxPartySize: s.online.maxPartySize, largerPartyMessage: s.online.largerPartyMessage, notesPrompt: s.online.notesPrompt, asks: av.onlineAsks(s), maxDaysAhead: s.online.maxDaysAhead, services: s.services, exceptions: (s.exceptions || []).filter(x => x.date >= today && x.date <= horizon).map(({ date, closed, note }) => ({ date, closed, note })), theme: data.theme });
+  res.json({ venueName: s.venueName || 'Our restaurant', venueAddress: s.venueAddress, venuePhone: s.venuePhone, enabled: !!s.online.enabled, notifyList: !!s.online.notifyList, line: s.online.line !== false, maxPartySize: av.onlineMax(s), largerPartyMessage: av.onlineMessage(s), notesPrompt: s.online.notesPrompt, asks: av.onlineAsks(s), maxDaysAhead: s.online.maxDaysAhead, services: s.services, exceptions: (s.exceptions || []).filter(x => x.date >= today && x.date <= horizon).map(({ date, closed, note }) => ({ date, closed, note })), theme: themeOf(data) });
 });
 
 app.get('/api/public/availability', (req, res) => {
@@ -13369,7 +13399,7 @@ app.get('/api/public/availability', (req, res) => {
   const day = String(req.query.date || '');
   const party = parseInt(req.query.party) || 2;
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return res.status(400).json({ error: 'Pick a date' });
-  if (party > s.online.maxPartySize) return res.status(400).json({ error: s.online.largerPartyMessage || 'Please call us for that many.' });
+  if (party > av.onlineMax(s)) return res.status(400).json({ error: av.onlineMessage(s) });
   const why = av.onlineDayReason(s, day);
   // A closed day needs nothing extra — `reason` already carries the note
   // ('Closed — Christmas Day'). A special-hours day carries it beside its times.
@@ -13402,7 +13432,7 @@ app.post('/api/public/book', (req, res) => {
   const party = parseInt(b.partySize) || 0;
   const day = String(b.date || ''), hhmm = String(b.time || '');
   if (!(party >= 1)) return res.status(400).json({ error: 'How many people?' });
-  if (party > s.online.maxPartySize) return res.status(400).json({ error: s.online.largerPartyMessage || 'Please call us for that many.' });
+  if (party > av.onlineMax(s)) return res.status(400).json({ error: av.onlineMessage(s) });
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !HHMM.test(hhmm)) return res.status(400).json({ error: 'Pick a date and time' });
   const dayWhy = av.onlineDayReason(s, day);
   if (dayWhy) return res.status(400).json({ error: dayWhy });
@@ -13444,7 +13474,7 @@ app.post('/api/public/notify', (req, res) => {
   if (!name) return res.status(400).json({ error: 'Please tell us your name' });
   if (!phone) return res.status(400).json({ error: 'Please give us a phone number so we can reach you' });
   if (!(party >= 1)) return res.status(400).json({ error: 'How many people?' });
-  if (party > s.online.maxPartySize) return res.status(400).json({ error: s.online.largerPartyMessage || 'Please call us for that many.' });
+  if (party > av.onlineMax(s)) return res.status(400).json({ error: av.onlineMessage(s) });
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Pick a date' });
   const dayWhy = av.onlineDayReason(s, date);
   if (dayWhy) return res.status(400).json({ error: dayWhy });
@@ -13921,7 +13951,7 @@ async function posPass(force) {
         // `billPrinted` — see TILL_COLOURS in db.js for why those three and
         // no others.
         tableStatusColors: tillColoursOf(settings.tableStatusColors) };
-      if (theme && theme.accent) data.theme = { accent: theme.accent, mode: theme.mode || 'auto' };
+      if (theme && theme.accent) data.tillTheme = { accent: theme.accent, mode: theme.mode || 'auto' };
       // Guarded: a POS that 404s /api/combos, or answers oddly, leaves the
       // last good list in place rather than wiping the picker.
       if (Array.isArray(combos)) data.posCombos = pos.menusFromCombos(combos);
@@ -14217,8 +14247,9 @@ app.get('/api/group/find', async (req, res) => {
       // PM" tonight (a lunch is never "tonight 12:30"), "tomorrow 12:00 PM",
       // "Sun 11 Oct, 12:00 PM" (review, 10 Oct).
       when: gap === 0 ? twelve(av.hhmmOf(r.time)) : gap === 1 ? 'tomorrow ' + twelve(av.hhmmOf(r.time)) : search.dateWords(night, tonight) + ', ' + twelve(av.hhmmOf(r.time)),
-      // How the message says the night they keep over there.
-      still: gap === 1 ? 'tomorrow' : 'on ' + search.dateWords(night).split(' ')[0],
+      // How the message says the night they keep over there: a week out is
+      // its date, never tonight's own weekday (daily round, 14 Oct).
+      still: gap === 1 ? 'tomorrow' : gap > 1 && gap < 7 ? 'on ' + search.dateWords(night).split(' ')[0] : 'on ' + search.dateWords(night, tonight),
       seat: av.lineBehind(st.ctx, st.day, st.hhmm, st.line, size, run),
     };
     _groupFound.set(row.venueId + ':' + row.id, { at: now, row });
@@ -14297,14 +14328,15 @@ function keepMailSent(ping) {
   let moved = false;
   const ids = new Set(data.reservations.map(r => r.id));
   for (const x of (Array.isArray(m.sent) ? m.sent : [])) {
-    const [k, f] = (x && search.SENT_KEYS[x.kind]) || [];
+    const [k, f, t] = (x && search.SENT_KEYS[x.kind]) || [];
     if (!k || !ids.has(x.id)) continue;
     const a = data.confirmAsk[x.id] || {};
     // Stamped with the day and time it went for, so a booking moved after
     // its email is due again (daily round, 12 Oct).
     const slot = /^\d{4}-\d\d-\d\d$/.test(String(x.date || '')) && /^\d\d:\d\d$/.test(String(x.time || '')) ? x.date + 'T' + x.time : '';
-    if (a[k] && (!slot || a[f] === slot)) continue;
-    data.confirmAsk[x.id] = Object.assign({}, a, { [k]: Number(x.at) || Date.now() }, slot ? { [f]: slot } : {});
+    const to = typeof x.to === 'string' ? x.to.trim().slice(0, 120) : '';
+    if (a[k] && (!slot || a[f] === slot) && (!to || a[t] === to)) continue;
+    data.confirmAsk[x.id] = Object.assign({}, a, { [k]: Number(x.at) || Date.now() }, slot ? { [f]: slot } : {}, to ? { [t]: to } : {});
     moved = true;
   }
   if (m.hasKey === false && data.relayState.mailKeyHash && data.settings.mail && data.settings.mail.key) { data.relayState.mailKeyHash = ''; moved = true; }
@@ -14572,7 +14604,7 @@ async function relayPass(forceGrant) {
     // hourly so the relay never goes a day thinking the venue has vanished.
     data = readData();
     const body = relaysync.grantsFor(Object.assign(ctxOf(data), { released: keepRecent(data.relayState.released), gone: keepRecent(data.relayState.gone), waitlist: data.waitlist, lineGone: data.lineGone, confirmAsk: data.confirmAsk }),
-      { now: new Date(), accent: (data.theme && data.theme.accent) || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel, group: groupOf(data).venues.length > 0 });
+      { now: new Date(), accent: themeOf(data).accent || '', office: !!cfg.office, tableLabel: evOpts(data).tableLabel, group: groupOf(data).venues.length > 0 });
     // The Postmark key, only when the relay has not got this one.
     const keyOwed = relaysync.mailKeyOwed(data.settings.mail, data.relayState.mailKeyHash);
     if (body.mail && keyOwed !== null) body.mail.key = keyOwed;
