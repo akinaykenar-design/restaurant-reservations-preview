@@ -2612,7 +2612,9 @@ a.btn{color:var(--text-primary);text-decoration:none;}
   --font-body:var(--pos-font-body); /* the till's faces (v67); Geist is repealed */
   --font-mono:var(--pos-font-num);
   --bg:#F3F3F1; --ink:#17181B; --mute:#6A6D75; --faint:#A3A6AD; --line:#E4E4E0;
-  --accent:#2D55E6; --accent-wash:#E8EDFD; --on-accent:#FFFFFF; --late:#C8412D; --late-wash:#FBEAE6;
+  /* --late a step darker (daily round, 15 Oct): a late name on the
+     timeline's wash read 4.24:1 at #C8412D. */
+  --accent:#2D55E6; --accent-wash:#E8EDFD; --on-accent:#FFFFFF; --late:#B23F2D; --late-wash:#FBEAE6;
   --leave:var(--ink); --seat:#D9DBE2; --sat-blue:#8DA6F5; --well:#E7E7E3; --tfree:#E9E9E5;
   --surface:#FFFFFF; --steel-100:var(--bg); --steel-200:var(--line); --steel-300:#D4D4CF;
   --charcoal:var(--ink); --charcoal-soft:var(--mute); --text-primary:var(--ink); --text-secondary:var(--mute);
@@ -3566,6 +3568,13 @@ a.cf-k{background:var(--well);color:var(--ink);}
      Oct): the bare blue on its own wash was 4.0:1 here and 2.4:1 in dark. */
   --accent-ink:color-mix(in srgb, var(--pos-orange) 70%, var(--pos-text-primary));
   --sat-blue:var(--pos-occupied-table);
+  /* LIGHT WORDS READ ON THE TILL'S BEIGE (daily round, 15 Oct): the page is
+     the till's steel-100 and --mute stayed the simple desk's grey, 4.15:1
+     there and 3.86 on the docket panel. It is the till's two inks, mixed,
+     4.8:1 on the panel. A seated tab's number is the till's own number ink,
+     a breath darker than its text, so it clears 4.5 on the till's blue. */
+  --mute:color-mix(in srgb, var(--pos-text-secondary) 50%, var(--pos-text-primary));
+  --in-ink:var(--pos-num-ink);
   /* The list's tab is the till's docket qty cell: a filled panel fused to the
      line's left edge with a hairline down its right ("Bit too dark": the
      till's steel-200, a step lighter than its steel-500). */
@@ -3579,7 +3588,7 @@ body[data-theme="dark"]{
   --tfree:var(--pos-table-plain); --table-plain:var(--pos-table-plain);
   --accent:var(--pos-orange); --accent-wash:color-mix(in srgb, var(--pos-orange) 27%, var(--pos-surface));
   --accent-ink:color-mix(in srgb, var(--pos-orange) 45%, var(--pos-text-primary));
-  --sat-blue:var(--pos-occupied-table);
+  --sat-blue:var(--pos-occupied-table); --in-ink:var(--ink);
   /* Dark's steel-200 is one point off the paper, so the panel is half a step
      on to steel-300: the till's two, mixed. */
   --qty:color-mix(in srgb, var(--pos-steel-200), var(--pos-steel-300)); --qty-line:var(--pos-steel-100); --tab-plain:var(--qty);
@@ -3597,7 +3606,7 @@ body{font-family:var(--font-body);}
 .vt button,.tp-make .tp-btn{min-height:var(--tap);border:none;border-radius:var(--pos-r-pill);background:none;box-shadow:none;
   color:var(--ink);font-weight:600;}
 .vt button:not(.on){color:var(--ink);}
-.vt button.on,body[data-theme="dark"] .vt button.on,.tp-make .tp-btn.on{background:var(--pos-glass-on);color:var(--pos-orange);box-shadow:none;}
+.vt button.on,body[data-theme="dark"] .vt button.on,.tp-make .tp-btn.on{background:var(--pos-glass-on);color:var(--accent-ink);box-shadow:none;}
 body[data-theme="dark"] .vt button.on,body[data-theme="dark"] .tp-make .tp-btn.on{color:var(--accent-ink);}
 /* THE VIEWS FLOAT OVER THE ROOM (owner: "put it center and above the floor
    plan just like the pos"): centred at the top of the room panel, the till's
@@ -3649,7 +3658,7 @@ body[data-theme="dark"] .vt button.on,body[data-theme="dark"] .tp-make .tp-btn.o
 .dk-tab[class*="stg-"],.dc-tab{background:var(--tab-plain);color:var(--ink);box-shadow:inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
 .dk-tab.stg-here,.dk-tab.stg-phere,.dc-tab.here{background:var(--tab-plain);color:var(--ink);box-shadow:inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
 .dk-tab.stg-here.busy{color:var(--ink);}
-.dk-tab.stg-in{background:var(--sat-blue);color:var(--ink);}
+.dk-tab.stg-in{background:var(--sat-blue);color:var(--in-ink);}
 .dk-tab.stg-paid,.dk-tab.stg-bill{background:var(--seat);}
 .dk-tab.stg-half,.dc-tab.half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tab-plain) 50%);}
 .dk-tab.stg-late,.dc-tab.late{background:var(--tab-plain);box-shadow:inset var(--ring) 0 0 var(--late),inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
@@ -3762,7 +3771,7 @@ body[data-theme="dark"] .vt button.on,body[data-theme="dark"] .tp-make .tp-btn.o
 </style>
 <body class="book-page">
 <div id="app">Loading…</div>
-<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"The Dining Room\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"(07) 5555 1234\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "6b4e0620ee01be4b385f67c1914836ab56131bc5";window.__RESV_ROOM__ = [
+<script>window.__RESV_SEED__ = "{\n  \"settings\": {\n    \"venueName\": \"\",\n    \"venueAddress\": \"\",\n    \"venuePhone\": \"\",\n    \"services\": [\n      {\n        \"id\": \"sv1\",\n        \"name\": \"Lunch\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"11:30\",\n        \"end\": \"14:30\"\n      },\n      {\n        \"id\": \"sv2\",\n        \"name\": \"Dinner\",\n        \"days\": [\n          0,\n          1,\n          2,\n          3,\n          4,\n          5,\n          6\n        ],\n        \"start\": \"17:00\",\n        \"end\": \"21:30\"\n      }\n    ],\n    \"exceptions\": [],\n    \"slotMinutes\": 15,\n    \"defaultDuration\": 90,\n    \"durationByParty\": [\n      {\n        \"upTo\": 2,\n        \"minutes\": 75\n      },\n      {\n        \"upTo\": 4,\n        \"minutes\": 90\n      },\n      {\n        \"upTo\": 8,\n        \"minutes\": 120\n      },\n      {\n        \"upTo\": 99,\n        \"minutes\": 150\n      }\n    ],\n    \"maxPartySize\": 12,\n    \"seatSlack\": 2,\n    \"pacing\": {\n      \"maxCoversPer15\": 0,\n      \"maxBookingsPer15\": 0\n    },\n    \"online\": {\n      \"enabled\": true,\n      \"minNoticeMinutes\": 60,\n      \"maxDaysAhead\": 60,\n      \"maxPartySize\": 8,\n      \"largerPartyMessage\": \"For groups of more than 8 please call us.\",\n      \"notesPrompt\": \"Allergies, occasions, pram or high chair — anything we should know?\",\n      \"holdTables\": false,\n      \"notifyList\": true\n    },\n    \"noShowAfterMinutes\": 30,\n    \"dayStartsAt\": 4,\n    \"pos\": {\n      \"enabled\": false,\n      \"baseUrl\": \"\",\n      \"pushBookings\": true,\n      \"pullStatus\": true,\n      \"useFloor\": true,\n      \"useOrders\": true,\n      \"useMenus\": true,\n      \"useCustomers\": true\n    },\n    \"statusColours\": {\n      \"booked\": \"#3FBFA8\",\n      \"confirmed\": \"#3FBFA8\",\n      \"arrived\": \"#30D158\",\n      \"seated\": \"#0A84FF\",\n      \"check\": \"#96C6BD\",\n      \"cancelled\": \"#FF9500\",\n      \"no-show\": \"#FF3B30\"\n    },\n    \"tableCombos\": [],\n    \"timeline\": {\n      \"drag\": true,\n      \"moveTime\": true,\n      \"pinSeated\": true,\n      \"clearTable\": true,\n      \"join\": true,\n      \"laneOrder\": \"number\",\n      \"openAt\": \"now\",\n      \"onClash\": \"warn\",\n      \"onSmall\": \"refuse\",\n      \"snapMinutes\": 0,\n      \"holdMs\": 250,\n      \"showFinished\": false\n    }\n  },\n  \"floorPlans\": [\n    {\n      \"id\": \"fp1\",\n      \"name\": \"Main\",\n      \"tables\": [\n        {\n          \"id\": \"t1\",\n          \"label\": \"1\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t2\",\n          \"label\": \"2\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t3\",\n          \"label\": \"3\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t4\",\n          \"label\": \"4\",\n          \"seats\": 2\n        },\n        {\n          \"id\": \"t5\",\n          \"label\": \"5\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t6\",\n          \"label\": \"6\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t7\",\n          \"label\": \"7\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t8\",\n          \"label\": \"8\",\n          \"seats\": 4\n        },\n        {\n          \"id\": \"t9\",\n          \"label\": \"9\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t10\",\n          \"label\": \"10\",\n          \"seats\": 6\n        },\n        {\n          \"id\": \"t11\",\n          \"label\": \"11\",\n          \"seats\": 6\n        }\n      ]\n    }\n  ],\n  \"setMenus\": [],\n  \"theme\": {\n    \"accent\": \"#3692E7\",\n    \"mode\": \"auto\"\n  },\n  \"reservations\": [],\n  \"waitlist\": [],\n  \"notify\": [],\n  \"openings\": [],\n  \"guests\": [],\n  \"auditLog\": [],\n  \"posState\": {\n    \"lastSyncAt\": 0,\n    \"lastError\": \"\",\n    \"version\": null,\n    \"connected\": false\n  }\n}\n";window.__RESV_SEED_HASH__ = "233f03f85c2fa915e95389e15ba7c1252e313c78";window.__RESV_ROOM__ = [
   {
     "id": "fp1",
     "name": "Inside",
@@ -5618,6 +5627,14 @@ function request(config, method, path, body, extraHeaders) {
 }
 
 function ready(config) { return !!(config && config.enabled && config.baseUrl); }
+// THE TILL'S ADDRESS AS IT IS WRITTEN (daily round, 15 Oct). A host types
+// 127.0.0.1:3200 or 192.168.1.42:3000, the way a till's address is said;
+// kept as given it was "not a valid URL" and the link never came up. No
+// scheme means http://, the till's own on the venue's wifi.
+function addressOf(raw) {
+  const a = String(raw || '').trim().replace(/\/+$/, '');
+  return a && !/^[a-z][a-z0-9+.-]*:\/\//i.test(a) ? 'http://' + a : a;
+}
 
 // The cheapest honest round-trip: the POS's settings carry the venue name.
 async function testConnection(config) {
@@ -5965,7 +5982,7 @@ function menusFromCombos(list) {
 }
 
 module.exports = {
-  request, ready, testConnection, getVersion, getSettings, getTheme, getFloorPlans, getReservations,
+  request, ready, addressOf, testConnection, getVersion, getSettings, getTheme, getFloorPlans, getReservations,
   createReservation, updateReservation, deleteReservation, getCombos, menusFromCombos,
   getCustomers, searchCustomers, slimCustomer,
   streamOrders, countable, dayStamp, MAX_ORDER_ROWS, MAX_ORDER_BYTES, ORDER_DEADLINE_MS, OLD_RUN,
@@ -7870,6 +7887,19 @@ function conflictsFor(ctx, r) {
   for (const tid of heldTables(r)) for (const o of holdersOf(ctx, tid, day, minsOf(r.time), dur, r.id)) seen.set(o.id, o);
   return [...seen.values()];
 }
+// The till's walk-ins on r's tables over its sitting (walkedIn(): covers at
+// the till on a table no booking holds now), said as the clash list says a
+// booking — "5 at the till" — so a drop onto lane 16 with five eating there
+// warns or is refused like any clash (daily round, 15 Oct: Lindqvist was
+// taken onto 16 with no word).
+function tillClash(ctx, r) {
+  const day = dayOf(r.time), dur = heldFor(ctx, r, nowOn(ctx, day)), out = [];
+  for (const tid of heldTables(r)) {
+    const t = (ctx.tables || []).find(x => x.id === tid);
+    if (t && walkedIn(ctx, t, day, minsOf(r.time), dur)) out.push({ id: 'till:' + tid, name: Number(t.covers) + ' at the till', time: '', partySize: Number(t.covers), till: true });
+  }
+  return out;
+}
 
 // §§ moving a booking — the rules a drop obeys
 // The timeline lets a block be picked up and put down: along its lane for a
@@ -8055,10 +8085,11 @@ function moveCheck(ctx, r, target) {
     if (rules.onSmall === 'warn' && t) out.warn = says;
     else { out.ok = false; out.reason = says; return out; }
   }
-  out.conflicts = conflictsFor(ctx, Object.assign({}, r, { time: out.time, tableId: next.tableId, tableIds: next.tableIds }));
+  const landed = Object.assign({}, r, { time: out.time, tableId: next.tableId, tableIds: next.tableIds });
+  out.conflicts = conflictsFor(ctx, landed).concat(tillClash(ctx, landed));
   if (out.conflicts.length && rules.onClash === 'refuse') {
     out.ok = false;
-    out.reason = out.conflicts.length === 1 ? `${out.conflicts[0].name} is already on that table`
+    out.reason = out.conflicts.length === 1 ? `${out.conflicts[0].name} ${out.conflicts[0].till ? 'are' : 'is'} already on that table`
       : `${out.conflicts.length} bookings are already on that table`;
   }
   return out;
@@ -8554,7 +8585,10 @@ function tidyBack(r, b) {
   if (!r || !b || !Array.isArray(r.events)) return null;
   const last = r.events.filter(e => e && e.field === 'status').pop();
   if (!last || last.to !== r.status || last.from !== b.status) return null;
-  if (r.status === 'done') return SAT.includes(last.from) ? last.from : null;
+  // A party met at the door is the Left list's too (14 Oct), so its Undo puts
+  // them back at the door (daily round, 15 Oct: Moreau's Undo said "They have
+  // moved on since").
+  if (r.status === 'done') return SAT.includes(last.from) || HERE.includes(last.from) ? last.from : null;
   if (r.status === 'no-show') return NEVER_CAME.includes(last.from) ? last.from : null;
   return null;
 }
@@ -8935,6 +8969,9 @@ function migrate(data) {
   if (!s.online.asks || typeof s.online.asks !== 'object') s.online.asks = {};
   for (const k of Object.keys(DEFAULT_SETTINGS.online.asks)) if (s.online.asks[k] === undefined) s.online.asks[k] = DEFAULT_SETTINGS.online.asks[k];
   for (const k of Object.keys(DEFAULT_SETTINGS.pos)) if (s.pos[k] === undefined) s.pos[k] = DEFAULT_SETTINGS.pos[k];
+  // A till address saved without http:// before the save added it (daily
+  // round, 15 Oct) links on the first read after the update.
+  if (s.pos.baseUrl) s.pos.baseUrl = require('./pos').addressOf(s.pos.baseUrl);
   for (const k of Object.keys(DEFAULT_SETTINGS.relay)) if (s.relay[k] === undefined) s.relay[k] = DEFAULT_SETTINGS.relay[k];
   if (!s.mail || typeof s.mail !== 'object') s.mail = {};
   for (const k of Object.keys(DEFAULT_SETTINGS.mail)) if (s.mail[k] === undefined) s.mail[k] = DEFAULT_SETTINGS.mail[k];
@@ -8951,6 +8988,12 @@ function migrate(data) {
   // a hand-edited or half-written file that has the key but not an array.
   if (!Array.isArray(s.exceptions)) s.exceptions = [];
   if (!Array.isArray(s.tableCombos)) s.tableCombos = [];
+  // THE SEED'S NAME IS NOT THE VENUE'S (daily round, 15 Oct). The seed
+  // shipped "The Dining Room" and a made-up phone, a live store copied them,
+  // and effectiveSettings() took them for the venue's own override, so the
+  // till's name never reached the guests. That exact pair is the seed's and
+  // nobody's: it goes, and the till's name (or nothing) shows.
+  if (s.venueName === 'The Dining Room' && s.venuePhone === '(07) 5555 1234') { s.venueName = ''; s.venuePhone = ''; }
   if (!s.timeline || typeof s.timeline !== 'object' || Array.isArray(s.timeline)) s.timeline = {};
   for (const k of Object.keys(DEFAULT_SETTINGS.timeline)) if (s.timeline[k] === undefined) s.timeline[k] = DEFAULT_SETTINGS.timeline[k];
   if (!s.statusColours || typeof s.statusColours !== 'object' || Array.isArray(s.statusColours)) s.statusColours = {};
@@ -8972,6 +9015,30 @@ function migrate(data) {
     if (g.dob === undefined) g.dob = '';
     if (!Array.isArray(g.tags)) g.tags = [];
   }
+  // A card is keyed on its LINE NUMBER (av.lineNumber), as touchGuest() now
+  // keys it: 0400-111-222 and +61 400 111 222 were each a new card, so one
+  // regular was three Hartleys (daily round, 15 Oct). The cards that were one
+  // guest merge into the first, keeping the visits, notes, tags and the
+  // bookings of all of them.
+  const lineNumber = require('./availability').lineNumber;
+  const byKey = new Map();
+  data.guests = data.guests.filter(g => {
+    if (!g || typeof g.key !== 'string' || !g.key.startsWith('p:')) return true;
+    const line = lineNumber(g.key.slice(2));
+    if (!line) return true;
+    g.key = 'p:' + line;
+    const keep = byKey.get(g.key);
+    if (!keep) { byKey.set(g.key, g); return true; }
+    for (const k of ['visits', 'noShows', 'cancellations']) keep[k] = (Number(keep[k]) || 0) + (Number(g[k]) || 0);
+    const notes = String(g.notes || '').trim();
+    if (notes && !String(keep.notes || '').includes(notes)) keep.notes = keep.notes ? keep.notes + '\n' + notes : notes;
+    for (const t of g.tags) if (!keep.tags.some(x => String(x).toLowerCase() === String(t).toLowerCase())) keep.tags.push(t);
+    for (const k of ['name', 'phone', 'email', 'dob']) if (!keep[k] && g[k]) keep[k] = g[k];
+    if (g.firstSeen && (!keep.firstSeen || g.firstSeen < keep.firstSeen)) keep.firstSeen = g.firstSeen;
+    if (g.lastSeen && (!keep.lastSeen || g.lastSeen > keep.lastSeen)) keep.lastSeen = g.lastSeen;
+    for (const r of data.reservations) if (r && r.guestId === g.id) r.guestId = keep.id;
+    return false;
+  });
   for (const r of data.reservations) {
     if (!r.status) r.status = 'booked';
     if (!r.source) r.source = 'staff';
@@ -9378,7 +9445,57 @@ function append(list, events, max) {
   return out.length > cap ? out.slice(-cap) : out;
 }
 
-module.exports = { STATUS_TEXT, MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, auditWords, diffReservation, changeEvents, createdEvent, noteEvent, append };
+// ---------- a settings save, in the desk's words ----------
+// Recent activity was forty lines of "Updated settings", one a press, none
+// saying what (daily round, 15 Oct). A save is said the way Settings says
+// it — "Timeline: bookings can be dragged — off" — and a save that changed
+// nothing says nothing (''). [path, words, unit]; 'secret' is never shown.
+const SETTING_WORDS = [
+  ['venueName', 'Venue name'], ['venuePhone', 'Venue phone'], ['venueAddress', 'Venue address'],
+  ['services', 'Services'], ['slotMinutes', 'Bookings start every', 'min'], ['exceptions', 'Special days'],
+  ['defaultDuration', 'Sittings: default', 'min'], ['seatSlack', 'Sittings: spare seats allowed'], ['durationByParty', 'Sittings: by party size'],
+  ['maxPartySize', 'Largest party'], ['noShowAfterMinutes', 'No-show after', 'min'], ['dayStartsAt', 'The day starts at'],
+  ['tableCombos', 'Table combinations'], ['statusColours', 'Colours'],
+  ['timeline.drag', 'Timeline: bookings can be dragged'], ['timeline.moveTime', 'Timeline: a drag may change the time'],
+  ['timeline.pinSeated', 'Timeline: a seated party keeps its time'], ['timeline.clearTable', 'Timeline: a drag may take the table away'],
+  ['timeline.join', 'Timeline: a drop may join tables'], ['timeline.showFinished', 'Timeline: show left, cancelled and no-show'],
+  ['timeline.laneOrder', 'Timeline: lanes in order of'], ['timeline.openAt', 'Timeline: opens at'], ['timeline.onClash', 'Timeline: on a clash'],
+  ['timeline.onSmall', 'Timeline: on a table too small'], ['timeline.snapMinutes', 'Timeline: a drop lands every', 'min'], ['timeline.holdMs', 'Timeline: hold before a drag', 'ms'],
+  ['pacing.maxCoversPer15', 'Pacing: guests a quarter hour'], ['pacing.maxBookingsPer15', 'Pacing: bookings a quarter hour'],
+  ['online.enabled', 'Online: guests can book'], ['online.minNoticeMinutes', 'Online: notice needed', 'min'], ['online.maxDaysAhead', 'Online: days ahead'],
+  ['online.maxPartySize', 'Online: largest party'], ['online.largerPartyMessage', 'Online: larger party message'], ['online.notesPrompt', 'Online: notes prompt'],
+  ['online.holdTables', 'Online: bookings take a table straight away'], ['online.notifyList', 'Online: a notify list when a day is full'],
+  ['online.line', 'Online: guests can join the line'], ['online.asks', 'Online: details asked'],
+  ['pos.enabled', 'The till: link'], ['pos.baseUrl', 'The till: address'], ['pos.pushBookings', 'The till: send bookings'], ['pos.pullStatus', 'The till: read its tables'],
+  ['pos.useFloor', 'The till: use its floor plan'], ['pos.useOrders', 'The till: read what tables spent'], ['pos.useMenus', 'The till: use its set menus'],
+  ['pos.useCustomers', 'The till: match guests to its customers'],
+  ['relay.enabled', 'The relay: link'], ['relay.baseUrl', 'The relay: address'], ['relay.token', 'Relay token', 'secret'],
+  ['mail.enabled', 'Email guests'], ['mail.from', 'Emails: from'], ['mail.remindAt', 'Emails: the day before at'], ['mail.key', 'Postmark key', 'secret'],
+];
+function pathOf(o, p) { return p.split('.').reduce((x, k) => (x == null ? undefined : x[k]), o); }
+function settingWord(v, unit) {
+  if (unit === 'secret') return v ? 'changed' : 'cleared';
+  if (typeof v === 'boolean') return v ? 'on' : 'off';
+  if (v == null || v === '') return 'cleared';
+  if (typeof v === 'object') return 'changed';
+  return clip(String(v), 40) + (unit ? ' ' + unit : '');
+}
+function settingsWords(before, after) {
+  const said = [], touched = new Set();
+  for (const [p, words, unit] of SETTING_WORDS) {
+    const a = pathOf(before, p), b = pathOf(after, p);
+    if (JSON.stringify(a) === JSON.stringify(b)) continue;
+    touched.add(p.split('.')[0]);
+    said.push(words + ' — ' + settingWord(b, unit));
+  }
+  // Anything the list does not know by name is still said, by its key.
+  for (const k of Object.keys(Object.assign({}, before, after))) {
+    if (!touched.has(k) && JSON.stringify((before || {})[k]) !== JSON.stringify((after || {})[k])) said.push(k + ' — changed');
+  }
+  return said.length > 4 ? said.slice(0, 3).join('; ') + '; and ' + (said.length - 3) + ' more' : said.join('; ');
+}
+
+module.exports = { STATUS_TEXT, MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, auditWords, diffReservation, changeEvents, createdEvent, noteEvent, append, settingsWords };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./history'] = module;
@@ -9410,11 +9527,14 @@ const DEFAULT_LIMIT = 40;
 const MAX_LIMIT = 100;
 
 // The caller says "Nguyen"; the till typed "Nguyễn". Stripping the marks is
-// not tidiness, it is the whole point of the field.
+// not tidiness, it is the whole point of the field. An apostrophe goes too,
+// straight or curly: "obrien" and the iPad's o’brien found nobody booked as
+// O'Brien (daily round, 15 Oct).
 function fold(v) {
   return String(v == null ? '' : v)
     .normalize('NFD')
     .replace(/[̀-ͯ]/g, '')
+    .replace(/['’‘`]/g, '')
     .toLowerCase()
     .replace(/\s+/g, ' ')
     .trim();
@@ -9422,6 +9542,12 @@ function fold(v) {
 
 // "0400 123 456", "(04) 00123456" and "+61400123456" are one number.
 function digits(v) { return String(v == null ? '' : v).replace(/\D+/g, ''); }
+// Does this phone hold these digits? Read as typed AND as the line number
+// (av.lineNumber, +61 folded to 0): '0412 345 678' found nobody stored as
+// '+61 412 345 678', and +61400111222 missed 0400111222 (daily round, 15 Oct).
+function phoneHas(phone, d) {
+  return digits(phone).includes(d) || av.lineNumber(phone).includes(av.lineNumber(d));
+}
 
 // One typed string, read three ways, decided once instead of per booking.
 function prepareQuery(raw) {
@@ -9484,7 +9610,7 @@ function primaryHit(r, q) {
   if (text && fold(r.email).includes(text)) return true;
   // A phone is a query of digits and the marks a number is written with:
   // "jones 0400" is a name and a number, not a phone.
-  if (/^[\d\s()+\-.]+$/.test(text) && q.digits.length >= MIN_PHONE_DIGITS && digits(r.phone).includes(q.digits)) return true;
+  if (/^[\d\s()+\-.]+$/.test(text) && q.digits.length >= MIN_PHONE_DIGITS && phoneHas(r.phone, q.digits)) return true;
   // A reference is matched from its start, so a short query cannot sweep
   // every booking made through /book; punctuation alone matches none.
   const ref = text.replace(/[^a-z0-9]/g, '').toUpperCase();
@@ -9512,7 +9638,7 @@ function wordHit(w, r, hay, when, labels) {
   if (/^\d+$/.test(w) && String(r.partySize) === w) return true;
   if (when.includes(w.replace(/^(\d{1,2})\.(\d{2})/, '$1:$2'))) return true;
   const d = /^[\d()+\-.]+$/.test(w) ? digits(w) : '';
-  if (d.length >= MIN_PHONE_DIGITS && digits(r.phone).includes(d)) return true;
+  if (d.length >= MIN_PHONE_DIGITS && phoneHas(r.phone, d)) return true;
   const ref = w.replace(/[^a-z0-9]/g, '').toUpperCase();
   if (ref.length >= MIN_CHARS && r.ref && String(r.ref).toUpperCase().startsWith(ref)) return true;
   return false;
@@ -9834,7 +9960,7 @@ const LENSES = {
 function guestMatches(g, q) {
   if (!q.ok && !q.digits) return true;
   if (q.text && (fold(g.name).includes(q.text) || fold(g.email).includes(q.text))) return true;
-  if (q.digits.length >= MIN_PHONE_DIGITS && digits(g.phone).includes(q.digits)) return true;
+  if (q.digits.length >= MIN_PHONE_DIGITS && phoneHas(g.phone, q.digits)) return true;
   return false;
 }
 
@@ -9918,13 +10044,24 @@ function guestLensCounts(guests, today) {
 // round, 12 Oct: Bea, reminded for Tuesday and moved to Wednesday, was never
 // asked about Wednesday). Its when, or 0.
 const SENT_KEYS = { booked: ['emailedAt', 'emailedFor', 'emailedTo'], remind: ['remindedAt', 'remindedFor', 'remindedTo'] };
+// And for how many: a six changed to an eight is treated like a move — the
+// old Confirm thanked a table for six (daily round, 15 Oct).
+const SIZE_KEYS = { booked: 'emailedSize', remind: 'remindedSize' };
+const sizeSame = (a, kind, r) => !a[SIZE_KEYS[kind]] || Number(a[SIZE_KEYS[kind]]) === (Number(r.partySize) || 1);
 const mailTo = (e) => String(e || '').trim().toLowerCase();
 function slotOf(r) { return av.dayOf(r.time) + 'T' + av.hhmmOf(r.time); }
 function sentFor(a, kind, r) {
   // And for the address it went to: a corrected one is due again, even
   // when the old one took it and bounced later (daily round, 14 Oct).
   const [at, f, to] = SENT_KEYS[kind];
-  return a && a[at] && (!a[f] || a[f] === slotOf(r)) && (!a[to] || mailTo(a[to]) === mailTo(r.email)) ? Number(a[at]) || 0 : 0;
+  return a && a[at] && (!a[f] || a[f] === slotOf(r)) && (!a[to] || mailTo(a[to]) === mailTo(r.email)) && sizeSame(a, kind, r) ? Number(a[at]) || 0 : 0;
+}
+// Whether the booking has MOVED since that send: it went, for a day and time
+// that is not the booking's now, or for a party of another size. Not a new address — that is the same
+// booking told again (daily round, 15 Oct).
+function movedSince(a, kind, r) {
+  const [at, f] = SENT_KEYS[kind];
+  return !!(a && a[at] && ((a[f] && a[f] !== slotOf(r)) || !sizeSame(a, kind, r)));
 }
 
 // §§ CONFIRM TOMORROW (v50, r64). Tomorrow NIGHT's live bookings still to
@@ -9962,7 +10099,7 @@ function confirmList(rows, settings, now, asked) {
 }
 
 module.exports = {
-  confirmList, sentFor, SENT_KEYS,
+  confirmList, sentFor, movedSince, SENT_KEYS, SIZE_KEYS,
   personKey, tillCustomerFor, tillOnly,
   fold, digits, prepareQuery, matches, relevanceSort, searchReservations,
   bookingHit, primaryHit, whenWords, queryWords, bookingText, STATUS_WORDS, SOURCE_WORDS,
@@ -10537,6 +10674,14 @@ async function run(config, log) {
   if (dirty) db.writeData(data);
 
   // Then the wire. Each write links or re-fingerprints its booking as it lands.
+  // AN UNDO OF A SEAT EMPTIES THE TILL'S TABLE (daily round, 15 Oct). The till
+  // clears a table's covers only when a seated booking leaves (seated → done);
+  // taken back to booked, cancelled or deleted, the covers stayed and the
+  // table read as a till walk-in no picker here would offer. So a booking the
+  // till holds as seated is sent `done` first — the till's own Close table
+  // for a table with nothing ordered — and then what the desk holds.
+  const satOnTill = new Set(remote.filter(p => p && p.status === 'seated').map(p => p.id));
+  const leaveFirst = async (posId) => { if (satOnTill.has(posId)) { await pos.updateReservation(config, posId, { status: 'done' }); satOnTill.delete(posId); } };
   for (const c of plan.creates) {
     try {
       const created = await pos.createReservation(config, c.payload);
@@ -10546,6 +10691,7 @@ async function run(config, log) {
         // The POS creates everything as 'booked'; a seated walk-in needs one more call.
         const upd = await pos.updateReservation(config, created.id, { status: c.payload.status });
         if (upd) fields = pos.fieldsOf(upd);
+        if (c.payload.status === 'seated') satOnTill.add(created.id);
       }
       data = db.readData();
       const r = data.reservations.find(x => x.id === c.localId);
@@ -10565,6 +10711,7 @@ async function run(config, log) {
   }
   for (const u of plan.updates) {
     try {
+      if (u.payload && u.payload.status && !['seated', 'done'].includes(u.payload.status)) await leaveFirst(u.posId);
       const upd = await pos.updateReservation(config, u.posId, u.payload);
       data = db.readData();
       const r = data.reservations.find(x => x.id === u.localId);
@@ -10575,7 +10722,7 @@ async function run(config, log) {
     }
   }
   for (const posId of pending) {
-    try { await pos.deleteReservation(config, posId); summary.deleted++; } catch (e) { if (e.status !== 404) continue; }
+    try { await leaveFirst(posId); await pos.deleteReservation(config, posId); summary.deleted++; } catch (e) { if (e.status !== 404) continue; }
     data = db.readData();
     data.posState.pendingDeletes = (data.posState.pendingDeletes || []).filter(x => x !== posId);
     db.writeData(data);
@@ -10849,7 +10996,7 @@ module.exports = { ready, ping, grant, pull, ack, officeOn, officeOff, group, gr
 
 const crypto = require('crypto');
 const av = require('./availability');
-const { sentFor } = require('./search');
+const { sentFor, movedSince } = require('./search');
 
 // Always this many days, from today. The relay only REPLACES the dates it is
 // sent, so a horizon that shortens has to send its far days back EMPTY, or
@@ -10869,6 +11016,9 @@ function infoOf(ctx, opts) {
     notesPrompt: s.online.notesPrompt || '',
     maxPartySize: av.onlineMax(s),
     largerPartyMessage: av.onlineMessage(s),
+    // The desk's own Largest party, so the office's form caps where the
+    // desk's does (daily round, 15 Oct: the office set a party of 40).
+    largestParty: Math.max(1, Math.min(200, parseInt(s.maxPartySize, 10) || 200)),
     tzOffsetMinutes: -now.getTimezoneOffset(),
     // The zone by NAME too, so the relay keeps the venue's clock across a
     // clock change while the desk is off.
@@ -11022,8 +11172,13 @@ function mailOf(ctx, now, asked) {
     // Made after the day-before email would have gone, the booking has had
     // its own email: no "See you tomorrow… Confirm" a second after "Your
     // table at…" (daily round, 14 Oct). One moved since its sends gets both again.
+    // Decided on when it was made ALONE: the guard went off the moment the
+    // ping stamped the booked email, and the next grant asked for the
+    // reminder nine seconds on — only a MOVE since that email lifts it, or a
+    // reminder that went already, to an address since corrected (daily
+    // round, 15 Oct).
     const remindFrom = new Date(av.addDays(night, -1) + 'T' + (/^\d{2}:\d{2}$/.test(m.remindAt || '') ? m.remindAt : '10:00')).getTime();
-    const madeLate = !a.emailedAt && !a.remindedAt && Number(r.createdAt) >= remindFrom;
+    const madeLate = Number(r.createdAt) >= remindFrom && !a.remindedAt && !movedSince(a, 'booked', r);
     if (!sentFor(a, 'remind', r) && r.status === 'booked' && night === tomorrow && !madeLate) out.push(one('remind'));
   }
   return out.sort((x, y) => x.date.localeCompare(y.date) || x.time.localeCompare(y.time)).slice(0, MAIL_MAX);
@@ -11046,7 +11201,9 @@ function mailHeld(ctx, now, asked) {
   for (const r of (ctx.reservations || [])) {
     if (!r || !(asked[r.id] || {}).remindedAt || !['booked', 'confirmed'].includes(r.status)) continue;
     if (av.nightOfRes(s, r) < tonight) continue;
-    out.push({ id: r.id, date: av.dayOf(r.time), time: av.hhmmOf(r.time) });
+    // And how many, so a Confirm for the six it was emailed as is not
+    // thanked once it is an eight (daily round, 15 Oct).
+    out.push({ id: r.id, date: av.dayOf(r.time), time: av.hhmmOf(r.time), partySize: Number(r.partySize) || 1 });
   }
   return out.slice(0, MAIL_MAX * 5);
 }
@@ -11277,6 +11434,12 @@ function editRefusal(item, diary, now) {
   if (stampOf(r) !== was && !(own && own.to === stampOf(r) && mine.includes(was))) return 'It changed while you had it open — here it is now';
   const here = av.officeMayChange(r, now);
   if (here || p.cancel) return here;
+  // NO BIGGER THAN THE DESK WOULD MAKE IT. The desk's own edit caps a party
+  // at Largest party; the office's 40 was stored, with no table to sit it
+  // at (daily round, 15 Oct).
+  const most = parseInt(((diary && diary.settings) || {}).maxPartySize, 10) || 200;
+  const size = Number((p.patch || {}).partySize);
+  if (size > most && size !== Number(r.partySize)) return `More than the restaurant's largest party (${most}) — call them`;
   // SERVICE WINS AT THE NEW TIME TOO. Checking only where the booking is now
   // let the office move a party INTO the hour, into the past, to three in
   // the morning, or to a day that does not exist — which the desk then
@@ -11740,6 +11903,18 @@ function safeSettings(data) {
   // The Postmark key the same: it sends as the venue. "Key saved" is all.
   const m = s.mail || {};
   s.mail = { enabled: !!m.enabled, from: m.from || '', hasKey: !!m.key, remindAt: m.remindAt || '10:00' };
+  // THE DESK'S OWN, APART FROM THE TILL'S (daily round, 15 Oct). The screen
+  // was handed only the merged values, so the venue card showed the till's
+  // name as if typed and a save of the phone alone sent it back as the
+  // desk's own override: a rename on the till never reached the desk again.
+  // `own` is what the desk itself holds, `fromTill` what the till is filling
+  // in over it; the card edits `own` and shows `fromTill` as the hint.
+  const o = data.settings, p = data.posSettings || null, linked = !!p && pos.ready(o.pos);
+  s.own = { venueName: o.venueName || '', venueAddress: o.venueAddress || '', venuePhone: o.venuePhone || '' };
+  s.fromTill = {};
+  if (linked && p.venueName && !o.venueName) s.fromTill.venueName = p.venueName;
+  if (linked && p.venueAddress && !o.venueAddress) s.fromTill.venueAddress = p.venueAddress;
+  if (linked && p.seatingMinutes > 0) { s.own.defaultDuration = o.defaultDuration; s.fromTill.defaultDuration = p.seatingMinutes; }
   return s;
 }
 app.get('/api/settings', (req, res) => { res.json(safeSettings(readData())); });
@@ -11766,7 +11941,7 @@ app.put('/api/pacing/slot', (req, res) => {
 });
 app.put('/api/settings', async (req, res) => {
   const data = readData();
-  const b = req.body || {}, s = data.settings;
+  const b = req.body || {}, s = data.settings, before = JSON.parse(JSON.stringify(s));
 
   // Windows are normalised and CHECKED before a single field is written.
   // This route edits the cached store in place and writes once at the end, so
@@ -11904,7 +12079,13 @@ app.put('/api/settings', async (req, res) => {
   if (b.dayStartsAt !== undefined) { const h = parseInt(b.dayStartsAt, 10); s.dayStartsAt = Number.isFinite(h) && h >= 0 && h <= 12 ? h : 4; }
   if (b.pos) {
     const p = b.pos;
-    if (p.baseUrl !== undefined) s.pos.baseUrl = String(p.baseUrl || '').trim().replace(/\/+$/, '').slice(0, 120);
+    const wasUrl = s.pos.baseUrl;
+    if (p.baseUrl !== undefined) s.pos.baseUrl = pos.addressOf(p.baseUrl).slice(0, 120);
+    // A NEW ADDRESS IS NOT CONNECTED YET (daily round, 15 Oct). The old
+    // till's Connected stood for ten seconds over a typo'd port, until the
+    // pass at the new address had failed: the card read it and took the link
+    // for made. Until that pass answers, it is not, and the card connects.
+    if (s.pos.baseUrl !== wasUrl) { data.posState.connected = false; data.posState.lastError = ''; }
     if (p.enabled !== undefined) s.pos.enabled = !!p.enabled;
     for (const k of ['pushBookings', 'pullStatus', 'useFloor', 'useOrders', 'useMenus', 'useCustomers']) if (p[k] !== undefined) s.pos[k] = !!p[k];
   }
@@ -11955,7 +12136,7 @@ app.put('/api/settings', async (req, res) => {
     if (typeof mailIn.key === 'string' && mailIn.key.trim()) m.key = mailIn.key.trim().slice(0, 200);
     if (mailIn.clearKey) m.key = '';
   }
-  logAudit(data, staffFromReq(req), 'Updated settings');
+  settingsAudit(data, req, before);
   writeData(data);
   res.json(safeSettings(data));
   if (pos.ready(data.settings.pos)) setTimeout(() => posPass(true), 10);
@@ -11964,6 +12145,28 @@ app.put('/api/settings', async (req, res) => {
   setTimeout(() => relayPass(true), 10);
 });
 
+// RECENT ACTIVITY SAYS WHAT CHANGED, ONCE (daily round, 15 Oct). It was
+// forty lines of "Updated settings", one a press. A save is said in the
+// desk's words (history.settingsWords); presses within a minute of a line
+// fold into it, said from where that line started, so off and on again
+// leaves no line at all; and a save that changed nothing writes none.
+// The fold lives in memory: a restart only starts a fresh line.
+const SETTINGS_FOLD_MS = 60000;
+let _settingsFold = null; // { id, at, before }
+function settingsAudit(data, req, before) {
+  if (!data.auditLog) data.auditLog = [];
+  const f = _settingsFold, top = data.auditLog[0];
+  if (f && top && top.id === f.id && Date.now() - f.at < SETTINGS_FOLD_MS) {
+    const words = history.settingsWords(f.before, data.settings);
+    if (words) { top.action = history.auditWords(words, tablesOf(data)); top.timestamp = Date.now(); }
+    else { data.auditLog.shift(); _settingsFold = null; }
+    return;
+  }
+  const words = history.settingsWords(before, data.settings);
+  if (!words) return;
+  logAudit(data, staffFromReq(req), words);
+  _settingsFold = { id: data.auditLog[0].id, at: Date.now(), before };
+}
 app.get('/api/theme', (req, res) => { res.json(themeOf(readData())); });
 app.put('/api/theme', (req, res) => {
   const data = readData();
@@ -12168,7 +12371,10 @@ function pruneTables(data, r) {
 // visits — so it stands on no card. `{ id: null }` keeps the callers' recount
 // a no-op.
 function touchGuest(data, r) {
-  const phone = String(r.phone || '').replace(/\s+/g, '');
+  // Keyed on the line number (av.lineNumber): 0400-111-222, (04) 0011 1222
+  // and +61 400 111 222 made three new Hartleys with no welcome and no
+  // allergy (daily round, 15 Oct). migrate() merged the ones already made.
+  const phone = av.lineNumber(r.phone);
   if (!phone && !String(r.email || '').trim() && /^walk-?in$/i.test(String(r.name || '').trim())) { r.guestId = null; return { id: null }; }
   const key = phone ? 'p:' + phone : 'n:' + String(r.name || '').toLowerCase().trim();
   let g = data.guests.find(x => x.key === key);
@@ -13313,7 +13519,7 @@ app.post('/api/guests', (req, res) => {
   const name = String(b.name || '').trim().slice(0, 60);
   if (!name) return res.status(400).json({ error: 'A name is required' });
   const phone = String(b.phone || '').trim().slice(0, 30);
-  const key = phone.replace(/\s+/g, '') ? 'p:' + phone.replace(/\s+/g, '') : 'n:' + name.toLowerCase();
+  const key = av.lineNumber(phone) ? 'p:' + av.lineNumber(phone) : 'n:' + name.toLowerCase();
   const had = data.guests.find(x => x.key === key);
   if (had) return res.json(had);
   const g = { id: newId('g'), key, name, phone, email: String(b.email || '').trim().slice(0, 80),
@@ -13875,7 +14081,7 @@ app.get('/api/pos/status', (req, res) => {
 });
 app.post('/api/pos/test', async (req, res) => {
   const data = readData();
-  const cfg = Object.assign({}, data.settings.pos, { enabled: true }, req.body && req.body.baseUrl ? { baseUrl: String(req.body.baseUrl).trim().replace(/\/+$/, '') } : {});
+  const cfg = Object.assign({}, data.settings.pos, { enabled: true }, req.body && req.body.baseUrl ? { baseUrl: pos.addressOf(req.body.baseUrl) } : {});
   if (!cfg.baseUrl) return res.status(400).json({ error: 'Enter the POS address first' });
   try { res.json(Object.assign({ ok: true }, await pos.testConnection(cfg))); }
   catch (e) { res.status(502).json({ error: e.message }); }
@@ -14335,8 +14541,10 @@ function keepMailSent(ping) {
     // its email is due again (daily round, 12 Oct).
     const slot = /^\d{4}-\d\d-\d\d$/.test(String(x.date || '')) && /^\d\d:\d\d$/.test(String(x.time || '')) ? x.date + 'T' + x.time : '';
     const to = typeof x.to === 'string' ? x.to.trim().slice(0, 120) : '';
-    if (a[k] && (!slot || a[f] === slot) && (!to || a[t] === to)) continue;
-    data.confirmAsk[x.id] = Object.assign({}, a, { [k]: Number(x.at) || Date.now() }, slot ? { [f]: slot } : {}, to ? { [t]: to } : {});
+    // And the size it went for: a changed one is due again (daily round, 15 Oct).
+    const sz = search.SIZE_KEYS[x.kind], size = parseInt(x.partySize, 10) > 0 ? parseInt(x.partySize, 10) : 0;
+    if (a[k] && (!slot || a[f] === slot) && (!to || a[t] === to) && (!size || Number(a[sz]) === size)) continue;
+    data.confirmAsk[x.id] = Object.assign({}, a, { [k]: Number(x.at) || Date.now() }, slot ? { [f]: slot } : {}, to ? { [t]: to } : {}, size ? { [sz]: size } : {});
     moved = true;
   }
   if (m.hasKey === false && data.relayState.mailKeyHash && data.settings.mail && data.settings.mail.key) { data.relayState.mailKeyHash = ''; moved = true; }
