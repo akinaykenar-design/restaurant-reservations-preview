@@ -689,7 +689,7 @@ h1,h2,h3{margin:0;}
 .toast.tl-hint.bad{background:var(--red-btn);color:#fff;}
 
 /* §§ Diary — the month, one tile a day */
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
 .cal .dow{text-align:center;font-size:var(--fs-chip);font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--charcoal-soft);padding:4px 0;}
 .cal .day{aspect-ratio:1;background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-control);padding:6px 8px;display:flex;flex-direction:column;justify-content:space-between;cursor:pointer;min-height:56px;}
 .cal .day.out{opacity:var(--dim);}
@@ -712,6 +712,10 @@ h1,h2,h3{margin:0;}
 /* On a phone a tile is ~50px wide: the note would ellipsis to two letters, so
    the shading and the ring carry it and the day itself tells the whole story. */
 @media (max-width:768px){ .cal .day{min-height:44px;padding:4px 6px;} .cal .day .c,.cal .day .exc-note{display:none;} }
+/* At 320 seven 44-square days are 332 in a 296 sheet, and Saturday was cut
+   at the edge (daily round, 16 Oct): there a day is its column's width and
+   still 44 tall. */
+@media (max-width:359px){ .cal .day{aspect-ratio:auto;min-width:0;} }
 
 /* §§ Cards (admin pages) */
 /* 360, not 300: a sitting row ("Up to … guests … min") and the online
@@ -2877,7 +2881,9 @@ body[data-theme="dark"] .toast{background:var(--ink);color:var(--surface);}
    ink sat down and at the bill (QUIET: no green), red for the two that went
    wrong, grey for still to come and for done. */
 .shell.simple .st-ink.booked,.shell.simple .st-ink.confirmed,.shell.simple .st-ink.done{--st-ink:var(--mute);}
-.shell.simple .st-ink.part-arrived,.shell.simple .st-ink.arrived{--st-ink:var(--accent);}
+/* Here is the ink, as the tab's number on its grey: the bare blue read
+   3.12:1 on dark's sheet, and blue is seated alone (daily round, 16 Oct). */
+.shell.simple .st-ink.part-arrived,.shell.simple .st-ink.arrived{--st-ink:var(--ink);}
 .shell.simple .st-ink.part-seated,.shell.simple .st-ink.seated{--st-ink:var(--ink);}
 .shell.simple .st-ink.check,.shell.simple .st-ink.paid{--st-ink:var(--ink);}
 .shell.simple .st-ink.cancelled,.shell.simple .st-ink.no-show{--st-ink:var(--late);}
@@ -2941,7 +2947,11 @@ body.book-page{background:var(--bg);color:var(--ink);font-size:var(--fs-lg);line
 .gp-l,.gp-h{margin:0;font-size:var(--fs-md);font-weight:700;color:var(--mute);}
 .gp-h{font-size:var(--fs-xl);color:var(--ink);}
 .gp-say{margin:0;color:var(--mute);}
-.gp-say a,.gp-foot a{color:var(--accent);font-weight:600;}
+/* The venue's phone is the blue taken toward the ink, 44 tall to a thumb:
+   the bare blue on the till's beige was 3.78:1, and 18 px tall (daily round,
+   16 Oct). */
+.gp-say a,.gp-foot a{color:var(--accent-ink);font-weight:600;}
+.gp-say a[href^="tel:"],.gp-foot a[href^="tel:"]{display:inline-flex;align-items:center;min-height:var(--tap);}
 .gp-quiet{margin:0;color:var(--mute);text-align:center;}
 .gp-err{margin:0;color:var(--late);font-weight:700;}
 .gp-pax{display:flex;align-items:center;justify-content:center;gap:16px;}
@@ -3283,7 +3293,9 @@ input[type="time"].t-time{width:9.5em;min-width:9.5em;max-width:100%;flex:none;}
 .fl-joins line{stroke:var(--accent);stroke-linecap:round;}
 .fl-joins line.held{stroke:var(--faint);}
 .fl-join-tag{position:absolute;z-index:350;pointer-events:none;white-space:nowrap;line-height:1.25;
-  font-family:var(--font-mono);font-size:2cqw;font-weight:800;color:var(--accent);}
+  font-family:var(--font-mono);font-size:2cqw;font-weight:800;color:var(--accent-ink);}
+/* The pair's name is the blue taken toward the ink: the bare blue on the
+   room's ground was 3.78:1 in light and 3.88 in dark (daily round, 16 Oct). */
 .fl-join-tag.held{font-family:var(--font-body);font-size:1.7cqw;font-weight:500;color:var(--mute);}
 /* A word is never in a pill (QUIET): a table that seats them only till a
    time says so under itself, in plain grey — a share of the room on a drawn
@@ -5650,6 +5662,18 @@ function addressOf(raw) {
   return a && !/^[a-z][a-z0-9+.-]*:\/\//i.test(a) ? 'http://' + a : a;
 }
 
+// A DESK IS NOT A TILL (daily round, 16 Oct). The desk's own address typed
+// as the till's — :3001 beside the till's :3000 on one computer — answered
+// Test with "Connected", and the link copied every booking into the book
+// again on every pass (83 of each guest in half a minute). A desk's
+// /api/version carries its `desk` id and its `holds`; a till's carries
+// neither. Asked of every answer before anything is read or sent.
+function deskRefusal(version, ownId) {
+  if (!version || typeof version !== 'object') return '';
+  if (ownId && version.desk === ownId) return "That is this desk's own address, not the till's";
+  return version.desk !== undefined || version.holds !== undefined ? "That is a booking desk's address, not the till's" : '';
+}
+
 // The cheapest honest round-trip: the POS's settings carry the venue name.
 async function testConnection(config) {
   const settings = await request(config, 'GET', '/api/settings');
@@ -5996,7 +6020,7 @@ function menusFromCombos(list) {
 }
 
 module.exports = {
-  request, ready, addressOf, testConnection, getVersion, getSettings, getTheme, getFloorPlans, getReservations,
+  request, ready, addressOf, deskRefusal, testConnection, getVersion, getSettings, getTheme, getFloorPlans, getReservations,
   createReservation, updateReservation, deleteReservation, getCombos, menusFromCombos,
   getCustomers, searchCustomers, slimCustomer,
   streamOrders, countable, dayStamp, MAX_ORDER_ROWS, MAX_ORDER_BYTES, ORDER_DEADLINE_MS, OLD_RUN,
@@ -6077,6 +6101,18 @@ function statusStamps(r, now, opts) {
     delete r.seatedAt; delete r.checkAt; delete r.paidAt; delete r.billStale;
     if (!isHere(r)) delete r.arrivedAt;
   }
+  return r;
+}
+
+// AN UNDO PUTS BACK THE MINUTES IT TOOK AWAY (daily round, 16 Oct): "2 of
+// 4" here, Not here, then Undo came back arrived the minute Undo was
+// pressed, and Paid, Left, Undo was paid at that minute too. `were` is the
+// booking's stamps before the press; each goes back only where the status
+// statusStamps() just set has that stamp — never a stamp it does not.
+const UNDO_STAMPS = ['arrivedAt', 'seatedAt', 'checkAt', 'paidAt', 'confirmedAt'];
+function stampsBack(r, were) {
+  if (!were || typeof were !== 'object') return r;
+  for (const k of UNDO_STAMPS) if (Number.isFinite(were[k]) && Number.isFinite(r[k])) r[k] = were[k];
   return r;
 }
 
@@ -7664,6 +7700,15 @@ function combosOf(ctx) {
   return (((ctx.settings || {}).tableCombos) || [])
     .filter(c => c && Array.isArray(c.tables) && c.tables.length > 1 && c.tables.every(id => ids.has(id)));
 }
+// ONE SET OF TABLES IS ONE COMBINATION (daily round, 16 Oct): 45 + 46 saved
+// twice listed two rows and the walk-in carried the pair twice. The sets
+// that stand more than once in `list`, each keyed on its tables sorted.
+function comboKey(c) { return ((c && c.tables) || []).slice().sort().join('+'); }
+function comboTwins(list) {
+  const seen = new Set(), twins = new Set();
+  for (const c of list || []) { const k = comboKey(c); if (seen.has(k)) twins.add(k); seen.add(k); }
+  return [...twins];
+}
 function comboSeats(ctx, combo) {
   return combo.seats > 0 ? combo.seats : seatsOf(ctx, combo.tables);
 }
@@ -7787,13 +7832,18 @@ function setSlotCap(pacing, day, hhmm, cap, every, today, fromWeek) {
 // a :15 service on a 30-minute grid in the wrong bucket, so the Flow counted
 // nothing where a party was booked and a limit set on 17:15 never held. Before
 // the first slot of the day the clock's grid answers, as it always did.
+// AND ONLY A SLOT IT FALLS INSIDE (daily round, 16 Oct): a 9:45 after a
+// dinner whose last slot is 9:15, or a 4:45 between lunch and dinner, was
+// counted against that last slot's limit, and 9:15 said "Kitchen full" with
+// nobody arriving at 9:15. Past its slot's step a time takes the clock's
+// grid, which is no slot of the day, so it counts against no slot's limit.
 function slotKeyer(settings, day) {
   const step = settings.slotMinutes || 15;
   const times = slotTimes(settings, day).map(toMin);
   return (min) => {
     let k = -1;
     for (const t of times) { if (t <= min) k = t; else break; }
-    return k >= 0 ? k : Math.floor(min / step) * step;
+    return k >= 0 && min < k + step ? k : Math.floor(min / step) * step;
   };
 }
 function slotOf(settings, day, hhmm) { return fromMin(slotKeyer(settings, day)(toMin(hhmm))); }
@@ -8298,7 +8348,27 @@ function setMenuSummary(ctx, day) {
 // load-bearing: they are what stops 'in 20 minutes' and 'donuts to finish'
 // becoming allergy lines. Over-reporting is the deliberate bias — an extra
 // line costs a glance, a missed coeliac costs a guest.
-const ALLERGY_RE = /\b(?:allerg\w*|coeliac|celiac|gluten|intoleran\w*|anaphyla\w*|epi-?pen|nuts?|peanuts?|shellfish|seafood|crustacean|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b/i;
+//
+// AND A NOTE THAT SAYS THERE IS NONE IS NONE (daily round, 16 Oct). The
+// online form asks "Allergies, occasions… anything we should know?", guests
+// type "No allergies", and the list drew the red dot, the welcome card led
+// in red and the run sheet told the kitchen; "Pre-ordered the seafood
+// tower" was an allergy too. So, ONE rule, allergySaid(), which the desk's
+// allergyDot() copies word for word (held by test): a denial is taken out
+// first (NO_ALLERGY_RE), then a dish (DISH_RE: "seafood tower", "fish of the
+// day"); then the strong words count (ALLERGY_RE), a need for a food counts
+// ("no nuts", "gluten free": ALLERGEN_NEED_RE), and a food named alone counts
+// unless the note is an order (ALLERGEN_RE, ORDER_RE) — still the bias.
+const ALLERGY_RE = /\b(?:allerg\w*|coeliac|celiac|intoleran\w*|anaphyla\w*|epi-?pen)\b/i;
+const ALLERGEN_RE = /\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b/i;
+const ALLERGEN_NEED_RE = /\b(?:no|without|avoid\w*|can[’']?t\s+(?:have|eat)|cannot\s+(?:have|eat)|free\s+of)\s+(?:\w+\s+)?(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b|\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)[\s-]?free\b/i;
+const NO_ALLERGY_RE = /\b(?:no|nil|zero|without)\s+(?:known\s+)?(?:food\s+)?(?:allerg\w*|intoleran\w*)|\bnot\s+allergic(?:\s+to\s+anything)?|\ballerg\w*\s*[:\-–—]?\s*(?:none|nil|n\/a|no(?=\s*(?:$|[.,;!])))/gi;
+const DISH_RE = /\b(?:sea\s?food|fish|eggs?|nuts?|wheat|sesame)\s+(?:towers?|platters?|plates?|boards?|of\s+the\s+day|and\s+chips|benedict|pies?|curry|stew|soup|specials?|dish|cakes?|tacos?)\b/gi;
+const ORDER_RE = /\b(?:pre-?order\w*|ordered|ordering)\b/i;
+function allergySaid(text) {
+  const t = String(text || '').replace(NO_ALLERGY_RE, ' ').replace(DISH_RE, ' ');
+  return ALLERGY_RE.test(t) || ALLERGEN_NEED_RE.test(t) || (!ORDER_RE.test(t) && ALLERGEN_RE.test(t));
+}
 
 // Tags are free text server-side (`String(t).trim().slice(0,20)`), so a tag
 // is compared folded — never with ===, which would miss 'allergy' typed on
@@ -8337,8 +8407,8 @@ function allergyOf(r, guest) {
   // when it reads like an allergy; the guest-book note counts when the GUEST
   // carries the tag or reads like one. A guest tagged Allergy does not turn
   // tonight's 'running 20 minutes late' into a line a chef has to read.
-  const notes = rn && (rTagged || ALLERGY_RE.test(rn)) ? rn : '';
-  const guestNotes = gn && (guestTagged || ALLERGY_RE.test(gn)) ? gn : '';
+  const notes = rn && (rTagged || allergySaid(rn)) ? rn : '';
+  const guestNotes = gn && (guestTagged || allergySaid(gn)) ? gn : '';
   if (!tagged && !notes && !guestNotes) return null;
   return { tagged, notes, guestNotes };
 }
@@ -8496,9 +8566,14 @@ function noShowWait(settings) {
   return n > 0 ? n : 30;
 }
 // The service a minute of the night belongs to. The tail after midnight runs
-// on past 24:00, so it is after every start and lands on the last.
+// on past 24:00, so it is after every start and lands on the last. A time
+// between services inside the line's half hour before the next is the
+// next one's (daily round, 16 Oct): Early Ella at 4:45, dinner at five, was
+// filed under a lunch over at 2:30 and stood on no list and no door card.
 function tidyHomeOf(svcs, t) {
-  return svcs.find(s => toMin(s.start) <= t && t < toMin(s.end)) || svcs.filter(s => toMin(s.start) <= t).pop() || svcs[0] || null;
+  return svcs.find(s => toMin(s.start) <= t && t < toMin(s.end))
+    || svcs.find(s => t < toMin(s.start) && toMin(s.start) - t <= LINE_EARLY)
+    || svcs.filter(s => toMin(s.start) <= t).pop() || svcs[0] || null;
 }
 // THE SITTING RUNS FROM WHEN THEY SAT (review, 8 Oct). The minute of the
 // night the party sat down — seatedAt read the way nowOn() reads the clock,
@@ -8662,21 +8737,42 @@ function doorNext(ctx, day, opts) {
   return out;
 }
 
+// The guests' page's budget on the desk's own /book and notify list, per
+// device an hour: ten MADE, as the relay counts its own. Ten tries at a
+// mistyped email locked a guest out for an hour, and the notify list with
+// it, because every try was counted before it was checked (daily round,
+// 16 Oct). Every try keeps a loose cap of its own, against a sweep.
+const PUBLIC_MADE_MAX = 10, PUBLIC_TRIES_MAX = 60, PUBLIC_WINDOW = 3600000;
+function publicKeep(rec, now) {
+  rec.made = (rec.made || []).filter(t => now - t < PUBLIC_WINDOW);
+  rec.tries = (rec.tries || []).filter(t => now - t < PUBLIC_WINDOW);
+  return rec;
+}
+function publicRefusal(rec, now) {
+  publicKeep(rec, now);
+  if (rec.made.length >= PUBLIC_MADE_MAX) return 'Too many bookings from this device. Please call us.';
+  if (rec.tries.length >= PUBLIC_TRIES_MAX) return 'Too many tries from this device. Please call us.';
+  return null;
+}
+function publicTried(rec, now) { publicKeep(rec, now).tries.push(now); return rec; }
+function publicMade(rec, now) { publicKeep(rec, now).made.push(now); return rec; }
+
 module.exports = {
-  statusStamps, mergeTables, tablesRefusal, onlineMax, onlineMessage,
+  statusStamps, UNDO_STAMPS, stampsBack, mergeTables, tablesRefusal, onlineMax, onlineMessage,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
   LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
-  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, TURN_BILL, TURN_SOON, turnOf, turnBackRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, ASK_FIELDS, asksOf, onlineAsks, emailOk, nightOfRes, onlineRefusal, onlineGuest, guestName, cleanDob, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
+  freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, TURN_BILL, TURN_SOON, turnOf, turnBackRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, ASK_FIELDS, asksOf, onlineAsks, emailOk, nightOfRes, onlineRefusal, onlineGuest, guestName, cleanDob, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboKey, comboTwins, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
-  ALLERGY_RE, serviceAt, allergyOf, sheetRow, runSheet,
-  TIDY_AFTER, tidyKind, tidyNight, tidyPick, tidyBack, tidyWas,
+  ALLERGY_RE, ALLERGEN_RE, ALLERGEN_NEED_RE, NO_ALLERGY_RE, DISH_RE, ORDER_RE, allergySaid, serviceAt, allergyOf, sheetRow, runSheet,
+  TIDY_AFTER, tidyHomeOf, servicesInOrder, tidyKind, tidyNight, tidyPick, tidyBack, tidyWas,
   HOLD_MS, HOLD_IDLE_MS, holdBy, holdsOf, holdPut, holdSpan, holdTake, holdRefusal, holdRows,
   DOOR_MAX, doorNext,
+  PUBLIC_MADE_MAX, PUBLIC_TRIES_MAX, publicRefusal, publicTried, publicMade,
 };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
@@ -8987,6 +9083,9 @@ function migrate(data) {
   // round, 15 Oct) links on the first read after the update.
   if (s.pos.baseUrl) s.pos.baseUrl = require('./pos').addressOf(s.pos.baseUrl);
   for (const k of Object.keys(DEFAULT_SETTINGS.relay)) if (s.relay[k] === undefined) s.relay[k] = DEFAULT_SETTINGS.relay[k];
+  // And the relay's, saved without a scheme before the save added one (daily
+  // round, 16 Oct).
+  if (s.relay.baseUrl) s.relay.baseUrl = require('./relay').addressOf(s.relay.baseUrl);
   if (!s.mail || typeof s.mail !== 'object') s.mail = {};
   for (const k of Object.keys(DEFAULT_SETTINGS.mail)) if (s.mail[k] === undefined) s.mail[k] = DEFAULT_SETTINGS.mail[k];
   if (!data.confirmAsk || typeof data.confirmAsk !== 'object' || Array.isArray(data.confirmAsk)) data.confirmAsk = {};
@@ -9199,7 +9298,7 @@ module.exports = { readData, writeData, dataVersion, writeCount, newId, migrate,
   (function (module, exports, require, __dirname, process) {
 // history.js
 // A booking's own change history: who changed what, when, in the words a
-// manager reads on the popup — "Moved from 19:00 to 20:00", "Seated",
+// manager reads on the popup — "Moved from 7:00 PM to 8:00 PM", "Seated",
 // "Cancelled — Removed on the POS".
 //
 // Pure, like availability.js: it requires nothing, touches no store, never
@@ -9250,11 +9349,17 @@ function sameSet(a, b) { if (a.length !== b.length) return false; const s = new 
 function labelOf(opts) { return (opts && typeof opts.tableLabel === 'function') ? opts.tableLabel : ((id) => String(id)); }
 function labelList(ids, label) { return ids.map(label).filter(Boolean).join(' + '); }
 
-// 'YYYY-MM-DDTHH:mm' → '19:00', or '10 Oct 19:00' with the day. Sliced by
-// hand and spelled from MON: no Intl, so a test reads the same on any machine.
+// 'YYYY-MM-DDTHH:mm' → '7:00 PM', or '10 Oct 7:00 PM' with the day. Sliced
+// by hand and spelled from MON: no Intl, so a test reads the same on any
+// machine. The desk's clock, never the stored 19:00 (daily round, 16 Oct:
+// the History read "17 Oct 19:00" under a page that says 7:00 PM).
+function twelve(hhmm) {
+  const m = /^(\d{2}):(\d{2})$/.exec(hhmm);
+  return m ? `${(+m[1] % 12) || 12}:${m[2]} ${+m[1] < 12 ? 'AM' : 'PM'}` : hhmm;
+}
 function when(t, withDay) {
   const s = String(t || '');
-  const hhmm = s.slice(11, 16);
+  const hhmm = twelve(s.slice(11, 16));
   if (!withDay) return hhmm || s;
   const mon = MON[parseInt(s.slice(5, 7), 10) - 1];
   const day = parseInt(s.slice(8, 10), 10);
@@ -9427,7 +9532,12 @@ function createdEvent(r, by, at, opts) {
   const src = str(r.source) || 'staff';
   let lead;
   if (src === 'walk-in') {
-    lead = 'Seated from the waitlist';
+    // Only a seat off the waitlist (it carries waitedMin, nought included)
+    // came from it; one booked at another venue of the group says so, and
+    // the rest walked in (daily round, 16 Oct: every walk-in read "Seated
+    // from the waitlist").
+    const at = opts && str(opts.bookedAt);
+    lead = at ? `Booked at ${at}, seated here` : typeof r.waitedMin === 'number' ? 'Seated from the waitlist' : 'Walked in';
     if (tables) parts.push(tables);
     const waited = num(r.waitedMin);
     if (waited > 0) parts.push(`after ${waited} min waiting`);
@@ -9830,7 +9940,7 @@ function tagged(g, want) {
 
 function hasAllergy(g) {
   if (tagged(g, ['allergy'])) return true;
-  return av.ALLERGY_RE.test(String((g && g.notes) || ''));
+  return av.allergySaid((g && g.notes) || '');
 }
 
 // §§ Birthdays
@@ -10960,6 +11070,19 @@ function request(config, method, path, body) {
   });
 }
 
+// THE RELAY'S ADDRESS AS IT IS WRITTEN (daily round, 16 Oct). Typed the
+// way it is said, book.example.com or 127.0.0.1:3999, it was "not a valid
+// URL" and never linked, as the till's was until 15 Oct. No scheme means
+// https://, the relay's own out on the internet — and http:// for one on
+// this computer or the venue's wifi, which has no certificate.
+function addressOf(raw) {
+  const a = String(raw || '').trim().replace(/\/+$/, '');
+  if (!a || /^[a-z][a-z0-9+.-]*:\/\//i.test(a)) return a;
+  const host = a.split(/[/:]/)[0];
+  const near = /^(localhost|127\.|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/i.test(host);
+  return (near ? 'http://' : 'https://') + a;
+}
+
 function ready(config) { return !!(config && config.enabled && config.baseUrl && config.token); }
 
 const ping = (c) => request(c, 'GET', '/api/venue/ping');
@@ -10980,7 +11103,7 @@ const groupCancel = (c, body) => request(c, 'POST', '/api/venue/group/cancel', b
 // desk's tablet — a minute, once, that venue alone.
 const groupPass = (c, body) => request(c, 'POST', '/api/venue/group/pass', body);
 
-module.exports = { ready, ping, grant, pull, ack, officeOn, officeOff, group, groupFind, groupCancel, groupPass };
+module.exports = { addressOf, ready, ping, grant, pull, ack, officeOn, officeOff, group, groupFind, groupCancel, groupPass };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relay'] = module;
@@ -11283,7 +11406,14 @@ function groupCancelRefusal(item, diary, now) {
   if (!group || !Array.isArray(group.venues) || !group.venues.some(v => v && v.id === p.fromId)) return 'not linked with them any more';
   if (av.isSat(r)) return 'already seated here';
   if (av.isHere(r)) return 'already at their door';
-  if (stampOf(r) !== Number(p.was)) return 'it changed since';
+  // Changed since, but everything the asker SAW still true — confirmed on
+  // the phone, a note — is still theirs to cancel: Greta was refused "it
+  // changed since", never asked again, and held her table all night (daily
+  // round, 16 Oct). Status is already ruled above.
+  const seen = p.seen && typeof p.seen === 'object' ? p.seen : null;
+  const same = seen && String(r.name || '') === String(seen.name || '') && String(r.phone || '') === String(seen.phone || '')
+    && Number(r.partySize) === Number(seen.size) && String(r.time || '') === String(seen.time || '');
+  if (stampOf(r) !== Number(p.was) && !same) return 'it changed since';
   const s = (diary && diary.settings) || {};
   if (av.nightAt(s, av.dayOf(r.time), av.hhmmOf(r.time)).day !== av.lineNight(s, now)) return 'not tonight';
   return null;
@@ -11405,7 +11535,8 @@ function replicaOf(ctx, now, tableLabel) {
     const day = r && av.dayOf(r.time);
     if (!day || day < today || day > last) continue;
     rows.push({
-      id: r.id, ref: r.ref || '', name: r.name || '', phone: r.phone || '', partySize: r.partySize,
+      // The email too, so the office can see and change it (daily round, 16 Oct).
+      id: r.id, ref: r.ref || '', name: r.name || '', phone: r.phone || '', email: r.email || '', partySize: r.partySize,
       time: r.time, status: r.status, notes: r.notes || '', table: av.heldTables(r).map(label).join('+'),
       updatedAt: stampOf(r), source: r.source || '', locked: av.officeMayChange(r, now) || '',
     });
@@ -11454,6 +11585,8 @@ function editRefusal(item, diary, now) {
   const most = parseInt(((diary && diary.settings) || {}).maxPartySize, 10) || 200;
   const size = Number((p.patch || {}).partySize);
   if (size > most && size !== Number(r.partySize)) return `More than the restaurant's largest party (${most}) — call them`;
+  const email = (p.patch || {}).email;
+  if (email !== undefined && String(email).trim() && !av.emailOk(email)) return 'That email address does not look right';
   // SERVICE WINS AT THE NEW TIME TOO. Checking only where the booking is now
   // let the office move a party INTO the hour, into the past, to three in
   // the morning, or to a day that does not exist — which the desk then
@@ -11494,6 +11627,8 @@ function refusalOf(item, diary, now) {
 function editedBooking(r, patch, ctx) {
   const n = Object.assign({}, r);
   for (const k of ['name', 'phone', 'notes']) if (patch[k] !== undefined) n[k] = String(patch[k]);
+  // The office's email, so a phone booking gets the venue's emails (daily round, 16 Oct).
+  if (patch.email !== undefined) n.email = String(patch.email).trim().slice(0, 80);
   if (patch.partySize >= 1) n.partySize = patch.partySize;
   if (patch.time && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(patch.time)) n.time = patch.time;
   if (n.time !== r.time || n.partySize !== r.partySize) {
@@ -11716,6 +11851,8 @@ const crypto = require('crypto');
 
 const app = express();
 const PORT = parseInt(process.env.PORT, 10) || 3001;
+// Who this desk is, for this run: never stored (pos.deskRefusal()).
+const DESK_ID = crypto.randomBytes(8).toString('hex');
 
 app.use(express.json({ limit: '1mb' }));
 
@@ -12000,6 +12137,14 @@ app.put('/api/settings', async (req, res) => {
   const mailIn = b.mail && typeof b.mail === 'object' ? b.mail : null;
   if (mailIn && mailIn.from !== undefined && String(mailIn.from || '').trim() && !av.emailOk(mailIn.from)) return res.status(400).json({ error: 'The From needs to be an email address' });
   if (mailIn && mailIn.remindAt !== undefined && !HHMM.test(String(mailIn.remindAt))) return res.status(400).json({ error: 'The day before needs a time like 10:00' });
+  // One set of tables is one combination (av.comboTwins(); daily round,
+  // 16 Oct). A twin already in the store is folded on this save, not refused.
+  if (Array.isArray(b.tableCombos) && !tillFloor(data)) {
+    const had = av.comboTwins(s.tableCombos);
+    if (av.comboTwins(b.tableCombos).some(k => !had.includes(k))) return res.status(400).json({ error: 'Those tables are already a combination' });
+  }
+  // The desk's own address is never the till's (daily round, 16 Oct).
+  if (b.pos && b.pos.baseUrl !== undefined) { const self = ownAddress(pos.addressOf(b.pos.baseUrl)); if (self) return res.status(400).json({ error: self }); }
 
   // The venue's colour code. A key must be one we know how to re-point and a
   // value must be a full six-digit hex or empty — empty meaning "give me the
@@ -12054,7 +12199,7 @@ app.put('/api/settings', async (req, res) => {
       id: String((c && c.id) || 'tc' + (i + 1)).slice(0, 40),
       tables: Array.isArray(c && c.tables) ? [...new Set(c.tables.filter(x => typeof x === 'string' && x).map(x => x.slice(0, 60)))].slice(0, 8) : [],
       seats: Math.max(0, Math.min(200, parseInt(c && c.seats) || 0)),
-    })).filter(c => c.tables.length > 1);
+    })).filter(c => c.tables.length > 1).filter((c, i, all) => all.findIndex(x => av.comboKey(x) === av.comboKey(c)) === i);
   }
   // The timeline's guard rails. Two switches, two choices out of two words,
   // and two numbers with a floor and a ceiling — anything else is clamped to
@@ -12106,7 +12251,7 @@ app.put('/api/settings', async (req, res) => {
   if (b.relay) {
     const q = b.relay;
     const wasOn = relay.ready(s.relay), was = { baseUrl: s.relay.baseUrl, token: s.relay.token, office: !!s.relay.office };
-    if (q.baseUrl !== undefined) s.relay.baseUrl = String(q.baseUrl || '').trim().replace(/\/+$/, '').slice(0, 200);
+    if (q.baseUrl !== undefined) s.relay.baseUrl = relay.addressOf(q.baseUrl).slice(0, 200);
     if (q.enabled !== undefined) s.relay.enabled = !!q.enabled;
     // Only a token actually typed replaces the saved one: the card never has
     // it to send back, so an absent or empty field means "keep it".
@@ -12605,6 +12750,8 @@ function changeReservation(data, cur, body, who, opts) {
     // party put back before the table, nor a Left on one put back at it
     // (av.statusStamps).
     av.statusStamps(next, Date.now(), { keep: !!opts.keepStamps });
+    // A quick-status Undo sends the stamps it had (av.stampsBack).
+    if (body && body.stampsWere) av.stampsBack(next, body.stampsWere);
     if (next.status === 'cancelled') { next.cancelledAt = Date.now(); next.cancelReason = String((body && body.cancelReason) || '').slice(0, 120); }
     // A table that was being held and now is not: somebody on the notify list
     // may want exactly this slot.
@@ -12614,6 +12761,9 @@ function changeReservation(data, cur, body, who, opts) {
   // it, `cur` and `next` are the same row and every edit records nothing.
   const now = Date.now();
   const evs = history.changeEvents(cur, next, { by: who, at: now }, evOpts(data));
+  // A move the caller says in its own words is said once, in them (daily
+  // round, 16 Oct: the wrong night's move was told twice).
+  if (opts.timeText) for (const e of evs) if (e.field === 'time') e.text = opts.timeText;
   next.updatedAt = now;
   Object.assign(cur, next);
   // A stamp statusStamps() took away has to go from the stored row too — the
@@ -12772,9 +12922,9 @@ app.post('/api/reservations/:id/tonight', (req, res) => {
   const was = { time: r.time, tableId: r.tableId || null, tableIds: (r.tableIds || []).slice(), status: r.status, durationMin: r.durationMin === undefined ? null : r.durationMin,
     confirmedAt: Number.isFinite(r.confirmedAt) ? r.confirmedAt : null, tonight: av.localTime(now) };
   const who = staffFromReq(req);
-  const out = changeReservation(data, r, { time: av.localTime(now), tableId, tableIds, status: 'seated' }, who);
+  const out = changeReservation(data, r, { time: av.localTime(now), tableId, tableIds, status: 'seated' }, who,
+    { timeText: `Came in on the wrong night — moved from ${search.dateWords(av.dayOf(was.time))}, ${twelve(av.hhmmOf(was.time))} to tonight` });
   if (out.error) return res.status(400).json({ error: out.error });
-  r.events = history.append(r.events, [history.noteEvent(who, Date.now(), `Came in on the wrong night — moved from ${search.dateWords(av.dayOf(was.time))}, ${twelve(av.hhmmOf(was.time))} to tonight`, 'moved')]);
   logAudit(data, who, `${r.name} came in on the wrong night: moved from ${was.time} to tonight`);
   writeData(data);
   res.json({ was, from, booking: withWarnings(data, r) });
@@ -13593,14 +13743,19 @@ app.put('/api/guests/:id', (req, res) => {
 });
 
 // ---------- the public booking page ----------
-const publicHits = new Map(); // ip -> [ts]
+const publicHits = new Map(); // ip -> { made: [ts], tries: [ts] }
+// Asked first; only what was MADE counts against the ten (publicSpent()
+// after the write), every try against the loose cap (daily round, 16 Oct).
 function publicRateBlocked(req, res) {
   const ip = ipOf(req), now = Date.now();
-  const arr = (publicHits.get(ip) || []).filter(t => now - t < 60 * 60000);
-  if (arr.length >= 10) { res.status(429).json({ error: 'Too many bookings from this device. Please call us.' }); return true; }
-  arr.push(now); publicHits.set(ip, arr);
+  const rec = publicHits.get(ip) || { made: [], tries: [] };
+  publicHits.set(ip, rec);
+  const no = av.publicRefusal(rec, now);
+  if (no) { res.status(429).json({ error: no }); return true; }
+  av.publicTried(rec, now);
   return false;
 }
+function publicSpent(req) { const rec = publicHits.get(ipOf(req)); if (rec) av.publicMade(rec, Date.now()); }
 function refCode() { return 'B' + Math.random().toString(36).slice(2, 6).toUpperCase() + Math.random().toString(36).slice(2, 4).toUpperCase(); }
 
 app.get('/api/public/info', (req, res) => {
@@ -13672,6 +13827,7 @@ app.post('/api/public/book', (req, res) => {
   recountGuest(data, g.id);
   logAudit(data, 'Online', `Online booking: ${r.name} (${r.partySize}, ${r.time})`);
   writeData(data);
+  publicSpent(req); // counted once made (daily round, 16 Oct)
   // Hand-built on purpose: returning the row itself would put staff names
   // (createdBy, and now every history line's actor) on the guests' page.
   res.json({ ok: true, ref: r.ref, name: r.name, partySize: r.partySize, time: r.time, venueName: s.venueName });
@@ -13724,6 +13880,7 @@ app.post('/api/public/notify', (req, res) => {
   data.notify.push(e);
   logAudit(data, 'Online', `Notify list: ${e.name} (${e.partySize}) for ${e.date} ${e.from}–${e.to}`);
   writeData(data);
+  publicSpent(req); // counted once made (daily round, 16 Oct)
   // Hand-built, like the booking reply: never another guest's data.
   res.json({ ok: true, ref: e.ref, name: e.name, partySize: e.partySize, date: e.date, from: e.from, to: e.to, venueName: s.venueName });
 });
@@ -13925,7 +14082,9 @@ app.post('/api/public/line/:ref/leave', (req, res) => {
 
 // ---------- housekeeping, audit, version ----------
 app.get('/api/audit', (req, res) => { res.json((readData().auditLog || []).slice(0, 200)); });
-app.get('/api/version', (req, res) => { res.json(Object.assign({}, dataVersion(), { holds: holdGen() })); });
+// `desk`: this desk's id, so a link pointed at a desk is refused
+// (pos.deskRefusal(); daily round, 16 Oct).
+app.get('/api/version', (req, res) => { res.json(Object.assign({}, dataVersion(), { holds: holdGen(), desk: DESK_ID })); });
 
 // A tablet opened a picker: which party and which table it is about to
 // seat, for av.HOLD_MS, renewed while it stays open (IN HAND, v65). One hold
@@ -14097,8 +14256,14 @@ app.post('/api/pos/test', async (req, res) => {
   const data = readData();
   const cfg = Object.assign({}, data.settings.pos, { enabled: true }, req.body && req.body.baseUrl ? { baseUrl: pos.addressOf(req.body.baseUrl) } : {});
   if (!cfg.baseUrl) return res.status(400).json({ error: 'Enter the POS address first' });
-  try { res.json(Object.assign({ ok: true }, await pos.testConnection(cfg))); }
-  catch (e) { res.status(502).json({ error: e.message }); }
+  const self = ownAddress(cfg.baseUrl);
+  if (self) return res.status(400).json({ error: self });
+  try {
+    const out = await pos.testConnection(cfg);
+    const desk = pos.deskRefusal(out.version, DESK_ID);
+    if (desk) return res.status(400).json({ error: desk });
+    res.json(Object.assign({ ok: true }, out));
+  } catch (e) { res.status(502).json({ error: e.message }); }
 });
 app.post('/api/pos/sync', async (req, res) => {
   const data = readData();
@@ -14140,8 +14305,13 @@ async function posPass(force) {
     const cfg = data.settings.pos;
     if (!pos.ready(cfg)) { if (data.posState.connected) { data.posState.connected = false; writeData(data); } return null; }
     let version = null;
-    try { version = await pos.getVersion(cfg); }
-    catch (e) {
+    try {
+      version = await pos.getVersion(cfg);
+      // A desk at the till's address: nothing is read from it and nothing
+      // sent (daily round, 16 Oct; the relink key too, which runs this pass).
+      const desk = pos.deskRefusal(version, DESK_ID);
+      if (desk) throw new Error(desk);
+    } catch (e) {
       data = readData();
       if (data.posState.connected || data.posState.lastError !== e.message) { data.posState.connected = false; data.posState.lastError = e.message; writeData(data); }
       return null;
@@ -14256,7 +14426,7 @@ app.get('/api/relay/status', (req, res) => {
 app.post('/api/relay/test', async (req, res) => {
   const data = readData();
   const b = req.body || {};
-  const cfg = { baseUrl: String(b.baseUrl || data.settings.relay.baseUrl || '').trim().replace(/\/+$/, ''), token: String(b.token || '').trim() || data.settings.relay.token };
+  const cfg = { baseUrl: relay.addressOf(b.baseUrl || data.settings.relay.baseUrl), token: String(b.token || '').trim() || data.settings.relay.token };
   if (!cfg.baseUrl) return res.status(400).json({ error: 'Enter the relay address first' });
   if (!cfg.token) return res.status(400).json({ error: 'Enter the venue token first' });
   try { const r = await relay.ping(cfg); res.json({ ok: true, venue: r.venue && r.venue.name, bookingUrl: cfg.baseUrl + ((r.venue && r.venue.bookingUrl) || '') }); }
@@ -14503,9 +14673,10 @@ app.post('/api/group/seat', (req, res) => {
   if (out.error) return res.status(out.status || 400).json({ error: out.error });
   const r = out.r;
   r.groupFrom = { venueId: x.venueId, id: x.id };
-  r.events = history.append(r.events, [history.noteEvent('The desk', Date.now(), `Booked at ${x.venue} ${x.when} — seated here instead`, 'note')]);
+  // Its first line says where they were booked, once (daily round, 16 Oct).
+  r.events = [history.createdEvent(r, 'The desk', r.createdAt, Object.assign({}, evOpts(data), { bookedAt: `${x.venue} ${x.when}` }))].concat((r.events || []).slice(1));
   if (x.tonight) {
-    data.relayState.groupOwed = (data.relayState.groupOwed || []).concat({ bookingId: r.id, venueId: x.venueId, venue: x.venue, id: x.id, was: x.was, name: x.name, dueAt: Date.now() + GROUP_UNDO_MS }).slice(-50);
+    data.relayState.groupOwed = (data.relayState.groupOwed || []).concat({ bookingId: r.id, venueId: x.venueId, venue: x.venue, id: x.id, was: x.was, name: x.name, seen: { name: x.name, phone: x.phone, size: x.size, time: x.time }, dueAt: Date.now() + GROUP_UNDO_MS }).slice(-50);
     setTimeout(() => relayPass(false), GROUP_UNDO_MS + 200);
   }
   logAudit(data, 'The desk', `${x.name} found at ${x.venue} (${x.when}) and seated here`);
@@ -14585,7 +14756,7 @@ async function groupPass(cfg) {
   const due = (data.relayState.groupOwed || []).filter(o => o.dueAt <= Date.now());
   for (const o of due) {
     let asked = null, failed = '', gone = false;
-    try { asked = await relay.groupCancel(cfg, { venueId: o.venueId, id: o.id, was: o.was }); }
+    try { asked = await relay.groupCancel(cfg, { venueId: o.venueId, id: o.id, was: o.was, seen: o.seen }); }
     catch (e) { if (!(e.status >= 400 && e.status < 500)) continue; failed = e.message; gone = !!(e.body && e.body.gone); } // not reached: asked again next pass
     data = readData();
     data.relayState.groupOwed = (data.relayState.groupOwed || []).filter(x => !(x.bookingId === o.bookingId && x.id === o.id));
@@ -14967,6 +15138,16 @@ function lanAddresses() {
 // when that is the wifi, else its first wifi address. Never localhost while
 // there is a wifi address, because on a guest's phone localhost is the phone
 // (daily round, 9 Oct: Settings showed and coded http://localhost:3001/book).
+// THE TILL'S ADDRESS IS NOT THIS DESK'S (daily round, 16 Oct): this port on
+// this machine, by any of its names, is refused on save and in Test before
+// it is ever asked; another desk is caught by its answer (pos.deskRefusal()).
+function ownAddress(raw) {
+  let u; try { u = new URL(String(raw || '')); } catch (e) { return ''; }
+  const port = parseInt(u.port || (u.protocol === 'https:' ? '443' : '80'), 10);
+  const host = u.hostname.replace(/^\[|\]$/g, '');
+  const mine = host === 'localhost' || /^127\./.test(host) || host === '::1' || host === '0.0.0.0' || host === os.hostname() || lanAddresses().includes(host);
+  return mine && port === PORT ? "That is this desk's own address, not the till's" : '';
+}
 const loopbackHost = (h) => !h || /^(localhost|127\.|\[::1\]|0\.0\.0\.0)/.test(h);
 function wifiOrigin(req) {
   const host = String(req.headers.host || '').replace(/[^A-Za-z0-9.:\-\[\]]/g, '');
@@ -15585,15 +15766,14 @@ function onPickedBook(r) {
 // service's book, out of the count and the search, and only "All night" had
 // it (daily round, 6 Oct); the list took it then and the timeline and the
 // flow did not, so Latecomer at 9:45 was in Dinner's list and on neither
-// (daily round, 10 Oct).
+// (daily round, 10 Oct). Within the line's half hour before a service, that
+// service's (tidyHomeOf(); daily round, 16 Oct).
 function onPickedLine(r) {
   const sv = pickedService();
   if (!sv) return true;
   const t = nightMinOf(r);
   if (toMin(sv.start) <= t && t < toMin(sv.end)) return true;
-  const svcs = servicesInOrderOn(state.date);
-  if (svcs.some(s => toMin(s.start) <= t && t < toMin(s.end))) return false;
-  const home = svcs.filter(s => toMin(s.start) <= t).pop() || svcs[0];
+  const home = tidyHomeOf(servicesInOrderOn(state.date), t);
   return !!home && home.id === sv.id;
 }
 function inPickedService(r) {
@@ -15615,8 +15795,14 @@ function inPickedService(r) {
 // row has its own No-show key and a party past its sitting is an alarm, not
 // housekeeping.
 const TIDY_AFTER_LOCAL = 15;
+// A time between services inside the line's half hour (LINE_EARLY_LOCAL,
+// written here so the rule stands alone) before the next is the next one's:
+// Early Ella at 4:45 was on no list at dinner (daily round, 16 Oct).
 function tidyHomeOf(svcs, t) {
-  return svcs.find(s => toMin(s.start) <= t && t < toMin(s.end)) || svcs.filter(s => toMin(s.start) <= t).pop() || svcs[0] || null;
+  const early = 30;
+  return svcs.find(s => toMin(s.start) <= t && t < toMin(s.end))
+    || svcs.find(s => t < toMin(s.start) && toMin(s.start) - t <= early)
+    || svcs.filter(s => toMin(s.start) <= t).pop() || svcs[0] || null;
 }
 function tidySeatMin(r, day) {
   if (!Number.isFinite(r && r.seatedAt)) return null;
@@ -16279,6 +16465,14 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', app
 // What Settings → The venue says of the look while the till is linked: only
 // what the till decides, light or dark. It printed the till's accent too, a
 // raw hex the simple desk has not worn since 6 Oct (daily round, 8 Oct).
+// WHAT THE TILL FILLS IN, SAID OF THAT ALONE (daily round, 16 Oct). Linked,
+// Sittings said "From the POS while linked." though the till sends no
+// seating length, and the Venue card said it over the phone, which the till
+// never fills. `fields`: [key in fromTill, its word]; '' when it fills none.
+function tillFills(fromTill, fields) {
+  const words = fields.filter(([k]) => fromTill && fromTill[k]).map(([, w]) => w);
+  return words.length ? words.join(' and ').replace(/^./, (c) => c.toUpperCase()) + ' from the POS while linked.' : '';
+}
 function tillLook(t) { const m = String((t && t.mode) || ''); return 'From the till' + (m ? ' · ' + m[0].toUpperCase() + m.slice(1) : ''); }
 
 // §§ Loading
@@ -17519,10 +17713,12 @@ function coverCapFromLocal(settings, day, hhmm) {
 // The slot a time falls in: the latest of the day's slot times at or before
 // it, the clock's grid before the first — av.slotOf()'s rule, held to it by
 // test (daily round, 7 Oct: a :15 service on a 30-minute grid counted nothing).
+// Only a slot it falls inside: a 12:30 AM party past dinner's last slot was
+// drawn and counted in 9:15's column against its limit (daily round, 16 Oct).
 function flowSlotOf(times, step, min) {
   let k = -1;
   for (const t of times) { if (t <= min) k = t; else break; }
-  return k >= 0 ? k : Math.floor(min / step) * step;
+  return k >= 0 && min < k + step ? k : Math.floor(min / step) * step;
 }
 function coverFlowFor() {
   const step = state.settings.slotMinutes || 15;
@@ -17535,6 +17731,12 @@ function coverFlowFor() {
   const svcs = deskServices(state.date);
   const times = [];
   for (const sv of svcs) for (let m = toMin(sv.start); m < toMin(sv.end); m += step) if (!times.includes(m)) times.push(m);
+  // A booking past every slot of its service — a 9:45 PM after dinner's
+  // last 9:15, a 12:30 AM tail — counts against no slot's limit, but it is
+  // still on the night: it draws a column of its own, with no limit, rather
+  // than vanishing from the Flow while the totals count it (review, 16 Oct).
+  const grid = times.slice();
+  for (const r of rows) { const k = flowSlotOf(grid, step, nightMinOf(r)); if (!times.includes(k)) times.push(k); }
   times.sort((a, b) => a - b);
   const capCovers = pacing.maxCoversPer15 > 0 ? pacing.maxCoversPer15 : 0;
   const capBookings = pacing.maxBookingsPer15 > 0 ? pacing.maxBookingsPer15 : 0;
@@ -17545,8 +17747,9 @@ function coverFlowFor() {
       if (flowSlotOf(times, step, a) === t) { covers += party; bookings++; }
       if (a <= t && t < a + durationOf(r)) { inRoom += party; sittings++; }
     }
-    const cap = coverCapLocal(state.settings, state.date, fromMin(t));
-    return { time: fromMin(t), mins: t, covers, bookings, inRoom, sittings, cap, over: !!((cap && covers > cap) || (capBookings && bookings > capBookings)) };
+    const off = !grid.includes(t);
+    const cap = off ? 0 : coverCapLocal(state.settings, state.date, fromMin(t));
+    return { time: fromMin(t), mins: t, covers, bookings, inRoom, sittings, cap, off, over: !off && !!((cap && covers > cap) || (capBookings && bookings > capBookings)) };
   });
   const peak = (k) => slots.reduce((best, x) => (!best || x[k] > best[k] ? x : best), null);
   return {
@@ -18216,7 +18419,8 @@ function renderFlow() {
 // saved as it is pressed, the way Settings saves.
 function renderFlowLimit(cf) {
   const sl = state.flowSlot && cf.slots.find(x => x.time === state.flowSlot);
-  if (!sl) return '';
+  // A column past every slot holds no limit: nothing counts against it.
+  if (!sl || sl.off) return '';
   const from = coverCapFromLocal(state.settings, state.date, sl.time);
   const wd = parseDay(state.date).toLocaleDateString([], { weekday: 'long' });
   return `<div class="fg-lim" role="group" aria-label="Limit at ${esc(fmtHHMM(sl.time))}">
@@ -18724,6 +18928,15 @@ function seatBody(r, held) {
   if (r.status === 'part-arrived' && r.partCount) { b.status = 'part-seated'; b.partCount = r.partCount; }
   return b;
 }
+// A quick status's Undo: where they were up to, how many of them, and the
+// stamps they had, so "2 of 4" here comes back 2 of 4 and arrived when they
+// arrived (av.stampsBack; daily round, 16 Oct).
+function statusUndoBody(r) {
+  const b = { status: r.status, stampsWere: {} };
+  if (r.partCount && /^part-/.test(r.status)) b.partCount = r.partCount;
+  for (const k of ['arrivedAt', 'seatedAt', 'checkAt', 'paidAt', 'confirmedAt']) if (Number.isFinite(r[k])) b.stampsWere[k] = r[k];
+  return b;
+}
 function undoBody(r) {
   const b = { status: r.status, tableId: r.tableId || null, tableIds: (r.tableIds || []).slice() };
   if (r.partCount && /^part-/.test(r.status)) b.partCount = r.partCount;
@@ -19178,7 +19391,7 @@ function elsewhereTonight(q) {
   const hits = state.reservations.filter(r => !onPickedBook(r) && isLive(r) && onNightOf(r, state.date) && deskMatch(r, q))
     .sort((a, b) => a.time.localeCompare(b.time)).slice(0, 3);
   if (!hits.length) return '';
-  const home = (r) => { const t = nightMinOf(r); return svcs.filter(s => toMin(s.start) <= t).pop() || svcs[0]; };
+  const home = (r) => tidyHomeOf(svcs, nightMinOf(r));
   return `<div class="nt-more">${hits.map(r => { const sv = home(r);
     return `<button class="btn" data-act="svc-pick" data-val="${esc(sv ? sv.id : '')}">${esc(r.name)} · ${sv ? esc(sv.name) + ' ' : ''}${esc(fmtHHMM(hhmmOf(r.time)))}</button>`; }).join('')}</div>`;
 }
@@ -20203,7 +20416,7 @@ function renderSettings() {
   const cards = {
     bookings: `    <div class="settings-card">
       <div class="th">Sittings</div>
-      ${p.enabled && p.baseUrl ? '<div class="ts">From the POS while linked.</div>' : ''}
+      ${tillFills(fromTill, [['defaultDuration', 'default']]) ? `<div class="ts">${tillFills(fromTill, [['defaultDuration', 'default']])}</div>` : ''}
       <div class="grid2">
         <div><label class="field-label" for="def-dur">Default (min)</label><input id="def-dur" type="number" min="30" max="360" value="${s.defaultDuration}" data-field="settings.defaultDuration" data-save="sittings"></div>
         <div><label class="field-label" for="seat-slack">Spare seats allowed</label><input id="seat-slack" type="number" min="0" max="10" value="${s.seatSlack}" data-field="settings.seatSlack" data-save="sittings"></div>
@@ -20343,7 +20556,7 @@ function renderSettings() {
     ${renderOtherVenues(rs)}
     <div class="settings-card">
       <div class="th">Venue</div>
-      ${p.enabled && p.baseUrl ? '<div class="ts">From the POS while linked. Fill in to override.</div>' : ''}
+      ${tillFills(fromTill, [['venueName', 'name'], ['venueAddress', 'address']]) ? `<div class="ts">${tillFills(fromTill, [['venueName', 'name'], ['venueAddress', 'address']])} Fill in to override.</div>` : ''}
       <label class="field-label" for="venue-name">Name</label><input id="venue-name" type="text" value="${esc(own.venueName)}" placeholder="${esc(fromTill.venueName || '')}" data-field="settings.own.venueName" data-save="venue">
       <label class="field-label" for="venue-phone">Phone (shown to guests)</label><input id="venue-phone" type="tel" value="${esc(own.venuePhone)}" data-field="settings.own.venuePhone" data-save="venue">
       <label class="field-label" for="venue-address">Address</label><input id="venue-address" type="text" value="${esc(own.venueAddress)}" placeholder="${esc(fromTill.venueAddress || '')}" data-field="settings.own.venueAddress" data-save="venue">
@@ -21944,13 +22157,13 @@ document.addEventListener('click', async (ev) => {
       case 'bke-also': {
         const r = (state.reservations || []).find(x => x.id === id);
         if (!r) { toastBad('That booking has gone'); break; }
-        const was = r.status;
+        const was = r.status, back = statusUndoBody(r);
         state.modal = null; render();
         try {
           await put('/api/reservations/' + id, { status: val });
           await loadView();
           if (!await greet(id, was, val)) {
-            toastUndo(`${r.name || 'Booking'} · ${statusLabel(val)}`, async () => { await put('/api/reservations/' + id, { status: was }); await loadView(); });
+            toastUndo(`${r.name || 'Booking'} · ${statusLabel(val)}`, async () => { await put('/api/reservations/' + id, back); await loadView(); });
           }
           render();
         } catch (e) { toastBad(e.message); }
@@ -22662,6 +22875,9 @@ document.addEventListener('click', async (ev) => {
         // server drops a one-table row anyway, so refusing here is the only
         // way the person finds out rather than watching it vanish.
         if (m.c.tables.length < 2) { toastBad('A combination is two tables or more'); break; }
+        // The same tables twice is one combination (daily round, 16 Oct).
+        const key = (c) => c.tables.slice().sort().join('+');
+        if (state.settings.tableCombos.some((c, i) => i !== m.i && key(c) === key(m.c))) { toastBad('Those tables are already a combination'); break; }
         if (m.i < 0) state.settings.tableCombos.push(m.c); else state.settings.tableCombos[m.i] = m.c;
         state.modal = null; render(); queueSave('combos'); break;
       }
@@ -23712,9 +23928,12 @@ function pollDelay() { return holdsLive() ? HOLD_POLL_MS : 10000; }
 // The tag, or a note that reads like one — av.allergyOf()'s own words, held
 // to it by test: "Severe peanut allergy" was on the run sheet and the
 // welcome card and nowhere on the list (daily round, 14 Oct).
+// And av.allergySaid(), word for word: "No allergies" and "the seafood
+// tower" drew the red dot (daily round, 16 Oct).
 function allergyDot(r) {
   const tagged = (r && r.tags || []).some(t => String(t).trim().toLowerCase() === 'allergy');
-  const said = /\b(?:allerg\w*|coeliac|celiac|gluten|intoleran\w*|anaphyla\w*|epi-?pen|nuts?|peanuts?|shellfish|seafood|crustacean|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b/i.test(String((r && r.notes) || ''));
+  const t = String((r && r.notes) || '').replace(/\b(?:no|nil|zero|without)\s+(?:known\s+)?(?:food\s+)?(?:allerg\w*|intoleran\w*)|\bnot\s+allergic(?:\s+to\s+anything)?|\ballerg\w*\s*[:\-–—]?\s*(?:none|nil|n\/a|no(?=\s*(?:$|[.,;!])))/gi, ' ').replace(/\b(?:sea\s?food|fish|eggs?|nuts?|wheat|sesame)\s+(?:towers?|platters?|plates?|boards?|of\s+the\s+day|and\s+chips|benedict|pies?|curry|stew|soup|specials?|dish|cakes?|tacos?)\b/gi, ' ');
+  const said = /\b(?:allerg\w*|coeliac|celiac|intoleran\w*|anaphyla\w*|epi-?pen)\b/i.test(t) || /\b(?:no|without|avoid\w*|can[’']?t\s+(?:have|eat)|cannot\s+(?:have|eat)|free\s+of)\s+(?:\w+\s+)?(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b|\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)[\s-]?free\b/i.test(t) || (!/\b(?:pre-?order\w*|ordered|ordering)\b/i.test(t) && /\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b/i.test(t));
   return tagged || said ? '<span class="dk-al" role="img" aria-label="Allergy"></span>' : '';
 }
 function ihKeyHtml(h) {
