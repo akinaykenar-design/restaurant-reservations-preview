@@ -791,6 +791,22 @@ body[data-theme="dark"] .row .cell.over{color:var(--steel-100);}
 /* Wrapped, one service's hours sit right above the next one's name: the
    Border law's hairline says where one ends. */
 .svc-row + .svc-row{border-top:1px solid var(--steel-200);padding-top:12px;margin-top:4px;}
+/* A set menu's × stands on its name's line: the name was 100% wide and the
+   row wrapped, so the × sat alone under it at every width (daily round,
+   17 Oct). */
+.sm-row{flex-wrap:nowrap;}
+.sm-row > input[type="text"]{flex:1 1 0;min-width:0;}
+.sm-row > .sm-remove{flex:none;}
+/* A sitting rule by party size is one line: at 320 its minutes fell under
+   "Up to 2 guests:", right over the next rule's "Up to 4" (daily round,
+   17 Oct). Under 360 the two fields take less of it. */
+.dur-row{flex-wrap:nowrap;}
+.dur-row > input[type="number"]{width:72px;flex:none;}
+.dur-row > input.dur-min{width:84px;}
+@media (max-width:359px){
+  .dur-row > input[type="number"]{width:52px;}
+  .dur-row > input.dur-min{width:60px;}
+}
 /* Wrapped inside its card at 320, every key still 44 (daily round, 12 Oct). */
 .days{display:flex;flex-wrap:wrap;gap:4px;flex:none;max-width:100%;}
 .days .chip{min-width:var(--tap);padding:7px 0;min-height:var(--tap);}
@@ -6141,6 +6157,11 @@ function durationFor(settings, party, override) {
 // blanked Lunch end was stored as Lunch 11:30 to 21:30 with a 200 (daily
 // round, 8 Oct).
 const CLOCK_HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+// AND IT SAYS THE DESK'S TIMES. "Runs 17:00 to 16:00" stood beside fields
+// reading 05:00 PM, and its advice — a night past midnight as two sittings,
+// one on each date — put the second half on the night before (daily round,
+// 17 Oct). The tail after midnight is already tonight's: end it by 11:59 PM.
+function twelveOf(hhmm) { const m = toMin(hhmm), h = Math.floor(m / 60) % 24; return ((h % 12) || 12) + ':' + pad2(m % 60) + ' ' + (h < 12 ? 'AM' : 'PM'); }
 function badWindows(list) {
   const out = [];
   for (const w of (list || [])) {
@@ -6151,8 +6172,26 @@ function badWindows(list) {
     if (toMin(w.end) > toMin(w.start)) continue;
     out.push({
       name, start: w.start, end: w.end,
-      says: `A sitting has to end after it starts — “${name}” runs ${w.start} to ${w.end}. A night that goes past midnight is two sittings here, one on each date.`,
+      says: `A sitting has to end after it starts — “${name}” runs ${twelveOf(w.start)} to ${twelveOf(w.end)}.`
+        + (toMin(w.end) < 12 * 60 && toMin(w.start) >= 12 * 60 ? ' End it by 11:59 PM: a booking after midnight is still that night\'s.' : ''),
     });
+  }
+  // AND TWO SITTINGS THAT OVERLAP ON A DAY ARE REFUSED: Lunch to 6:00 PM
+  // beside Dinner from 5:00 PM was saved without a word, and a 5:30 booking
+  // stood on both lists, both door fives and both tidies (daily round, 17
+  // Oct). A special date's sittings carry no days: all are on that date.
+  if (out.length) return out;
+  const ok = (list || []).filter(Boolean);
+  const share = (a, b) => (!Array.isArray(a.days) && !Array.isArray(b.days))
+    || (Array.isArray(a.days) && Array.isArray(b.days) && a.days.some(d => b.days.includes(d)));
+  for (let i = 0; i < ok.length; i++) {
+    for (let j = i + 1; j < ok.length; j++) {
+      const [a, b] = toMin(ok[i].start) <= toMin(ok[j].start) ? [ok[i], ok[j]] : [ok[j], ok[i]];
+      if (!share(a, b) || !(toMin(b.start) < toMin(a.end))) continue;
+      const an = String(a.name || 'Sitting').trim() || 'Sitting', bn = String(b.name || 'Sitting').trim() || 'Sitting';
+      out.push({ name: an, start: a.start, end: a.end, says: `“${an}” runs to ${twelveOf(a.end)}, after “${bn}” starts at ${twelveOf(b.start)}.` });
+      return out;
+    }
   }
   return out;
 }
@@ -6221,10 +6260,16 @@ function rollsOf(settings) { return (settings && Number.isFinite(Number(settings
 // and nobody could mark them Left (daily round, 5 Oct). A booking on the
 // next date before the day rolls is on this night too; its minute is
 // counted on from this night's midnight (24:03), as nowOn() counts the clock.
+// AND IT IS ON THAT NIGHT ALONE: 00:30 on Sunday is Saturday's tail, and it
+// was on Sunday's Lunch list too, read as "12:30" (daily round, 17 Oct).
 function onNight(settings, r, day) {
-  const d = dayOf(r && r.time);
-  return d === day || (d === addDays(day, 1) && minsOf(r.time) < rollsOf(settings));
+  const d = dayOf(r && r.time), early = minsOf(r && r.time) < rollsOf(settings);
+  return (d === day && !early) || (d === addDays(day, 1) && early);
 }
+// A TABLE is still asked on the calendar date after midnight (walkinBook()
+// stands last night's sat parties at its 00:00), so who holds one is asked
+// of the date's own rows too: their minutes keep them to the small hours.
+function onNightOrDate(settings, r, day) { return dayOf(r && r.time) === day || onNight(settings, r, day); }
 function nightMin(r, day) { return minsOf(r.time) + (dayOf(r.time) > day ? 1440 : 0); }
 // A date and a clock time as the NIGHT they belong to: 00:30 on the 29th,
 // before the day rolls, is the 28th at 24:30. What a table question has to
@@ -6255,8 +6300,18 @@ function nowOn(ctx, day) {
 // line's tab offered it to Hollis and one tap sat Hollis on the table the
 // party at the door was waiting for. Somebody in the room holds the table
 // to the minute after now, sat or not.
+//
+// AND A PARTY SAT LATE HAS ITS WHOLE SITTING FROM WHEN IT SAT. Nguyen, two
+// at 7:15 for 75 minutes, sat at 7:43: the book ended them at 8:30 and sold
+// 25 at 8:45, 62 minutes in (daily round, 17 Oct). The minutes after the
+// booked time they sat (seatLate()) go on the end, as the tidy counts them.
+function seatLate(r) {
+  if (!r || !isSat(r) || !Number.isFinite(r.seatedAt)) return 0;
+  const m = Math.floor((r.seatedAt - new Date(r.time).getTime()) / 60000);
+  return m > 0 && m < 1440 ? m : 0;
+}
 function heldFor(ctx, r, now, s) {
-  const d = durationFor(ctx.settings, r.partySize, r.durationMin);
+  const d = durationFor(ctx.settings, r.partySize, r.durationMin) + seatLate(r);
   if (s === undefined) s = minsOf(r.time);
   return now !== null && (isSat(r) || isHere(r)) ? Math.max(d, now + 1 - s) : d;
 }
@@ -6281,7 +6336,7 @@ function heldFrom(r, now, s) {
 function holdersOf(ctx, tableId, day, startMin, dur, ignoreId) {
   const now = nowOn(ctx, day);
   return (ctx.reservations || []).filter(r => {
-    if (r.id === ignoreId || !isLive(r) || !heldTables(r).includes(tableId) || !onNight(ctx.settings, r, day)) return false;
+    if (r.id === ignoreId || !isLive(r) || !heldTables(r).includes(tableId) || !onNightOrDate(ctx.settings, r, day)) return false;
     const s = nightMin(r, day), from = heldFrom(r, now, s);
     return overlaps(startMin, dur, from, heldFor(ctx, r, now, s) + s - from);
   });
@@ -6296,7 +6351,7 @@ function askFrom(ctx, r) {
   const day = dayOf(r.time), now = nowOn(ctx, day), s = minsOf(r.time);
   if (now === null || !(isSat(r) || isHere(r))) return { hhmm: hhmmOf(r.time), duration: r.durationMin || null };
   const d = durationFor(ctx.settings, r.partySize, r.durationMin);
-  return { hhmm: pad2(Math.floor(now / 60)) + ':' + pad2(now % 60), duration: isSat(r) && now > s ? Math.max(15, d - (now - s)) : d };
+  return { hhmm: pad2(Math.floor(now / 60)) + ':' + pad2(now % 60), duration: isSat(r) && now > s ? Math.max(15, d + seatLate(r) - (now - s)) : d };
 }
 
 // Tables with nobody on them for this party at this time.
@@ -7574,7 +7629,7 @@ function floorAt(ctx, day, hhmm, opts) {
     // now (heldFrom's rule): Moss sat at 7:46 for 8:00 was drawn free.
     const on = held.find(r => {
       const s = nightMin(r, day);
-      const end = s + durOf(r);
+      const end = s + durOf(r) + seatLate(r);
       return (s <= at && (at < end || ((isSat(r) || isHere(r)) && at >= end))) || (opts.live === true && (isSat(r) || isHere(r)) && at < s);
     }) || null;
     const next = held.find(r => nightMin(r, day) > at) || null;
@@ -7596,7 +7651,8 @@ function floorAt(ctx, day, hhmm, opts) {
     }
     const start = nightMin(on, day);
     const cap = durOf(on);
-    const end = start + cap;
+    // Sat late, the sitting runs from when they sat (seatLate; 17 Oct).
+    const end = start + cap + seatLate(on);
     const waiting = Math.max(0, at - start);
     // The sitting's own end states come FIRST, before the clock is consulted:
     // a bill on the table answers the over-time alarm rather than joining it.
@@ -8362,12 +8418,18 @@ function setMenuSummary(ctx, day) {
 const ALLERGY_RE = /\b(?:allerg\w*|coeliac|celiac|intoleran\w*|anaphyla\w*|epi-?pen)\b/i;
 const ALLERGEN_RE = /\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b/i;
 const ALLERGEN_NEED_RE = /\b(?:no|without|avoid\w*|can[’']?t\s+(?:have|eat)|cannot\s+(?:have|eat)|free\s+of)\s+(?:\w+\s+)?(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b|\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)[\s-]?free\b/i;
-const NO_ALLERGY_RE = /\b(?:no|nil|zero|without)\s+(?:known\s+)?(?:food\s+)?(?:allerg\w*|intoleran\w*)|\bnot\s+allergic(?:\s+to\s+anything)?|\ballerg\w*\s*[:\-–—]?\s*(?:none|nil|n\/a|no(?=\s*(?:$|[.,;!])))/gi;
+// "Allergies? No" is a denial too (daily round, 17 Oct).
+const NO_ALLERGY_RE = /\b(?:no|nil|zero|without)\s+(?:known\s+)?(?:food\s+)?(?:allerg\w*|intoleran\w*)|\bnot\s+allergic(?:\s+to\s+anything)?|\ballerg\w*\s*[:?\-–—]?\s*(?:none|nil|n\/a|no(?=\s*(?:$|[.,;!])))/gi;
 const DISH_RE = /\b(?:sea\s?food|fish|eggs?|nuts?|wheat|sesame)\s+(?:towers?|platters?|plates?|boards?|of\s+the\s+day|and\s+chips|benedict|pies?|curry|stew|soup|specials?|dish|cakes?|tacos?)\b/gi;
 const ORDER_RE = /\b(?:pre-?order\w*|ordered|ordering)\b/i;
+// AND THE KITCHEN'S SHORTHAND IS AN ALLERGY: "GF", "1 GF", "GF x2" got no
+// red dot, no welcome line and no run sheet line, while "gluten free" did
+// (daily round, 17 Oct). Capitals, whole words: "GFC", "NFL" and a "gf"
+// who is somebody's girlfriend are not.
+const ALLERGY_SHORT_RE = /\b(?:GF|DF|NF)\b/;
 function allergySaid(text) {
   const t = String(text || '').replace(NO_ALLERGY_RE, ' ').replace(DISH_RE, ' ');
-  return ALLERGY_RE.test(t) || ALLERGEN_NEED_RE.test(t) || (!ORDER_RE.test(t) && ALLERGEN_RE.test(t));
+  return ALLERGY_RE.test(t) || ALLERGY_SHORT_RE.test(t) || ALLERGEN_NEED_RE.test(t) || (!ORDER_RE.test(t) && ALLERGEN_RE.test(t));
 }
 
 // Tags are free text server-side (`String(t).trim().slice(0,20)`), so a tag
@@ -8391,11 +8453,32 @@ function serviceAt(settings, day, hhmm) {
   return servicesInOrder(settings, day).find(s => toMin(s.start) <= t && t < toMin(s.end)) || null;
 }
 
+// The guest card that may speak for this booking, or null: one keyed on a
+// phone or an email (search.personKey()'s rule), never a name's — and never
+// one whose email is not this booking's when the booking has no phone of its
+// own (daily round, 17 Oct: a second Sam Lee was greeted with the first
+// one's shellfish allergy, at the door and on the run sheet).
+function cardFor(guest, r) {
+  if (!guest) return null;
+  const digits = (x) => String(x || '').replace(/\D/g, '');
+  const mail = (x) => String((x && x.email) || '').trim().toLowerCase();
+  if (digits(guest.phone).length < 3 && !mail(guest)) return null;
+  if (r && digits(r.phone).length < 3 && mail(r) && mail(r) !== mail(guest)) return null;
+  return guest;
+}
+
 // Is there an allergy on this booking, and what is the evidence? Three ways
 // in: the booking's own tag, its notes, or the guest book. null when none of
 // them fire. The evidence comes back verbatim so the sheet can print it and
 // the desk can see where a flag it did not type came from.
-function allergyOf(r, guest) {
+//
+// AND WHAT THEY SAID LAST TIME (daily round, 17 Oct): Hollis's booking last
+// week said "Severe peanut allergy"; tonight's said nothing, and the door
+// and the kitchen were not told. `earlier` is the guest's own bookings —
+// asked only with a card keyed on a phone or an email (cardFor()), never a
+// name — and an allergy said on one before this booking speaks with the
+// guest book's, by the one rule, allergySaid().
+function allergyOf(r, guest, earlier) {
   r = r || {};
   const rTagged = hasTag(r.tags, 'allergy');
   const guestTagged = hasTag(guest && guest.tags, 'allergy');
@@ -8408,7 +8491,14 @@ function allergyOf(r, guest) {
   // carries the tag or reads like one. A guest tagged Allergy does not turn
   // tonight's 'running 20 minutes late' into a line a chef has to read.
   const notes = rn && (rTagged || allergySaid(rn)) ? rn : '';
-  const guestNotes = gn && (guestTagged || allergySaid(gn)) ? gn : '';
+  const said = [gn && (guestTagged || allergySaid(gn)) ? gn : ''];
+  if (guest && r.time) {
+    for (const b of (earlier || []).filter(b => b && b.id !== r.id && b.time && b.time < r.time && cardFor(guest, b)).sort((a, b) => b.time.localeCompare(a.time))) {
+      const bn = String(b.notes || '').trim();
+      if (bn && (hasTag(b.tags, 'allergy') || allergySaid(bn)) && bn !== rn && !said.includes(bn)) said.push(bn);
+    }
+  }
+  const guestNotes = said.filter(Boolean).join(' · ');
   if (!tagged && !notes && !guestNotes) return null;
   return { tagged, notes, guestNotes };
 }
@@ -8416,7 +8506,7 @@ function allergyOf(r, guest) {
 // One booking, resolved into the shape the paper needs — table labels, the
 // time it sits until, the allergy — so the client decides nothing and two
 // renderings of the same day cannot differ.
-function sheetRow(ctx, r, guest) {
+function sheetRow(ctx, r, guest, earlier) {
   ctx = ctx || {};
   r = r || {};
   const tables = ctx.tables || [];
@@ -8441,7 +8531,7 @@ function sheetRow(ctx, r, guest) {
     ref: r.ref || '', tags: (r.tags || []).slice(), notes: r.notes || '', setMenu: setMenuNameOf(r),
     guestNotes: String((guest && guest.notes) || ''),
     vip: hasTag(r.tags, 'vip') || hasTag(guest && guest.tags, 'vip'),
-    allergy: allergyOf(r, guest), cancelReason: r.cancelReason || '',
+    allergy: allergyOf(r, guest, earlier), cancelReason: r.cancelReason || '',
   };
 }
 
@@ -8460,6 +8550,9 @@ function runSheet(ctx, day, opts) {
   const now = typeof opts.now === 'number' ? opts.now : Date.now();
   const byId = new Map();
   for (const g of (opts.guests || [])) if (g && g.id) byId.set(g.id, g);
+  // Each guest's own bookings, for what they said last time (17 Oct).
+  const theirs = new Map();
+  for (const b of (ctx.reservations || [])) if (b && b.guestId) { if (!theirs.has(b.guestId)) theirs.set(b.guestId, []); theirs.get(b.guestId).push(b); }
 
   // Time, then name, then id: two 19:00 bookings never swap places between
   // one print and the next.
@@ -8468,7 +8561,7 @@ function runSheet(ctx, day, opts) {
   const auto = autoAssign(ctx, day);
   for (const r of (ctx.reservations || [])) {
     if (!r || !onNight(settings, r, day)) continue;
-    const row = sheetRow(ctx, auto[r.id] ? Object.assign({}, r, { autoTables: auto[r.id] }) : r, byId.get(r.guestId) || null);
+    const row = sheetRow(ctx, auto[r.id] ? Object.assign({}, r, { autoTables: auto[r.id] }) : r, cardFor(byId.get(r.guestId), r), theirs.get(r.guestId));
     row.mins = nightMin(r, day); // the night's tail after its evening, not before it
     if (isCounted(r)) rows.push(row);
     else if (r.status === 'cancelled' || r.status === 'no-show') dropped.push(row);
@@ -8761,14 +8854,14 @@ module.exports = {
   statusStamps, UNDO_STAMPS, stampsBack, mergeTables, tablesRefusal, onlineMax, onlineMessage,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
-  LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
+  LIVE, isLive, durationFor, seatLate, heldFor, heldFrom, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, TURN_BILL, TURN_SOON, turnOf, turnBackRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, ASK_FIELDS, asksOf, onlineAsks, emailOk, nightOfRes, onlineRefusal, onlineGuest, guestName, cleanDob, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboKey, comboTwins, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
-  ALLERGY_RE, ALLERGEN_RE, ALLERGEN_NEED_RE, NO_ALLERGY_RE, DISH_RE, ORDER_RE, allergySaid, serviceAt, allergyOf, sheetRow, runSheet,
+  ALLERGY_RE, ALLERGY_SHORT_RE, ALLERGEN_RE, ALLERGEN_NEED_RE, NO_ALLERGY_RE, DISH_RE, ORDER_RE, allergySaid, serviceAt, cardFor, allergyOf, sheetRow, runSheet,
   TIDY_AFTER, tidyHomeOf, servicesInOrder, tidyKind, tidyNight, tidyPick, tidyBack, tidyWas,
   HOLD_MS, HOLD_IDLE_MS, holdBy, holdsOf, holdPut, holdSpan, holdTake, holdRefusal, holdRows,
   DOOR_MAX, doorNext,
@@ -9152,6 +9245,42 @@ function migrate(data) {
     for (const r of data.reservations) if (r && r.guestId === g.id) r.guestId = keep.id;
     return false;
   });
+  // A card under a NAME is nobody's (daily round, 17 Oct): a second Sam
+  // Lee who left no phone was filed on the first one's card and greeted
+  // with her VIP and her shellfish allergy. Each booking on a name's card
+  // goes to its own phone's or email's card, as touchGuest() now files it,
+  // and one with neither stands on no card. The name's card keeps its notes:
+  // it becomes its own email's card, else it stays, with nobody on it.
+  const avm = require('./availability');
+  const mailOf = (x) => String((x && x.email) || '').trim().toLowerCase();
+  const touched = new Set();
+  for (const g of data.guests.slice()) {
+    if (!g || typeof g.key !== 'string' || !g.key.startsWith('n:')) continue;
+    for (const r of data.reservations) {
+      if (!r || r.guestId !== g.id) continue;
+      const line = lineNumber(r.phone);
+      const key = line ? 'p:' + line : mailOf(r) ? 'e:' + mailOf(r) : '';
+      if (!key) { r.guestId = null; touched.add(g); continue; }
+      let to = data.guests.find(x => x.key === key);
+      if (!to && key === 'e:' + mailOf(g)) { g.key = key; to = g; }
+      if (!to) {
+        to = { id: newId('g'), key, name: r.name || '', phone: r.phone || '', email: r.email || '', dob: '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0, firstSeen: r.createdAt || Date.now(), lastSeen: r.updatedAt || Date.now() };
+        data.guests.push(to);
+      } else if (to !== g && key === 'e:' + mailOf(g)) {
+        // Her own email already had a card: what was written on the name's goes with her.
+        const notes = String(g.notes || '').trim();
+        if (notes && !String(to.notes || '').includes(notes)) to.notes = to.notes ? to.notes + '\n' + notes : notes;
+        for (const t of g.tags || []) if (!to.tags.some(x => String(x).toLowerCase() === String(t).toLowerCase())) to.tags.push(t);
+      }
+      r.guestId = to.id; touched.add(g); touched.add(to);
+    }
+  }
+  for (const g of touched) {
+    const mine = data.reservations.filter(r => r && r.guestId === g.id);
+    g.visits = mine.filter(r => avm.isSat(r) || r.status === 'done').length;
+    g.noShows = mine.filter(r => r.status === 'no-show').length;
+    g.cancellations = mine.filter(r => r.status === 'cancelled').length;
+  }
   for (const r of data.reservations) {
     if (!r.status) r.status = 'booked';
     if (!r.source) r.source = 'staff';
@@ -10012,8 +10141,10 @@ function welcomeFor(g, bookings, r) {
   // and every Smith who left no number would share one card, and the desk
   // would greet a stranger with somebody else's fifty visits — or their
   // allergy. Without a key only THIS booking speaks: its own tags and notes.
-  const known = !!(g && personKey(g));
-  const guest = known ? g : null;
+  // And never a card whose email is not this booking's (av.cardFor(); daily
+  // round, 17 Oct).
+  const guest = av.cardFor(g, r);
+  const known = !!guest;
   const day = String(r.time).slice(0, 10);
   const before = known ? (bookings || [])
     .filter(b => b && b.id !== r.id && b.time && b.time < r.time && (av.isSat(b) || b.status === 'done'))
@@ -10024,7 +10155,7 @@ function welcomeFor(g, bookings, r) {
   const needs = (r.tags || []).filter(t => NEED_TAGS.includes(fold(t))).map(String);
   // The run sheet's own allergy rule, so the door and the pass can never
   // disagree about the same guest.
-  const al = av.allergyOf(r, guest);
+  const al = av.allergyOf(r, guest, guest ? bookings : []);
   const allergy = al ? { text: [al.notes, al.guestNotes].filter(Boolean).join(' · '), tagged: !!al.tagged } : null;
   // The card's own date of birth, else the one this booking brought from the
   // guests' page (Online booking asks for, 12 Oct) — the booking's own, so
@@ -10053,7 +10184,7 @@ function welcomeFor(g, bookings, r) {
     occasion: String(occasion),
     needs,
     bookingNote: al && al.notes ? '' : bookingNote,
-    guestNote: al && al.guestNotes ? '' : guestNote,
+    guestNote: al && guestNote && al.guestNotes.includes(guestNote) ? '' : guestNote,
     birthdayIn,
   };
 }
@@ -11348,6 +11479,15 @@ function mailHeld(ctx, now, asked) {
 // took (`relayState.mailKeyHash`); a key the relay has not got is owed, an
 // emptied one is owed as '', and anything else is null — nothing to send.
 // Off owes nothing: the grant's `mail: null` drops it there.
+// What the Emails card says went wrong: the desk's own "No Postmark key"
+// first — it knows, with or without the relay (daily round, 17 Oct: Email
+// guests on with a From and no key sent nothing and said nothing) — else
+// the relay's last word. Switched off, nothing.
+function mailErrorOf(m, st) {
+  if (!m || !m.enabled) return '';
+  if (!m.key) return 'No Postmark key';
+  return (st && st.mailError) || '';
+}
 function mailKeyHash(key) { return key ? crypto.createHash('sha1').update(String(key)).digest('hex') : ''; }
 function mailKeyOwed(m, hash) {
   if (!m || !m.enabled) return null;
@@ -11817,7 +11957,7 @@ function bookingFrom(payload, ctx, opts) {
   };
 }
 
-module.exports = { MAIL_MAX, mailOf, mailGrant, mailKeyHash, mailKeyOwed, GROUP_GONE, askerRefusal, GROUP_DAYS, groupCopyOf, groupCancelRefusal, GRANT_DAYS, LINE_HOW, lineGrant, lineEntry, officeWasOn, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
+module.exports = { GUEST_STATUS, MAIL_MAX, mailOf, mailGrant, mailErrorOf, mailKeyHash, mailKeyOwed, GROUP_GONE, askerRefusal, GROUP_DAYS, groupCopyOf, groupCancelRefusal, GRANT_DAYS, LINE_HOW, lineGrant, lineEntry, officeWasOn, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relaysync'] = module;
@@ -12125,7 +12265,8 @@ app.put('/api/settings', async (req, res) => {
   }
   const bad = av.badWindows(nextServices)[0]
     || (nextExceptions || []).map(x => { const w = av.badWindows(x.services)[0]; return w ? Object.assign({ date: x.date }, w) : null; }).find(Boolean);
-  if (bad) return res.status(400).json({ error: (bad.date ? `${bad.date}: ` : '') + bad.says });
+  // A special date is said "Thu 24 Dec", never "2026-12-24" (daily round, 17 Oct).
+  if (bad) return res.status(400).json({ error: (bad.date ? `${search.dateWords(bad.date)}: ` : '') + bad.says });
   // What the guests' page asks for: each of the five Off, Optional or
   // Required and nothing else, refused before a field is written.
   const asksIn = b.online && b.online.asks;
@@ -12533,9 +12674,14 @@ function touchGuest(data, r) {
   // Keyed on the line number (av.lineNumber): 0400-111-222, (04) 0011 1222
   // and +61 400 111 222 made three new Hartleys with no welcome and no
   // allergy (daily round, 15 Oct). migrate() merged the ones already made.
+  // Then on the EMAIL, and never on a name (daily round, 17 Oct): a second
+  // Sam Lee who booked online with no phone was filed on the first one's
+  // card and greeted with her VIP and her shellfish allergy. A booking with
+  // neither stands on no card, as a walk-in always has; only it speaks.
   const phone = av.lineNumber(r.phone);
-  if (!phone && !String(r.email || '').trim() && /^walk-?in$/i.test(String(r.name || '').trim())) { r.guestId = null; return { id: null }; }
-  const key = phone ? 'p:' + phone : 'n:' + String(r.name || '').toLowerCase().trim();
+  const email = String(r.email || '').trim().toLowerCase();
+  if (!phone && !email) { r.guestId = null; return { id: null }; }
+  const key = phone ? 'p:' + phone : 'e:' + email;
   let g = data.guests.find(x => x.key === key);
   if (!g) {
     g = { id: newId('g'), key, name: r.name, phone: r.phone || '', email: r.email || '', dob: '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0, firstSeen: Date.now(), lastSeen: Date.now() };
@@ -12550,6 +12696,11 @@ function touchGuest(data, r) {
   g.lastSeen = Date.now();
   r.guestId = g.id;
   return g;
+}
+// The card a booking is filed on, as touchGuest() keys it ('' for none).
+function guestKeyOf(r) {
+  const phone = av.lineNumber(r && r.phone), email = String((r && r.email) || '').trim().toLowerCase();
+  return phone ? 'p:' + phone : email ? 'e:' + email : '';
 }
 // Counts a guest carries: recomputed from their bookings, never drifting.
 function recountGuest(data, guestId) {
@@ -12765,6 +12916,7 @@ function changeReservation(data, cur, body, who, opts) {
   // round, 16 Oct: the wrong night's move was told twice).
   if (opts.timeText) for (const e of evs) if (e.field === 'time') e.text = opts.timeText;
   next.updatedAt = now;
+  const keyWas = guestKeyOf(cur);
   Object.assign(cur, next);
   // A stamp statusStamps() took away has to go from the stored row too — the
   // assign above only ever adds.
@@ -12772,8 +12924,14 @@ function changeReservation(data, cur, body, who, opts) {
   // `next` was a shallow copy, so next.events IS cur.events — append returns
   // a new array rather than growing that shared one.
   if (evs.length) cur.events = history.append(cur.events, evs);
-  if (cur.name !== next.name || cur.phone !== next.phone) touchGuest(data, cur);
-  if (!cur.guestId) touchGuest(data, cur);
+  // Read before the assign, which made the two one row and this never fired:
+  // a phone or email typed later left the booking on its old card (daily
+  // round, 17 Oct).
+  if (keyWas !== guestKeyOf(cur) || !cur.guestId) {
+    const was = cur.guestId;
+    touchGuest(data, cur);
+    if (was && was !== cur.guestId) recountGuest(data, was);
+  }
   recountGuest(data, cur.guestId);
   // In the desk's words: "Okafor: done" in Recent activity (daily round, 13 Oct).
   logAudit(data, who, statusChanged ? `${cur.name}: ${history.STATUS_TEXT[cur.status] || cur.status}` : `Edited booking for ${cur.name}`);
@@ -13683,7 +13841,8 @@ app.post('/api/guests', (req, res) => {
   const name = String(b.name || '').trim().slice(0, 60);
   if (!name) return res.status(400).json({ error: 'A name is required' });
   const phone = String(b.phone || '').trim().slice(0, 30);
-  const key = av.lineNumber(phone) ? 'p:' + av.lineNumber(phone) : 'n:' + name.toLowerCase();
+  const email = String(b.email || '').trim().slice(0, 80);
+  const key = av.lineNumber(phone) ? 'p:' + av.lineNumber(phone) : email ? 'e:' + email.toLowerCase() : 'n:' + name.toLowerCase();
   const had = data.guests.find(x => x.key === key);
   if (had) return res.json(had);
   const g = { id: newId('g'), key, name, phone, email: String(b.email || '').trim().slice(0, 80),
@@ -13783,7 +13942,12 @@ app.get('/api/public/availability', (req, res) => {
   // A time that has GONE is not offered at all — online it is refused as
   // 'Too soon', never 'Past', so it stood struck through, and a tap on it
   // put a guest on the notify list for this morning.
-  const gone = (x) => av.timeMs(av.joinTime(day, x.time)) < Date.now();
+  // And a time inside the online notice has gone as surely (daily round,
+  // 17 Oct): Bondi's empty night drew every time struck "full", said
+  // "Nothing free that day, sorry." and took the guest onto the notify
+  // list for it — the relay's alloc.gone() rule.
+  const notice = (s.online.minNoticeMinutes || 0) * 60000;
+  const gone = (x) => av.timeMs(av.joinTime(day, x.time)) < Date.now() + notice;
   const all = av.slotsFor(ctx, day, party, { online: true });
   const slots = all.filter(x => x.ok || !gone(x)).map(x => ({ time: x.time, ok: x.ok }));
   // Every time of the day has GONE: say so, which also takes the notify
@@ -13864,7 +14028,8 @@ app.post('/api/public/notify', (req, res) => {
     if (av.toMin(to) > av.toMin(slots[slots.length - 1])) to = slots[slots.length - 1];
     if (av.toMin(to) < av.toMin(from)) return res.status(400).json({ error: 'We are not open at those times' });
   }
-  if (av.timeMs(av.joinTime(date, to)) < Date.now()) return res.status(400).json({ error: 'Those times have already gone. Pick a later one.' });
+  // Inside the online notice is gone too (daily round, 17 Oct).
+  if (av.timeMs(av.joinTime(date, to)) < Date.now() + (s.online.minNoticeMinutes || 0) * 60000) return res.status(400).json({ error: 'Those times have already gone. Pick a later one.' });
   const today = tradingDay(data);
   const key = phoneKey(phone);
   if (data.notify.some(e => av.notifyLive(e, today) && e.date === date && phoneKey(e.phone) === key)) {
@@ -13904,13 +14069,18 @@ app.get('/api/public/booking/:ref', (req, res) => {
   const data = readData();
   const r = data.reservations.find(x => x.ref && x.ref === String(req.params.ref).toUpperCase());
   if (!r) return res.status(404).json({ error: 'No booking with that reference' });
-  res.json({ ref: r.ref, name: r.name, partySize: r.partySize, time: r.time, status: r.status });
+  // The guest's word, the relay's four (daily round, 17 Oct): the page read
+  // "1 people · part-arrived" and "· no-show" off the record's own keys.
+  res.json({ ref: r.ref, name: r.name, partySize: r.partySize, time: r.time, status: relaysync.GUEST_STATUS[r.status] || 'booked' });
 });
 app.post('/api/public/booking/:ref/cancel', (req, res) => {
   const data = readData();
   const r = data.reservations.find(x => x.ref && x.ref === String(req.params.ref).toUpperCase());
   if (!r) return res.status(404).json({ error: 'No booking with that reference' });
   if (!av.isLive(r) || av.isSat(r)) return res.status(400).json({ error: 'That booking can no longer be cancelled online' });
+  // A party at the door is the host's, as the relay says (daily round,
+  // 17 Oct): a page left open cancelled Tess at the stand.
+  if (av.isHere(r)) return res.status(409).json({ error: 'The restaurant already has you at the table — please speak to them.' });
   const before = Object.assign({}, r);
   const now = Date.now();
   r.status = 'cancelled'; r.cancelledAt = now; r.cancelReason = 'Cancelled by the guest online'; r.updatedAt = now;
@@ -14413,7 +14583,7 @@ app.get('/api/relay/status', (req, res) => {
   res.json({
     enabled: !!c.enabled, baseUrl: c.baseUrl, hasToken: !!c.token, on: relay.ready(c),
     connected: !!st.connected, lastSeenAt: st.lastSeenAt, lastError: st.lastError, grantAt: st.grantAt, collected: st.collected,
-    mailError: data.settings.mail && data.settings.mail.enabled ? st.mailError || '' : '',
+    mailError: relaysync.mailErrorOf(data.settings.mail, st),
     // Only while the link is on: a QR code to a page this desk is not
     // feeding sends guests somewhere nobody collects from.
     bookingUrl: relay.ready(c) && st.bookingPath ? c.baseUrl + st.bookingPath : '',
@@ -14823,8 +14993,9 @@ function applyRelayItem(data, item, asWas, relayNow) {
     // guest's counts, the history and the till's pass all see it.
     const r = data.reservations.find(x => x.id === p.id);
     const from = String(p.from || 'another venue').slice(0, 60);
+    // The reason rides the cancel's own history line, said once (daily round,
+    // 17 Oct: a second note said it again, stamped before the line it followed).
     changeReservation(data, r, { status: 'cancelled', cancelReason: `Seated at ${from} instead` }, from);
-    r.events = history.append(r.events, [history.noteEvent(from, now, `Seated at ${from} instead`, 'note')]);
     logAudit(data, from, `${r.name} seated at ${from} instead — cancelled here`);
   } else if (what === 'refuse' && item.kind === 'group-cancel') {
     const why = relaysync.groupCancelRefusal(item, data, new Date());
@@ -15737,8 +15908,10 @@ function deskServices(day) {
 // availability.js:onNight on this side: the night's own bookings and its
 // tail — a party sat or booked before the day rolls, stored on the next date.
 function onNightOf(r, day) {
+  // On that night ALONE: Sunday's 00:30 was on Sunday's Lunch (daily round, 17 Oct).
   const d = dayOf(r && r.time), h = Number((state.settings || {}).dayStartsAt);
-  return d === day || (d === addDays(day, 1) && toMin(hhmmOf(r.time)) < (Number.isFinite(h) ? h : 4) * 60);
+  const early = toMin(hhmmOf(r && r.time)) < (Number.isFinite(h) ? h : 4) * 60;
+  return (d === day && !early) || (d === addDays(day, 1) && early);
 }
 function nightMinOf(r) { return toMin(hhmmOf(r.time)) + (dayOf(r.time) > state.date ? 1440 : 0); }
 // THE BOOK OF A SERVICE HAS EVERYBODY IN THE ROOM IN IT. Hollis sat at four
@@ -16883,13 +17056,14 @@ function tlOpenAt(el) {
   // service's ruler.
   if (openAt === 'start') { el.scrollLeft = 0; return; }
   let at = null;
-  if (openAt !== 'first' && state.date === localDay(new Date())) {
-    const now = new Date();
-    const m = now.getHours() * 60 + now.getMinutes();
+  // Tonight is the trading night, and after midnight its minute is 24:20:
+  // at 12:20 AM it opened at 5 PM with no now line (daily round, 17 Oct).
+  if (openAt !== 'first' && state.date === tradingDay()) {
+    const m = tradingNowMin();
     if (m >= start && m <= end) at = m;
   }
   if (at === null) {
-    const times = (state.reservations || []).filter(isLive).map(r => toMin(hhmmOf(r.time))).filter(m => m >= start && m <= end);
+    const times = (state.reservations || []).filter(isLive).map(nightMinOf).filter(m => m >= start && m <= end);
     if (times.length) at = Math.min.apply(null, times);
   }
   // Nothing to aim at: the start of the day is already the right answer.
@@ -17652,13 +17826,20 @@ function pillHtml(t, kind, inner, title, more) {
   return `<span ${mark} style="${place}">${inner}</span>`;
 }
 
+// av.seatLate() on this side: a party sat late has its whole sitting from
+// when it sat — Nguyen at 7:15 sat 7:43 was over at 8:30 (daily round, 17 Oct).
+function seatLateOf(r) {
+  if (!r || !isSat(r) || !Number.isFinite(r.seatedAt)) return 0;
+  const m = Math.floor((r.seatedAt - new Date(r.time).getTime()) / 60000);
+  return m > 0 && m < 1440 ? m : 0;
+}
 function floorStateAt(hhmm, live) {
   const at = toMin(hhmm);
   const mine = state.reservations.filter(isLive);
   return state.tables.map(t => {
     const held = mine.filter(r => tablesFor(r).includes(t.id)).sort((a, b) => nightMinOf(a) - nightMinOf(b));
     const on = held.find(r => {
-      const a = nightMinOf(r), end = a + durationOf(r);
+      const a = nightMinOf(r), end = a + durationOf(r) + seatLateOf(r);
       // A seated table keeps its table past its time — that IS `over`. A
       // booking nobody sat gives it back, which is how a no-show frees up.
       // On the LIVE floor a party in the room before its time is on its
@@ -17673,7 +17854,7 @@ function floorStateAt(hhmm, live) {
     const covers = live === false ? 0 : Math.max(0, Number(t.covers) || 0);
     if (!on) return { id: t.id, state: covers > 0 ? 'walkin' : 'free', r: null, next, covers, over: 0, late: 0, nextAt, freeFor: next ? nightMinOf(next) - at : null };
     const start = nightMinOf(on);
-    const end = start + durationOf(on);
+    const end = start + durationOf(on) + seatLateOf(on);
     const waiting = Math.max(0, at - start);
     // The sitting's own end states come FIRST, before the clock is consulted:
     // a bill on the table ANSWERS the over-time alarm rather than joining it.
@@ -18565,12 +18746,22 @@ function tlScale(mins) {
 // How long a booking HOLDS its table: its sitting, or — sat down or at the
 // door and still there past it — up to the minute after now, the server's
 // heldFor().
-function heldDurOf(r) {
-  const d = durationOf(r);
+// AND FROM WHEN IT IS IN THE ROOM: the server's heldFrom() and heldFor(),
+// in the night's minutes, sat late counted from the chair (seatLateOf). Ed
+// Early, booked 9:15 and sat at 7:41, was drawn at 9:15 with 12 empty at
+// the now line; Okafor still sat at 12:20 AM ended at 9:00 PM, so 13 read
+// free all night (daily round, 17 Oct).
+function heldSpanOf(r) {
+  const s = nightMinOf(r), d = durationOf(r) + seatLateOf(r);
   // Only tonight: a past day's party nobody marked Left was held until
   // today, and drew that night's next booking red (daily round, 3 Oct).
-  if (!(isSat(r) || isHere(r)) || dayOf(r.time) !== tradingDay()) return d;
-  return Math.max(d, Math.floor((Date.now() - new Date(r.time).getTime()) / 60000) + 1);
+  if (!(isSat(r) || isHere(r)) || state.date !== tradingDay() || !onNightOf(r, state.date)) return { from: s, dur: d };
+  const now = tradingNowMin(), from = now < s ? now : s;
+  return { from, dur: Math.max(s + d, now + 1) - from };
+}
+function heldDurOf(r) {
+  const sp = heldSpanOf(r);
+  return sp.from + sp.dur - nightMinOf(r);
 }
 // Who is on these tables then — the desk's own picks too (tablesFor): a drag
 // onto the nine's auto-picked tables named no clash and stranded the nine
@@ -18578,8 +18769,11 @@ function heldDurOf(r) {
 function tlHolders(ids, startMin, dur, ignoreId) {
   const want = new Set((ids || []).filter(Boolean));
   if (!want.size) return [];
-  return state.reservations.filter(r => r.id !== ignoreId && isLive(r) && tablesFor(r).some(t => want.has(t))
-    && startMin < nightMinOf(r) + heldDurOf(r) && nightMinOf(r) < startMin + dur);
+  return state.reservations.filter(r => {
+    if (r.id === ignoreId || !isLive(r) || !tablesFor(r).some(t => want.has(t))) return false;
+    const sp = heldSpanOf(r);
+    return startMin < sp.from + sp.dur && sp.from < startMin + dur;
+  });
 }
 function renderTimeline() {
   const { start, end } = serviceWindow(state.date);
@@ -18608,11 +18802,15 @@ function renderTimeline() {
   // red edges here and by the drag's landing preview — not two rules that can
   // drift apart.
   const conflicts = new Set();
-  rows.filter(isLive).forEach(a => { if (tlHolders(heldTables(a), nightMinOf(a), durationOf(a), a.id).length) conflicts.add(a.id); });
+  // Each on the span it holds its table for (heldSpanOf; 17 Oct).
+  rows.filter(isLive).forEach(a => { const sp = heldSpanOf(a); if (tlHolders(heldTables(a), sp.from, sp.dur, a.id).length) conflicts.add(a.id); });
   const slotMin = state.settings.slotMinutes || 15;
-  const nowMin = state.date === localDay(new Date()) ? (new Date().getHours() * 60 + new Date().getMinutes()) : null;
+  // Tonight's minute on the night's ruler: 24:20 after midnight (17 Oct).
+  const nowMin = state.date === tradingDay() ? tradingNowMin() : null;
   const block = (r, tid) => {
-    const a = nightMinOf(r), d = durationOf(r);
+    // A party in the room is drawn from when it is in the room, for as long
+    // as it is: the server's heldFrom()/heldFor() (daily round, 17 Oct).
+    const sp = heldSpanOf(r), a = sp.from, d = sp.dur;
     const left = (a - start) * PX_PER_MIN, w = Math.max(40, d * PX_PER_MIN - 2);
     // A joined booking's copies on its secondary lanes are `extra`: dimmed,
     // and never the thing you pick up — the primary lane's block is the one
@@ -18691,9 +18889,9 @@ function tlTick() {
   const start = Number(grid.dataset.start), end = Number(grid.dataset.end);
   const ppm = Number(grid.dataset.ppm), labelW = Number(grid.dataset.label);
   if (!Number.isFinite(start) || !Number.isFinite(ppm)) return;
-  const now = new Date();
-  const m = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
-  const on = state.date === localDay(now) && m >= start && m <= end;
+  // The night's own minute, 24:20 after midnight (daily round, 17 Oct).
+  const m = tradingNowMin() + new Date().getSeconds() / 60;
+  const on = state.date === tradingDay() && m >= start && m <= end;
   line.style.display = on ? '' : 'none';
   if (!on) return;
   line.style.left = (labelW + (m - start) * ppm) + 'px';
@@ -18762,8 +18960,9 @@ const LIST_GROUPS = [
 // there, so the row and the booking do too (daily round, 7 Oct: a party sat
 // half an hour late was ten minutes over on the floor and "23 min" in the
 // row beside it). Negative is over.
+// Sat late, the sitting runs from when they sat, as the floor's (seatLateOf; 17 Oct).
 function sitLeft(r, now) {
-  return durationOf(r) - Math.round((now - new Date(r.time).getTime()) / 60000);
+  return durationOf(r) + seatLateOf(r) - Math.round((now - new Date(r.time).getTime()) / 60000);
 }
 // The first of r's tables somebody is still eating at: another party sat on
 // it, or the till's covers (daily round, 7 Oct). A booking due on the table
@@ -18916,7 +19115,12 @@ function placeTurn() {
   let x = r.right - box.left + gap;
   if (x + w > box.width - 8) x = r.left - box.left - gap - w;
   x = Math.max(8, Math.min(box.width - w - 8, x));
-  const y = Math.max(8, Math.min(box.height - h - 8, r.top - box.top + r.height / 2 - h / 2));
+  // And under Floor · Timeline · Flow where it would cover them: 14 near the
+  // top of the room laid its box over the well and hid Flow (daily round, 17 Oct).
+  const vt = document.querySelector('.d2-panel > .vt-float > .vt');
+  const v = vt && vt.getBoundingClientRect();
+  const top = v && v.width && x < v.right - box.left && x + w > v.left - box.left ? Math.max(8, v.bottom - box.top + 8) : 8;
+  const y = Math.max(top, Math.min(box.height - h - 8, r.top - box.top + r.height / 2 - h / 2));
   card.style.left = Math.round(x) + 'px'; card.style.top = Math.round(y) + 'px';
 }
 function seatsWord(n) { return n + (Number(n) === 1 ? ' seat' : ' seats'); }
@@ -20422,7 +20626,7 @@ function renderSettings() {
         <div><label class="field-label" for="seat-slack">Spare seats allowed</label><input id="seat-slack" type="number" min="0" max="10" value="${s.seatSlack}" data-field="settings.seatSlack" data-save="sittings"></div>
       </div>
       <label class="field-label">By party size</label>
-      ${s.durationByParty.map((d, i) => `<div class="inline"><span class="ts">Up to</span><input type="number" min="1" value="${d.upTo}" data-field="settings.durationByParty.${i}.upTo" data-save="sittings" style="width:72px;" aria-label="Up to"><span class="ts">guests:</span><input type="number" min="30" max="360" value="${d.minutes}" data-field="settings.durationByParty.${i}.minutes" data-save="sittings" style="width:84px;" aria-label="Minutes"><span class="ts">min</span></div>`).join('')}
+      ${s.durationByParty.map((d, i) => `<div class="inline dur-row"><span class="ts">Up to</span><input type="number" min="1" value="${d.upTo}" data-field="settings.durationByParty.${i}.upTo" data-save="sittings" aria-label="Up to"><span class="ts">guests:</span><input class="dur-min" type="number" min="30" max="360" value="${d.minutes}" data-field="settings.durationByParty.${i}.minutes" data-save="sittings" aria-label="Minutes"><span class="ts">min</span></div>`).join('')}
       <div class="grid2">
         <div><label class="field-label" for="max-party">Largest party</label><input id="max-party" type="number" min="1" value="${s.maxPartySize}" data-field="settings.maxPartySize" data-save="sittings"></div>
         <div><label class="field-label" for="noshow-after">Flag not arrived after (min)</label><input id="noshow-after" type="number" min="5" value="${s.noShowAfterMinutes}" data-field="settings.noShowAfterMinutes" data-save="sittings"></div>
@@ -20604,7 +20808,7 @@ function renderSettings() {
       ${state.setMenus.length ? '' : '<div class="ts">None yet.</div>'}
       ${state.setMenusFromPos
         ? state.setMenus.map(mn => `<div class="inline"><span style="flex:1;font-weight:700;">${esc(mn.name)}</span><span class="tag set">set menu</span></div>`).join('')
-        : state.setMenus.map((mn, i) => `<div class="inline"><input type="text" value="${esc(mn.name)}" data-field="setMenus.${i}.name" data-save="setmenus" aria-label="Set menu name"><button class="chip sq sm-remove" data-act="set-menu-remove" data-i="${i}" aria-label="Remove ${esc(mn.name)}">${I.cross}</button></div>`).join('')
+        : state.setMenus.map((mn, i) => `<div class="inline sm-row"><input type="text" value="${esc(mn.name)}" data-field="setMenus.${i}.name" data-save="setmenus" aria-label="Set menu name"><button class="chip sq sm-remove" data-act="set-menu-remove" data-i="${i}" aria-label="Remove ${esc(mn.name)}">${I.cross}</button></div>`).join('')
         + '<div><button class="btn" data-act="set-menu-add">' + I.plus + ' Add a set menu</button></div>'}
     </div>`,
     data: `    <div class="settings-card">
@@ -21717,7 +21921,9 @@ async function saveException() {
   // venue's late New Year's sitting disappeared, and how a day left with none
   // of them became "Closed" without anybody being told.
   const wrong = wins.find(w => toMin(w.end) <= toMin(w.start));
-  if (wrong) { m.error = `A sitting has to end after it starts — “${wrong.name || 'Sitting'}” runs ${wrong.start} to ${wrong.end}. A night that goes past midnight is two sittings here, one on each date.`; render(); return; }
+  // In the desk's 12-hour words, and never two sittings on two dates: the tail
+  // after midnight is already tonight's (av.badWindows; daily round, 17 Oct).
+  if (wrong) { m.error = `A sitting has to end after it starts — “${wrong.name || 'Sitting'}” runs ${fmtHHMM(wrong.start)} to ${fmtHHMM(wrong.end)}.` + (toMin(wrong.end) < 720 && toMin(wrong.start) >= 720 ? ' End it by 11:59 PM: a booking after midnight is still that night\'s.' : ''); render(); return; }
   if (!ex.closed && !wins.length) { m.error = 'Give the day at least one sitting, or mark it closed.'; render(); return; }
   const next = (((state.settings || {}).exceptions) || [])
     .filter(x => x.id !== ex.id && x.date !== ex.date)
@@ -21857,6 +22063,10 @@ async function flushSaves() {
       // and the desk stayed on the till's Light until a reload.
       if (g === 'pos') { state.theme = await api('/api/theme'); applyTheme(); }
       if (g === 'pos') { state.posStatus = await api('/api/pos/status'); const t = await api('/api/tables'); state.tables = t.tables; state.floorPlans = t.floorPlans; if (s.pos && s.pos.enabled && !(state.posStatus || {}).connected) posSettle(); else state.posConnecting = false; }
+      // THE SET MENUS FOLLOW THE SWITCH AT ONCE (daily round, 17 Oct): the
+      // card said "(from the POS)" for ten seconds after "Use the POS's set
+      // menus" went off, and the desk's own empty list after it came on.
+      if (g === 'pos' && !_savePending.setmenus) { const m = await api('/api/set-menus'); state.setMenus = m.menus || []; state.setMenusFromPos = !!m.fromPos; }
       if (g === 'relay' || g === 'online') { await new Promise(r => setTimeout(r, 600)); state.relayStatus = await api('/api/relay/status'); }
     } catch (e) {
       // A refused save must not leave the field showing something the store
@@ -21869,6 +22079,9 @@ async function flushSaves() {
       // The room too: a refused number or a table still booked comes back
       // as it was kept (daily round, 13 Oct).
       if (g === 'tables' && !_savePending.tables) { try { const t = await api('/api/tables'); state.tables = t.tables; state.floorPlans = t.floorPlans; } catch (e3) {} }
+      // And the set menus: an Add refused because the till holds them left
+      // "Set menu 1" on the card and in the picker (daily round, 17 Oct).
+      if (g === 'setmenus' && !_savePending.setmenus) { try { const m = await api('/api/set-menus'); state.setMenus = m.menus || []; state.setMenusFromPos = !!m.fromPos; } catch (e3) {} }
     }
   } } finally { _saveBusy--; _saveGen++; }
   const typing = savingField();
@@ -23409,6 +23622,9 @@ function startTlDrag(e, el, r) {
     lifted: false, holdTimer: 0, blockTouch: null, raf: 0,
     lastLane: el.parentElement, lastTableId: el.parentElement.dataset.table || null,
     lastMin: nightMinOf(r), preview: null,
+    // A party in the room early is drawn from now (heldSpanOf), and the
+    // booking starts this far right of the block's left edge (17 Oct).
+    shift: nightMinOf(r) - heldSpanOf(r).from,
   };
   // The non-passive touchmove blocker must exist from the GESTURE'S START:
   // Chromium fixes a touch's cancelability at touchstart, so one registered at
@@ -23523,7 +23739,7 @@ function paintTlDrag(row) {
   // fromMin() would wrap back round to 01:45.
   const hi = Math.min(g.geom.end - durationOf(r), 24 * 60 - g.geom.step);
   const min = pinned ? nightMinOf(r)
-    : tlSnap(g.geom.start + (gl - laneRect.left) / PX_PER_MIN, g.geom.step, g.geom.start, hi);
+    : tlSnap(g.geom.start + (gl - laneRect.left) / PX_PER_MIN + (g.shift || 0), g.geom.step, g.geom.start, hi);
   const tableId = lane.dataset.table || null;
   const pv = tlPreview(r, tableId, min);
   if (g.lastLane !== lane) g.lastLane.classList.remove('over');
@@ -23929,11 +24145,12 @@ function pollDelay() { return holdsLive() ? HOLD_POLL_MS : 10000; }
 // to it by test: "Severe peanut allergy" was on the run sheet and the
 // welcome card and nowhere on the list (daily round, 14 Oct).
 // And av.allergySaid(), word for word: "No allergies" and "the seafood
-// tower" drew the red dot (daily round, 16 Oct).
+// tower" drew the red dot (daily round, 16 Oct). "GF" is an allergy, and
+// "Allergies? No" is not (daily round, 17 Oct).
 function allergyDot(r) {
   const tagged = (r && r.tags || []).some(t => String(t).trim().toLowerCase() === 'allergy');
-  const t = String((r && r.notes) || '').replace(/\b(?:no|nil|zero|without)\s+(?:known\s+)?(?:food\s+)?(?:allerg\w*|intoleran\w*)|\bnot\s+allergic(?:\s+to\s+anything)?|\ballerg\w*\s*[:\-–—]?\s*(?:none|nil|n\/a|no(?=\s*(?:$|[.,;!])))/gi, ' ').replace(/\b(?:sea\s?food|fish|eggs?|nuts?|wheat|sesame)\s+(?:towers?|platters?|plates?|boards?|of\s+the\s+day|and\s+chips|benedict|pies?|curry|stew|soup|specials?|dish|cakes?|tacos?)\b/gi, ' ');
-  const said = /\b(?:allerg\w*|coeliac|celiac|intoleran\w*|anaphyla\w*|epi-?pen)\b/i.test(t) || /\b(?:no|without|avoid\w*|can[’']?t\s+(?:have|eat)|cannot\s+(?:have|eat)|free\s+of)\s+(?:\w+\s+)?(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b|\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)[\s-]?free\b/i.test(t) || (!/\b(?:pre-?order\w*|ordered|ordering)\b/i.test(t) && /\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b/i.test(t));
+  const t = String((r && r.notes) || '').replace(/\b(?:no|nil|zero|without)\s+(?:known\s+)?(?:food\s+)?(?:allerg\w*|intoleran\w*)|\bnot\s+allergic(?:\s+to\s+anything)?|\ballerg\w*\s*[:?\-–—]?\s*(?:none|nil|n\/a|no(?=\s*(?:$|[.,;!])))/gi, ' ').replace(/\b(?:sea\s?food|fish|eggs?|nuts?|wheat|sesame)\s+(?:towers?|platters?|plates?|boards?|of\s+the\s+day|and\s+chips|benedict|pies?|curry|stew|soup|specials?|dish|cakes?|tacos?)\b/gi, ' ');
+  const said = /\b(?:allerg\w*|coeliac|celiac|intoleran\w*|anaphyla\w*|epi-?pen)\b/i.test(t) || /\b(?:GF|DF|NF)\b/.test(t) || /\b(?:no|without|avoid\w*|can[’']?t\s+(?:have|eat)|cannot\s+(?:have|eat)|free\s+of)\s+(?:\w+\s+)?(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b|\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)[\s-]?free\b/i.test(t) || (!/\b(?:pre-?order\w*|ordered|ordering)\b/i.test(t) && /\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b/i.test(t));
   return tagged || said ? '<span class="dk-al" role="img" aria-label="Allergy"></span>' : '';
 }
 function ihKeyHtml(h) {

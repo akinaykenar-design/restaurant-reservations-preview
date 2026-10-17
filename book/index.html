@@ -776,6 +776,22 @@ body[data-theme="dark"] .row .cell.over{color:var(--steel-100);}
 /* Wrapped, one service's hours sit right above the next one's name: the
    Border law's hairline says where one ends. */
 .svc-row + .svc-row{border-top:1px solid var(--steel-200);padding-top:12px;margin-top:4px;}
+/* A set menu's × stands on its name's line: the name was 100% wide and the
+   row wrapped, so the × sat alone under it at every width (daily round,
+   17 Oct). */
+.sm-row{flex-wrap:nowrap;}
+.sm-row > input[type="text"]{flex:1 1 0;min-width:0;}
+.sm-row > .sm-remove{flex:none;}
+/* A sitting rule by party size is one line: at 320 its minutes fell under
+   "Up to 2 guests:", right over the next rule's "Up to 4" (daily round,
+   17 Oct). Under 360 the two fields take less of it. */
+.dur-row{flex-wrap:nowrap;}
+.dur-row > input[type="number"]{width:72px;flex:none;}
+.dur-row > input.dur-min{width:84px;}
+@media (max-width:359px){
+  .dur-row > input[type="number"]{width:52px;}
+  .dur-row > input.dur-min{width:60px;}
+}
 /* Wrapped inside its card at 320, every key still 44 (daily round, 12 Oct). */
 .days{display:flex;flex-wrap:wrap;gap:4px;flex:none;max-width:100%;}
 .days .chip{min-width:var(--tap);padding:7px 0;min-height:var(--tap);}
@@ -6127,6 +6143,11 @@ function durationFor(settings, party, override) {
 // blanked Lunch end was stored as Lunch 11:30 to 21:30 with a 200 (daily
 // round, 8 Oct).
 const CLOCK_HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
+// AND IT SAYS THE DESK'S TIMES. "Runs 17:00 to 16:00" stood beside fields
+// reading 05:00 PM, and its advice — a night past midnight as two sittings,
+// one on each date — put the second half on the night before (daily round,
+// 17 Oct). The tail after midnight is already tonight's: end it by 11:59 PM.
+function twelveOf(hhmm) { const m = toMin(hhmm), h = Math.floor(m / 60) % 24; return ((h % 12) || 12) + ':' + pad2(m % 60) + ' ' + (h < 12 ? 'AM' : 'PM'); }
 function badWindows(list) {
   const out = [];
   for (const w of (list || [])) {
@@ -6137,8 +6158,26 @@ function badWindows(list) {
     if (toMin(w.end) > toMin(w.start)) continue;
     out.push({
       name, start: w.start, end: w.end,
-      says: `A sitting has to end after it starts — “${name}” runs ${w.start} to ${w.end}. A night that goes past midnight is two sittings here, one on each date.`,
+      says: `A sitting has to end after it starts — “${name}” runs ${twelveOf(w.start)} to ${twelveOf(w.end)}.`
+        + (toMin(w.end) < 12 * 60 && toMin(w.start) >= 12 * 60 ? ' End it by 11:59 PM: a booking after midnight is still that night\'s.' : ''),
     });
+  }
+  // AND TWO SITTINGS THAT OVERLAP ON A DAY ARE REFUSED: Lunch to 6:00 PM
+  // beside Dinner from 5:00 PM was saved without a word, and a 5:30 booking
+  // stood on both lists, both door fives and both tidies (daily round, 17
+  // Oct). A special date's sittings carry no days: all are on that date.
+  if (out.length) return out;
+  const ok = (list || []).filter(Boolean);
+  const share = (a, b) => (!Array.isArray(a.days) && !Array.isArray(b.days))
+    || (Array.isArray(a.days) && Array.isArray(b.days) && a.days.some(d => b.days.includes(d)));
+  for (let i = 0; i < ok.length; i++) {
+    for (let j = i + 1; j < ok.length; j++) {
+      const [a, b] = toMin(ok[i].start) <= toMin(ok[j].start) ? [ok[i], ok[j]] : [ok[j], ok[i]];
+      if (!share(a, b) || !(toMin(b.start) < toMin(a.end))) continue;
+      const an = String(a.name || 'Sitting').trim() || 'Sitting', bn = String(b.name || 'Sitting').trim() || 'Sitting';
+      out.push({ name: an, start: a.start, end: a.end, says: `“${an}” runs to ${twelveOf(a.end)}, after “${bn}” starts at ${twelveOf(b.start)}.` });
+      return out;
+    }
   }
   return out;
 }
@@ -6207,10 +6246,16 @@ function rollsOf(settings) { return (settings && Number.isFinite(Number(settings
 // and nobody could mark them Left (daily round, 5 Oct). A booking on the
 // next date before the day rolls is on this night too; its minute is
 // counted on from this night's midnight (24:03), as nowOn() counts the clock.
+// AND IT IS ON THAT NIGHT ALONE: 00:30 on Sunday is Saturday's tail, and it
+// was on Sunday's Lunch list too, read as "12:30" (daily round, 17 Oct).
 function onNight(settings, r, day) {
-  const d = dayOf(r && r.time);
-  return d === day || (d === addDays(day, 1) && minsOf(r.time) < rollsOf(settings));
+  const d = dayOf(r && r.time), early = minsOf(r && r.time) < rollsOf(settings);
+  return (d === day && !early) || (d === addDays(day, 1) && early);
 }
+// A TABLE is still asked on the calendar date after midnight (walkinBook()
+// stands last night's sat parties at its 00:00), so who holds one is asked
+// of the date's own rows too: their minutes keep them to the small hours.
+function onNightOrDate(settings, r, day) { return dayOf(r && r.time) === day || onNight(settings, r, day); }
 function nightMin(r, day) { return minsOf(r.time) + (dayOf(r.time) > day ? 1440 : 0); }
 // A date and a clock time as the NIGHT they belong to: 00:30 on the 29th,
 // before the day rolls, is the 28th at 24:30. What a table question has to
@@ -6241,8 +6286,18 @@ function nowOn(ctx, day) {
 // line's tab offered it to Hollis and one tap sat Hollis on the table the
 // party at the door was waiting for. Somebody in the room holds the table
 // to the minute after now, sat or not.
+//
+// AND A PARTY SAT LATE HAS ITS WHOLE SITTING FROM WHEN IT SAT. Nguyen, two
+// at 7:15 for 75 minutes, sat at 7:43: the book ended them at 8:30 and sold
+// 25 at 8:45, 62 minutes in (daily round, 17 Oct). The minutes after the
+// booked time they sat (seatLate()) go on the end, as the tidy counts them.
+function seatLate(r) {
+  if (!r || !isSat(r) || !Number.isFinite(r.seatedAt)) return 0;
+  const m = Math.floor((r.seatedAt - new Date(r.time).getTime()) / 60000);
+  return m > 0 && m < 1440 ? m : 0;
+}
 function heldFor(ctx, r, now, s) {
-  const d = durationFor(ctx.settings, r.partySize, r.durationMin);
+  const d = durationFor(ctx.settings, r.partySize, r.durationMin) + seatLate(r);
   if (s === undefined) s = minsOf(r.time);
   return now !== null && (isSat(r) || isHere(r)) ? Math.max(d, now + 1 - s) : d;
 }
@@ -6267,7 +6322,7 @@ function heldFrom(r, now, s) {
 function holdersOf(ctx, tableId, day, startMin, dur, ignoreId) {
   const now = nowOn(ctx, day);
   return (ctx.reservations || []).filter(r => {
-    if (r.id === ignoreId || !isLive(r) || !heldTables(r).includes(tableId) || !onNight(ctx.settings, r, day)) return false;
+    if (r.id === ignoreId || !isLive(r) || !heldTables(r).includes(tableId) || !onNightOrDate(ctx.settings, r, day)) return false;
     const s = nightMin(r, day), from = heldFrom(r, now, s);
     return overlaps(startMin, dur, from, heldFor(ctx, r, now, s) + s - from);
   });
@@ -6282,7 +6337,7 @@ function askFrom(ctx, r) {
   const day = dayOf(r.time), now = nowOn(ctx, day), s = minsOf(r.time);
   if (now === null || !(isSat(r) || isHere(r))) return { hhmm: hhmmOf(r.time), duration: r.durationMin || null };
   const d = durationFor(ctx.settings, r.partySize, r.durationMin);
-  return { hhmm: pad2(Math.floor(now / 60)) + ':' + pad2(now % 60), duration: isSat(r) && now > s ? Math.max(15, d - (now - s)) : d };
+  return { hhmm: pad2(Math.floor(now / 60)) + ':' + pad2(now % 60), duration: isSat(r) && now > s ? Math.max(15, d + seatLate(r) - (now - s)) : d };
 }
 
 // Tables with nobody on them for this party at this time.
@@ -7560,7 +7615,7 @@ function floorAt(ctx, day, hhmm, opts) {
     // now (heldFrom's rule): Moss sat at 7:46 for 8:00 was drawn free.
     const on = held.find(r => {
       const s = nightMin(r, day);
-      const end = s + durOf(r);
+      const end = s + durOf(r) + seatLate(r);
       return (s <= at && (at < end || ((isSat(r) || isHere(r)) && at >= end))) || (opts.live === true && (isSat(r) || isHere(r)) && at < s);
     }) || null;
     const next = held.find(r => nightMin(r, day) > at) || null;
@@ -7582,7 +7637,8 @@ function floorAt(ctx, day, hhmm, opts) {
     }
     const start = nightMin(on, day);
     const cap = durOf(on);
-    const end = start + cap;
+    // Sat late, the sitting runs from when they sat (seatLate; 17 Oct).
+    const end = start + cap + seatLate(on);
     const waiting = Math.max(0, at - start);
     // The sitting's own end states come FIRST, before the clock is consulted:
     // a bill on the table answers the over-time alarm rather than joining it.
@@ -8348,12 +8404,18 @@ function setMenuSummary(ctx, day) {
 const ALLERGY_RE = /\b(?:allerg\w*|coeliac|celiac|intoleran\w*|anaphyla\w*|epi-?pen)\b/i;
 const ALLERGEN_RE = /\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b/i;
 const ALLERGEN_NEED_RE = /\b(?:no|without|avoid\w*|can[’']?t\s+(?:have|eat)|cannot\s+(?:have|eat)|free\s+of)\s+(?:\w+\s+)?(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)\b|\b(?:gluten|nuts?|peanuts?|shellfish|seafood|crustaceans?|dairy|lactose|sesame|soya?|eggs?|wheat|fish)[\s-]?free\b/i;
-const NO_ALLERGY_RE = /\b(?:no|nil|zero|without)\s+(?:known\s+)?(?:food\s+)?(?:allerg\w*|intoleran\w*)|\bnot\s+allergic(?:\s+to\s+anything)?|\ballerg\w*\s*[:\-–—]?\s*(?:none|nil|n\/a|no(?=\s*(?:$|[.,;!])))/gi;
+// "Allergies? No" is a denial too (daily round, 17 Oct).
+const NO_ALLERGY_RE = /\b(?:no|nil|zero|without)\s+(?:known\s+)?(?:food\s+)?(?:allerg\w*|intoleran\w*)|\bnot\s+allergic(?:\s+to\s+anything)?|\ballerg\w*\s*[:?\-–—]?\s*(?:none|nil|n\/a|no(?=\s*(?:$|[.,;!])))/gi;
 const DISH_RE = /\b(?:sea\s?food|fish|eggs?|nuts?|wheat|sesame)\s+(?:towers?|platters?|plates?|boards?|of\s+the\s+day|and\s+chips|benedict|pies?|curry|stew|soup|specials?|dish|cakes?|tacos?)\b/gi;
 const ORDER_RE = /\b(?:pre-?order\w*|ordered|ordering)\b/i;
+// AND THE KITCHEN'S SHORTHAND IS AN ALLERGY: "GF", "1 GF", "GF x2" got no
+// red dot, no welcome line and no run sheet line, while "gluten free" did
+// (daily round, 17 Oct). Capitals, whole words: "GFC", "NFL" and a "gf"
+// who is somebody's girlfriend are not.
+const ALLERGY_SHORT_RE = /\b(?:GF|DF|NF)\b/;
 function allergySaid(text) {
   const t = String(text || '').replace(NO_ALLERGY_RE, ' ').replace(DISH_RE, ' ');
-  return ALLERGY_RE.test(t) || ALLERGEN_NEED_RE.test(t) || (!ORDER_RE.test(t) && ALLERGEN_RE.test(t));
+  return ALLERGY_RE.test(t) || ALLERGY_SHORT_RE.test(t) || ALLERGEN_NEED_RE.test(t) || (!ORDER_RE.test(t) && ALLERGEN_RE.test(t));
 }
 
 // Tags are free text server-side (`String(t).trim().slice(0,20)`), so a tag
@@ -8377,11 +8439,32 @@ function serviceAt(settings, day, hhmm) {
   return servicesInOrder(settings, day).find(s => toMin(s.start) <= t && t < toMin(s.end)) || null;
 }
 
+// The guest card that may speak for this booking, or null: one keyed on a
+// phone or an email (search.personKey()'s rule), never a name's — and never
+// one whose email is not this booking's when the booking has no phone of its
+// own (daily round, 17 Oct: a second Sam Lee was greeted with the first
+// one's shellfish allergy, at the door and on the run sheet).
+function cardFor(guest, r) {
+  if (!guest) return null;
+  const digits = (x) => String(x || '').replace(/\D/g, '');
+  const mail = (x) => String((x && x.email) || '').trim().toLowerCase();
+  if (digits(guest.phone).length < 3 && !mail(guest)) return null;
+  if (r && digits(r.phone).length < 3 && mail(r) && mail(r) !== mail(guest)) return null;
+  return guest;
+}
+
 // Is there an allergy on this booking, and what is the evidence? Three ways
 // in: the booking's own tag, its notes, or the guest book. null when none of
 // them fire. The evidence comes back verbatim so the sheet can print it and
 // the desk can see where a flag it did not type came from.
-function allergyOf(r, guest) {
+//
+// AND WHAT THEY SAID LAST TIME (daily round, 17 Oct): Hollis's booking last
+// week said "Severe peanut allergy"; tonight's said nothing, and the door
+// and the kitchen were not told. `earlier` is the guest's own bookings —
+// asked only with a card keyed on a phone or an email (cardFor()), never a
+// name — and an allergy said on one before this booking speaks with the
+// guest book's, by the one rule, allergySaid().
+function allergyOf(r, guest, earlier) {
   r = r || {};
   const rTagged = hasTag(r.tags, 'allergy');
   const guestTagged = hasTag(guest && guest.tags, 'allergy');
@@ -8394,7 +8477,14 @@ function allergyOf(r, guest) {
   // carries the tag or reads like one. A guest tagged Allergy does not turn
   // tonight's 'running 20 minutes late' into a line a chef has to read.
   const notes = rn && (rTagged || allergySaid(rn)) ? rn : '';
-  const guestNotes = gn && (guestTagged || allergySaid(gn)) ? gn : '';
+  const said = [gn && (guestTagged || allergySaid(gn)) ? gn : ''];
+  if (guest && r.time) {
+    for (const b of (earlier || []).filter(b => b && b.id !== r.id && b.time && b.time < r.time && cardFor(guest, b)).sort((a, b) => b.time.localeCompare(a.time))) {
+      const bn = String(b.notes || '').trim();
+      if (bn && (hasTag(b.tags, 'allergy') || allergySaid(bn)) && bn !== rn && !said.includes(bn)) said.push(bn);
+    }
+  }
+  const guestNotes = said.filter(Boolean).join(' · ');
   if (!tagged && !notes && !guestNotes) return null;
   return { tagged, notes, guestNotes };
 }
@@ -8402,7 +8492,7 @@ function allergyOf(r, guest) {
 // One booking, resolved into the shape the paper needs — table labels, the
 // time it sits until, the allergy — so the client decides nothing and two
 // renderings of the same day cannot differ.
-function sheetRow(ctx, r, guest) {
+function sheetRow(ctx, r, guest, earlier) {
   ctx = ctx || {};
   r = r || {};
   const tables = ctx.tables || [];
@@ -8427,7 +8517,7 @@ function sheetRow(ctx, r, guest) {
     ref: r.ref || '', tags: (r.tags || []).slice(), notes: r.notes || '', setMenu: setMenuNameOf(r),
     guestNotes: String((guest && guest.notes) || ''),
     vip: hasTag(r.tags, 'vip') || hasTag(guest && guest.tags, 'vip'),
-    allergy: allergyOf(r, guest), cancelReason: r.cancelReason || '',
+    allergy: allergyOf(r, guest, earlier), cancelReason: r.cancelReason || '',
   };
 }
 
@@ -8446,6 +8536,9 @@ function runSheet(ctx, day, opts) {
   const now = typeof opts.now === 'number' ? opts.now : Date.now();
   const byId = new Map();
   for (const g of (opts.guests || [])) if (g && g.id) byId.set(g.id, g);
+  // Each guest's own bookings, for what they said last time (17 Oct).
+  const theirs = new Map();
+  for (const b of (ctx.reservations || [])) if (b && b.guestId) { if (!theirs.has(b.guestId)) theirs.set(b.guestId, []); theirs.get(b.guestId).push(b); }
 
   // Time, then name, then id: two 19:00 bookings never swap places between
   // one print and the next.
@@ -8454,7 +8547,7 @@ function runSheet(ctx, day, opts) {
   const auto = autoAssign(ctx, day);
   for (const r of (ctx.reservations || [])) {
     if (!r || !onNight(settings, r, day)) continue;
-    const row = sheetRow(ctx, auto[r.id] ? Object.assign({}, r, { autoTables: auto[r.id] }) : r, byId.get(r.guestId) || null);
+    const row = sheetRow(ctx, auto[r.id] ? Object.assign({}, r, { autoTables: auto[r.id] }) : r, cardFor(byId.get(r.guestId), r), theirs.get(r.guestId));
     row.mins = nightMin(r, day); // the night's tail after its evening, not before it
     if (isCounted(r)) rows.push(row);
     else if (r.status === 'cancelled' || r.status === 'no-show') dropped.push(row);
@@ -8747,14 +8840,14 @@ module.exports = {
   statusStamps, UNDO_STAMPS, stampsBack, mergeTables, tablesRefusal, onlineMax, onlineMessage,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
-  LIVE, isLive, durationFor, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
+  LIVE, isLive, durationFor, seatLate, heldFor, heldFrom, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, TURN_BILL, TURN_SOON, turnOf, turnBackRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, ASK_FIELDS, asksOf, onlineAsks, emailOk, nightOfRes, onlineRefusal, onlineGuest, guestName, cleanDob, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboKey, comboTwins, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
   MOVABLE, canMove, snapSlot, seatsOf, seatsFor, movedTables, moveCheck,
   notifyLive, notifyFor, openingFrom, openingSeats, notifyMatches, openingOpen,
   setMenuNameOf, isCounted, setMenuSummary,
-  ALLERGY_RE, ALLERGEN_RE, ALLERGEN_NEED_RE, NO_ALLERGY_RE, DISH_RE, ORDER_RE, allergySaid, serviceAt, allergyOf, sheetRow, runSheet,
+  ALLERGY_RE, ALLERGY_SHORT_RE, ALLERGEN_RE, ALLERGEN_NEED_RE, NO_ALLERGY_RE, DISH_RE, ORDER_RE, allergySaid, serviceAt, cardFor, allergyOf, sheetRow, runSheet,
   TIDY_AFTER, tidyHomeOf, servicesInOrder, tidyKind, tidyNight, tidyPick, tidyBack, tidyWas,
   HOLD_MS, HOLD_IDLE_MS, holdBy, holdsOf, holdPut, holdSpan, holdTake, holdRefusal, holdRows,
   DOOR_MAX, doorNext,
@@ -9138,6 +9231,42 @@ function migrate(data) {
     for (const r of data.reservations) if (r && r.guestId === g.id) r.guestId = keep.id;
     return false;
   });
+  // A card under a NAME is nobody's (daily round, 17 Oct): a second Sam
+  // Lee who left no phone was filed on the first one's card and greeted
+  // with her VIP and her shellfish allergy. Each booking on a name's card
+  // goes to its own phone's or email's card, as touchGuest() now files it,
+  // and one with neither stands on no card. The name's card keeps its notes:
+  // it becomes its own email's card, else it stays, with nobody on it.
+  const avm = require('./availability');
+  const mailOf = (x) => String((x && x.email) || '').trim().toLowerCase();
+  const touched = new Set();
+  for (const g of data.guests.slice()) {
+    if (!g || typeof g.key !== 'string' || !g.key.startsWith('n:')) continue;
+    for (const r of data.reservations) {
+      if (!r || r.guestId !== g.id) continue;
+      const line = lineNumber(r.phone);
+      const key = line ? 'p:' + line : mailOf(r) ? 'e:' + mailOf(r) : '';
+      if (!key) { r.guestId = null; touched.add(g); continue; }
+      let to = data.guests.find(x => x.key === key);
+      if (!to && key === 'e:' + mailOf(g)) { g.key = key; to = g; }
+      if (!to) {
+        to = { id: newId('g'), key, name: r.name || '', phone: r.phone || '', email: r.email || '', dob: '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0, firstSeen: r.createdAt || Date.now(), lastSeen: r.updatedAt || Date.now() };
+        data.guests.push(to);
+      } else if (to !== g && key === 'e:' + mailOf(g)) {
+        // Her own email already had a card: what was written on the name's goes with her.
+        const notes = String(g.notes || '').trim();
+        if (notes && !String(to.notes || '').includes(notes)) to.notes = to.notes ? to.notes + '\n' + notes : notes;
+        for (const t of g.tags || []) if (!to.tags.some(x => String(x).toLowerCase() === String(t).toLowerCase())) to.tags.push(t);
+      }
+      r.guestId = to.id; touched.add(g); touched.add(to);
+    }
+  }
+  for (const g of touched) {
+    const mine = data.reservations.filter(r => r && r.guestId === g.id);
+    g.visits = mine.filter(r => avm.isSat(r) || r.status === 'done').length;
+    g.noShows = mine.filter(r => r.status === 'no-show').length;
+    g.cancellations = mine.filter(r => r.status === 'cancelled').length;
+  }
   for (const r of data.reservations) {
     if (!r.status) r.status = 'booked';
     if (!r.source) r.source = 'staff';
@@ -9998,8 +10127,10 @@ function welcomeFor(g, bookings, r) {
   // and every Smith who left no number would share one card, and the desk
   // would greet a stranger with somebody else's fifty visits — or their
   // allergy. Without a key only THIS booking speaks: its own tags and notes.
-  const known = !!(g && personKey(g));
-  const guest = known ? g : null;
+  // And never a card whose email is not this booking's (av.cardFor(); daily
+  // round, 17 Oct).
+  const guest = av.cardFor(g, r);
+  const known = !!guest;
   const day = String(r.time).slice(0, 10);
   const before = known ? (bookings || [])
     .filter(b => b && b.id !== r.id && b.time && b.time < r.time && (av.isSat(b) || b.status === 'done'))
@@ -10010,7 +10141,7 @@ function welcomeFor(g, bookings, r) {
   const needs = (r.tags || []).filter(t => NEED_TAGS.includes(fold(t))).map(String);
   // The run sheet's own allergy rule, so the door and the pass can never
   // disagree about the same guest.
-  const al = av.allergyOf(r, guest);
+  const al = av.allergyOf(r, guest, guest ? bookings : []);
   const allergy = al ? { text: [al.notes, al.guestNotes].filter(Boolean).join(' · '), tagged: !!al.tagged } : null;
   // The card's own date of birth, else the one this booking brought from the
   // guests' page (Online booking asks for, 12 Oct) — the booking's own, so
@@ -10039,7 +10170,7 @@ function welcomeFor(g, bookings, r) {
     occasion: String(occasion),
     needs,
     bookingNote: al && al.notes ? '' : bookingNote,
-    guestNote: al && al.guestNotes ? '' : guestNote,
+    guestNote: al && guestNote && al.guestNotes.includes(guestNote) ? '' : guestNote,
     birthdayIn,
   };
 }
@@ -11334,6 +11465,15 @@ function mailHeld(ctx, now, asked) {
 // took (`relayState.mailKeyHash`); a key the relay has not got is owed, an
 // emptied one is owed as '', and anything else is null — nothing to send.
 // Off owes nothing: the grant's `mail: null` drops it there.
+// What the Emails card says went wrong: the desk's own "No Postmark key"
+// first — it knows, with or without the relay (daily round, 17 Oct: Email
+// guests on with a From and no key sent nothing and said nothing) — else
+// the relay's last word. Switched off, nothing.
+function mailErrorOf(m, st) {
+  if (!m || !m.enabled) return '';
+  if (!m.key) return 'No Postmark key';
+  return (st && st.mailError) || '';
+}
 function mailKeyHash(key) { return key ? crypto.createHash('sha1').update(String(key)).digest('hex') : ''; }
 function mailKeyOwed(m, hash) {
   if (!m || !m.enabled) return null;
@@ -11803,7 +11943,7 @@ function bookingFrom(payload, ctx, opts) {
   };
 }
 
-module.exports = { MAIL_MAX, mailOf, mailGrant, mailKeyHash, mailKeyOwed, GROUP_GONE, askerRefusal, GROUP_DAYS, groupCopyOf, groupCancelRefusal, GRANT_DAYS, LINE_HOW, lineGrant, lineEntry, officeWasOn, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
+module.exports = { GUEST_STATUS, MAIL_MAX, mailOf, mailGrant, mailErrorOf, mailKeyHash, mailKeyOwed, GROUP_GONE, askerRefusal, GROUP_DAYS, groupCopyOf, groupCancelRefusal, GRANT_DAYS, LINE_HOW, lineGrant, lineEntry, officeWasOn, grantsFor, guestsOf, remember, noteOfficeEdit, dayGrant, roomOn, collectedOn, infoOf, decide, bookingFrom, replicaOf, stampOf, editRefusal, refusalOf, editedBooking };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./relaysync'] = module;
@@ -12111,7 +12251,8 @@ app.put('/api/settings', async (req, res) => {
   }
   const bad = av.badWindows(nextServices)[0]
     || (nextExceptions || []).map(x => { const w = av.badWindows(x.services)[0]; return w ? Object.assign({ date: x.date }, w) : null; }).find(Boolean);
-  if (bad) return res.status(400).json({ error: (bad.date ? `${bad.date}: ` : '') + bad.says });
+  // A special date is said "Thu 24 Dec", never "2026-12-24" (daily round, 17 Oct).
+  if (bad) return res.status(400).json({ error: (bad.date ? `${search.dateWords(bad.date)}: ` : '') + bad.says });
   // What the guests' page asks for: each of the five Off, Optional or
   // Required and nothing else, refused before a field is written.
   const asksIn = b.online && b.online.asks;
@@ -12519,9 +12660,14 @@ function touchGuest(data, r) {
   // Keyed on the line number (av.lineNumber): 0400-111-222, (04) 0011 1222
   // and +61 400 111 222 made three new Hartleys with no welcome and no
   // allergy (daily round, 15 Oct). migrate() merged the ones already made.
+  // Then on the EMAIL, and never on a name (daily round, 17 Oct): a second
+  // Sam Lee who booked online with no phone was filed on the first one's
+  // card and greeted with her VIP and her shellfish allergy. A booking with
+  // neither stands on no card, as a walk-in always has; only it speaks.
   const phone = av.lineNumber(r.phone);
-  if (!phone && !String(r.email || '').trim() && /^walk-?in$/i.test(String(r.name || '').trim())) { r.guestId = null; return { id: null }; }
-  const key = phone ? 'p:' + phone : 'n:' + String(r.name || '').toLowerCase().trim();
+  const email = String(r.email || '').trim().toLowerCase();
+  if (!phone && !email) { r.guestId = null; return { id: null }; }
+  const key = phone ? 'p:' + phone : 'e:' + email;
   let g = data.guests.find(x => x.key === key);
   if (!g) {
     g = { id: newId('g'), key, name: r.name, phone: r.phone || '', email: r.email || '', dob: '', notes: '', tags: [], visits: 0, noShows: 0, cancellations: 0, firstSeen: Date.now(), lastSeen: Date.now() };
@@ -12536,6 +12682,11 @@ function touchGuest(data, r) {
   g.lastSeen = Date.now();
   r.guestId = g.id;
   return g;
+}
+// The card a booking is filed on, as touchGuest() keys it ('' for none).
+function guestKeyOf(r) {
+  const phone = av.lineNumber(r && r.phone), email = String((r && r.email) || '').trim().toLowerCase();
+  return phone ? 'p:' + phone : email ? 'e:' + email : '';
 }
 // Counts a guest carries: recomputed from their bookings, never drifting.
 function recountGuest(data, guestId) {
@@ -12751,6 +12902,7 @@ function changeReservation(data, cur, body, who, opts) {
   // round, 16 Oct: the wrong night's move was told twice).
   if (opts.timeText) for (const e of evs) if (e.field === 'time') e.text = opts.timeText;
   next.updatedAt = now;
+  const keyWas = guestKeyOf(cur);
   Object.assign(cur, next);
   // A stamp statusStamps() took away has to go from the stored row too — the
   // assign above only ever adds.
@@ -12758,8 +12910,14 @@ function changeReservation(data, cur, body, who, opts) {
   // `next` was a shallow copy, so next.events IS cur.events — append returns
   // a new array rather than growing that shared one.
   if (evs.length) cur.events = history.append(cur.events, evs);
-  if (cur.name !== next.name || cur.phone !== next.phone) touchGuest(data, cur);
-  if (!cur.guestId) touchGuest(data, cur);
+  // Read before the assign, which made the two one row and this never fired:
+  // a phone or email typed later left the booking on its old card (daily
+  // round, 17 Oct).
+  if (keyWas !== guestKeyOf(cur) || !cur.guestId) {
+    const was = cur.guestId;
+    touchGuest(data, cur);
+    if (was && was !== cur.guestId) recountGuest(data, was);
+  }
   recountGuest(data, cur.guestId);
   // In the desk's words: "Okafor: done" in Recent activity (daily round, 13 Oct).
   logAudit(data, who, statusChanged ? `${cur.name}: ${history.STATUS_TEXT[cur.status] || cur.status}` : `Edited booking for ${cur.name}`);
@@ -13669,7 +13827,8 @@ app.post('/api/guests', (req, res) => {
   const name = String(b.name || '').trim().slice(0, 60);
   if (!name) return res.status(400).json({ error: 'A name is required' });
   const phone = String(b.phone || '').trim().slice(0, 30);
-  const key = av.lineNumber(phone) ? 'p:' + av.lineNumber(phone) : 'n:' + name.toLowerCase();
+  const email = String(b.email || '').trim().slice(0, 80);
+  const key = av.lineNumber(phone) ? 'p:' + av.lineNumber(phone) : email ? 'e:' + email.toLowerCase() : 'n:' + name.toLowerCase();
   const had = data.guests.find(x => x.key === key);
   if (had) return res.json(had);
   const g = { id: newId('g'), key, name, phone, email: String(b.email || '').trim().slice(0, 80),
@@ -13769,7 +13928,12 @@ app.get('/api/public/availability', (req, res) => {
   // A time that has GONE is not offered at all — online it is refused as
   // 'Too soon', never 'Past', so it stood struck through, and a tap on it
   // put a guest on the notify list for this morning.
-  const gone = (x) => av.timeMs(av.joinTime(day, x.time)) < Date.now();
+  // And a time inside the online notice has gone as surely (daily round,
+  // 17 Oct): Bondi's empty night drew every time struck "full", said
+  // "Nothing free that day, sorry." and took the guest onto the notify
+  // list for it — the relay's alloc.gone() rule.
+  const notice = (s.online.minNoticeMinutes || 0) * 60000;
+  const gone = (x) => av.timeMs(av.joinTime(day, x.time)) < Date.now() + notice;
   const all = av.slotsFor(ctx, day, party, { online: true });
   const slots = all.filter(x => x.ok || !gone(x)).map(x => ({ time: x.time, ok: x.ok }));
   // Every time of the day has GONE: say so, which also takes the notify
@@ -13850,7 +14014,8 @@ app.post('/api/public/notify', (req, res) => {
     if (av.toMin(to) > av.toMin(slots[slots.length - 1])) to = slots[slots.length - 1];
     if (av.toMin(to) < av.toMin(from)) return res.status(400).json({ error: 'We are not open at those times' });
   }
-  if (av.timeMs(av.joinTime(date, to)) < Date.now()) return res.status(400).json({ error: 'Those times have already gone. Pick a later one.' });
+  // Inside the online notice is gone too (daily round, 17 Oct).
+  if (av.timeMs(av.joinTime(date, to)) < Date.now() + (s.online.minNoticeMinutes || 0) * 60000) return res.status(400).json({ error: 'Those times have already gone. Pick a later one.' });
   const today = tradingDay(data);
   const key = phoneKey(phone);
   if (data.notify.some(e => av.notifyLive(e, today) && e.date === date && phoneKey(e.phone) === key)) {
@@ -13890,13 +14055,18 @@ app.get('/api/public/booking/:ref', (req, res) => {
   const data = readData();
   const r = data.reservations.find(x => x.ref && x.ref === String(req.params.ref).toUpperCase());
   if (!r) return res.status(404).json({ error: 'No booking with that reference' });
-  res.json({ ref: r.ref, name: r.name, partySize: r.partySize, time: r.time, status: r.status });
+  // The guest's word, the relay's four (daily round, 17 Oct): the page read
+  // "1 people · part-arrived" and "· no-show" off the record's own keys.
+  res.json({ ref: r.ref, name: r.name, partySize: r.partySize, time: r.time, status: relaysync.GUEST_STATUS[r.status] || 'booked' });
 });
 app.post('/api/public/booking/:ref/cancel', (req, res) => {
   const data = readData();
   const r = data.reservations.find(x => x.ref && x.ref === String(req.params.ref).toUpperCase());
   if (!r) return res.status(404).json({ error: 'No booking with that reference' });
   if (!av.isLive(r) || av.isSat(r)) return res.status(400).json({ error: 'That booking can no longer be cancelled online' });
+  // A party at the door is the host's, as the relay says (daily round,
+  // 17 Oct): a page left open cancelled Tess at the stand.
+  if (av.isHere(r)) return res.status(409).json({ error: 'The restaurant already has you at the table — please speak to them.' });
   const before = Object.assign({}, r);
   const now = Date.now();
   r.status = 'cancelled'; r.cancelledAt = now; r.cancelReason = 'Cancelled by the guest online'; r.updatedAt = now;
@@ -14399,7 +14569,7 @@ app.get('/api/relay/status', (req, res) => {
   res.json({
     enabled: !!c.enabled, baseUrl: c.baseUrl, hasToken: !!c.token, on: relay.ready(c),
     connected: !!st.connected, lastSeenAt: st.lastSeenAt, lastError: st.lastError, grantAt: st.grantAt, collected: st.collected,
-    mailError: data.settings.mail && data.settings.mail.enabled ? st.mailError || '' : '',
+    mailError: relaysync.mailErrorOf(data.settings.mail, st),
     // Only while the link is on: a QR code to a page this desk is not
     // feeding sends guests somewhere nobody collects from.
     bookingUrl: relay.ready(c) && st.bookingPath ? c.baseUrl + st.bookingPath : '',
@@ -14809,8 +14979,9 @@ function applyRelayItem(data, item, asWas, relayNow) {
     // guest's counts, the history and the till's pass all see it.
     const r = data.reservations.find(x => x.id === p.id);
     const from = String(p.from || 'another venue').slice(0, 60);
+    // The reason rides the cancel's own history line, said once (daily round,
+    // 17 Oct: a second note said it again, stamped before the line it followed).
     changeReservation(data, r, { status: 'cancelled', cancelReason: `Seated at ${from} instead` }, from);
-    r.events = history.append(r.events, [history.noteEvent(from, now, `Seated at ${from} instead`, 'note')]);
     logAudit(data, from, `${r.name} seated at ${from} instead — cancelled here`);
   } else if (what === 'refuse' && item.kind === 'group-cancel') {
     const why = relaysync.groupCancelRefusal(item, data, new Date());
@@ -15483,7 +15654,7 @@ function render() {
     ${timeSec}${notifyBlock}${who}`}
     <section class="gp-sec gp-find"><details${st.lookup || st.found ? ' open' : ''}><summary>Already booked?</summary>
       <div class="gp-find-row">${field('b-ref', 'Your reference', st.lookup, 'lookup', 'text', 'off', ' placeholder="e.g. BX7K2A" autocapitalize="characters"')}<button class="gp-btn" data-act="lookup">Find</button></div>
-      ${st.found ? (st.found.error ? `<p class="gp-say">${esc(st.found.error)}</p>` : `<p class="gp-say">${esc(st.found.name)} · ${esc(fmtWhen(st.found.time))} · ${st.found.partySize} people · ${esc(st.found.status)}</p>${['booked', 'confirmed'].includes(st.found.status) ? '<button class="gp-btn gp-danger" data-act="cancel">Cancel this booking</button>' : ''}`) : ''}
+      ${st.found ? (st.found.error ? `<p class="gp-say">${esc(st.found.error)}</p>` : `<p class="gp-say">${esc(st.found.name)} · ${esc(fmtWhen(st.found.time))} · ${st.found.partySize} ${st.found.partySize === 1 ? 'person' : 'people'} · ${esc(({ here: 'at the table', booked: 'booked', cancelled: 'cancelled', finished: 'finished' })[st.found.status] || 'booked')}</p>${st.found.status === 'booked' ? '<button class="gp-btn gp-danger" data-act="cancel">Cancel this booking</button>' : ''}`) : ''}
     </details></section>
     ${foot}
   </main>`;
@@ -15708,7 +15879,7 @@ document.addEventListener('click', async (ev) => {
     }
     else if (act === 'again') { st.done = null; st.notifyDone = null; st.notifyOpen = false; st.notifyError = ''; st.time = ''; st.slots = null; st.date = ''; st.reason = ''; st.note = ''; firstDay(); }
     else if (act === 'lookup') { try { st.found = await api('/api/public/booking/' + encodeURIComponent(st.lookup.trim().toUpperCase())); } catch (e) { st.found = { error: e.message }; } render(); }
-    else if (act === 'cancel') { if (!confirm('Cancel this booking?')) return; await api('/api/public/booking/' + encodeURIComponent(st.found.ref) + '/cancel', {}); st.found = Object.assign({}, st.found, { status: 'cancelled' }); render(); }
+    else if (act === 'cancel') { if (!confirm('Cancel this booking?')) return; try { await api('/api/public/booking/' + encodeURIComponent(st.found.ref) + '/cancel', {}); st.found = Object.assign({}, st.found, { status: 'cancelled' }); } catch (e) { st.found = { error: e.message }; } render(); }
   } catch (e) { st.error = e.message; render(); }
 });
 document.addEventListener('input', (ev) => { const f = ev.target.dataset && ev.target.dataset.field; if (f) st[f] = ev.target.value; });
