@@ -6182,6 +6182,27 @@ function badWindows(list) {
   return out;
 }
 
+// WHERE A NEW SERVICE GOES (daily round, 18 Oct). Add a service pushed
+// Service 5:00-9:30 PM on every day, on top of Dinner, saved at once and
+// refused at once: no venue with Lunch and Dinner could add a third. A new
+// one starts where no service is on those days (`days`; none for a special
+// date's sittings, which are all on that date): after the last, or else the
+// first free stretch from 6:00 AM, two hours or what the stretch holds. Null
+// when nothing of half an hour is free.
+function freeWindow(list, days) {
+  const share = (w) => !Array.isArray(days) ? !Array.isArray(w.days) : (Array.isArray(w.days) && w.days.some(d => days.includes(d)));
+  const busy = (list || []).filter(w => w && share(w) && CLOCK_HHMM.test(String(w.start)) && CLOCK_HHMM.test(String(w.end)))
+    .map(w => [toMin(w.start), Math.max(toMin(w.start), toMin(w.end))]).sort((a, b) => a[0] - b[0]);
+  const gaps = [];
+  let at = 6 * 60;
+  for (const [a, b] of busy) { if (a > at) gaps.push([at, a]); at = Math.max(at, b); }
+  if (at < 23 * 60 + 59) gaps.push([at, 23 * 60 + 59]);
+  const wide = gaps.filter(([a, b]) => b - a >= 30);
+  const tail = wide.find(([, b]) => b === 23 * 60 + 59), g = tail || wide[0];
+  if (!g) return null;
+  return { start: fromMin(g[0]), end: fromMin(Math.min(g[1], g[0] + 120)) };
+}
+
 // The dated override for this day, if the venue set one.
 function exceptionOn(settings, day) {
   return ((settings && settings.exceptions) || []).find(x => x && x.date === day) || null;
@@ -6311,6 +6332,13 @@ function heldFor(ctx, r, now, s) {
 function heldFrom(r, now, s) {
   if (s === undefined) s = minsOf(r.time);
   return now !== null && (isSat(r) || isHere(r)) && now < s ? now : s;
+}
+// The minutes a booking holds its own tables on its own date: from
+// heldFrom(), for heldFor() — ONE rule for when a party is in the chairs
+// (daily round, 18 Oct).
+function heldSpan(ctx, r) {
+  const now = nowOn(ctx, dayOf(r.time)), s = minsOf(r.time), from = heldFrom(r, now, s);
+  return { from, dur: s + heldFor(ctx, r, now, s) - from };
 }
 // Bookings that hold a table at this moment on this night — its tail too: a
 // party sat at 00:30 is stored on the next date, and asked about at 24:40 it
@@ -6714,10 +6742,18 @@ function walkinBook(ctx, day, hhmm) {
   // Only AFTER MIDNIGHT: at six the next evening last night's party nobody
   // marked Left held its table from every walk-in and every seat from the
   // list, while the floor drew it free (daily round, 5 Oct).
+  // AND EVERY PARTY STILL HOLDING ITS TABLE PAST MIDNIGHT, not only the sat
+  // ones: Dee Door, 2 at 23:50 on 4 and marked Here, was the walk-in menu's
+  // first key at 12:20 and one tap sat strangers on her table (daily round,
+  // 18 Oct). Who holds it is heldFrom()/heldFor()'s rule, on the night
+  // before's minutes; what runs past 24:00 stands at this date's 00:00.
   const tail = toMin(hhmm) < rollsOf(ctx.settings);
+  const clock = toMin(hhmm) + 1440;
   const placed = heldBook(ctx, day).reservations.map(r => {
-    if (tail && r && dayOf(r.time) === prev && isSat(r)) return Object.assign({}, r, { time: joinTime(day, '00:00'), durationMin: toMin(hhmm) + 1 });
-    return r;
+    if (!tail || !r || dayOf(r.time) !== prev || !isLive(r)) return r;
+    const s = minsOf(r.time), end = s + heldFor(ctx, r, isSat(r) || isHere(r) ? clock : null, s);
+    if (end <= 1440) return r;
+    return Object.assign({}, r, { time: joinTime(day, '00:00'), durationMin: end - 1440, seatedAt: undefined });
   });
   return Object.assign({}, ctx, { reservations: placed });
 }
@@ -6808,7 +6844,8 @@ function holdSpan(ctx, r, size, now) {
   const dur = durationFor(settings, Math.max(1, size || (r && r.partySize) || 1), r && r.durationMin) * 60000;
   if (!r || !r.time) return { from: now, to: now + dur };
   const s = timeMs(r.time);
-  if (isSat(r) || isHere(r)) return { from: now, to: Math.max(s + dur, now + 60000) };
+  // Sat late, to the end of the sitting from the chair (daily round, 18 Oct).
+  if (isSat(r) || isHere(r)) return { from: now, to: Math.max(s + dur + seatLate(r) * 60000, now + 60000) };
   const from = Math.max(now, s);
   return { from, to: from + dur };
 }
@@ -7535,7 +7572,9 @@ function growTo(ctx, r, size) {
   let from = s, duration = d;
   if (now !== null && (isSat(r) || isHere(r))) {
     from = now;
-    duration = now < s ? s + d - now : (isSat(r) && now > s ? Math.max(15, d - (now - s)) : d);
+    // Sat late, the sitting runs from the chair (seatLate): Nguyen sat 16
+    // minutes late grew onto Kim's 8:50 table (daily round, 18 Oct).
+    duration = now < s ? s + d - now : (isSat(r) && now > s ? Math.max(15, d + seatLate(r) - (now - s)) : d);
   }
   const at = { day: night.day, hhmm: pad2(Math.floor(from / 60)) + ':' + pad2(from % 60) };
   const book = heldBook(ctx, at.day);
@@ -7698,7 +7737,8 @@ function coverFlow(ctx, day, opts) {
       const s = minsOf(r.time);
       const party = r.partySize || 0;
       if (key(s) === t) { covers += party; bookings++; }
-      if (s <= t && t < s + durationFor(settings, party, r.durationMin)) { inRoom += party; sittings++; }
+      // In the room to the end of the sitting from the chair (daily round, 18 Oct).
+      if (s <= t && t < s + durationFor(settings, party, r.durationMin) + seatLate(r)) { inRoom += party; sittings++; }
     }
     const cap = coverCap(settings, day, time);
     return {
@@ -7950,6 +7990,9 @@ function officeMayChange(r, now) {
   if (!isLive(r)) return 'That booking is finished';
   if (isSat(r) || isHere(r)) return 'They are already here — call the restaurant';
   const at = timeMs(r.time), t = (now || new Date()).getTime();
+  // A time already gone is not "within the hour": this morning's lunch that
+  // never came read so to the office at 7:58 PM (daily round, 18 Oct).
+  if (t >= at) return 'That time has passed — call the restaurant';
   if (t >= at - OFFICE_HANDS_OFF * 60000) return 'It is within the hour — call the restaurant';
   return null;
 }
@@ -7988,9 +8031,12 @@ function conflictsFor(ctx, r) {
   const day = dayOf(r.time);
   // As long as it HOLDS the table — a party still in its chairs past its
   // sitting dragged onto a table somebody is due at named nobody (2 Oct).
-  const dur = heldFor(ctx, r, nowOn(ctx, day));
+  // AND FROM WHEN IT HOLDS IT: Ed Early, booked 9:15 and sat at 7:41, was
+  // dragged onto 3 where Nguyen was eating, asked from 9:15, and named
+  // nobody (daily round, 18 Oct). heldFrom()'s start, as holdersOf() asks.
+  const { from, dur } = heldSpan(ctx, r);
   const seen = new Map();
-  for (const tid of heldTables(r)) for (const o of holdersOf(ctx, tid, day, minsOf(r.time), dur, r.id)) seen.set(o.id, o);
+  for (const tid of heldTables(r)) for (const o of holdersOf(ctx, tid, day, from, dur, r.id)) seen.set(o.id, o);
   return [...seen.values()];
 }
 // The till's walk-ins on r's tables over its sitting (walkedIn(): covers at
@@ -7999,10 +8045,10 @@ function conflictsFor(ctx, r) {
 // warns or is refused like any clash (daily round, 15 Oct: Lindqvist was
 // taken onto 16 with no word).
 function tillClash(ctx, r) {
-  const day = dayOf(r.time), dur = heldFor(ctx, r, nowOn(ctx, day)), out = [];
+  const day = dayOf(r.time), { from, dur } = heldSpan(ctx, r), out = [];
   for (const tid of heldTables(r)) {
     const t = (ctx.tables || []).find(x => x.id === tid);
-    if (t && walkedIn(ctx, t, day, minsOf(r.time), dur)) out.push({ id: 'till:' + tid, name: Number(t.covers) + ' at the till', time: '', partySize: Number(t.covers), till: true });
+    if (t && walkedIn(ctx, t, day, from, dur)) out.push({ id: 'till:' + tid, name: Number(t.covers) + ' at the till', time: '', partySize: Number(t.covers), till: true });
   }
   return out;
 }
@@ -8513,7 +8559,9 @@ function sheetRow(ctx, r, guest, earlier) {
   return {
     id: r.id, time: hhmmOf(r.time), mins, name: r.name || '', partySize: r.partySize || 0,
     phone: r.phone || '', tableIds: ids, tableLabel: ids.map(label).join(' + '), joined: ids.length > 1,
-    durationMin, until: fromMin(mins + durationMin), status: r.status || '', source: r.source || '',
+    // Sat late, out at the end of the sitting from the chair, as the desk
+    // holds the table — the paper said 8:30 of a 8:46 (daily round, 18 Oct).
+    durationMin, until: fromMin(mins + durationMin + seatLate(r)), status: r.status || '', source: r.source || '',
     ref: r.ref || '', tags: (r.tags || []).slice(), notes: r.notes || '', setMenu: setMenuNameOf(r),
     guestNotes: String((guest && guest.notes) || ''),
     vip: hasTag(r.tags, 'vip') || hasTag(guest && guest.tags, 'vip'),
@@ -8840,7 +8888,7 @@ module.exports = {
   statusStamps, UNDO_STAMPS, stampsBack, mergeTables, tablesRefusal, onlineMax, onlineMessage,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
-  LIVE, isLive, durationFor, seatLate, heldFor, heldFrom, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
+  LIVE, isLive, durationFor, seatLate, heldFor, heldFrom, heldSpan, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, freeWindow, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, TURN_BILL, TURN_SOON, turnOf, turnBackRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, ASK_FIELDS, asksOf, onlineAsks, emailOk, nightOfRes, onlineRefusal, onlineGuest, guestName, cleanDob, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboKey, comboTwins, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
@@ -9734,7 +9782,40 @@ function settingsWords(before, after) {
   return said.length > 4 ? said.slice(0, 3).join('; ') + '; and ' + (said.length - 3) + ' more' : said.join('; ');
 }
 
-module.exports = { STATUS_TEXT, MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, auditWords, diffReservation, changeEvents, createdEvent, noteEvent, append, settingsWords };
+// THE ROOM AND THE SET MENUS, SAID (daily round, 18 Oct). "Updated tables
+// (30)" a keystroke said nothing; now what changed, by table and by menu,
+// matched on the id, in settingsWords()'s grammar.
+function listWords(said) {
+  return said.length > 4 ? said.slice(0, 3).join('; ') + '; and ' + (said.length - 3) + ' more' : said.join('; ');
+}
+function tablesWords(before, after) {
+  const was = new Map((before || []).filter(t => t && t.id).map(t => [String(t.id), t])), said = [];
+  const now = (after || []).filter(t => t && t.id);
+  const n = (v) => num(v) == null ? '—' : num(v);
+  for (const t of now) {
+    const b = was.get(String(t.id));
+    if (!b) { said.push('Table ' + t.label + ' added'); continue; }
+    if (String(b.label) !== String(t.label)) said.push('Table ' + b.label + ' is now ' + t.label);
+    if (num(b.seats) !== num(t.seats)) said.push('Table ' + t.label + ': seats ' + n(b.seats) + ' → ' + n(t.seats));
+  }
+  const ids = new Set(now.map(t => String(t.id)));
+  for (const b of was.values()) if (!ids.has(String(b.id))) said.push('Table ' + b.label + ' removed');
+  return listWords(said);
+}
+function setMenusWords(before, after) {
+  const was = new Map((before || []).filter(m => m && m.id).map(m => [String(m.id), m])), said = [];
+  const now = (after || []).filter(m => m && m.id);
+  for (const m of now) {
+    const b = was.get(String(m.id));
+    if (!b) said.push('Set menu added: ' + m.name);
+    else if (str(b.name) !== str(m.name)) said.push('Set menu ' + b.name + ' is now ' + m.name);
+  }
+  const ids = new Set(now.map(m => String(m.id)));
+  for (const b of was.values()) if (!ids.has(String(b.id))) said.push('Set menu removed: ' + b.name);
+  return listWords(said);
+}
+
+module.exports = { tablesWords, setMenusWords, STATUS_TEXT, MAX_EVENTS, NOTE_CLIP, FIELDS, tableLabeller, auditWords, diffReservation, changeEvents, createdEvent, noteEvent, append, settingsWords };
 
   })(module, module.exports, window.__RESV__.requireShim, '', window.__RESV__.process);
   window.__RESV__.modules['./history'] = module;
@@ -11254,8 +11335,11 @@ const { sentFor, movedSince } = require('./search');
 
 // Always this many days, from today. The relay only REPLACES the dates it is
 // sent, so a horizon that shortens has to send its far days back EMPTY, or
-// they go on selling. One number both sides can hold (the relay takes 120).
-const GRANT_DAYS = 120;
+// they go on selling. One number both sides can hold, and the whole of the
+// 365 Days ahead the setting takes: at 120 a venue open 150 days ahead sold
+// day 130 at its own door and not on the relay (daily round, 18 Oct). The
+// days past the horizon go empty, so they cost the grant next to nothing.
+const GRANT_DAYS = 366;
 const NO_CAP = { covers: 999, bookings: 99 };
 
 // Who the guests are booking with, and the venue's clock — the relay may run
@@ -11311,10 +11395,15 @@ function roomOn(ctx, day) {
   const s = ctx.settings;
   const auto = av.autoAssign(ctx, day);
   const busy = {};
+  // EACH PARTY HOLDS ITS TABLE AS THE DESK SAYS IT DOES (av.heldSpan: from
+  // now for one in early, to the end of the sitting from the chair for one
+  // sat late, past it while still in the room): Nguyen, 6:15 sat at 7:37,
+  // was busy to 7:30 here and the relay sold 2 at 8:45 twice into No table
+  // (daily round, 18 Oct).
   for (const r of (ctx.reservations || [])) {
     if (!r || !av.isLive(r) || av.dayOf(r.time) !== day) continue;
     const ids = av.heldTables(r).length ? av.heldTables(r) : (auto[r.id] || []);
-    const from = av.minsOf(r.time), to = from + av.durationFor(s, r.partySize, r.durationMin);
+    const sp = av.heldSpan(ctx, r), from = sp.from, to = sp.from + sp.dur;
     for (const id of ids) (busy[id] = busy[id] || []).push([from, to]);
   }
   // THE TILL'S WALK-INS ARE IN THOSE CHAIRS NOW (daily round, 29 Sep: the
@@ -12263,7 +12352,7 @@ app.put('/api/settings', async (req, res) => {
   // refused, never filled in.
   const mailIn = b.mail && typeof b.mail === 'object' ? b.mail : null;
   if (mailIn && mailIn.from !== undefined && String(mailIn.from || '').trim() && !av.emailOk(mailIn.from)) return res.status(400).json({ error: 'The From needs to be an email address' });
-  if (mailIn && mailIn.remindAt !== undefined && !HHMM.test(String(mailIn.remindAt))) return res.status(400).json({ error: 'The day before needs a time like 10:00' });
+  if (mailIn && mailIn.remindAt !== undefined && !HHMM.test(String(mailIn.remindAt))) return res.status(400).json({ error: 'The day before needs a time, like 10:00 AM' });
   // One set of tables is one combination (av.comboTwins(); daily round,
   // 16 Oct). A twin already in the store is folded on this save, not refused.
   if (Array.isArray(b.tableCombos) && !tillFloor(data)) {
@@ -12437,22 +12526,26 @@ app.put('/api/settings', async (req, res) => {
 // fold into it, said from where that line started, so off and on again
 // leaves no line at all; and a save that changed nothing writes none.
 // The fold lives in memory: a restart only starts a fresh line.
+// THE ROOM AND THE SET MENUS FOLD THE SAME WAY (daily round, 18 Oct): a
+// seat count typed 2 → 6 wrote "Updated tables (30)" a keystroke, saying
+// nothing of what changed. One fold a kind: tables, set menus, settings.
 const SETTINGS_FOLD_MS = 60000;
-let _settingsFold = null; // { id, at, before }
-function settingsAudit(data, req, before) {
+const _folds = {}; // kind → { id, at, before }
+function foldAudit(kind, data, req, before, after, wordsOf) {
   if (!data.auditLog) data.auditLog = [];
-  const f = _settingsFold, top = data.auditLog[0];
+  const f = _folds[kind], top = data.auditLog[0];
   if (f && top && top.id === f.id && Date.now() - f.at < SETTINGS_FOLD_MS) {
-    const words = history.settingsWords(f.before, data.settings);
+    const words = wordsOf(f.before, after);
     if (words) { top.action = history.auditWords(words, tablesOf(data)); top.timestamp = Date.now(); }
-    else { data.auditLog.shift(); _settingsFold = null; }
+    else { data.auditLog.shift(); delete _folds[kind]; }
     return;
   }
-  const words = history.settingsWords(before, data.settings);
+  const words = wordsOf(before, after);
   if (!words) return;
   logAudit(data, staffFromReq(req), words);
-  _settingsFold = { id: data.auditLog[0].id, at: Date.now(), before };
+  _folds[kind] = { id: data.auditLog[0].id, at: Date.now(), before: JSON.parse(JSON.stringify(before)) };
 }
+function settingsAudit(data, req, before) { foldAudit('settings', data, req, before, data.settings, history.settingsWords); }
 app.get('/api/theme', (req, res) => { res.json(themeOf(readData())); });
 app.put('/api/theme', (req, res) => {
   const data = readData();
@@ -12560,13 +12653,14 @@ app.put('/api/tables', async (req, res) => {
   const refused = av.tablesRefusal(list, tablesOf(data), data.reservations, tradingDay(data));
   if (refused) return res.status(400).json({ error: refused });
   // Every table back to its own room, every room kept (av.mergeTables).
+  const beforeTables = tablesOf(data);
   const plans = av.mergeTables(data.floorPlans, list, () => newId('t'));
   const tables = [].concat(...plans.map(fp => fp.tables.filter(t => t.type !== 'decor')));
   if (!tables.length) return res.status(400).json({ error: 'Keep at least one table' });
   data.floorPlans = plans;
   // Edited here, the room is the desk's own now, whatever it came from.
   data.posState.floorFrom = '';
-  logAudit(data, staffFromReq(req), `Updated tables (${tables.length})`);
+  foldAudit('tables', data, req, beforeTables, tablesOf(data), history.tablesWords);
   writeData(data);
   res.json({ tables: tablesOf(data) });
 });
@@ -12588,13 +12682,18 @@ app.put('/api/set-menus', async (req, res) => {
   const data = readData();
   if (setMenusOf(data).fromPos) return res.status(400).json({ error: 'Set menus come from the POS while it is linked. Edit them there.' });
   const seen = new Set();
-  data.setMenus = (Array.isArray(req.body && req.body.menus) ? req.body.menus : []).slice(0, 40)
-    .map(m => ({ id: (m && m.id) ? String(m.id).slice(0, 40) : newId('sm'), name: String((m && m.name) || '').replace(/[[\]{}]/g, '').trim().slice(0, 40) }))
-    .filter(m => m.name)
-    // One menu a name — the name is the identity everywhere else, so two rows
-    // sharing one would be one chip and one run-sheet group anyway.
-    .filter(m => (seen.has(m.name.toLowerCase()) ? false : (seen.add(m.name.toLowerCase()), true)));
-  logAudit(data, staffFromReq(req), 'Updated set menus (' + data.setMenus.length + ')');
+  const menus = (Array.isArray(req.body && req.body.menus) ? req.body.menus : []).slice(0, 40)
+    .map(m => ({ id: (m && m.id) ? String(m.id).slice(0, 40) : newId('sm'), name: String((m && m.name) || '').replace(/[[\]{}]/g, '').trim().slice(0, 40) }));
+  // A BLANK OR A TWIN IS REFUSED IN WORDS, NEVER DROPPED (daily round, 18
+  // Oct): Banquet's name cleared to retype it was dropped, and the field
+  // went on typing into Chef table's row. One menu a name — the name is the
+  // identity everywhere else, so two rows sharing one would be one chip.
+  if (menus.some(m => !m.name)) return res.status(400).json({ error: 'A set menu needs a name' });
+  const twin = menus.find(m => (seen.has(m.name.toLowerCase()) ? true : (seen.add(m.name.toLowerCase()), false)));
+  if (twin) return res.status(400).json({ error: `There is already a set menu called ${twin.name}` });
+  const before = data.setMenus || [];
+  data.setMenus = menus;
+  foldAudit('setmenus', data, req, before, data.setMenus, history.setMenusWords);
   writeData(data);
   res.json({ menus: data.setMenus, fromPos: false });
 });
@@ -12676,9 +12775,10 @@ function touchGuest(data, r) {
   if (r.name && !g.name) g.name = r.name;
   if (r.email && !g.email) g.email = r.email;
   // A date of birth the guest gave online goes on their card when it has
-  // none — a card keyed on their PHONE only: a card under a name is every
-  // Smith, and one Smith's birthday is not another's.
-  if (r.dob && !g.dob && key.startsWith('p:')) g.dob = r.dob;
+  // none. Every card is a phone or an email now, never a name, so an email's
+  // card is one person too: Priya, booked by email with no phone, kept her
+  // birthday on the booking and never on her card (daily round, 18 Oct).
+  if (r.dob && !g.dob) g.dob = r.dob;
   g.lastSeen = Date.now();
   r.guestId = g.id;
   return g;
@@ -13934,11 +14034,15 @@ app.get('/api/public/availability', (req, res) => {
   // list for it — the relay's alloc.gone() rule.
   const notice = (s.online.minNoticeMinutes || 0) * 60000;
   const gone = (x) => av.timeMs(av.joinTime(day, x.time)) < Date.now() + notice;
-  const all = av.slotsFor(ctx, day, party, { online: true });
+  // The desk's picks hold their tables here too (av.heldBook): Big Six, laid
+  // on 9 by the desk, lost it to a four booked on the wifi (daily round, 18 Oct).
+  const all = av.slotsFor(av.heldBook(ctx, day), day, party, { online: true });
   const slots = all.filter(x => x.ok || !gone(x)).map(x => ({ time: x.time, ok: x.ok }));
   // Every time of the day has GONE: say so, which also takes the notify
   // key away — it led to a form with no times in it to pick (2 Oct).
-  if (all.length && !slots.length) return res.json({ date: day, party, slots: [], reason: 'There are no more times today. Please pick another day, or call us.' });
+  // Only today is "today": a two-day notice told Sunday's guest Monday had
+  // "no more times today" (daily round, 18 Oct).
+  if (all.length && !slots.length) return res.json({ date: day, party, slots: [], reason: day === av.localDay(new Date()) ? 'There are no more times today. Please pick another day, or call us.' : 'That day is too soon to book online. Please pick another day, or call us.' });
   res.json({ date: day, party, slots, note: (ex && !ex.closed && ex.note) || '' });
 });
 
@@ -13961,7 +14065,8 @@ app.post('/api/public/book', (req, res) => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day) || !HHMM.test(hhmm)) return res.status(400).json({ error: 'Pick a date and time' });
   const dayWhy = av.onlineDayReason(s, day);
   if (dayWhy) return res.status(400).json({ error: dayWhy });
-  const slot = av.slotsFor(ctx, day, party, { online: true }).find(x => x.time === hhmm);
+  // And the table it lands on is never one the desk laid out (daily round, 18 Oct).
+  const slot = av.slotsFor(av.heldBook(ctx, day), day, party, { online: true }).find(x => x.time === hhmm);
   if (!slot) return res.status(400).json({ error: 'That time is not offered' });
   if (!slot.ok) return res.status(409).json({ error: 'That time has just gone. Pick another.' });
   const r = { id: newId('rv'), name, phone, email, partySize: party, time: av.joinTime(day, hhmm), durationMin: null, tableId: s.online.holdTables ? slot.tableId : null, tableIds: [], notes: pos.plainText(b.notes).trim().slice(0, 300), tags: [], setMenu: null, status: 'booked', source: 'online', ref: refCode(), createdAt: Date.now(), updatedAt: Date.now(), createdBy: 'Online' };
@@ -15443,7 +15548,9 @@ function openDays() {
   const weekly = new Set((st.info.services || []).flatMap(s => s.days || []));
   const exc = new Map((st.info.exceptions || []).map(x => [x.date, x]));
   const out = [], today = localDay(new Date());
-  for (let i = 0; i < Math.min(st.info.maxDaysAhead || 60, 60); i++) {
+  // To the venue's own Days ahead: capped at 60, a venue open 90 days ahead
+  // drew its strip to the 60th (daily round, 18 Oct).
+  for (let i = 0; i < (st.info.maxDaysAhead || 60); i++) {
     const d = addDays(today, i), ex = exc.get(d), weeklyOpen = weekly.has(parseDay(d).getDay());
     if (ex && ex.closed) { if (weeklyOpen) out.push({ day: d, closed: true, note: ex.note || '' }); }
     else if (ex || weeklyOpen) out.push({ day: d, closed: false, note: (ex && ex.note) || '' });
