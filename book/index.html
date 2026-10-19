@@ -3782,11 +3782,13 @@ body[data-theme="dark"] .vt button.on,body[data-theme="dark"] .tp-make .tp-btn.o
    if the search bar is above the reservations. Move it back"): the till's
    pill on the paper, pinned at the list's top, the rows sliding under it. */
 .bl-find{position:sticky;top:var(--pos-hub-edge);z-index:2;display:flex;align-items:center;gap:8px;margin:var(--pos-hub-edge) 0 8px;padding:0 4px 0 16px;min-height:52px;
-  background:var(--pos-glass-sheen),var(--pos-glass);box-shadow:inset 0 0 0 var(--ring) var(--pos-glass-rim);border-radius:var(--pos-r-pill);}
+  background:var(--pos-glass-sheen),var(--pos-glass);box-shadow:inset 0 0 0 var(--ring) var(--pos-glass-rim);border-radius:var(--pos-r-pill);
+  backdrop-filter:blur(12px) saturate(1.4);-webkit-backdrop-filter:blur(12px) saturate(1.4);}
 /* GLASS, AND IT STAYS PUT (owner, 13 Oct: "when i scroll the reservation the
    search bar moves up… make the search bar also transparent so i can see the
    reservations go behind it"): it pins where it rests, and it is the till's
-   glass, the rows passing under it. */
+   glass, the rows passing under it — FROSTED (owner, 19 Oct: "frosted go"),
+   so their words blur under it and never cross the glass or the query. */
 .bl-find:focus-within{box-shadow:inset 0 0 0 var(--ring) var(--pos-orange);}
 .bl-find-i{display:flex;flex:none;color:var(--mute);}
 .bl-find-i svg{width:20px;height:20px;}
