@@ -18434,18 +18434,27 @@ function stageStyle() {
   if (z === 1 && !state.floorPanX && !state.floorPanY) return '';
   return `transform:translate(${state.floorPanX}px,${state.floorPanY}px) scale(${z});`;
 }
-// The room may be pushed about, never pushed away: at any zoom the pan is
-// held to the slack the scaling actually created, so an edge can always be
-// brought back.
+// The room may be pushed about, never pushed away. It moves as the till's
+// does (owner, 19 Oct: "I cant move around the floor plan like i can with the
+// pos"): whatever the zoom, the overhang the scaling made and then half a
+// room more each way — the till's half a room of slack on every side — so
+// any table can be brought to the middle and an edge always brought back.
+function floorSlack(roomW, roomH, wrapW, wrapH, z) {
+  const w = roomW * z, h = roomH * z;
+  return { x: Math.max(0, (w - wrapW) / 2) + Math.min(w, wrapW) / 2,
+           y: Math.max(0, (h - wrapH) / 2) + Math.min(h, wrapH) / 2 };
+}
 function clampFloor(z, x, y) {
   const wrap = document.querySelector('.desk-main .fl-wrap');
   const room = wrap && wrap.querySelector('.fl-room');
   if (!wrap || !room) return { x: 0, y: 0 };
-  const w = room.clientWidth * z, h = room.clientHeight * z;
-  const slackX = Math.max(0, (w - wrap.clientWidth) / 2) + 8;
-  const slackY = Math.max(0, (h - wrap.clientHeight) / 2) + 8;
-  return { x: Math.max(-slackX, Math.min(slackX, x)), y: Math.max(-slackY, Math.min(slackY, y)) };
+  const s = floorSlack(room.clientWidth, room.clientHeight, wrap.clientWidth, wrap.clientHeight, z);
+  return { x: Math.max(-s.x, Math.min(s.x, x)), y: Math.max(-s.y, Math.min(s.y, y)) };
 }
+// A table being carried takes the finger: the room never pans under it. A
+// mouse pressed on a party's table is always that drag (it lifts on its
+// first pull, TL_PULL), never a push of the room.
+function flPanHeld() { return !!(flMove && (flMove.lifted || flMove.lifting || !flMove.touch)); }
 let flGest = null;
 // A RING NOBODY CAN SEE IS THE FLOOR SAYING NOTHING. On a phone the room
 // scrolls sideways at the till's size, so a table pressed from Bookings can
@@ -18497,7 +18506,7 @@ function flZoomAt(z1, cx, cy) {
 function flCommit() {
   const at = clampFloor(state.floorZoom, state.floorPanX, state.floorPanY);
   state.floorPanX = at.x; state.floorPanY = at.y;
-  if (Math.abs(state.floorZoom - 1) < 0.02) { state.floorZoom = 1; state.floorPanX = 0; state.floorPanY = 0; }
+  if (Math.abs(state.floorZoom - 1) < 0.02) state.floorZoom = 1;
   render();
 }
 
@@ -23571,8 +23580,8 @@ document.addEventListener('pointerdown', (e) => {
   // THE ROOM FIRST, and before the isPrimary guard below: that guard is there
   // because a pinch is never a timeline DRAG, and it was swallowing the second
   // finger of the one gesture that wants two. Two fingers pinch the room; one
-  // finger pushes it about once you are in. At rest a single finger is left
-  // alone, so a tap still books a table.
+  // finger pushes it about at any zoom, as the till's does — a push only once
+  // it has moved, so a tap still books a table.
   if (!tlDrag && !arrDrag && !state.modal && state.settings && !flTouching) {
     const fw = e.target.closest && e.target.closest('.desk-main .fl-wrap');
     // A SECOND finger is a pinch, never a move: it stands a pending one down.
@@ -23616,7 +23625,7 @@ function flDown(e, wrap) {
     flGest = { kind: 'pinch', d0: s0.d, z0: state.floorZoom || 1, moved: true };
     return true;
   }
-  if (flPts.size === 1 && (state.floorZoom || 1) > 1) {
+  if (flPts.size === 1) {        // one finger pushes at any zoom, the till's way
     flGest = { kind: 'pan', x0: e.clientX, y0: e.clientY,
       px: state.floorPanX, py: state.floorPanY, moved: false, wrap };
     return true;                       // a push, not a tap — until it moves
@@ -23635,6 +23644,7 @@ document.addEventListener('pointermove', (e) => {
     flPaint(state.floorZoom, state.floorPanX, state.floorPanY);
     e.preventDefault();
   } else if (g.kind === 'pan') {
+    if (flPanHeld()) return;
     const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
     if (!g.moved && Math.hypot(dx, dy) < 5) return;
     g.moved = true;
@@ -23682,7 +23692,7 @@ document.addEventListener('touchstart', (e) => {
     const sp = flTwo(t);
     flTouching = true; flPts.clear();
     flGest = { kind: 'pinch', d0: sp.d, z0: state.floorZoom || 1, moved: true };
-  } else if (t.length === 1 && (state.floorZoom || 1) > 1) {
+  } else if (t.length === 1) {
     flTouching = true; flPts.clear();
     flGest = { kind: 'pan', x0: t[0].clientX, y0: t[0].clientY,
       px: state.floorPanX, py: state.floorPanY, moved: false };
@@ -23697,6 +23707,7 @@ document.addEventListener('touchmove', (e) => {
     flPaint(state.floorZoom, state.floorPanX, state.floorPanY);
     if (e.cancelable) e.preventDefault();
   } else if (g.kind === 'pan' && t.length === 1) {
+    if (flPanHeld()) return;
     const dx = t[0].clientX - g.x0, dy = t[0].clientY - g.y0;
     if (!g.moved && Math.hypot(dx, dy) < 5) return;
     g.moved = true;
