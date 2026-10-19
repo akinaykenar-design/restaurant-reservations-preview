@@ -2504,6 +2504,8 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .bkq .bkq-who input.bkq-u{display:block;width:100%;height:56px;border:none;border-bottom:1px solid var(--steel-300);border-radius:0;background:none;
   box-shadow:none;padding:0 2px;font:inherit;font-size:var(--fs-xl);font-weight:600;color:var(--text-primary);}
 .bkq .bkq-who input.bkq-u:focus{border-bottom-color:var(--orange);box-shadow:inset 0 calc(-1 * var(--ring)) 0 var(--orange);outline:none;}
+/* PASTE THE MESSAGE (owner, 19 Oct): what a pasted message filled, underlined in the one blue. */
+.bkq .bkq-who input.bkq-u.got{border-bottom-color:var(--accent);box-shadow:inset 0 calc(-1 * var(--ring)) 0 var(--accent);}
 .bkq .bkq-who input.bkq-u::placeholder{color:var(--charcoal-soft);font-weight:500;}
 .bkq-sug{display:grid;gap:4px;padding:8px 0;}
 .bkq-sug > button{display:flex;align-items:baseline;gap:8px;min-height:var(--tap);padding:0 12px;border:none;border-radius:var(--r-btn);
@@ -10440,6 +10442,98 @@ function confirmList(rows, settings, now, asked) {
   };
 }
 
+// §§ PASTE THE MESSAGE (owner, 19 Oct, idea 3 of 18 Oct: "Beautiful idea").
+// A guest's text — "Table for 4 this Saturday 7:30pm, my wife's birthday.
+// Marco Bell 0412 345 678" — pasted into New booking's Name fills the form.
+// This is the ONE reader: it says only what it found, in the record's own
+// shapes (a size, YYYY-MM-DD on or after `today`, HH:MM, the words as the
+// guest wrote them), and guesses nothing else. An hour with no AM or PM is an
+// evening (1 to 10 are PM), as a restaurant's messages almost always mean.
+const MSG_NUMS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 };
+const MSG_NUM = '(\\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)';
+const MSG_DAYS = { sun: 0, sunday: 0, mon: 1, monday: 1, tue: 2, tues: 2, tuesday: 2, wed: 3, wednesday: 3, thu: 4, thur: 4, thurs: 4, thursday: 4, fri: 5, friday: 5, sat: 6, saturday: 6 };
+const MSG_DAY = '(sunday|sun|monday|mon|tuesday|tues|tue|wednesday|wed|thursday|thurs|thur|thu|friday|fri|saturday|sat)';
+const MSG_MONTH = '(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sept|sep|oct|nov|dec)';
+const MSG_NOTES = [
+  ['birthday', /\bbirthday\b|\bbday\b/i], ['anniversary', /\banniversary\b/i], ['engagement', /\bengage(?:ment|d)\b/i],
+  ['graduation', /\bgraduation\b/i], ['farewell', /\bfarewell\b/i], ['proposal', /\bpropos(?:al|ing)\b/i],
+  ['high chair', /\bhigh ?chairs?\b/i], ['pram', /\bpram\b|\bstroller\b/i], ['wheelchair', /\bwheel ?chair\b/i],
+  ['gluten free', /\bgluten[- ]free\b/i], ['coeliac', /\bcoeliac\b|\bceliac\b/i], ['vegan', /\bvegan\b/i], ['vegetarian', /\bvegetarian\b/i], ['dairy free', /\bdairy[- ]free\b/i],
+];
+const MSG_STOP = new Set(['hi', 'hello', 'hey', 'dear', 'table', 'booking', 'thanks', 'thank', 'cheers', 'regards', 'please', 'i', 'my', 'we', 'the', 'a', 'and', 'tonight', 'today', 'tomorrow', 'this', 'next', 'for', 'at', 'on', 'yes', 'no', 'ok', 'ps']
+  .concat(Object.keys(MSG_DAYS), ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'jan', 'feb', 'mar', 'apr', 'jun', 'jul', 'aug', 'sep', 'sept', 'oct', 'nov', 'dec']));
+function msgNum(w) { const n = /^\d+$/.test(w) ? parseInt(w, 10) : MSG_NUMS[String(w).toLowerCase()]; return n > 0 && n <= 50 ? n : 0; }
+function msgMonth(w) { return ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(String(w).toLowerCase().slice(0, 3)); }
+function msgYmd(y, m, d) { const t = new Date(y, m, d); return t.getMonth() === m && t.getDate() === d ? av.localDay(t) : ''; }
+function readMessage(text, today) {
+  const raw = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 1000);
+  const out = {};
+  if (!raw || !/^\d{4}-\d{2}-\d{2}$/.test(String(today || ''))) return out;
+  const [ty, tm, td] = today.split('-').map(Number);
+  const base = new Date(ty, tm - 1, td);
+  let rest = raw;
+  const take = (re, fn) => { const m = rest.match(re); if (!m) return false; const v = fn(m); if (v === undefined || v === null || v === '') return false; rest = rest.replace(m[0], ' '); return v; };
+  // Who: the email, then the phone (an Australian one, however spaced).
+  const em = take(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/, (m) => m[0]);
+  if (em) out.email = em;
+  const ph = take(/(?:\+?61[\s-]?|\b0)[2-478](?:[\s-]?\d){8}\b/, (m) => m[0].trim());
+  if (ph) out.phone = ph;
+  // What time.
+  const hhmm = (h, mm) => av.pad2(h) + ':' + av.pad2(mm || 0);
+  const tm1 = take(/\b(\d{1,2})(?:[:.](\d{2}))?\s*(am|pm)\b/i, (m) => {
+    let h = parseInt(m[1], 10); const mm = m[2] ? parseInt(m[2], 10) : 0;
+    if (h < 1 || h > 12 || mm > 59) return null;
+    if (/pm/i.test(m[3]) && h < 12) h += 12; if (/am/i.test(m[3]) && h === 12) h = 0;
+    return hhmm(h, mm);
+  });
+  const evening = (h) => (h >= 1 && h <= 10 ? h + 12 : h);
+  const tm2 = tm1 || take(/\b(\d{1,2})[:.](\d{2})\b/, (m) => { const h = parseInt(m[1], 10), mm = parseInt(m[2], 10); return h <= 23 && mm <= 59 ? hhmm(h >= 13 ? h : evening(h), mm) : null; });
+  const tm3 = tm2 || take(/\b(?:at|@)\s*(\d{1,2})\b(?!\s*(?:people|persons?|guests|pax|adults|of us))/i, (m) => { const h = parseInt(m[1], 10); return h >= 1 && h <= 23 ? hhmm(h >= 13 ? h : evening(h)) : null; });
+  if (tm3) out.time = tm3;
+  // Which day.
+  const after = (d) => (d < base ? null : av.localDay(d));
+  const dayNum = (n) => { let d = msgYmd(ty, tm - 1, n); if (d && d < today) d = msgYmd(ty, tm, n) || msgYmd(ty, tm + 1, n); return d || null; };
+  const day = take(/\b(?:tonight|today)\b/i, () => today)
+    || take(/\btomorrow\b/i, () => av.addDays(today, 1))
+    || take(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/, (m) => { const y = m[3] ? (m[3].length === 2 ? 2000 + parseInt(m[3], 10) : parseInt(m[3], 10)) : ty; let d = msgYmd(y, parseInt(m[2], 10) - 1, parseInt(m[1], 10)); if (d && !m[3] && d < today) d = msgYmd(y + 1, parseInt(m[2], 10) - 1, parseInt(m[1], 10)); return d || null; })
+    || take(new RegExp('\\b' + MSG_MONTH + '\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b', 'i'), (m) => { let d = msgYmd(ty, msgMonth(m[1]), parseInt(m[2], 10)); if (d && d < today) d = msgYmd(ty + 1, msgMonth(m[1]), parseInt(m[2], 10)); return d || null; })
+    || take(new RegExp('\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?' + MSG_MONTH + '\\b', 'i'), (m) => { let d = msgYmd(ty, msgMonth(m[2]), parseInt(m[1], 10)); if (d && d < today) d = msgYmd(ty + 1, msgMonth(m[2]), parseInt(m[1], 10)); return d || null; })
+    || take(new RegExp('\\b(?:(this|next)\\s+)?' + MSG_DAY + '\\.?(?:\\s+(?:the\\s+)?(\\d{1,2})(?:st|nd|rd|th)?)?\\b', 'i'), (m) => {
+      if (m[3]) return dayNum(parseInt(m[3], 10));
+      let ahead = (MSG_DAYS[m[2].toLowerCase()] - base.getDay() + 7) % 7;
+      if (ahead === 0 && m[1] && m[1].toLowerCase() === 'next') ahead = 7;
+      return av.addDays(today, ahead);
+    })
+    || take(/\b(?:on\s+)?(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\b/i, (m) => dayNum(parseInt(m[1], 10)));
+  if (day) out.date = day;
+  // How many.
+  const size = take(new RegExp('\\b(?:table|booking|reservation|book|seats?)\\s+for\\s+' + MSG_NUM + '\\b', 'i'), (m) => msgNum(m[1]) || null)
+    || take(new RegExp('\\bparty\\s+of\\s+' + MSG_NUM + '\\b', 'i'), (m) => msgNum(m[1]) || null)
+    || take(new RegExp('\\b' + MSG_NUM + '\\s*(?:people|persons|person|guests|pax|adults|ppl)\\b', 'i'), (m) => msgNum(m[1]) || null)
+    || take(/\b(\d{1,2}|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+of\s+us\b/i, (m) => msgNum(m[1]) || null)
+    || take(new RegExp('\\bfor\\s+' + MSG_NUM + '\\b(?!\\s*(?:am|pm|[:.]\\d))', 'i'), (m) => msgNum(m[1]) || null);
+  if (size) out.partySize = size;
+  // What the night is for, plainly.
+  const notes = [];
+  for (const [word, re] of MSG_NOTES) { const m = raw.match(re); if (m) notes.push([m.index, word]); }
+  const al = raw.match(/\b(allergic to [a-z ,'-]+?|allergy to [a-z ,'-]+?|[a-z]+ allergy)(?=[.;!?\n]|,\s*(?:and|but)\b|$)/i);
+  if (al) notes.push([al.index, al[1].trim().toLowerCase()]);
+  if (notes.length) { notes.sort((a, b) => a[0] - b[0]); const said = notes.map(x => x[1]); said[0] = said[0][0].toUpperCase() + said[0].slice(1); out.notes = said.join(', '); }
+  // Who: a name they give, then a sign-off, then a name standing alone.
+  const NAME = "([A-Z][A-Za-z'’-]+(?:\\s+[A-Z][A-Za-z'’-]+){0,2})";
+  const okName = (n) => { const w = String(n || '').split(/\s+/).filter(x => !MSG_STOP.has(x.toLowerCase().replace(/[’']s$/, ''))); return w.length ? w.join(' ') : ''; };
+  const leads = ["[Mm]y name is", "[Nn]ame is", "[Nn]ame:", "[Tt]his is", "[Ii]t[’']?s", "[Ii]t is", "[Ii][’']?m", "[Uu]nder(?: the name)?", "[Nn]ame of"];
+  let nm = '';
+  for (const l of leads) { const m = raw.match(new RegExp('\\b' + l + '\\s+' + NAME)); if (m && (nm = okName(m[1]))) break; }
+  if (!nm) { const m = raw.match(new RegExp("\\b(?:[Tt]hanks|[Tt]hank you|[Cc]heers|[Rr]egards|[Kk]ind regards|[Mm]any thanks|[Tt]hx|[Tt]a)[,!.]?\\s+" + NAME)); if (m) nm = okName(m[1]); }
+  if (!nm) {
+    const re = /\b([A-Z][a-z'’-]+(?:\s+[A-Z][A-Za-z'’-]+){1,2})\b/g;
+    let m; while (!nm && (m = re.exec(rest))) { const w = m[1].split(/\s+/); if (w.length >= 2 && w.every(x => !MSG_STOP.has(x.toLowerCase()))) nm = m[1]; }
+  }
+  if (nm) out.name = nm.slice(0, 60);
+  return out;
+}
+
 module.exports = {
   confirmList, sentFor, movedSince, SENT_KEYS, SIZE_KEYS,
   personKey, tillCustomerFor, tillOnly,
@@ -10448,7 +10542,7 @@ module.exports = {
   MIN_CHARS, MIN_PHONE_DIGITS, DEFAULT_LIMIT, MAX_LIMIT,
   REGULAR_VISITS, VIP_TAGS, LENSES, hasAllergy, guestMatches, guestLens, guestLensCounts,
   BIRTHDAY_WINDOW, dobParts, daysToBirthday, ageOn, birthdaySoon,
-  welcomeFor,
+  welcomeFor, readMessage,
   notTonight, moveMatch, nightWords, dateWords, NOT_TONIGHT_BACK, NOT_TONIGHT_AHEAD, NOT_TONIGHT_LIMIT,
 };
 
@@ -13923,6 +14017,13 @@ async function tillCustomers(data, q) {
 // so the list can offer to make them a card. Nothing is written until
 // somebody does. Only on a typed query: the whole book is ours, and pulling
 // a venue's entire customer list into every idle page is not a search.
+// §§ PASTE THE MESSAGE (owner, 19 Oct: "Beautiful idea"). A guest's text,
+// read by the one reader (search.readMessage()); nothing is written.
+app.post('/api/read-message', (req, res) => {
+  const b = req.body || {};
+  const today = /^\d{4}-\d{2}-\d{2}$/.test(String(b.today || '')) ? b.today : av.localDay(new Date());
+  res.json(search.readMessage(String(b.text || '').slice(0, 1000), today));
+});
 app.get('/api/guests', async (req, res) => {
   const data = readData();
   const today = av.localDay(new Date());
