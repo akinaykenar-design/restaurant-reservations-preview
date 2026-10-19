@@ -113,7 +113,9 @@ html[data-theme="dark"],body[data-theme="dark"]{
    purpose (see the POS: a var() inside a token resolves where declared). */
 :root{
   /* COLOURED IN (owner, 13 Oct): the list's status fills, read at the foot. */
-  --fill-late:#F2C94C;--fill-here:#B9B4AA;--fill-bill:#A8DDB5;--fill-paid:#55B873;--fill-noshow:#E5604D;--fill-noshow-ink:#FFFFFF;
+  /* The no-show red a step deeper (daily round, 19 Oct): its white number
+     was 3.44:1 on #E5604D, 4.7 here. */
+  --fill-late:#F2C94C;--fill-here:#B9B4AA;--fill-bill:#A8DDB5;--fill-paid:#55B873;--fill-noshow:#C94634;--fill-noshow-ink:#FFFFFF;
   color-scheme:light;
   --font-body:'Noto Sans',-apple-system,system-ui,sans-serif;
   --font-mono:'IBM Plex Mono','Noto Sans',monospace;
@@ -290,6 +292,9 @@ html[data-theme="dark"],body[data-theme="dark"]{
 html[data-theme="dark"],
 body[data-theme="dark"]{
   --fill-late:#7A5F14;--fill-here:#55524C;--fill-bill:#2F5E3D;--fill-paid:#256B3C;--fill-noshow:#A63A2A;--fill-noshow-ink:#FFFFFF;
+  /* The seated tab's number in dark is the lightest ink, white (daily round,
+     19 Oct): the page's ink was 3.94:1 on the till's blue, white 4.8. */
+  --in-ink:#FFFFFF;
   /* The browser's own controls follow: a time field's clock and a date
      field's calendar were drawn black on slate (daily round, 30 Sep). */
   color-scheme:dark;
@@ -720,6 +725,11 @@ h1,h2,h3{margin:0;}
    the item's smallest width at the whole address, so a LAN address with no
    break in it slid the pane sideways at 360 (daily round, 3 Oct). */
 .settings-card .mono{overflow-wrap:break-word;min-width:0;}
+/* THE GUESTS' ADDRESS IS READ ALOUD WHOLE (daily round, 19 Oct): it broke as
+   "http://192.0.2" / ".2:3131/book" beside the switch. It breaks only at its
+   slash, and where it does not fit beside the switch the words go under it. */
+.toggle-row .mono.addr{display:inline-block;overflow-wrap:normal;word-break:normal;}
+label.toggle-row:has(.addr){flex-wrap:wrap;row-gap:4px;}
 .settings-card{background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-surface);padding:16px;display:flex;flex-direction:column;gap:8px;}
 .settings-card.wide{grid-column:1 / -1;}
 .th{font-weight:800;font-size:var(--fs-lg);letter-spacing:.2px;}
@@ -2782,6 +2792,9 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .dk-row{grid-template-columns:64px minmax(0,1fr) minmax(72px,auto);border-radius:0;border-top:1px solid var(--line);}
 .shell.simple .bl-rows > .dk-row:first-child{border-top:none;}
 .shell.simple .dk-row.selected,.shell.simple .dk-row.open{background:var(--accent-wash);box-shadow:none;}
+/* The open row's time on its wash (daily round, 19 Oct: 4.11:1 in dark):
+   the grey taken halfway to the ink, still a grey. */
+.shell.simple .dk-row.selected .dk-t,.shell.simple .dk-row.open .dk-t{color:color-mix(in srgb, var(--mute), var(--ink));}
 .dk-tab[class*="stg-"]{background:var(--tfree);color:var(--ink);border-left:none;text-decoration:none;}
 .dk-tab.stg-here{background:var(--accent-wash);color:var(--ink);box-shadow:none;}
 /* A key that does the thing is ink (QUIET). */
@@ -3624,7 +3637,7 @@ body[data-theme="dark"]{
   --tfree:var(--pos-table-plain); --table-plain:var(--pos-table-plain);
   --accent:var(--pos-orange); --accent-wash:color-mix(in srgb, var(--pos-orange) 27%, var(--pos-surface));
   --accent-ink:color-mix(in srgb, var(--pos-orange) 45%, var(--pos-text-primary));
-  --sat-blue:var(--pos-occupied-table); --in-ink:var(--ink);
+  --sat-blue:var(--pos-occupied-table);
   /* Dark's steel-200 is one point off the paper, so the panel is half a step
      on to steel-300: the till's two, mixed. */
   --qty:color-mix(in srgb, var(--pos-steel-200), var(--pos-steel-300)); --qty-line:var(--pos-steel-100); --tab-plain:var(--qty);
@@ -3696,7 +3709,9 @@ body[data-theme="dark"] .vt button.on,body[data-theme="dark"] .tp-make .tp-btn.o
 .dk-tab.stg-here.busy{color:var(--mute);}
 .dk-tab.stg-in{background:var(--sat-blue);color:var(--in-ink);}
 .dk-tab.stg-paid,.dk-tab.stg-bill{background:var(--seat);}
-.dk-tab.stg-half,.dc-tab.half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tab-plain) 50%);}
+/* The half tab's number is the seated tab's ink (daily round, 19 Oct: it
+   was the page's, 4.44:1 on the light blue). */
+.dk-tab.stg-half,.dc-tab.half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tab-plain) 50%);color:var(--in-ink);}
 .dk-tab.stg-late,.dc-tab.late{background:var(--tab-plain);box-shadow:inset var(--ring) 0 0 var(--late),inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
 .dk-tab.stg-none{background:none;box-shadow:none;}
 .dk-row.one .dk-tab,.dc-no{font-family:var(--pos-font-num);font-weight:700;}
@@ -7676,11 +7691,16 @@ function floorAt(ctx, day, hhmm, opts) {
     // standing there at 8:41 for a 7:20 sitting was drawn as a free table.
     // On the LIVE floor a party in the room before its time is on its table
     // now (heldFrom's rule): Moss sat at 7:46 for 8:00 was drawn free.
-    const on = held.find(r => {
+    // The party IN THE CHAIRS or at the door wins over an earlier booking
+    // that has not come (daily round, 19 Oct: Macrae seated on 26 was drawn
+    // as Wei Chen, 40 min late, and the door offered Sam Brown a 25 Sinclair
+    // stood waiting for).
+    const covering = held.filter(r => {
       const s = nightMin(r, day);
       const end = s + durOf(r) + seatLate(r);
       return (s <= at && (at < end || ((isSat(r) || isHere(r)) && at >= end))) || (opts.live === true && (isSat(r) || isHere(r)) && at < s);
-    }) || null;
+    });
+    const on = covering.find(isSat) || covering.find(isHere) || covering[0] || null;
     const next = held.find(r => nightMin(r, day) > at) || null;
     const nextAt = next ? hhmmOf(next.time) : null;
 
@@ -7976,6 +7996,12 @@ function slotsFor(ctx, day, party, opts) {
   const s = ctx.settings;
   const now = opts.now || new Date();
   const online = !!opts.online;
+  // ONLINE SELLS ONLY WHAT THE DESK CAN LAY OUT (daily round, 19 Oct): with
+  // no combination stated, suggestJoin() guesses a join autoAssign() never
+  // places, so the wifi /book sold a seven into No table while the relay
+  // called it full. A guest gets one table or a STATED combination; the
+  // host's own page keeps the guess, since a host can push tables together.
+  const mayJoin = opts.allowJoin !== false && (!online || combosOf(ctx).length > 0);
   const out = [];
   for (const hhmm of slotTimes(s, day)) {
     const slot = { time: hhmm, ok: true, reason: null, tableId: null, seats: 0 };
@@ -7991,7 +8017,7 @@ function slotsFor(ctx, day, party, opts) {
     if (slot.ok) {
       const t = suggestTable(ctx, day, hhmm, party, opts);
       if (t) { slot.tableId = t.id; slot.seats = t.seats; }
-      else if (opts.allowJoin !== false && suggestJoin(ctx, day, hhmm, party, opts)) { slot.tableId = null; slot.join = true; }
+      else if (mayJoin && suggestJoin(ctx, day, hhmm, party, opts)) { slot.tableId = null; slot.join = true; }
       else { slot.ok = false; slot.reason = 'No table free'; }
     }
     out.push(slot);
@@ -10509,11 +10535,20 @@ function readMessage(text, today) {
     || take(/\b(?:on\s+)?(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\b/i, (m) => dayNum(parseInt(m[1], 10)));
   if (day) out.date = day;
   // How many.
-  const size = take(new RegExp('\\b(?:table|booking|reservation|book|seats?)\\s+for\\s+' + MSG_NUM + '\\b', 'i'), (m) => msgNum(m[1]) || null)
+  // Adults and kids add up, and adults with kids never counted are not a
+  // size (daily round, 19 Oct: "4 adults and 2 kids" filled 4).
+  const KIDS = '(?:kids?|children|child|toddlers?|babies|baby|infants?)';
+  const AND = '\\s*(?:,|&|\\+|and|plus)?\\s*';
+  const kidsUncounted = new RegExp('\\b' + KIDS + '\\b', 'i').test(rest) && !new RegExp('\\b' + MSG_NUM + '\\s*' + KIDS + '\\b', 'i').test(rest);
+  const sum = take(new RegExp('\\b' + MSG_NUM + '\\s*adults?' + AND + MSG_NUM + '\\s*' + KIDS + '\\b', 'i'), (m) => (msgNum(m[1]) && msgNum(m[2]) ? msgNum(m[1]) + msgNum(m[2]) : null))
+    || take(new RegExp('\\b' + MSG_NUM + '\\s*' + KIDS + AND + MSG_NUM + '\\s*adults?\\b', 'i'), (m) => (msgNum(m[1]) && msgNum(m[2]) ? msgNum(m[1]) + msgNum(m[2]) : null))
+;
+  const uncounted = !sum && kidsUncounted && new RegExp('\\b' + MSG_NUM + '\\s*adults?\\b', 'i').test(rest);
+  const size = sum || (uncounted ? 0 : take(new RegExp('\\b(?:table|booking|reservation|book|seats?)\\s+for\\s+' + MSG_NUM + '\\b', 'i'), (m) => msgNum(m[1]) || null)
     || take(new RegExp('\\bparty\\s+of\\s+' + MSG_NUM + '\\b', 'i'), (m) => msgNum(m[1]) || null)
     || take(new RegExp('\\b' + MSG_NUM + '\\s*(?:people|persons|person|guests|pax|adults|ppl)\\b', 'i'), (m) => msgNum(m[1]) || null)
     || take(/\b(\d{1,2}|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+of\s+us\b/i, (m) => msgNum(m[1]) || null)
-    || take(new RegExp('\\bfor\\s+' + MSG_NUM + '\\b(?!\\s*(?:am|pm|[:.]\\d))', 'i'), (m) => msgNum(m[1]) || null);
+    || take(new RegExp('\\bfor\\s+' + MSG_NUM + '\\b(?!\\s*(?:am|pm|[:.]\\d))', 'i'), (m) => msgNum(m[1]) || null));
   if (size) out.partySize = size;
   // What the night is for, plainly.
   const notes = [];
@@ -10522,14 +10557,18 @@ function readMessage(text, today) {
   if (al) notes.push([al.index, al[1].trim().toLowerCase()]);
   if (notes.length) { notes.sort((a, b) => a[0] - b[0]); const said = notes.map(x => x[1]); said[0] = said[0][0].toUpperCase() + said[0].slice(1); out.notes = said.join(', '); }
   // Who: a name they give, then a sign-off, then a name standing alone.
-  const NAME = "([A-Z][A-Za-z'’-]+(?:\\s+[A-Z][A-Za-z'’-]+){0,2})";
+  // A four-word name, and one with a "de" or a "van der" in it, is a name
+  // whole (daily round, 19 Oct: "Nguyen Thi Minh Anh" pasted as three words).
+  const PART = '(?:de|da|del|della|di|du|dos|das|van|von|der|den|la|le|bin|ibn|al|el|y|ter|ten)';
+  const MORE = "\\s+(?:" + PART + "\\s+){0,2}[A-Z][A-Za-z'’-]+";
+  const NAME = "([A-Z][A-Za-z'’-]+(?:" + MORE + "){0,4})";
   const okName = (n) => { const w = String(n || '').split(/\s+/).filter(x => !MSG_STOP.has(x.toLowerCase().replace(/[’']s$/, ''))); return w.length ? w.join(' ') : ''; };
   const leads = ["[Mm]y name is", "[Nn]ame is", "[Nn]ame:", "[Tt]his is", "[Ii]t[’']?s", "[Ii]t is", "[Ii][’']?m", "[Uu]nder(?: the name)?", "[Nn]ame of"];
   let nm = '';
   for (const l of leads) { const m = raw.match(new RegExp('\\b' + l + '\\s+' + NAME)); if (m && (nm = okName(m[1]))) break; }
   if (!nm) { const m = raw.match(new RegExp("\\b(?:[Tt]hanks|[Tt]hank you|[Cc]heers|[Rr]egards|[Kk]ind regards|[Mm]any thanks|[Tt]hx|[Tt]a)[,!.]?\\s+" + NAME)); if (m) nm = okName(m[1]); }
   if (!nm) {
-    const re = /\b([A-Z][a-z'’-]+(?:\s+[A-Z][A-Za-z'’-]+){1,2})\b/g;
+    const re = new RegExp("\\b([A-Z][a-z'’-]+(?:" + MORE + "){1,4})\\b", 'g');
     let m; while (!nm && (m = re.exec(rest))) { const w = m[1].split(/\s+/); if (w.length >= 2 && w.every(x => !MSG_STOP.has(x.toLowerCase()))) nm = m[1]; }
   }
   if (nm) out.name = nm.slice(0, 60);
@@ -15672,8 +15711,10 @@ function openDays() {
   const exc = new Map((st.info.exceptions || []).map(x => [x.date, x]));
   const out = [], today = localDay(new Date());
   // To the venue's own Days ahead: capped at 60, a venue open 90 days ahead
-  // drew its strip to the 60th (daily round, 18 Oct).
-  for (let i = 0; i < (st.info.maxDaysAhead || 60); i++) {
+  // drew its strip to the 60th (daily round, 18 Oct). And the last day is
+  // today + Days ahead, inclusive, as the desk and the relay sell it: the
+  // strip stopped a day short of it (daily round, 19 Oct).
+  for (let i = 0; i <= (st.info.maxDaysAhead || 60); i++) {
     const d = addDays(today, i), ex = exc.get(d), weeklyOpen = weekly.has(parseDay(d).getDay());
     if (ex && ex.closed) { if (weeklyOpen) out.push({ day: d, closed: true, note: ex.note || '' }); }
     else if (ex || weeklyOpen) out.push({ day: d, closed: false, note: (ex && ex.note) || '' });

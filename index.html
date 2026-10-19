@@ -128,7 +128,9 @@ html[data-theme="dark"],body[data-theme="dark"]{
    purpose (see the POS: a var() inside a token resolves where declared). */
 :root{
   /* COLOURED IN (owner, 13 Oct): the list's status fills, read at the foot. */
-  --fill-late:#F2C94C;--fill-here:#B9B4AA;--fill-bill:#A8DDB5;--fill-paid:#55B873;--fill-noshow:#E5604D;--fill-noshow-ink:#FFFFFF;
+  /* The no-show red a step deeper (daily round, 19 Oct): its white number
+     was 3.44:1 on #E5604D, 4.7 here. */
+  --fill-late:#F2C94C;--fill-here:#B9B4AA;--fill-bill:#A8DDB5;--fill-paid:#55B873;--fill-noshow:#C94634;--fill-noshow-ink:#FFFFFF;
   color-scheme:light;
   --font-body:'Noto Sans',-apple-system,system-ui,sans-serif;
   --font-mono:'IBM Plex Mono','Noto Sans',monospace;
@@ -305,6 +307,9 @@ html[data-theme="dark"],body[data-theme="dark"]{
 html[data-theme="dark"],
 body[data-theme="dark"]{
   --fill-late:#7A5F14;--fill-here:#55524C;--fill-bill:#2F5E3D;--fill-paid:#256B3C;--fill-noshow:#A63A2A;--fill-noshow-ink:#FFFFFF;
+  /* The seated tab's number in dark is the lightest ink, white (daily round,
+     19 Oct): the page's ink was 3.94:1 on the till's blue, white 4.8. */
+  --in-ink:#FFFFFF;
   /* The browser's own controls follow: a time field's clock and a date
      field's calendar were drawn black on slate (daily round, 30 Sep). */
   color-scheme:dark;
@@ -735,6 +740,11 @@ h1,h2,h3{margin:0;}
    the item's smallest width at the whole address, so a LAN address with no
    break in it slid the pane sideways at 360 (daily round, 3 Oct). */
 .settings-card .mono{overflow-wrap:break-word;min-width:0;}
+/* THE GUESTS' ADDRESS IS READ ALOUD WHOLE (daily round, 19 Oct): it broke as
+   "http://192.0.2" / ".2:3131/book" beside the switch. It breaks only at its
+   slash, and where it does not fit beside the switch the words go under it. */
+.toggle-row .mono.addr{display:inline-block;overflow-wrap:normal;word-break:normal;}
+label.toggle-row:has(.addr){flex-wrap:wrap;row-gap:4px;}
 .settings-card{background:var(--surface);border:1px solid var(--steel-200);border-radius:var(--r-surface);padding:16px;display:flex;flex-direction:column;gap:8px;}
 .settings-card.wide{grid-column:1 / -1;}
 .th{font-weight:800;font-size:var(--fs-lg);letter-spacing:.2px;}
@@ -2797,6 +2807,9 @@ body{background:var(--bg);color:var(--ink);font-family:var(--font-body);}
 .shell.simple .dk-row{grid-template-columns:64px minmax(0,1fr) minmax(72px,auto);border-radius:0;border-top:1px solid var(--line);}
 .shell.simple .bl-rows > .dk-row:first-child{border-top:none;}
 .shell.simple .dk-row.selected,.shell.simple .dk-row.open{background:var(--accent-wash);box-shadow:none;}
+/* The open row's time on its wash (daily round, 19 Oct: 4.11:1 in dark):
+   the grey taken halfway to the ink, still a grey. */
+.shell.simple .dk-row.selected .dk-t,.shell.simple .dk-row.open .dk-t{color:color-mix(in srgb, var(--mute), var(--ink));}
 .dk-tab[class*="stg-"]{background:var(--tfree);color:var(--ink);border-left:none;text-decoration:none;}
 .dk-tab.stg-here{background:var(--accent-wash);color:var(--ink);box-shadow:none;}
 /* A key that does the thing is ink (QUIET). */
@@ -3639,7 +3652,7 @@ body[data-theme="dark"]{
   --tfree:var(--pos-table-plain); --table-plain:var(--pos-table-plain);
   --accent:var(--pos-orange); --accent-wash:color-mix(in srgb, var(--pos-orange) 27%, var(--pos-surface));
   --accent-ink:color-mix(in srgb, var(--pos-orange) 45%, var(--pos-text-primary));
-  --sat-blue:var(--pos-occupied-table); --in-ink:var(--ink);
+  --sat-blue:var(--pos-occupied-table);
   /* Dark's steel-200 is one point off the paper, so the panel is half a step
      on to steel-300: the till's two, mixed. */
   --qty:color-mix(in srgb, var(--pos-steel-200), var(--pos-steel-300)); --qty-line:var(--pos-steel-100); --tab-plain:var(--qty);
@@ -3711,7 +3724,9 @@ body[data-theme="dark"] .vt button.on,body[data-theme="dark"] .tp-make .tp-btn.o
 .dk-tab.stg-here.busy{color:var(--mute);}
 .dk-tab.stg-in{background:var(--sat-blue);color:var(--in-ink);}
 .dk-tab.stg-paid,.dk-tab.stg-bill{background:var(--seat);}
-.dk-tab.stg-half,.dc-tab.half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tab-plain) 50%);}
+/* The half tab's number is the seated tab's ink (daily round, 19 Oct: it
+   was the page's, 4.44:1 on the light blue). */
+.dk-tab.stg-half,.dc-tab.half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tab-plain) 50%);color:var(--in-ink);}
 .dk-tab.stg-late,.dc-tab.late{background:var(--tab-plain);box-shadow:inset var(--ring) 0 0 var(--late),inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
 .dk-tab.stg-none{background:none;box-shadow:none;}
 .dk-row.one .dk-tab,.dc-no{font-family:var(--pos-font-num);font-weight:700;}
@@ -7690,11 +7705,16 @@ function floorAt(ctx, day, hhmm, opts) {
     // standing there at 8:41 for a 7:20 sitting was drawn as a free table.
     // On the LIVE floor a party in the room before its time is on its table
     // now (heldFrom's rule): Moss sat at 7:46 for 8:00 was drawn free.
-    const on = held.find(r => {
+    // The party IN THE CHAIRS or at the door wins over an earlier booking
+    // that has not come (daily round, 19 Oct: Macrae seated on 26 was drawn
+    // as Wei Chen, 40 min late, and the door offered Sam Brown a 25 Sinclair
+    // stood waiting for).
+    const covering = held.filter(r => {
       const s = nightMin(r, day);
       const end = s + durOf(r) + seatLate(r);
       return (s <= at && (at < end || ((isSat(r) || isHere(r)) && at >= end))) || (opts.live === true && (isSat(r) || isHere(r)) && at < s);
-    }) || null;
+    });
+    const on = covering.find(isSat) || covering.find(isHere) || covering[0] || null;
     const next = held.find(r => nightMin(r, day) > at) || null;
     const nextAt = next ? hhmmOf(next.time) : null;
 
@@ -7990,6 +8010,12 @@ function slotsFor(ctx, day, party, opts) {
   const s = ctx.settings;
   const now = opts.now || new Date();
   const online = !!opts.online;
+  // ONLINE SELLS ONLY WHAT THE DESK CAN LAY OUT (daily round, 19 Oct): with
+  // no combination stated, suggestJoin() guesses a join autoAssign() never
+  // places, so the wifi /book sold a seven into No table while the relay
+  // called it full. A guest gets one table or a STATED combination; the
+  // host's own page keeps the guess, since a host can push tables together.
+  const mayJoin = opts.allowJoin !== false && (!online || combosOf(ctx).length > 0);
   const out = [];
   for (const hhmm of slotTimes(s, day)) {
     const slot = { time: hhmm, ok: true, reason: null, tableId: null, seats: 0 };
@@ -8005,7 +8031,7 @@ function slotsFor(ctx, day, party, opts) {
     if (slot.ok) {
       const t = suggestTable(ctx, day, hhmm, party, opts);
       if (t) { slot.tableId = t.id; slot.seats = t.seats; }
-      else if (opts.allowJoin !== false && suggestJoin(ctx, day, hhmm, party, opts)) { slot.tableId = null; slot.join = true; }
+      else if (mayJoin && suggestJoin(ctx, day, hhmm, party, opts)) { slot.tableId = null; slot.join = true; }
       else { slot.ok = false; slot.reason = 'No table free'; }
     }
     out.push(slot);
@@ -10523,11 +10549,20 @@ function readMessage(text, today) {
     || take(/\b(?:on\s+)?(?:the\s+)?(\d{1,2})(?:st|nd|rd|th)\b/i, (m) => dayNum(parseInt(m[1], 10)));
   if (day) out.date = day;
   // How many.
-  const size = take(new RegExp('\\b(?:table|booking|reservation|book|seats?)\\s+for\\s+' + MSG_NUM + '\\b', 'i'), (m) => msgNum(m[1]) || null)
+  // Adults and kids add up, and adults with kids never counted are not a
+  // size (daily round, 19 Oct: "4 adults and 2 kids" filled 4).
+  const KIDS = '(?:kids?|children|child|toddlers?|babies|baby|infants?)';
+  const AND = '\\s*(?:,|&|\\+|and|plus)?\\s*';
+  const kidsUncounted = new RegExp('\\b' + KIDS + '\\b', 'i').test(rest) && !new RegExp('\\b' + MSG_NUM + '\\s*' + KIDS + '\\b', 'i').test(rest);
+  const sum = take(new RegExp('\\b' + MSG_NUM + '\\s*adults?' + AND + MSG_NUM + '\\s*' + KIDS + '\\b', 'i'), (m) => (msgNum(m[1]) && msgNum(m[2]) ? msgNum(m[1]) + msgNum(m[2]) : null))
+    || take(new RegExp('\\b' + MSG_NUM + '\\s*' + KIDS + AND + MSG_NUM + '\\s*adults?\\b', 'i'), (m) => (msgNum(m[1]) && msgNum(m[2]) ? msgNum(m[1]) + msgNum(m[2]) : null))
+;
+  const uncounted = !sum && kidsUncounted && new RegExp('\\b' + MSG_NUM + '\\s*adults?\\b', 'i').test(rest);
+  const size = sum || (uncounted ? 0 : take(new RegExp('\\b(?:table|booking|reservation|book|seats?)\\s+for\\s+' + MSG_NUM + '\\b', 'i'), (m) => msgNum(m[1]) || null)
     || take(new RegExp('\\bparty\\s+of\\s+' + MSG_NUM + '\\b', 'i'), (m) => msgNum(m[1]) || null)
     || take(new RegExp('\\b' + MSG_NUM + '\\s*(?:people|persons|person|guests|pax|adults|ppl)\\b', 'i'), (m) => msgNum(m[1]) || null)
     || take(/\b(\d{1,2}|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s+of\s+us\b/i, (m) => msgNum(m[1]) || null)
-    || take(new RegExp('\\bfor\\s+' + MSG_NUM + '\\b(?!\\s*(?:am|pm|[:.]\\d))', 'i'), (m) => msgNum(m[1]) || null);
+    || take(new RegExp('\\bfor\\s+' + MSG_NUM + '\\b(?!\\s*(?:am|pm|[:.]\\d))', 'i'), (m) => msgNum(m[1]) || null));
   if (size) out.partySize = size;
   // What the night is for, plainly.
   const notes = [];
@@ -10536,14 +10571,18 @@ function readMessage(text, today) {
   if (al) notes.push([al.index, al[1].trim().toLowerCase()]);
   if (notes.length) { notes.sort((a, b) => a[0] - b[0]); const said = notes.map(x => x[1]); said[0] = said[0][0].toUpperCase() + said[0].slice(1); out.notes = said.join(', '); }
   // Who: a name they give, then a sign-off, then a name standing alone.
-  const NAME = "([A-Z][A-Za-z'’-]+(?:\\s+[A-Z][A-Za-z'’-]+){0,2})";
+  // A four-word name, and one with a "de" or a "van der" in it, is a name
+  // whole (daily round, 19 Oct: "Nguyen Thi Minh Anh" pasted as three words).
+  const PART = '(?:de|da|del|della|di|du|dos|das|van|von|der|den|la|le|bin|ibn|al|el|y|ter|ten)';
+  const MORE = "\\s+(?:" + PART + "\\s+){0,2}[A-Z][A-Za-z'’-]+";
+  const NAME = "([A-Z][A-Za-z'’-]+(?:" + MORE + "){0,4})";
   const okName = (n) => { const w = String(n || '').split(/\s+/).filter(x => !MSG_STOP.has(x.toLowerCase().replace(/[’']s$/, ''))); return w.length ? w.join(' ') : ''; };
   const leads = ["[Mm]y name is", "[Nn]ame is", "[Nn]ame:", "[Tt]his is", "[Ii]t[’']?s", "[Ii]t is", "[Ii][’']?m", "[Uu]nder(?: the name)?", "[Nn]ame of"];
   let nm = '';
   for (const l of leads) { const m = raw.match(new RegExp('\\b' + l + '\\s+' + NAME)); if (m && (nm = okName(m[1]))) break; }
   if (!nm) { const m = raw.match(new RegExp("\\b(?:[Tt]hanks|[Tt]hank you|[Cc]heers|[Rr]egards|[Kk]ind regards|[Mm]any thanks|[Tt]hx|[Tt]a)[,!.]?\\s+" + NAME)); if (m) nm = okName(m[1]); }
   if (!nm) {
-    const re = /\b([A-Z][a-z'’-]+(?:\s+[A-Z][A-Za-z'’-]+){1,2})\b/g;
+    const re = new RegExp("\\b([A-Z][a-z'’-]+(?:" + MORE + "){1,4})\\b", 'g');
     let m; while (!nm && (m = re.exec(rest))) { const w = m[1].split(/\s+/); if (w.length >= 2 && w.every(x => !MSG_STOP.has(x.toLowerCase()))) nm = m[1]; }
   }
   if (nm) out.name = nm.slice(0, 60);
@@ -18066,7 +18105,7 @@ function floorStateAt(hhmm, live) {
   const mine = state.reservations.filter(isLive);
   return state.tables.map(t => {
     const held = mine.filter(r => tablesFor(r).includes(t.id)).sort((a, b) => nightMinOf(a) - nightMinOf(b));
-    const on = held.find(r => {
+    const covering = held.filter(r => {
       const a = nightMinOf(r), end = a + durationOf(r) + seatLateOf(r);
       // A seated table keeps its table past its time — that IS `over`. A
       // booking nobody sat gives it back, which is how a no-show frees up.
@@ -18074,7 +18113,10 @@ function floorStateAt(hhmm, live) {
       // table now — floorAt()'s rule (4 Oct).
       // A party still at the door past its sitting holds it too (9 Oct).
       return (a <= at && (at < end || ((isSat(r) || isHere(r)) && at >= end))) || (live === true && (isSat(r) || isHere(r)) && at < a);
-    }) || null;
+    });
+    // The party in the chairs or at the door wins over an earlier booking
+    // that has not come — floorAt()'s rule (daily round, 19 Oct).
+    const on = covering.find(isSat) || covering.find(isHere) || covering[0] || null;
     const next = held.find(r => nightMinOf(r) > at) || null;
     const nextAt = next ? hhmmOf(next.time) : null;
     // What the TILL says is on it, which the book cannot know.
@@ -18478,28 +18520,80 @@ let flGest = null;
 function showRinged() {
   const wrap = document.querySelector('.desk-main .fl-wrap');
   const t = wrap && wrap.querySelector('.fl-table.picked, .fl-table.wk-ok');
-  if (!t || wrap.scrollWidth <= wrap.clientWidth + 1) return;
-  const w = wrap.getBoundingClientRect(), b = t.getBoundingClientRect();
-  if (b.left >= w.left && b.right <= w.right) return;
-  wrap.scrollLeft += (b.left + b.width / 2) - (w.left + w.width / 2);
+  if (t) showOnFloor([t]);
 }
 // A PAIR NOBODY CAN SEE IS NO ANSWER. On a phone the room runs on sideways,
 // and the lit pair for an eight stood off the right-hand edge: when the
 // answer lands, ONE pair is brought into view — the menu's first key, its
 // tables and its own name (joinsFocus) — or with nothing lit, the tables the
 // menu names. Once: after that the scroll is the room's own (data-keep).
+// A size no join seats brings its own lit tables in, the same way (daily
+// round, 19 Oct: a room pushed away lit 42 to 46 off its edge).
 function showJoins() {
   const wrap = document.querySelector('.desk-main .fl-wrap');
-  const ids = state.walkin && joinsFocus(state.walkin.data);
-  if (!wrap || !ids || wrap.scrollWidth <= wrap.clientWidth + 1) return;
-  const els = ids.map(id => wrap.querySelector(`.fl-table[data-tid="${CSS.escape(id)}"]`))
-    .concat(wrap.querySelector(`.fl-join-tag[data-tables="${CSS.escape(ids.join(','))}"]`)).filter(Boolean);
-  if (!els.length) return;
-  const rs = els.map(e => e.getBoundingClientRect()), w = wrap.getBoundingClientRect();
-  const l = Math.min(...rs.map(r => r.left)), r = Math.max(...rs.map(q => q.right));
-  if (l >= w.left && r <= w.right) return;
-  wrap.scrollLeft += (l + r) / 2 - (w.left + w.width / 2);
+  if (!wrap || !state.walkin) return;
+  const ids = joinsFocus(state.walkin.data);
+  const els = ids ? ids.map(id => wrap.querySelector(`.fl-table[data-tid="${CSS.escape(id)}"]`))
+    .concat(wrap.querySelector(`.fl-join-tag[data-tables="${CSS.escape(ids.join(','))}"]`)).filter(Boolean)
+    : [...wrap.querySelectorAll('.fl-table.wk-ok')];
+  // the menu's first key first: it is the one kept in view when they all
+  // will not fit
+  const lead = walkinLead(state.walkin.data || {});
+  els.sort((a, b) => (lead.includes(b.dataset.tid) ? 1 : 0) - (lead.includes(a.dataset.tid) ? 1 : 0));
+  if (els.length) showOnFloor(els);
 }
+// The pan that brings a box into the middle of the view, or null while all
+// of it is already in view.
+function panToShow(x, y, box, view) {
+  if (box.left >= view.left && box.right <= view.right && box.top >= view.top && box.bottom <= view.bottom) return null;
+  return { x: x + (view.left + view.right) / 2 - (box.left + box.right) / 2,
+           y: y + (view.top + view.bottom) / 2 - (box.top + box.bottom) / 2 };
+}
+// A TABLE LIT OFF SCREEN IS BROUGHT IN BY THE PAN (daily round, 19 Oct): the
+// room pans under one finger at any zoom now, so a phone's sideways scroll
+// is not the only thing that can hide a table. The scroll first, where the
+// room scrolls; then the pan, within the room's slack.
+function showOnFloor(els) {
+  const wrap = document.querySelector('.desk-main .fl-wrap');
+  if (!wrap || !els.length) return;
+  const w = wrap.getBoundingClientRect();
+  // all of them while they fit in the view, else the first
+  const boxOf = () => { let rs = els.map(e => e.getBoundingClientRect());
+    const all = { l: Math.min(...rs.map(r => r.left)), r: Math.max(...rs.map(r => r.right)), t: Math.min(...rs.map(r => r.top)), b: Math.max(...rs.map(r => r.bottom)) };
+    if (all.r - all.l > w.width || all.b - all.t > w.height) rs = rs.slice(0, 1);
+    return { left: Math.min(...rs.map(r => r.left)), right: Math.max(...rs.map(r => r.right)),
+             top: Math.min(...rs.map(r => r.top)), bottom: Math.max(...rs.map(r => r.bottom)) }; };
+  let b = boxOf();
+  if (wrap.scrollWidth > wrap.clientWidth + 1 && (b.left < w.left || b.right > w.right)) {
+    wrap.scrollLeft += (b.left + b.right) / 2 - (w.left + w.width / 2);
+    b = boxOf();
+  }
+  const to = panToShow(state.floorPanX, state.floorPanY, b, w);
+  if (!to) return;
+  const at = clampFloor(state.floorZoom || 1, to.x, to.y);
+  state.floorPanX = at.x; state.floorPanY = at.y;
+  flPaint(state.floorZoom || 1, at.x, at.y);
+}
+// A TURN OF THE PHONE KEEPS THE ROOM ON SCREEN (daily round, 19 Oct): the
+// pan is kept in pixels and was only clamped on the next gesture, so a room
+// pushed up and left in portrait was bare ground in landscape. A resize
+// clamps it again to the new slack, and a room with nothing of it on screen
+// goes back to rest.
+function reclampFloor() {
+  const wrap = document.querySelector('.desk-main .fl-wrap');
+  const room = wrap && wrap.querySelector('.fl-room');
+  if (!room || flGest || (!state.floorPanX && !state.floorPanY)) return;
+  const z = state.floorZoom || 1;
+  const at = clampFloor(z, state.floorPanX, state.floorPanY);
+  state.floorPanX = at.x; state.floorPanY = at.y;
+  flPaint(z, at.x, at.y);
+  const w = wrap.getBoundingClientRect(), r = room.getBoundingClientRect();
+  if (r.right <= w.left || r.left >= w.right || r.bottom <= w.top || r.top >= w.bottom) {
+    state.floorPanX = 0; state.floorPanY = 0;
+    flPaint(z, 0, 0);
+  }
+}
+window.addEventListener('resize', () => requestAnimationFrame(reclampFloor));
 function flStage() { return document.querySelector('.desk-main .fl-wrap .fl-stage'); }
 function flPaint(z, x, y) {
   const el = flStage();
@@ -20965,7 +21059,7 @@ function renderSettings() {
     </div>
     <div class="settings-card">
       <div class="th">Online bookings</div>
-      <label class="toggle-row">${switchHtml(!!s.online.enabled, 'set-toggle', 'online.enabled')} Guests can book${origin ? ` at <span class="mono">${esc(origin)}/book</span>` : ' online'}</label>
+      <label class="toggle-row">${switchHtml(!!s.online.enabled, 'set-toggle', 'online.enabled')} <span>Guests can book${origin ? ` at <span class="mono addr">${esc(origin)}<wbr>/book</span>` : ' online'}</span></label>
       <div class="grid2">
         <div><label class="field-label" for="on-notice">Notice needed (min)</label><input id="on-notice" type="number" min="0" value="${s.online.minNoticeMinutes}" data-field="settings.online.minNoticeMinutes" data-save="online"></div>
         <div><label class="field-label" for="on-ahead">Days ahead</label><input id="on-ahead" type="number" min="1" value="${s.online.maxDaysAhead}" data-field="settings.online.maxDaysAhead" data-save="online"></div>
