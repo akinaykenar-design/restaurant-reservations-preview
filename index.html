@@ -673,6 +673,12 @@ h1,h2,h3{margin:0;}
 /* Tokens only, both themes. The drop marker wears the Row law's picked
    grammar (accent ring + wash); gold is the popup's warning, red its warnbox. */
 .tl-block.movable{cursor:grab;}
+/* STRETCH A SITTING (owner, 19 Oct): the handle at a block's end, the finger
+   law's 44 across, half over the block and half past it; its bar the one dim. */
+.tl-block.stretchy{overflow:visible;}
+.tl-block .tl-nm{overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.tl-grip{position:absolute;top:0;right:-12px;width:44px;height:100%;cursor:ew-resize;touch-action:none;z-index:1;}
+.tl-grip::after{content:"";position:absolute;top:12px;bottom:12px;left:24px;width:4px;border-radius:2px;background:currentColor;opacity:var(--dim);}
 .tl-block.extra{opacity:.7;}                     /* a joined booking's other lanes */
 .tl-block.auto{font-weight:400;}                 /* a table the app chose: the weight says who */
 .tl-drag-src{opacity:var(--dim);cursor:grabbing;}
@@ -6331,6 +6337,20 @@ function seatLate(r) {
   const m = Math.floor((r.seatedAt - new Date(r.time).getTime()) / 60000);
   return m > 0 && m < 1440 ? m : 0;
 }
+// §§ STRETCH A SITTING (owner, 19 Oct: "Wow ok not a bad idea perhaps you
+// can also make it shorter"). The end of a block dragged on the Timeline:
+// `endMin` is the night's minute under the finger, `start` the booking's own
+// minute and `late` what a party sat late holds on (seatLate()). The end
+// snaps on the timeline's grid from the booking's own start, never before
+// `lo` (a sat party's now) nor past `hi` (the next booking on its tables),
+// and the answer is the booking's new sitting, 15 to 480 as the PUT keeps it.
+function stretchTo(start, late, endMin, lo, hi, step) {
+  const st = step > 0 ? step : 15;
+  let e = start + Math.round((endMin - start) / st) * st;
+  if (e > hi) e = hi;
+  if (e < lo) e = lo;
+  return Math.max(15, Math.min(480, e - start - (late || 0)));
+}
 function heldFor(ctx, r, now, s) {
   const d = durationFor(ctx.settings, r.partySize, r.durationMin) + seatLate(r);
   if (s === undefined) s = minsOf(r.time);
@@ -8902,7 +8922,7 @@ module.exports = {
   statusStamps, UNDO_STAMPS, stampsBack, mergeTables, tablesRefusal, onlineMax, onlineMessage,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
-  LIVE, isLive, durationFor, seatLate, heldFor, heldFrom, heldSpan, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, freeWindow, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
+  LIVE, isLive, durationFor, seatLate, stretchTo, heldFor, heldFrom, heldSpan, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, freeWindow, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, TURN_BILL, TURN_SOON, turnOf, turnBackRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, ASK_FIELDS, asksOf, onlineAsks, emailOk, nightOfRes, onlineRefusal, onlineGuest, guestName, cleanDob, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboKey, comboTwins, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
@@ -18865,6 +18885,15 @@ function heldSpanOf(r) {
   const now = tradingNowMin(), from = now < s ? now : s;
   return { from, dur: Math.max(s + d, now + 1) - from };
 }
+// av.stretchTo(), the desk's copy: the end of a block dragged on the Timeline
+// is the booking's new sitting (test/stretch.test.js holds them together).
+function stretchToLocal(start, late, endMin, lo, hi, step) {
+  const st = step > 0 ? step : 15;
+  let e = start + Math.round((endMin - start) / st) * st;
+  if (e > hi) e = hi;
+  if (e < lo) e = lo;
+  return Math.max(15, Math.min(480, e - start - (late || 0)));
+}
 function heldDurOf(r) {
   const sp = heldSpanOf(r);
   return sp.from + sp.dur - nightMinOf(r);
@@ -18932,7 +18961,10 @@ function renderTimeline() {
     // star that read as a dot were a word in a pill and a mark nobody could
     // see (QUIET) — the title still names the set menu.
     const late = state.date === tradingDay() && lateBy(r, Date.now());
-    return `<div class="tl-block ${r.status}${late ? ' late' : ''}${conflicts.has(r.id) ? ' conflict' : ''}${extra ? ' extra' : ''}${isAutoTable(r) ? ' auto' : ''}${canMoveBooking(r) && !extra ? ' movable' : ''}" style="left:${left}px;width:${w}px;" data-act="edit-booking" data-id="${r.id}" title="${esc(r.name)} · ${r.partySize} · ${esc(fmtTime(r.time))}${sm ? ' · ' + esc(sm) : ''}">${esc(r.name)} · ${r.partySize}</div>`;
+    // STRETCH A SITTING (owner, 19 Oct): a block that moves carries a handle
+    // at its end; pulled right the sitting is longer, pushed left shorter.
+    const grip = canMoveBooking(r) && !extra && isLive(r) && tlRules().drag;
+    return `<div class="tl-block ${r.status}${late ? ' late' : ''}${conflicts.has(r.id) ? ' conflict' : ''}${extra ? ' extra' : ''}${isAutoTable(r) ? ' auto' : ''}${canMoveBooking(r) && !extra ? ' movable' : ''}${grip ? ' stretchy' : ''}" style="left:${left}px;width:${w}px;" data-act="edit-booking" data-id="${r.id}" title="${esc(r.name)} · ${r.partySize} · ${esc(fmtTime(r.time))}${sm ? ' · ' + esc(sm) : ''}"><span class="tl-nm">${esc(r.name)} · ${r.partySize}</span>${grip ? '<i class="tl-grip" aria-hidden="true"></i>' : ''}</div>`;
   };
   const slots = (tid) => { let out = ''; for (let m = start; m < end; m += slotMin) out += `<div class="tl-slot" style="left:${(m - start) * PX_PER_MIN}px;width:${slotMin * PX_PER_MIN}px;" data-act="new-at" data-time="${fromMin(m)}" data-table="${tid || ''}"></div>`; return out; };
   let html = '';
@@ -23425,6 +23457,8 @@ document.addEventListener('pointerdown', (e) => {
   if (!el) return;
   const r = state.reservations.find(x => x.id === el.dataset.id);
   if (!r) return;
+  const grip = e.target.closest && e.target.closest('.tl-grip');
+  if (grip && el && grip.parentElement === el) { startTlStretch(e, el, r); return; }
   if (!el.classList.contains('movable')) { tlRefuse(e, r, el); return; }
   startTlDrag(e, el, r);
 });
@@ -23952,6 +23986,99 @@ function endTlDrag() {
 }
 
 // Escape, a pointercancel, or the window losing focus: the block goes back.
+// §§ STRETCH A SITTING (owner, 19 Oct: "Wow ok not a bad idea perhaps you
+// can also make it shorter"). The handle at a block's end: the timeline
+// drag's laws — a finger HOLDS (tlHold()) inside TL_SLOP or it is a scroll, a
+// mouse lifts on its first TL_PULL, render() is frozen from the lift and every
+// exit clears state.dragging first — and the end it lands on is av.stretchTo()'s:
+// on the grid, never before now for a party in the chairs, never past the next
+// booking on its tables. One PUT of durationMin, with Undo.
+let tlStretch = null;
+function startTlStretch(e, el, r) {
+  if (tlStretch || tlDrag) return;
+  const geom = tlGeom();
+  const grid = geom && geom.tl.querySelector('.tl-grid');
+  const ppm = grid && Number(grid.dataset.ppm);
+  if (!geom || !ppm) return;
+  const sp = heldSpanOf(r), s = nightMinOf(r), late = seatLateOf(r);
+  const endNow = sp.from + sp.dur;
+  const now = state.date === tradingDay() ? tradingNowMin() : null;
+  const lo = Math.max(sp.from + 15, s + late + 15, (isSat(r) || isHere(r)) && now != null ? now : -Infinity);
+  // The next booking on its own tables, from where this one starts.
+  const next = tlHolders(tablesFor(r), sp.from, 100000, r.id).map(o => heldSpanOf(o).from).filter(f => f > sp.from);
+  const cap = s + late + 480;
+  const hi = Math.max(Math.min(next.length ? Math.min(...next) : Infinity, geom.end, cap), Math.min(endNow, cap));
+  const g = tlStretch = { id: r.id, el, nm: el.querySelector('.tl-nm'), said: null, ppm, from: sp.from, endNow, s, late, lo, hi, step: geom.step,
+    x0: e.clientX, y0: e.clientY, touch: e.pointerType !== 'mouse', lifted: false, holdTimer: 0, dur: durationOf(r) };
+  g.said = g.nm ? g.nm.textContent : '';
+  g.blockTouch = (te) => { if (tlStretch === g && g.lifted && te.cancelable) te.preventDefault(); };
+  document.addEventListener('touchmove', g.blockTouch, { passive: false });
+  g.mv = (ev) => moveTlStretch(ev); g.up = () => endTlStretch(true); g.pc = () => endTlStretch(false);
+  g.key = (ev) => { if (ev.key === 'Escape') endTlStretch(false); };
+  document.addEventListener('pointermove', g.mv, { passive: true });
+  document.addEventListener('pointerup', g.up);
+  document.addEventListener('pointercancel', g.pc);
+  document.addEventListener('keydown', g.key);
+  window.addEventListener('blur', g.pc);
+  if (g.touch) g.holdTimer = setTimeout(() => { if (tlStretch === g) liftTlStretch(); }, tlHold());
+}
+function liftTlStretch() {
+  const g = tlStretch;
+  if (!g || g.lifted) return;
+  if (!g.el.isConnected) { endTlStretch(false); return; }
+  g.lifted = true;
+  state.dragging = true;
+  g.el.classList.add('stretching');
+}
+function moveTlStretch(ev) {
+  const g = tlStretch;
+  if (!g) return;
+  const dx = ev.clientX - g.x0, dy = ev.clientY - g.y0;
+  if (!g.lifted) {
+    if (g.touch) { if (Math.hypot(dx, dy) > TL_SLOP) endTlStretch(false); return; }
+    if (Math.abs(dx) < TL_PULL) return;
+    liftTlStretch();
+    if (!g.lifted) return;
+  }
+  const dur = stretchToLocal(g.s, g.late, g.endNow + dx / g.ppm, g.lo, g.hi, g.step);
+  g.dur = dur;
+  const end = g.s + g.late + dur;
+  g.el.style.width = Math.max(40, (end - g.from) * g.ppm - 2) + 'px';
+  const r = state.reservations.find(x => x.id === g.id);
+  if (g.nm && r) g.nm.textContent = `${r.name} · till ${fmtHHMM(fromMin(end))}`;
+}
+function endTlStretch(save) {
+  const g = tlStretch;
+  if (!g) return;
+  // state.dragging FIRST, whatever else goes wrong (the drag's own law).
+  tlStretch = null;
+  state.dragging = false;
+  clearTimeout(g.holdTimer);
+  document.removeEventListener('touchmove', g.blockTouch, { passive: false });
+  document.removeEventListener('pointermove', g.mv, { passive: true });
+  document.removeEventListener('pointerup', g.up);
+  document.removeEventListener('pointercancel', g.pc);
+  document.removeEventListener('keydown', g.key);
+  window.removeEventListener('blur', g.pc);
+  if (!g.lifted) return;
+  // A stretch is never a tap: the click after it would open the booking.
+  const eat = (c) => { c.preventDefault(); c.stopImmediatePropagation(); };
+  document.addEventListener('click', eat, { capture: true, once: true });
+  setTimeout(() => document.removeEventListener('click', eat, true), 350);
+  const r = state.reservations.find(x => x.id === g.id);
+  if (save && r && g.dur !== durationOf(r)) { saveTlStretch(r, g.dur); return; }
+  render();
+}
+async function saveTlStretch(r, dur) {
+  const was = r.durationMin == null ? null : r.durationMin;
+  const end = nightMinOf(r) + seatLateOf(r) + dur;
+  try {
+    await put('/api/reservations/' + r.id, { durationMin: dur });
+    await loadView();
+    render();
+    toastUndo(`${r.name} till ${fmtHHMM(fromMin(end))}`, async () => { await put('/api/reservations/' + r.id, { durationMin: was }); await loadView(); render(); });
+  } catch (e) { toastBad(e.message); render(); }
+}
 function cancelTlDrag() {
   const g = tlDrag;
   if (!g) return;

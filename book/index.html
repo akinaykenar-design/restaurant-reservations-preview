@@ -658,6 +658,12 @@ h1,h2,h3{margin:0;}
 /* Tokens only, both themes. The drop marker wears the Row law's picked
    grammar (accent ring + wash); gold is the popup's warning, red its warnbox. */
 .tl-block.movable{cursor:grab;}
+/* STRETCH A SITTING (owner, 19 Oct): the handle at a block's end, the finger
+   law's 44 across, half over the block and half past it; its bar the one dim. */
+.tl-block.stretchy{overflow:visible;}
+.tl-block .tl-nm{overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.tl-grip{position:absolute;top:0;right:-12px;width:44px;height:100%;cursor:ew-resize;touch-action:none;z-index:1;}
+.tl-grip::after{content:"";position:absolute;top:12px;bottom:12px;left:24px;width:4px;border-radius:2px;background:currentColor;opacity:var(--dim);}
 .tl-block.extra{opacity:.7;}                     /* a joined booking's other lanes */
 .tl-block.auto{font-weight:400;}                 /* a table the app chose: the weight says who */
 .tl-drag-src{opacity:var(--dim);cursor:grabbing;}
@@ -6317,6 +6323,20 @@ function seatLate(r) {
   const m = Math.floor((r.seatedAt - new Date(r.time).getTime()) / 60000);
   return m > 0 && m < 1440 ? m : 0;
 }
+// §§ STRETCH A SITTING (owner, 19 Oct: "Wow ok not a bad idea perhaps you
+// can also make it shorter"). The end of a block dragged on the Timeline:
+// `endMin` is the night's minute under the finger, `start` the booking's own
+// minute and `late` what a party sat late holds on (seatLate()). The end
+// snaps on the timeline's grid from the booking's own start, never before
+// `lo` (a sat party's now) nor past `hi` (the next booking on its tables),
+// and the answer is the booking's new sitting, 15 to 480 as the PUT keeps it.
+function stretchTo(start, late, endMin, lo, hi, step) {
+  const st = step > 0 ? step : 15;
+  let e = start + Math.round((endMin - start) / st) * st;
+  if (e > hi) e = hi;
+  if (e < lo) e = lo;
+  return Math.max(15, Math.min(480, e - start - (late || 0)));
+}
 function heldFor(ctx, r, now, s) {
   const d = durationFor(ctx.settings, r.partySize, r.durationMin) + seatLate(r);
   if (s === undefined) s = minsOf(r.time);
@@ -8888,7 +8908,7 @@ module.exports = {
   statusStamps, UNDO_STAMPS, stampsBack, mergeTables, tablesRefusal, onlineMax, onlineMessage,
   heldBook, billOn,
   pad2, toMin, fromMin, dayOf, hhmmOf, minsOf, joinTime, localDay, localTime, weekdayOf, addDays, timeMs,
-  LIVE, isLive, durationFor, seatLate, heldFor, heldFrom, heldSpan, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, freeWindow, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
+  LIVE, isLive, durationFor, seatLate, stretchTo, heldFor, heldFrom, heldSpan, rollsOf, onNight, nightMin, nightAt, nowOn, askFrom, badWindows, freeWindow, exceptionOn, servicesOn, slotTimes, slotOf, tablesFrom, heldTables, overlaps, fits, holdersOf,
   freeTables, walkedIn, wholeSingle, walkinBook, walkinTables, walkinCombos, walkinNext, seatRefusal, TURN_BILL, TURN_SOON, turnOf, turnBackRefusal, LINE_STEP, LINE_EARLY, lineSince, lineNight, lineOpen, lineFrom, lineMax, lineNumber, lineRefusal, ASK_FIELDS, asksOf, onlineAsks, emailOk, nightOfRes, onlineRefusal, onlineGuest, guestName, cleanDob, lineOf, lineKey, lineSeat, lineRun, lineBehind, lineWait, lineWaits, lineNext, lineAhead, oneMove, growTo, pickOrder, suggestTable, suggestJoin, combosOf, comboKey, comboTwins, comboSeats, comboFits, tillJoins, combinationsOf, freeCombos, loadAt, pacingReason, coverCap, coverCapFrom, setSlotCap, slotsFor, onlineDayReason, conflictsFor, officeMayChange, OFFICE_HANDS_OFF, isRealDay, isRealTime,
   FLOOR_STATES, LATE_AFTER, floorAt, autoAssign, tableAllergies, tableVip, tableCourse, tillMarks, tableBill, tillSitting, tillSendsBill, coverFlow,
   isSat, isHere, SAT, HERE, timePinned, MOVABLE, TIME_PINNED, tlRules, snapStep,
