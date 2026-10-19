@@ -18214,8 +18214,8 @@ function renderFloor() {
   // when the floor is: tonight, at the clock. Tomorrow, or lunch looked at
   // from dinner, drew tonight's walk-ins on every table they are sitting at.
   const live = state.date === tradingDay() && toMin(at) === tradingNowMin();
-  const by = {};
-  for (const f of floorStateAt(at, live)) by[f.id] = f;
+  const by = {}, room = floorStateAt(at, live);
+  for (const f of room) by[f.id] = f;
   // The turn's card goes with its table's bill (turnStands): every paint asks.
   if (state.turn && !turnStands(state.turn, by[state.turn.table], live)) state.turn = null;
   // THE ROOM IS THE TABLE PICKER. A row's table key puts the floor in here:
@@ -18243,6 +18243,17 @@ function renderFloor() {
   // The pairs a walk-in can take, and the ones somebody holds (walkinJoins).
   const wkJoins = !pk && state.walkin && state.walkin.data ? walkinJoins(state.walkin.data) : null;
   const wkOnRoom = !pk && !!(state.walkin && state.walkin.data);
+  // TAP THE TABLE, THEY ARE SEATED (owner, 19 Oct): tonight at the clock,
+  // with no picker, walk-in or turn box open, a table's tap is the tab of
+  // the party due there — its own act, so the seat, half then full, the
+  // turn, the holds and the double-tap guards are the tab's.
+  const nowMs = Date.now(), nowM = tradingNowMin();
+  const nsw = Number((state.settings || {}).noShowAfterMinutes);
+  const tapOf = (tid) => !live || pk || wkOnRoom || state.turn ? null
+    : floorTapParty(tid, room, state.reservations || [], nowM, {
+      minOf: nightMinOf, soon: DESK_DUE_SOON, wait: nsw > 0 ? nsw : 30,
+      step: (r) => tabStepOf(r, room, (x) => { const sp = { from: nowMs, to: nowMs + durationOf(x) * 60000 }; return !!holdOn(x.id) || tablesFor(x).some(id => holdAt(id, sp)); }),
+    });
 
   // ONE ROOM AT A TIME. The desk used to stack every floor plan down the pane
   // with a heading over each, so a venue with an Inside and an Outside got two
@@ -18331,9 +18342,12 @@ function renderFloor() {
     const ih = live ? holdAt(t.id, span) : null;
     // A walk-in's hold has no row to ask from: under the walk-in, its dim
     // table asks in the menu (review, 10 Oct).
+    const tap = !pk && !wkOn && !state.turn && !ih ? tapOf(t.id) : null;
     const act = ih && wkOn && !pk && !ih.party ? `data-act="ih-take-t" data-table="${esc(t.id)}"`
       : ih && (pk || wkOn) ? 'disabled' : pk ? (mvSet ? `data-act="one-move" data-id="${esc(pk.id)}"` : canPick ? `data-act="pick-seat" data-id="${esc(pk.id)}" data-table="${esc(t.id)}"` : 'disabled')
       : wkOn ? (wk ? `data-act="walkin-seat" data-table="${esc(t.id)}"${wkJoin ? ` data-tables="${esc(wkJoin.tables.join(','))}"` : ''}` : 'disabled')
+      // The party due here: their tab's step (data-mv keeps the hold to move).
+      : tap ? `data-act="${tap.act}" data-id="${esc(tap.id)}"${tap.paid ? ` data-paid="${esc(tap.paid)}" data-table="${esc(tap.table)}"` : ''}${r && r.id === tap.id ? ' data-mv="1"' : ''}`
       // THE TURN (v49): a table at the bill tonight, at the clock, opens its
       // card — who is on it, Clear table, and Clear and seat the next party.
       : live && r && TURN_BILL.includes(r.status) && (f.state === 'check' || f.state === 'paid') ? `data-act="turn-open" data-table="${esc(t.id)}"`
@@ -19260,6 +19274,38 @@ function turnFree(room, r, now) {
   if (!turn) return null;
   const span = { from: now, to: now + durationOf(r) * 60000 };
   return tablesFor(r).some(id => holdAt(id, span)) ? null : turn;
+}
+// THE TAB'S NEXT STEP, as the list's tab and the door's card take it: the
+// seat while their tables are clear, the turn while the one thing on them is
+// a party at the bill, else nothing; and nothing while another tablet has the
+// party or a table in hand (inHand). The acts are the tab's own.
+function tabStepOf(r, room, inHand) {
+  const occ = stillEating(room, r), turn = occ ? turnOn(room, r) : null;
+  if (occ && !turn) return null;
+  if (inHand(r)) return null;
+  return turn ? { act: 'row-turn', id: r.id, paid: turn.paid.id, table: turn.table } : { act: 'row-seat', id: r.id };
+}
+// §§ TAP THE TABLE, THEY ARE SEATED (owner, 19 Oct: "Oh okay absolutely").
+// The party due on table tid NOW, and their tab's step (o.step): the one the
+// floor has on it, then one at the door or part-seated, then the earliest
+// booked or confirmed from DESK_DUE_SOON before their time to the no-show
+// wait after it. A party sat there (not half) keeps its booking and its bill
+// its turn box, and anything the tab would not seat answers null: the tap is
+// what it always was. test/floortap.test.js holds it.
+function floorTapParty(tid, room, rows, nowMin, o) {
+  const f = room.find(x => x.id === tid);
+  if (!f || (f.r && isSat(f.r) && f.r.status !== 'part-seated')) return null;
+  const due = (r) => {
+    if (!r || !tablesFor(r).includes(tid)) return false;
+    if (r.status === 'part-seated' || isHere(r)) return true;
+    if (!['booked', 'confirmed'].includes(r.status)) return false;
+    const t = o.minOf(r);
+    return t - nowMin <= o.soon && nowMin - t <= o.wait;
+  };
+  if (f.r && !due(f.r)) return null;
+  const rank = (r) => (f.r && r.id === f.r.id ? 0 : r.status === 'part-seated' || isHere(r) ? 1 : 2);
+  const r = rows.filter(due).sort((a, b) => (rank(a) - rank(b)) || (o.minOf(a) - o.minOf(b)))[0];
+  return r ? o.step(r) : null;
 }
 // THE ROOM'S CARD NEVER OUTLIVES ITS TABLE (review, 12 Oct): Duarte Left on
 // another tablet and 4's card went on offering Clear and seat. It stands
@@ -22586,7 +22632,7 @@ document.addEventListener('click', async (ev) => {
         // (part-seated, no count: the tab half filled), the second the rest.
         const first = r.status !== 'part-seated' && !body.partCount;
         if (first) body.status = 'part-seated';
-        if (first) { const b = el.getBoundingClientRect(); _halfAt = { id, x: b.left + b.width / 2, y: b.top + b.height / 2, t: Date.now() }; }
+        if (first && closest(el, '.desk-col')) { const b = el.getBoundingClientRect(); _halfAt = { id, x: b.left + b.width / 2, y: b.top + b.height / 2, t: Date.now() }; }
         else if (_halfAt && _halfAt.id === id) _halfAt = null;
         // A DOUBLE TAP SEATS ONE PARTY (review, 9 Oct): the seat slides the
         // row up and the next party's tab comes under the finger, so
@@ -23664,7 +23710,9 @@ const flUp = (e) => {
     // A push is never a tap: the click the browser fires after a drag would
     // otherwise book the table the finger happened to finish on.
     if (g.moved) { const eat = (c) => { c.preventDefault(); c.stopImmediatePropagation(); }; document.addEventListener('click', eat, { capture: true, once: true }); setTimeout(() => document.removeEventListener('click', eat, true), 350); }
-    flCommit();
+    // A press that never moved changed nothing, and a repaint between the
+    // mouse's down and up took the click with it: no table answered a mouse.
+    if (g.moved) flCommit();
   } else if (g.kind === 'pinch') {
     flGest = null;                     // one finger left: stop, do not lurch
     flCommit();
@@ -23723,7 +23771,7 @@ const flTouchEnd = (e) => {
   flTouching = false;
   const g = flGest; flGest = null; flPts.clear();
   if (g && g.moved) { const eat = (c) => { c.preventDefault(); c.stopImmediatePropagation(); }; document.addEventListener('click', eat, { capture: true, once: true }); setTimeout(() => document.removeEventListener('click', eat, true), 350); }
-  flCommit();
+  if (g && g.moved) flCommit();
 };
 document.addEventListener('touchend', flTouchEnd);
 document.addEventListener('touchcancel', flTouchEnd);
@@ -23774,7 +23822,7 @@ function pickQuery(r, nowMs) {
 function armFlMove(e) {
   if (flMove || state.picking || state.walkin || !tlRules().drag) return;
   if (e.pointerType === 'mouse' && e.button !== 0) return;
-  const el = e.target.closest && e.target.closest('.fl-table[data-act="edit-booking"]');
+  const el = e.target.closest && e.target.closest('.fl-table[data-act="edit-booking"], .fl-table[data-mv]');
   const r = el && (state.reservations || []).find(x => x.id === el.dataset.id);
   if (!r || !isLive(r)) return;
   const g = flMove = { id: r.id, pointerId: e.pointerId, touch: e.pointerType !== 'mouse', x0: e.clientX, y0: e.clientY, x: e.clientX, y: e.clientY,
