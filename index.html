@@ -1647,10 +1647,10 @@ span.dk-tab{color:var(--charcoal-soft);cursor:default;}
 .dk-tab.st-fill.auto{background:color-mix(in srgb, var(--st-booked) 40%, var(--surface));color:var(--text-primary);}
 .dk-tab.st-fill.confirmed.auto{background:color-mix(in srgb, var(--st-confirmed) 40%, var(--surface));}
 /* Late wears the app's red down its edge; a table somebody is still eating
-   at is struck through — the press then picks another; nothing is the red
-   hole the No table group has always been. */
+   at is FADED — the press then picks another; nothing is the red hole the
+   No table group has always been. */
 .dk-tab.late{border-left:var(--ring) solid var(--red);}
-.dk-tab.busy{text-decoration:line-through;text-decoration-thickness:2px;}
+.dk-tab.busy{opacity:var(--dim);}
 .dk-tab.none{background:none;color:var(--red);border:1px dashed var(--red);}
 .dk-main{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:8px 12px;
   background:none;border:none;text-align:left;cursor:pointer;color:var(--text-primary);}
@@ -2815,11 +2815,11 @@ a.dk-k,a.chip{text-decoration:none;}
 .dk-tab.stg-bill{background:var(--seat);box-shadow:inset var(--ring) 0 0 var(--leave);}
 .dk-tab.stg-gone{color:var(--mute);}
 .dk-tab.stg-none{background:none;color:var(--late);border:1px dashed var(--late);}
-.dk-tab.busy{color:var(--mute);text-decoration:line-through;text-decoration-thickness:2px;}
-/* Struck on the blue — a party at the door whose table is still eating, the
-   tab's main use — the number keeps the blue's own ink: grey on the blue
-   was 1.14 to 1 (9 Oct). */
-.dk-tab.stg-here.busy{color:var(--ink);}
+/* A table somebody is still eating at is the tab FADED, never struck
+   (owner, 19 Oct: "faded go"): the one dim over the muted number, at the
+   door as anywhere. */
+.dk-tab.busy{color:var(--mute);opacity:var(--dim);}
+.dk-tab.stg-here.busy{color:var(--mute);}
 .dk-main b{font-size:var(--fs-lg);font-weight:600;}
 .dk-main i.here{color:var(--accent);} .dk-main i.late{color:var(--late);} .dk-main i.leave{color:var(--leave);}
 .dk-t{font-size:var(--fs-md);color:var(--mute);}
@@ -3429,8 +3429,8 @@ button.door-card{cursor:pointer;}
 .dc-tab.half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tfree) 50%);}
 .dc-tab.late{background:var(--late-wash);color:var(--ink);box-shadow:inset var(--ring) 0 0 var(--late);}
 .dc-tab.here{background:var(--accent-wash);color:var(--ink);box-shadow:none;}
-.dc-tab.busy .dc-no{text-decoration:line-through;text-decoration-thickness:3px;}
-.dc-tab.busy:not(.here):not(.late) .dc-no{color:var(--mute);}
+.dc-tab.busy{opacity:var(--dim);}
+.dc-tab.busy .dc-no{color:var(--mute);}
 .dc-main{display:flex;align-items:center;min-width:0;padding:0 8px 0 16px;background:none;color:inherit;}
 .dc-name{display:flex;min-width:0;font-weight:700;}
 .dc-name .td-nm{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -3708,7 +3708,7 @@ body[data-theme="dark"] .vt button.on,body[data-theme="dark"] .tp-make .tp-btn.o
    blue?"): blue means seated, and nothing else. */
 .dk-tab[class*="stg-"],.dc-tab{background:var(--tab-plain);color:var(--ink);box-shadow:inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
 .dk-tab.stg-here,.dk-tab.stg-phere,.dc-tab.here{background:var(--tab-plain);color:var(--ink);box-shadow:inset calc(var(--ring) * -1) 0 0 var(--qty-line);}
-.dk-tab.stg-here.busy{color:var(--ink);}
+.dk-tab.stg-here.busy{color:var(--mute);}
 .dk-tab.stg-in{background:var(--sat-blue);color:var(--in-ink);}
 .dk-tab.stg-paid,.dk-tab.stg-bill{background:var(--seat);}
 .dk-tab.stg-half,.dc-tab.half{background:linear-gradient(to top,var(--sat-blue) 50%,var(--tab-plain) 50%);}
