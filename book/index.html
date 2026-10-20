@@ -3566,7 +3566,12 @@ a.cf-k{background:var(--well);color:var(--ink);}
    says what it is, and the search reads the whole booking. */
 .q-find{position:relative;display:flex;align-items:center;flex:1;min-width:0;}
 .q-find > svg{position:absolute;left:12px;width:18px;height:18px;color:var(--charcoal-soft);pointer-events:none;}
-.q-find > input{flex:1;min-width:0;padding-left:40px;}
+/* THE TEXT STARTS AFTER THE GLASS (daily round, 20 Oct): the plain input
+   rule's padding outranked this one, so "Featherstonehaugh" began under the
+   glass; and on a phone the Guests box was 94 wide beside "0 guests", so it
+   takes the band's row and the count goes under it. */
+.q-find > input:not([type="checkbox"]):not([type="radio"]){flex:1;min-width:0;padding-left:40px;}
+@media (max-width:760px){ .band > .q-find{flex:1 1 100%;} }
 /* §§ ONE LINE (owner, 12 Oct: "i thought it was already like that? i said
    remove the bs text underneath"). Every docket line of the desk's list —
    Upcoming and the line, Seated, Finished, No table, Just opened, Not
@@ -3819,6 +3824,22 @@ body[data-theme="dark"] .vt button.on,body[data-theme="dark"] .tp-make .tp-btn.o
 .dk-row.one.big .dk-tab,.dk-row.one.big .dk-main b,.dk-row.one.big .dk-t{font-size:var(--dc-big);}
 @media (max-width:1100px){ .shell.simple .bl-rows.one > .dk-row.big{--dc-big:var(--fs-num);min-height:88px;} }
 @media (max-width:760px){ .shell.simple .bl-rows.one > .dk-row.big{min-height:80px;} }
+/* §§ Print, after the palette (daily round, 20 Oct). The palette above
+   re-points the grounds and the ink after the print section, so a run sheet
+   printed in dark was a dark slab, and the bar (header.tp, not the old
+   .topbar) and the page head with its Print key went onto the paper. The
+   last word in the file is paper's: only the sheet, black on white —
+   named colours, as everything under IN HAND is tokens or words. */
+@media print{
+  :root,body,body[data-theme="dark"]{
+    --bg:white; --surface:white; --well:white; --qty:white; --tfree:white; --tab-plain:white;
+    --ink:black; --mute:black; --faint:black; --line:silver; --accent:black; --late:black;
+    --lift-1:none; --lift-2:none;
+  }
+  html,body{color-scheme:light;background:white!important;color:black;}
+  .shell.simple .main{background:none;}
+  header.tp,.pg-head{display:none!important;}
+}
 
 .notice.special{display:none;}
 </style>
@@ -6575,13 +6596,17 @@ function mergeTables(plans, list, newId) {
   const spot = (pi, w, h) => {
     const near = own(pi).concat(rooms[pi].tables).filter(t => Number.isFinite(t.x) && Number.isFinite(t.y));
     const clear = (x, y) => !near.concat(rooms[pi].decor).some(t => Number.isFinite(t.x) && Math.abs(t.x - x) < Math.max(w, t.width || w) && Math.abs(t.y - y) < Math.max(h, t.height || h));
+    // A NEW TABLE STANDS WHOLLY IN THE ROOM (daily round, 20 Oct): x and y
+    // are its centre, and only the centre was asked to be under 100, so the
+    // seed room's 11 landed at x 98 with a width of 14, cut off at the edge.
+    const inside = (x, y) => x - w / 2 >= 0 && x + w <= 100 && y - h / 2 >= 0 && y + h / 2 <= 100;
     if (near.length) {
       const xs = near.map(t => t.x), ys = near.map(t => t.y);
       const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys) + 2 * h;
-      for (let y = y0; y <= y1; y += 1.5 * h) for (let x = x0; x <= x1 + 2 * w; x += 1.5 * w) if (x <= 100 && y <= 100 && clear(x, y)) return { x: +x.toFixed(2), y: +y.toFixed(2) };
+      for (let y = y0; y <= y1; y += 1.5 * h) for (let x = x0; x <= x1 + 2 * w; x += 1.5 * w) if (inside(x, y) && clear(x, y)) return { x: +x.toFixed(2), y: +y.toFixed(2) };
     }
-    for (let row = 0; row < 6; row++) for (let col = 0; col < 6; col++) { const x = 14 + col * 14.5, y = 20 + row * 13; if (clear(x, y)) return { x, y }; }
-    return { x: 50, y: 50 };
+    for (let row = 0; row < 6; row++) for (let col = 0; col < 6; col++) { const x = 14 + col * 14.5, y = 20 + row * 13; if (inside(x, y) && clear(x, y)) return { x, y }; }
+    return { x: Math.max(w / 2, Math.min(100 - w, 50)), y: Math.max(h / 2, Math.min(100 - h / 2, 50)) };
   };
   (Array.isArray(list) ? list : []).slice(0, 200).forEach((t, i) => {
     if (!t) return;
@@ -9600,7 +9625,14 @@ function tableLabeller(tables) {
 function auditWords(text, tables) {
   const ids = new Map();
   for (const t of (tables || [])) if (t && t.id) ids.set(String(t.id), String(t.label));
+  // A DAY AND A RANGE ARE WORDS TOO (daily round, 20 Oct): the notify line
+  // said "for 2026-10-20 19:00–21:00" under lines saying "20 Oct 7:30 PM".
+  // The half of the day is named once when both ends share it.
+  const half = (h) => (+h < 12 ? 'AM' : 'PM');
+  const clock = (h, mi) => `${(+h % 12) || 12}:${mi}`;
   return String(text)
+    .replace(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})[–-](\d{2}):(\d{2})/g, (m, y, mo, d, h1, m1, h2, m2) =>
+      `${+d} ${MON[+mo - 1] || mo} ${clock(h1, m1)}${half(h1) === half(h2) ? '' : ' ' + half(h1)}–${clock(h2, m2)} ${half(h2)}`)
     .replace(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/g, (m, y, mo, d, h, mi) =>
       `${+d} ${MON[+mo - 1] || mo} ${(+h % 12) || 12}:${mi} ${+h < 12 ? 'AM' : 'PM'}`)
     .replace(/[A-Za-z0-9_-]+/g, (w) => ids.has(w) ? 'table ' + ids.get(w) : w);
@@ -10151,6 +10183,22 @@ function dateWords(night, day) {
   const [y, m, d] = String(night).split('-').map(Number);
   return WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] + ' ' + d + ' ' + MONTHS[m - 1] + (day && String(night).slice(0, 4) !== String(day).slice(0, 4) ? ' ' + y : '');
 }
+// AN HOUR STANDS ON ITS OWN CALENDAR DAY (daily round, 20 Oct): Bondi's
+// Milo at 12:15 AM on Monday is Sunday's night, and "Sun 25 Oct, 12:15 AM"
+// named the hour a day early — in the find, the seated party's history and
+// the audit. On tonight's night the hour alone ("12:15 AM" is tonight's
+// tail); else the calendar day: "tomorrow" only while it is the day after
+// the one on the clock, "today" past midnight for later that day, else its
+// date. `time` is the booking's, `tonight` the trading day, `today` the
+// clock's calendar day, `clock` the hour's words.
+function hourWhen(time, night, tonight, today, clock) {
+  const day = String(time).slice(0, 10), at = clock(String(time).slice(11, 16));
+  if (night === tonight) return at;
+  today = today || tonight;
+  if (day === today) return 'today ' + at;
+  if (dayGap(day, today) === 1) return 'tomorrow ' + at;
+  return dateWords(day, tonight) + ', ' + at;
+}
 function nightWords(night, day) {
   const gap = dayGap(night, day);
   if (gap === 1) return 'tomorrow';
@@ -10444,9 +10492,36 @@ function movedSince(a, kind, r) {
 // first of a person's bookings leads. `asked` is the desk's confirmAsk: the
 // day-before email off the relay (`emailedAt` here is when it went) and the
 // desk's own Text, which is the whole person's.
+// THE DAY IN WORDS, as the guest reads it (daily round, 20 Oct): the relay's
+// mail.whenAt(), held to this by test. On its night "tonight", the night
+// after "tomorrow", else "on Saturday 24 October" — and a booking past
+// midnight is its own calendar day, never the night's: "see you tomorrow at
+// 12:15 AM" sent on Thursday for Saturday's 00:15 brought Nadia on Friday.
+// Past midnight, before the night rolls (`today` after `tonight`), later the
+// same calendar day is "today" or "tonight" and any other day its own name.
+const WD = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MO = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function dayWords(day) {
+  const [y, m, d] = String(day || '').split('-').map(Number);
+  return y && m && d ? WD[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] + ' ' + d + ' ' + MO[m - 1] : '';
+}
+function whenAt(item, tonight, today) {
+  const on = (day) => 'on ' + dayWords(day);
+  if (today && tonight && today !== tonight && item.date) {
+    if (item.night === tonight) return 'tonight';
+    if (item.date === today) return String(item.time || '') < '17:00' ? 'today' : 'tonight';
+    return on(item.date);
+  }
+  if (!item.date || !item.night || item.date === item.night || item.night === tonight) {
+    return item.night === tonight ? 'tonight' : item.night === av.addDays(tonight, 1) ? 'tomorrow' : on(item.night);
+  }
+  return on(item.date);
+}
 function confirmList(rows, settings, now, asked) {
   asked = asked || {};
-  const tomorrow = av.addDays(av.lineNight(settings, now || new Date()), 1);
+  const tonight = av.lineNight(settings, now || new Date()), today = av.localDay(now || new Date());
+  const tomorrow = av.addDays(tonight, 1);
+  const when = (r) => whenAt({ date: av.dayOf(r.time), time: av.hhmmOf(r.time), night: av.nightOfRes(settings, r) }, tonight, today);
   const mine = (rows || []).filter(r => r && ['booked', 'confirmed'].includes(r.status) && r.source !== 'walk-in' && av.nightOfRes(settings, r) === tomorrow)
     .sort((a, b) => String(a.time).localeCompare(String(b.time)));
   const toDo = mine.filter(r => r.status === 'booked'), done = mine.filter(r => r.status === 'confirmed');
@@ -10456,10 +10531,10 @@ function confirmList(rows, settings, now, asked) {
     const group = people.get(personKey(r) || 'id:' + r.id) || [r];
     const a = asked[r.id] || {};
     return {
-      id: r.id, name: r.name || '', partySize: Number(r.partySize) || 1, time: av.hhmmOf(r.time), phone: r.phone || '', status: r.status,
+      id: r.id, name: r.name || '', partySize: Number(r.partySize) || 1, time: av.hhmmOf(r.time), when: when(r), phone: r.phone || '', status: r.status,
       emailedAt: sentFor(a, 'remind', r), textedAt: Math.max(0, ...group.map(x => Number((asked[x.id] || {}).textedAt) || 0)),
       lead: group[0] === r, ids: group.map(x => x.id),
-      also: group.filter(x => x !== r).map(x => ({ time: av.hhmmOf(x.time), partySize: Number(x.partySize) || 1 })),
+      also: group.filter(x => x !== r).map(x => ({ time: av.hhmmOf(x.time), when: when(x), partySize: Number(x.partySize) || 1 })),
     };
   };
   const covers = (list) => list.reduce((n, r) => n + (Number(r.partySize) || 0), 0);
@@ -10479,8 +10554,8 @@ function confirmList(rows, settings, now, asked) {
 // evening (1 to 10 are PM), as a restaurant's messages almost always mean.
 const MSG_NUMS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 };
 const MSG_NUM = '(\\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)';
-const MSG_DAYS = { sun: 0, sunday: 0, mon: 1, monday: 1, tue: 2, tues: 2, tuesday: 2, wed: 3, wednesday: 3, thu: 4, thur: 4, thurs: 4, thursday: 4, fri: 5, friday: 5, sat: 6, saturday: 6 };
-const MSG_DAY = '(sunday|sun|monday|mon|tuesday|tues|tue|wednesday|wed|thursday|thurs|thur|thu|friday|fri|saturday|sat)';
+const MSG_DAYS = { sun: 0, sunday: 0, mon: 1, monday: 1, tue: 2, tues: 2, tuesday: 2, wed: 3, weds: 3, wednesday: 3, thu: 4, thur: 4, thurs: 4, thursday: 4, fri: 5, friday: 5, sat: 6, saturday: 6 };
+const MSG_DAY = '(sunday|sun|monday|mon|tuesday|tues|tue|wednesday|weds|wed|thursday|thurs|thur|thu|friday|fri|saturday|sat)';
 const MSG_MONTH = '(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sept|sep|oct|nov|dec)';
 const MSG_NOTES = [
   ['birthday', /\bbirthday\b|\bbday\b/i], ['anniversary', /\banniversary\b/i], ['engagement', /\bengage(?:ment|d)\b/i],
@@ -10488,7 +10563,10 @@ const MSG_NOTES = [
   ['high chair', /\bhigh ?chairs?\b/i], ['pram', /\bpram\b|\bstroller\b/i], ['wheelchair', /\bwheel ?chair\b/i],
   ['gluten free', /\bgluten[- ]free\b/i], ['coeliac', /\bcoeliac\b|\bceliac\b/i], ['vegan', /\bvegan\b/i], ['vegetarian', /\bvegetarian\b/i], ['dairy free', /\bdairy[- ]free\b/i],
 ];
-const MSG_STOP = new Set(['hi', 'hello', 'hey', 'dear', 'table', 'booking', 'thanks', 'thank', 'cheers', 'regards', 'please', 'i', 'my', 'we', 'the', 'a', 'and', 'tonight', 'today', 'tomorrow', 'this', 'next', 'for', 'at', 'on', 'yes', 'no', 'ok', 'ps']
+const MSG_STOP = new Set(['hi', 'hello', 'hey', 'dear', 'table', 'booking', 'thanks', 'thank', 'cheers', 'regards', 'please', 'i', 'my', 'we', 'the', 'a', 'and', 'tonight', 'today', 'tomorrow', 'tmrw', 'tmr', 'this', 'next', 'for', 'at', 'on', 'yes', 'no', 'ok', 'ps']
+  // A feast, a meal or a day's name is not a person's (daily round, 20 Oct:
+  // "Christmas Eve" and "Mother Day" were pasted as the name).
+  .concat(['christmas', 'eve', 'xmas', 'mother', 'mothers', 'father', 'fathers', 'day', 'valentine', 'valentines', 'easter', 'new', 'year', 'years', 'lunch', 'dinner', 'breakfast', 'brunch', 'supper'])
   .concat(Object.keys(MSG_DAYS), ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'jan', 'feb', 'mar', 'apr', 'jun', 'jul', 'aug', 'sep', 'sept', 'oct', 'nov', 'dec']));
 function msgNum(w) { const n = /^\d+$/.test(w) ? parseInt(w, 10) : MSG_NUMS[String(w).toLowerCase()]; return n > 0 && n <= 50 ? n : 0; }
 function msgMonth(w) { return ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(String(w).toLowerCase().slice(0, 3)); }
@@ -10500,7 +10578,7 @@ function readMessage(text, today) {
   const [ty, tm, td] = today.split('-').map(Number);
   const base = new Date(ty, tm - 1, td);
   let rest = raw;
-  const take = (re, fn) => { const m = rest.match(re); if (!m) return false; const v = fn(m); if (v === undefined || v === null || v === '') return false; rest = rest.replace(m[0], ' '); return v; };
+  const take = (re, fn) => { const m = rest.match(re); if (!m) return false; const v = fn(m); if (v === undefined || v === null || v === '') return false; rest = rest.replace(m[0], ' ¦ '); return v; };
   // Who: the email, then the phone (an Australian one, however spaced).
   const em = take(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/, (m) => m[0]);
   if (em) out.email = em;
@@ -10522,7 +10600,8 @@ function readMessage(text, today) {
   const after = (d) => (d < base ? null : av.localDay(d));
   const dayNum = (n) => { let d = msgYmd(ty, tm - 1, n); if (d && d < today) d = msgYmd(ty, tm, n) || msgYmd(ty, tm + 1, n); return d || null; };
   const day = take(/\b(?:tonight|today)\b/i, () => today)
-    || take(/\btomorrow\b/i, () => av.addDays(today, 1))
+    // "tmrw", "tmr" and "Weds" are how a text says it (daily round, 20 Oct).
+    || take(/\b(?:tomorrow|tmrw|tmr)\b/i, () => av.addDays(today, 1))
     || take(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/, (m) => { const y = m[3] ? (m[3].length === 2 ? 2000 + parseInt(m[3], 10) : parseInt(m[3], 10)) : ty; let d = msgYmd(y, parseInt(m[2], 10) - 1, parseInt(m[1], 10)); if (d && !m[3] && d < today) d = msgYmd(y + 1, parseInt(m[2], 10) - 1, parseInt(m[1], 10)); return d || null; })
     || take(new RegExp('\\b' + MSG_MONTH + '\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b', 'i'), (m) => { let d = msgYmd(ty, msgMonth(m[1]), parseInt(m[2], 10)); if (d && d < today) d = msgYmd(ty + 1, msgMonth(m[1]), parseInt(m[2], 10)); return d || null; })
     || take(new RegExp('\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?' + MSG_MONTH + '\\b', 'i'), (m) => { let d = msgYmd(ty, msgMonth(m[2]), parseInt(m[1], 10)); if (d && d < today) d = msgYmd(ty + 1, msgMonth(m[2]), parseInt(m[1], 10)); return d || null; })
@@ -10567,16 +10646,19 @@ function readMessage(text, today) {
   let nm = '';
   for (const l of leads) { const m = raw.match(new RegExp('\\b' + l + '\\s+' + NAME)); if (m && (nm = okName(m[1]))) break; }
   if (!nm) { const m = raw.match(new RegExp("\\b(?:[Tt]hanks|[Tt]hank you|[Cc]heers|[Rr]egards|[Kk]ind regards|[Mm]any thanks|[Tt]hx|[Tt]a)[,!.]?\\s+" + NAME)); if (m) nm = okName(m[1]); }
+  // A part read out leaves a mark no name runs across, and the LAST name
+  // standing is the one they signed with (daily round, 20 Oct: "Dinner for
+  // 4 Weds" was "Dinner   Weds"; "Christmas Eve, 7pm. Ann Lee" lost Ann Lee).
   if (!nm) {
     const re = new RegExp("\\b([A-Z][a-z'’-]+(?:" + MORE + "){1,4})\\b", 'g');
-    let m; while (!nm && (m = re.exec(rest))) { const w = m[1].split(/\s+/); if (w.length >= 2 && w.every(x => !MSG_STOP.has(x.toLowerCase()))) nm = m[1]; }
+    let m; while ((m = re.exec(rest))) { const w = m[1].split(/\s+/); if (w.length >= 2 && w.every(x => !MSG_STOP.has(x.toLowerCase().replace(/[’']s$/, '')))) nm = m[1]; }
   }
   if (nm) out.name = nm.slice(0, 60);
   return out;
 }
 
 module.exports = {
-  confirmList, sentFor, movedSince, SENT_KEYS, SIZE_KEYS,
+  confirmList, whenAt, hourWhen, sentFor, movedSince, SENT_KEYS, SIZE_KEYS,
   personKey, tillCustomerFor, tillOnly,
   fold, digits, prepareQuery, matches, relevanceSort, searchReservations,
   bookingHit, primaryHit, whenWords, queryWords, bookingText, STATUS_WORDS, SOURCE_WORDS,
@@ -15058,8 +15140,9 @@ app.get('/api/group/find', async (req, res) => {
       tonight: gap === 0,
       // The night in the desk's own words, its half of the day said: "7:45
       // PM" tonight (a lunch is never "tonight 12:30"), "tomorrow 12:00 PM",
-      // "Sun 11 Oct, 12:00 PM" (review, 10 Oct).
-      when: gap === 0 ? twelve(av.hhmmOf(r.time)) : gap === 1 ? 'tomorrow ' + twelve(av.hhmmOf(r.time)) : search.dateWords(night, tonight) + ', ' + twelve(av.hhmmOf(r.time)),
+      // "Sun 11 Oct, 12:00 PM" (review, 10 Oct) — the hour on its own
+      // calendar day, never the night's (daily round, 20 Oct).
+      when: search.hourWhen(r.time, night, tonight, av.localDay(new Date()), twelve),
       // How the message says the night they keep over there: a week out is
       // its date, never tonight's own weekday (daily round, 14 Oct).
       still: gap === 1 ? 'tomorrow' : gap > 1 && gap < 7 ? 'on ' + search.dateWords(night).split(' ')[0] : 'on ' + search.dateWords(night, tonight),

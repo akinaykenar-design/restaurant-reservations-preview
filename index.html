@@ -3581,7 +3581,12 @@ a.cf-k{background:var(--well);color:var(--ink);}
    says what it is, and the search reads the whole booking. */
 .q-find{position:relative;display:flex;align-items:center;flex:1;min-width:0;}
 .q-find > svg{position:absolute;left:12px;width:18px;height:18px;color:var(--charcoal-soft);pointer-events:none;}
-.q-find > input{flex:1;min-width:0;padding-left:40px;}
+/* THE TEXT STARTS AFTER THE GLASS (daily round, 20 Oct): the plain input
+   rule's padding outranked this one, so "Featherstonehaugh" began under the
+   glass; and on a phone the Guests box was 94 wide beside "0 guests", so it
+   takes the band's row and the count goes under it. */
+.q-find > input:not([type="checkbox"]):not([type="radio"]){flex:1;min-width:0;padding-left:40px;}
+@media (max-width:760px){ .band > .q-find{flex:1 1 100%;} }
 /* §§ ONE LINE (owner, 12 Oct: "i thought it was already like that? i said
    remove the bs text underneath"). Every docket line of the desk's list —
    Upcoming and the line, Seated, Finished, No table, Just opened, Not
@@ -3834,6 +3839,22 @@ body[data-theme="dark"] .vt button.on,body[data-theme="dark"] .tp-make .tp-btn.o
 .dk-row.one.big .dk-tab,.dk-row.one.big .dk-main b,.dk-row.one.big .dk-t{font-size:var(--dc-big);}
 @media (max-width:1100px){ .shell.simple .bl-rows.one > .dk-row.big{--dc-big:var(--fs-num);min-height:88px;} }
 @media (max-width:760px){ .shell.simple .bl-rows.one > .dk-row.big{min-height:80px;} }
+/* §§ Print, after the palette (daily round, 20 Oct). The palette above
+   re-points the grounds and the ink after the print section, so a run sheet
+   printed in dark was a dark slab, and the bar (header.tp, not the old
+   .topbar) and the page head with its Print key went onto the paper. The
+   last word in the file is paper's: only the sheet, black on white —
+   named colours, as everything under IN HAND is tokens or words. */
+@media print{
+  :root,body,body[data-theme="dark"]{
+    --bg:white; --surface:white; --well:white; --qty:white; --tfree:white; --tab-plain:white;
+    --ink:black; --mute:black; --faint:black; --line:silver; --accent:black; --late:black;
+    --lift-1:none; --lift-2:none;
+  }
+  html,body{color-scheme:light;background:white!important;color:black;}
+  .shell.simple .main{background:none;}
+  header.tp,.pg-head{display:none!important;}
+}
 
 .notice.special{display:none;}
 </style>
@@ -6589,13 +6610,17 @@ function mergeTables(plans, list, newId) {
   const spot = (pi, w, h) => {
     const near = own(pi).concat(rooms[pi].tables).filter(t => Number.isFinite(t.x) && Number.isFinite(t.y));
     const clear = (x, y) => !near.concat(rooms[pi].decor).some(t => Number.isFinite(t.x) && Math.abs(t.x - x) < Math.max(w, t.width || w) && Math.abs(t.y - y) < Math.max(h, t.height || h));
+    // A NEW TABLE STANDS WHOLLY IN THE ROOM (daily round, 20 Oct): x and y
+    // are its centre, and only the centre was asked to be under 100, so the
+    // seed room's 11 landed at x 98 with a width of 14, cut off at the edge.
+    const inside = (x, y) => x - w / 2 >= 0 && x + w <= 100 && y - h / 2 >= 0 && y + h / 2 <= 100;
     if (near.length) {
       const xs = near.map(t => t.x), ys = near.map(t => t.y);
       const x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys) + 2 * h;
-      for (let y = y0; y <= y1; y += 1.5 * h) for (let x = x0; x <= x1 + 2 * w; x += 1.5 * w) if (x <= 100 && y <= 100 && clear(x, y)) return { x: +x.toFixed(2), y: +y.toFixed(2) };
+      for (let y = y0; y <= y1; y += 1.5 * h) for (let x = x0; x <= x1 + 2 * w; x += 1.5 * w) if (inside(x, y) && clear(x, y)) return { x: +x.toFixed(2), y: +y.toFixed(2) };
     }
-    for (let row = 0; row < 6; row++) for (let col = 0; col < 6; col++) { const x = 14 + col * 14.5, y = 20 + row * 13; if (clear(x, y)) return { x, y }; }
-    return { x: 50, y: 50 };
+    for (let row = 0; row < 6; row++) for (let col = 0; col < 6; col++) { const x = 14 + col * 14.5, y = 20 + row * 13; if (inside(x, y) && clear(x, y)) return { x, y }; }
+    return { x: Math.max(w / 2, Math.min(100 - w, 50)), y: Math.max(h / 2, Math.min(100 - h / 2, 50)) };
   };
   (Array.isArray(list) ? list : []).slice(0, 200).forEach((t, i) => {
     if (!t) return;
@@ -9614,7 +9639,14 @@ function tableLabeller(tables) {
 function auditWords(text, tables) {
   const ids = new Map();
   for (const t of (tables || [])) if (t && t.id) ids.set(String(t.id), String(t.label));
+  // A DAY AND A RANGE ARE WORDS TOO (daily round, 20 Oct): the notify line
+  // said "for 2026-10-20 19:00–21:00" under lines saying "20 Oct 7:30 PM".
+  // The half of the day is named once when both ends share it.
+  const half = (h) => (+h < 12 ? 'AM' : 'PM');
+  const clock = (h, mi) => `${(+h % 12) || 12}:${mi}`;
   return String(text)
+    .replace(/(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})[–-](\d{2}):(\d{2})/g, (m, y, mo, d, h1, m1, h2, m2) =>
+      `${+d} ${MON[+mo - 1] || mo} ${clock(h1, m1)}${half(h1) === half(h2) ? '' : ' ' + half(h1)}–${clock(h2, m2)} ${half(h2)}`)
     .replace(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/g, (m, y, mo, d, h, mi) =>
       `${+d} ${MON[+mo - 1] || mo} ${(+h % 12) || 12}:${mi} ${+h < 12 ? 'AM' : 'PM'}`)
     .replace(/[A-Za-z0-9_-]+/g, (w) => ids.has(w) ? 'table ' + ids.get(w) : w);
@@ -10165,6 +10197,22 @@ function dateWords(night, day) {
   const [y, m, d] = String(night).split('-').map(Number);
   return WEEKDAYS[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] + ' ' + d + ' ' + MONTHS[m - 1] + (day && String(night).slice(0, 4) !== String(day).slice(0, 4) ? ' ' + y : '');
 }
+// AN HOUR STANDS ON ITS OWN CALENDAR DAY (daily round, 20 Oct): Bondi's
+// Milo at 12:15 AM on Monday is Sunday's night, and "Sun 25 Oct, 12:15 AM"
+// named the hour a day early — in the find, the seated party's history and
+// the audit. On tonight's night the hour alone ("12:15 AM" is tonight's
+// tail); else the calendar day: "tomorrow" only while it is the day after
+// the one on the clock, "today" past midnight for later that day, else its
+// date. `time` is the booking's, `tonight` the trading day, `today` the
+// clock's calendar day, `clock` the hour's words.
+function hourWhen(time, night, tonight, today, clock) {
+  const day = String(time).slice(0, 10), at = clock(String(time).slice(11, 16));
+  if (night === tonight) return at;
+  today = today || tonight;
+  if (day === today) return 'today ' + at;
+  if (dayGap(day, today) === 1) return 'tomorrow ' + at;
+  return dateWords(day, tonight) + ', ' + at;
+}
 function nightWords(night, day) {
   const gap = dayGap(night, day);
   if (gap === 1) return 'tomorrow';
@@ -10458,9 +10506,36 @@ function movedSince(a, kind, r) {
 // first of a person's bookings leads. `asked` is the desk's confirmAsk: the
 // day-before email off the relay (`emailedAt` here is when it went) and the
 // desk's own Text, which is the whole person's.
+// THE DAY IN WORDS, as the guest reads it (daily round, 20 Oct): the relay's
+// mail.whenAt(), held to this by test. On its night "tonight", the night
+// after "tomorrow", else "on Saturday 24 October" — and a booking past
+// midnight is its own calendar day, never the night's: "see you tomorrow at
+// 12:15 AM" sent on Thursday for Saturday's 00:15 brought Nadia on Friday.
+// Past midnight, before the night rolls (`today` after `tonight`), later the
+// same calendar day is "today" or "tonight" and any other day its own name.
+const WD = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MO = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function dayWords(day) {
+  const [y, m, d] = String(day || '').split('-').map(Number);
+  return y && m && d ? WD[new Date(Date.UTC(y, m - 1, d)).getUTCDay()] + ' ' + d + ' ' + MO[m - 1] : '';
+}
+function whenAt(item, tonight, today) {
+  const on = (day) => 'on ' + dayWords(day);
+  if (today && tonight && today !== tonight && item.date) {
+    if (item.night === tonight) return 'tonight';
+    if (item.date === today) return String(item.time || '') < '17:00' ? 'today' : 'tonight';
+    return on(item.date);
+  }
+  if (!item.date || !item.night || item.date === item.night || item.night === tonight) {
+    return item.night === tonight ? 'tonight' : item.night === av.addDays(tonight, 1) ? 'tomorrow' : on(item.night);
+  }
+  return on(item.date);
+}
 function confirmList(rows, settings, now, asked) {
   asked = asked || {};
-  const tomorrow = av.addDays(av.lineNight(settings, now || new Date()), 1);
+  const tonight = av.lineNight(settings, now || new Date()), today = av.localDay(now || new Date());
+  const tomorrow = av.addDays(tonight, 1);
+  const when = (r) => whenAt({ date: av.dayOf(r.time), time: av.hhmmOf(r.time), night: av.nightOfRes(settings, r) }, tonight, today);
   const mine = (rows || []).filter(r => r && ['booked', 'confirmed'].includes(r.status) && r.source !== 'walk-in' && av.nightOfRes(settings, r) === tomorrow)
     .sort((a, b) => String(a.time).localeCompare(String(b.time)));
   const toDo = mine.filter(r => r.status === 'booked'), done = mine.filter(r => r.status === 'confirmed');
@@ -10470,10 +10545,10 @@ function confirmList(rows, settings, now, asked) {
     const group = people.get(personKey(r) || 'id:' + r.id) || [r];
     const a = asked[r.id] || {};
     return {
-      id: r.id, name: r.name || '', partySize: Number(r.partySize) || 1, time: av.hhmmOf(r.time), phone: r.phone || '', status: r.status,
+      id: r.id, name: r.name || '', partySize: Number(r.partySize) || 1, time: av.hhmmOf(r.time), when: when(r), phone: r.phone || '', status: r.status,
       emailedAt: sentFor(a, 'remind', r), textedAt: Math.max(0, ...group.map(x => Number((asked[x.id] || {}).textedAt) || 0)),
       lead: group[0] === r, ids: group.map(x => x.id),
-      also: group.filter(x => x !== r).map(x => ({ time: av.hhmmOf(x.time), partySize: Number(x.partySize) || 1 })),
+      also: group.filter(x => x !== r).map(x => ({ time: av.hhmmOf(x.time), when: when(x), partySize: Number(x.partySize) || 1 })),
     };
   };
   const covers = (list) => list.reduce((n, r) => n + (Number(r.partySize) || 0), 0);
@@ -10493,8 +10568,8 @@ function confirmList(rows, settings, now, asked) {
 // evening (1 to 10 are PM), as a restaurant's messages almost always mean.
 const MSG_NUMS = { one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10, eleven: 11, twelve: 12 };
 const MSG_NUM = '(\\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)';
-const MSG_DAYS = { sun: 0, sunday: 0, mon: 1, monday: 1, tue: 2, tues: 2, tuesday: 2, wed: 3, wednesday: 3, thu: 4, thur: 4, thurs: 4, thursday: 4, fri: 5, friday: 5, sat: 6, saturday: 6 };
-const MSG_DAY = '(sunday|sun|monday|mon|tuesday|tues|tue|wednesday|wed|thursday|thurs|thur|thu|friday|fri|saturday|sat)';
+const MSG_DAYS = { sun: 0, sunday: 0, mon: 1, monday: 1, tue: 2, tues: 2, tuesday: 2, wed: 3, weds: 3, wednesday: 3, thu: 4, thur: 4, thurs: 4, thursday: 4, fri: 5, friday: 5, sat: 6, saturday: 6 };
+const MSG_DAY = '(sunday|sun|monday|mon|tuesday|tues|tue|wednesday|weds|wed|thursday|thurs|thur|thu|friday|fri|saturday|sat)';
 const MSG_MONTH = '(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sept|sep|oct|nov|dec)';
 const MSG_NOTES = [
   ['birthday', /\bbirthday\b|\bbday\b/i], ['anniversary', /\banniversary\b/i], ['engagement', /\bengage(?:ment|d)\b/i],
@@ -10502,7 +10577,10 @@ const MSG_NOTES = [
   ['high chair', /\bhigh ?chairs?\b/i], ['pram', /\bpram\b|\bstroller\b/i], ['wheelchair', /\bwheel ?chair\b/i],
   ['gluten free', /\bgluten[- ]free\b/i], ['coeliac', /\bcoeliac\b|\bceliac\b/i], ['vegan', /\bvegan\b/i], ['vegetarian', /\bvegetarian\b/i], ['dairy free', /\bdairy[- ]free\b/i],
 ];
-const MSG_STOP = new Set(['hi', 'hello', 'hey', 'dear', 'table', 'booking', 'thanks', 'thank', 'cheers', 'regards', 'please', 'i', 'my', 'we', 'the', 'a', 'and', 'tonight', 'today', 'tomorrow', 'this', 'next', 'for', 'at', 'on', 'yes', 'no', 'ok', 'ps']
+const MSG_STOP = new Set(['hi', 'hello', 'hey', 'dear', 'table', 'booking', 'thanks', 'thank', 'cheers', 'regards', 'please', 'i', 'my', 'we', 'the', 'a', 'and', 'tonight', 'today', 'tomorrow', 'tmrw', 'tmr', 'this', 'next', 'for', 'at', 'on', 'yes', 'no', 'ok', 'ps']
+  // A feast, a meal or a day's name is not a person's (daily round, 20 Oct:
+  // "Christmas Eve" and "Mother Day" were pasted as the name).
+  .concat(['christmas', 'eve', 'xmas', 'mother', 'mothers', 'father', 'fathers', 'day', 'valentine', 'valentines', 'easter', 'new', 'year', 'years', 'lunch', 'dinner', 'breakfast', 'brunch', 'supper'])
   .concat(Object.keys(MSG_DAYS), ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december', 'jan', 'feb', 'mar', 'apr', 'jun', 'jul', 'aug', 'sep', 'sept', 'oct', 'nov', 'dec']));
 function msgNum(w) { const n = /^\d+$/.test(w) ? parseInt(w, 10) : MSG_NUMS[String(w).toLowerCase()]; return n > 0 && n <= 50 ? n : 0; }
 function msgMonth(w) { return ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].indexOf(String(w).toLowerCase().slice(0, 3)); }
@@ -10514,7 +10592,7 @@ function readMessage(text, today) {
   const [ty, tm, td] = today.split('-').map(Number);
   const base = new Date(ty, tm - 1, td);
   let rest = raw;
-  const take = (re, fn) => { const m = rest.match(re); if (!m) return false; const v = fn(m); if (v === undefined || v === null || v === '') return false; rest = rest.replace(m[0], ' '); return v; };
+  const take = (re, fn) => { const m = rest.match(re); if (!m) return false; const v = fn(m); if (v === undefined || v === null || v === '') return false; rest = rest.replace(m[0], ' ¦ '); return v; };
   // Who: the email, then the phone (an Australian one, however spaced).
   const em = take(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/, (m) => m[0]);
   if (em) out.email = em;
@@ -10536,7 +10614,8 @@ function readMessage(text, today) {
   const after = (d) => (d < base ? null : av.localDay(d));
   const dayNum = (n) => { let d = msgYmd(ty, tm - 1, n); if (d && d < today) d = msgYmd(ty, tm, n) || msgYmd(ty, tm + 1, n); return d || null; };
   const day = take(/\b(?:tonight|today)\b/i, () => today)
-    || take(/\btomorrow\b/i, () => av.addDays(today, 1))
+    // "tmrw", "tmr" and "Weds" are how a text says it (daily round, 20 Oct).
+    || take(/\b(?:tomorrow|tmrw|tmr)\b/i, () => av.addDays(today, 1))
     || take(/\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/, (m) => { const y = m[3] ? (m[3].length === 2 ? 2000 + parseInt(m[3], 10) : parseInt(m[3], 10)) : ty; let d = msgYmd(y, parseInt(m[2], 10) - 1, parseInt(m[1], 10)); if (d && !m[3] && d < today) d = msgYmd(y + 1, parseInt(m[2], 10) - 1, parseInt(m[1], 10)); return d || null; })
     || take(new RegExp('\\b' + MSG_MONTH + '\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\b', 'i'), (m) => { let d = msgYmd(ty, msgMonth(m[1]), parseInt(m[2], 10)); if (d && d < today) d = msgYmd(ty + 1, msgMonth(m[1]), parseInt(m[2], 10)); return d || null; })
     || take(new RegExp('\\b(\\d{1,2})(?:st|nd|rd|th)?\\s+(?:of\\s+)?' + MSG_MONTH + '\\b', 'i'), (m) => { let d = msgYmd(ty, msgMonth(m[2]), parseInt(m[1], 10)); if (d && d < today) d = msgYmd(ty + 1, msgMonth(m[2]), parseInt(m[1], 10)); return d || null; })
@@ -10581,16 +10660,19 @@ function readMessage(text, today) {
   let nm = '';
   for (const l of leads) { const m = raw.match(new RegExp('\\b' + l + '\\s+' + NAME)); if (m && (nm = okName(m[1]))) break; }
   if (!nm) { const m = raw.match(new RegExp("\\b(?:[Tt]hanks|[Tt]hank you|[Cc]heers|[Rr]egards|[Kk]ind regards|[Mm]any thanks|[Tt]hx|[Tt]a)[,!.]?\\s+" + NAME)); if (m) nm = okName(m[1]); }
+  // A part read out leaves a mark no name runs across, and the LAST name
+  // standing is the one they signed with (daily round, 20 Oct: "Dinner for
+  // 4 Weds" was "Dinner   Weds"; "Christmas Eve, 7pm. Ann Lee" lost Ann Lee).
   if (!nm) {
     const re = new RegExp("\\b([A-Z][a-z'’-]+(?:" + MORE + "){1,4})\\b", 'g');
-    let m; while (!nm && (m = re.exec(rest))) { const w = m[1].split(/\s+/); if (w.length >= 2 && w.every(x => !MSG_STOP.has(x.toLowerCase()))) nm = m[1]; }
+    let m; while ((m = re.exec(rest))) { const w = m[1].split(/\s+/); if (w.length >= 2 && w.every(x => !MSG_STOP.has(x.toLowerCase().replace(/[’']s$/, '')))) nm = m[1]; }
   }
   if (nm) out.name = nm.slice(0, 60);
   return out;
 }
 
 module.exports = {
-  confirmList, sentFor, movedSince, SENT_KEYS, SIZE_KEYS,
+  confirmList, whenAt, hourWhen, sentFor, movedSince, SENT_KEYS, SIZE_KEYS,
   personKey, tillCustomerFor, tillOnly,
   fold, digits, prepareQuery, matches, relevanceSort, searchReservations,
   bookingHit, primaryHit, whenWords, queryWords, bookingText, STATUS_WORDS, SOURCE_WORDS,
@@ -15072,8 +15154,9 @@ app.get('/api/group/find', async (req, res) => {
       tonight: gap === 0,
       // The night in the desk's own words, its half of the day said: "7:45
       // PM" tonight (a lunch is never "tonight 12:30"), "tomorrow 12:00 PM",
-      // "Sun 11 Oct, 12:00 PM" (review, 10 Oct).
-      when: gap === 0 ? twelve(av.hhmmOf(r.time)) : gap === 1 ? 'tomorrow ' + twelve(av.hhmmOf(r.time)) : search.dateWords(night, tonight) + ', ' + twelve(av.hhmmOf(r.time)),
+      // "Sun 11 Oct, 12:00 PM" (review, 10 Oct) — the hour on its own
+      // calendar day, never the night's (daily round, 20 Oct).
+      when: search.hourWhen(r.time, night, tonight, av.localDay(new Date()), twelve),
       // How the message says the night they keep over there: a week out is
       // its date, never tonight's own weekday (daily round, 14 Oct).
       still: gap === 1 ? 'tomorrow' : gap > 1 && gap < 7 ? 'on ' + search.dateWords(night).split(' ')[0] : 'on ' + search.dateWords(night, tonight),
@@ -20210,8 +20293,11 @@ function nameForms(n) {
   out.push(w[0][0] + '. ' + last, last);
   return out;
 }
+// AND ON EVERY PAGE THAT LISTS PEOPLE (daily round, 20 Oct): Confirm
+// tomorrow's rows stand outside the list, and the Waitlist and Notify names
+// are their own, so "Maximilian Wolf…" was cut mid-surname on a phone.
 function fitNames(root) {
-  const els = [...(root || document).querySelectorAll('.desk-col .td-nm, .td-row .td-nm')];
+  const els = [...(root || document).querySelectorAll('.desk-col .td-nm, .td-row .td-nm, .cf-row .td-nm, .wl-name')];
   els.forEach(el => { if (el.dataset.full == null) el.dataset.full = el.textContent; el.textContent = el.dataset.full; });
   for (let step = 1; step < 4; step++) {
     const over = els.filter(el => el.scrollWidth > el.clientWidth + 1);
@@ -20713,14 +20799,21 @@ function textOpened(name, size, time, when, venue) {
 // The day-before email already sent says so ("Emailed 10:02 AM") and still
 // offers Text. Confirmed ones fold under a quiet head. The list is the
 // server's (search.confirmList); this only draws it.
+// Each booking's day is the server's (search.whenAt(), the email's rule):
+// "tomorrow" was written into every text, so Saturday's 12:15 AM read as
+// Friday's and, sent past midnight, Friday's dinner as Saturday's (daily
+// round, 20 Oct). A day is said once for the bookings that share it.
 function textConfirm(name, list, venue) {
-  const at = list.map(b => `at ${fmtHHMM(b.time)}, a table for ${b.partySize}`).join(', and ');
-  return `Hi ${firstName(name)}, see you tomorrow ${at}${venue ? ' at ' + venue : ''}. Reply YES to confirm.`;
+  const at = list.map((b, i) => {
+    const w = b.when || 'tomorrow', said = i && (list[i - 1].when || 'tomorrow') === w;
+    return `${said ? '' : w + ' '}at ${fmtHHMM(b.time)}, a table for ${b.partySize}`;
+  }).join(', and ');
+  return `Hi ${firstName(name)}, see you ${at}${venue ? ' at ' + venue : ''}. Reply YES to confirm.`;
 }
 function clockAt(ms) { return new Date(ms).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }); }
 const shortClock = (hhmm) => fmtHHMM(hhmm).replace(/\s?[AP]M$/i, '');
 function cfRow(r, venue) {
-  const all = [{ time: r.time, partySize: r.partySize }].concat(r.also || []).sort((a, b) => a.time.localeCompare(b.time));
+  const all = [{ time: r.time, when: r.when, partySize: r.partySize }].concat(r.also || []).sort((a, b) => a.time.localeCompare(b.time));
   // The other booking's time stands first and never shrinks; "booked" goes
   // on a phone, and what was asked takes the ellipsis (daily round, 12 Oct:
   // "Also booked 8:…" at 320).
@@ -21451,8 +21544,10 @@ function bkRow(page, label, value, opts) {
 // Late is the floor's own word for it: not here, not sat, on the trading
 // day, and DESK_LATE_AFTER past its time. Read from the STORED booking, not
 // the popup's copy, so a time being edited cannot make it say otherwise.
+// The night's tail is tonight's: a 00:15 booking on Tuesday's night that was
+// late had no late line (daily round, 20 Oct).
 function lateBy(r, now) {
-  if (!r || !isLive(r) || isSat(r) || isHere(r) || dayOf(r.time) !== tradingDay()) return 0;
+  if (!r || !isLive(r) || isSat(r) || isHere(r) || !onNightOf(r, tradingDay())) return 0;
   const m = Math.floor((now - new Date(r.time).getTime()) / 60000);
   return m >= DESK_LATE_AFTER ? m : 0;
 }
@@ -21535,8 +21630,12 @@ function renderBookingModal() {
 // somebody with it; tags and a note share a line, and the note only exists
 // if there is one; phone and email share a line. Where it came from is the
 // small print at the foot.
+// The booking page's "tonight" is the NIGHT's, its tail too: a walk-in sat
+// at 00:20 on Tuesday's night opened as "Tomorrow" with no Bill, Paid or
+// Left and no other steps (daily round, 20 Oct).
+function bkOnTonight(b) { return onNightOf({ time: b.date + 'T' + (b.time || '') }, tradingDay()); }
 function bkeStage(r, b) {
-  const tonight = b.date === tradingDay(), now = Date.now();
+  const tonight = bkOnTonight(b), now = Date.now();
   if (!r || !tonight || !isLive(r)) return esc(statusLabel(b.status));
   const part = r.partCount ? `${r.partCount} of ${r.partySize}` : 'Some';
   const since = r.arrivedAt ? ' · ' + waitWords(Math.max(0, Math.round((now - r.arrivedAt) / 60000))) : '';
@@ -21575,13 +21674,13 @@ function alsoSteps(r, late) {
 }
 function renderBookingEdit(m) {
   const b = m.b, r = (state.reservations || []).find(x => x.id === b.id) || null;
-  const tonight = b.date === tradingDay(), now = Date.now();
+  const tonight = bkOnTonight(b), now = Date.now();
   const held = tablesFor(b), tables = held.map(tableName).join(' + ');
   // Its sitting is one range, its half of the day said once (fmtRange).
   const end = b.time ? fromMin(toMin(b.time) + durationOf(b)) : '';
   const late = r ? lateBy(r, now) : 0;
   const k = (page, txt, cls) => `<button class="${cls || ''}" data-act="bk-page" data-val="${page}">${txt}</button>`;
-  const sent = `<div class="bke-sent">${k('party', `${b.partySize} ${b.partySize === 1 ? 'person' : 'people'}`)}${k('when', esc(bkqDayWord(b.date)))}${k('when', b.time ? esc(fmtRange(b.time, end)) : 'No time', 'mono')}${k('table', tables ? (held.length > 1 ? 'Tables ' : 'Table ') + esc(tables) : 'No table', held.length ? '' : 'none')}</div>`;
+  const sent = `<div class="bke-sent">${k('party', `${b.partySize} ${b.partySize === 1 ? 'person' : 'people'}`)}${k('when', esc(bkqDayWord(tonight ? tradingDay() : b.date)))}${k('when', b.time ? esc(fmtRange(b.time, end)) : 'No time', 'mono')}${k('table', tables ? (held.length > 1 ? 'Tables ' : 'Table ') + esc(tables) : 'No table', held.length ? '' : 'none')}</div>`;
   // The next step — the same one the row's tab offers, and only while
   // nothing on the page is unsaved: a step that closed the page would drop
   // what was typed into it. A late party's two keys are the late line's.
@@ -22208,7 +22307,7 @@ function openBooking(r, preset, opts) {
   // offered, lit nowhere and booked anyway (daily round, 29 Sep). Left empty,
   // loadAvailability() picks the first time the day actually has open ahead
   // of the clock, or none.
-  state.modal = { kind: 'booking', page: '', b, was: r ? bookingPayload(b) : null, slots: null, free: null, conflicts: (r && r.conflicts) || [], error: '', notifyId: (opts && opts.notifyId) || null, from: (opts && opts.from) || null, spend: null, openedAt: Date.now() };
+  state.modal = { kind: 'booking', page: '', b, was: r ? bookingPayload(b) : null, slots: null, free: null, conflicts: (r && isLive(r) && r.conflicts) || [], error: '', notifyId: (opts && opts.notifyId) || null, from: (opts && opts.from) || null, spend: null, openedAt: Date.now() };
   render();
   loadAvailability(true);
   // What is on their table. ONLY here: the ten-second poll never asks, so a
@@ -22259,8 +22358,10 @@ async function loadAvailability(withSlots) {
       }
     }
     if (free) m.free = free;
-    // Keep conflicts honest as the desk moves the booking around.
-    if (free && b.tableId) {
+    // Keep conflicts honest as the desk moves the booking around. A booking
+    // that is over holds no table, so it shares none: a cancelled Sophie Lee
+    // warned of Hana Patel on 1 (daily round, 20 Oct).
+    if (free && b.tableId && isLive(b)) {
       // EVERY table the booking stands on, not its first: a clash on the
       // second or third table of a join was never warned. And the line names
       // who is there and WHEN, where the desk can see them — it said
@@ -22513,7 +22614,10 @@ async function flushSaves() {
   try { for (let i = 0; i < groups.length; i++) {
     const g = groups[i], rest = groups.slice(i + 1);
     try {
-      if (g === 'tables') { const r = await put('/api/tables', { tables: state.tables }); if (!_savePending.tables) state.tables = r.tables; continue; }
+      // THE EDITOR DRAWS WHAT WAS SAVED (daily round, 20 Oct): a new table is
+      // placed by the server, so the room comes back with the list — Add a
+      // table drew nothing new and the rest stacked down the left edge.
+      if (g === 'tables') { const r = await put('/api/tables', { tables: state.tables }); if (!_savePending.tables) { state.tables = r.tables; try { const t = await api('/api/tables'); if (!_savePending.tables) { state.tables = t.tables; state.floorPlans = t.floorPlans; } } catch (e3) {} } continue; }
       if (g === 'setmenus') { const r = await put('/api/set-menus', { menus: state.setMenus }); if (!_savePending.setmenus) state.setMenus = r.menus; continue; }
       const s = state.settings, body = {};
       for (const k of saveKeys(g)) body[k] = s[k];
@@ -22844,10 +22948,14 @@ document.addEventListener('click', async (ev) => {
         const was = r.status, back = statusUndoBody(r);
         state.modal = null; render();
         try {
-          await put('/api/reservations/' + id, { status: val });
+          const out = await put('/api/reservations/' + id, { status: val });
           await loadView();
           if (!await greet(id, was, val)) {
-            toastUndo(`${r.name || 'Booking'} · ${statusLabel(val)}`, async () => { await put('/api/reservations/' + id, back); await loadView(); });
+            // A clash the PUT answers with is SAID, as the seat says it:
+            // Back on the book put Sophie Lee onto a table two parties
+            // held, silently (daily round, 20 Oct).
+            const clash = (out && out.conflicts) || [];
+            toastUndo(`${r.name || 'Booking'} · ${statusLabel(val)}` + (clash.length ? ' · shares it with ' + conflictWho(clash) : ''), async () => { await put('/api/reservations/' + id, back); await loadView(); });
           }
           render();
         } catch (e) { toastBad(e.message); }
@@ -23583,7 +23691,20 @@ document.addEventListener('click', async (ev) => {
       case 'set-menu-add': state.setMenus.push({ id: 'sm' + Date.now().toString(36), name: 'Set menu ' + (state.setMenus.length + 1) }); render(); queueSave('setmenus'); break;
       case 'set-menu-remove': { const i = parseInt(el.dataset.i), gone = state.setMenus.splice(i, 1)[0]; render(); queueSave('setmenus'); if (gone) toastUndo(`${gone.name || 'Set menu'} removed`, async () => { state.setMenus.splice(Math.min(i, state.setMenus.length), 0, gone); render(); queueSave('setmenus'); }); break; }
       case 'table-add': state.tables.push({ id: 't' + Date.now(), label: nextTableLabel(state.tables), seats: 2 }); render(); queueSave('tables'); break;
-      case 'table-remove': state.tables.splice(parseInt(el.dataset.i), 1); render(); queueSave('tables'); break;
+      // A TABLE REMOVED SAYS SO, WITH UNDO (daily round, 20 Oct), as every
+      // other x in Settings does: it went with no word, and adding it back
+      // was a new table at a new spot that no combination named. The Undo
+      // puts the same table back where it stood (its id and its geometry).
+      case 'table-remove': {
+        const i = parseInt(el.dataset.i), gone = state.tables.splice(i, 1)[0]; render(); queueSave('tables');
+        if (gone) {
+          const drawn = [].concat(...(state.floorPlans || []).map(fp => fp.tables || [])).find(t => t && t.id === gone.id) || {};
+          const back = Object.assign({}, gone);
+          for (const k of ['x', 'y', 'width', 'height', 'rotation', 'shape']) if (drawn[k] !== undefined && drawn[k] !== null) back[k] = drawn[k];
+          toastUndo(`Table ${gone.label} removed`, async () => { state.tables.splice(Math.min(i, state.tables.length), 0, back); render(); queueSave('tables'); });
+        }
+        break;
+      }
     }
   } catch (e) { toastBad(e.message || 'Something went wrong', 3500); }
 });
